@@ -45,6 +45,7 @@ function stripDataBlock(html) {
   return html.replace(/<script type="application\/json" id="nthview-data">[\s\S]*?<\/script>/, "");
 }
 var NAME_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+var OS_JUNK = /^(\.DS_Store|Thumbs\.db|desktop\.ini|\._.*)$/;
 
 var errors = [];
 function error(where, message) { errors.push(where + ": " + message); }
@@ -120,6 +121,7 @@ if (fs.existsSync(skillsDir)) {
       }
       // only the fixed layout is allowed inside a view folder
       fs.readdirSync(full).forEach(function (entry) {
+        if (OS_JUNK.test(entry)) return; // Finder/Explorer droppings, ignored by git too
         if (["SKILL.md", "assets", "scripts", "references", "examples"].indexOf(entry) === -1) {
           error(where, "unexpected entry \"" + entry + "\" (only SKILL.md, assets/, scripts/, references/, examples/ are allowed)");
         }
