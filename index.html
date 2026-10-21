@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>NthView — Gallery</title>
+  <style>
+    :root {
+      --nv-bg: #fff; --nv-fg: #111; --nv-muted: #555; --nv-accent: #2563eb;
+      --nv-border: #ddd; --nv-card: #fafafa; --nv-error: #b91c1c;
+      color-scheme: light dark;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --nv-bg: #111; --nv-fg: #eee; --nv-muted: #aaa; --nv-accent: #60a5fa;
+              --nv-border: #333; --nv-card: #1a1a1a; --nv-error: #f87171; }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--nv-bg); color: var(--nv-fg);
+           font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    :focus-visible { outline: 3px solid var(--nv-accent); outline-offset: 2px; }
+    a { color: var(--nv-accent); }
+    main { max-width: 64rem; margin: 0 auto; padding: 1rem; }
+    header { margin: 2rem 0 1.5rem; }
+    header h1 { margin: 0 0 .25rem; font-size: 2rem; }
+    header p { margin: 0; color: var(--nv-muted); }
+    .nv-search { display: block; width: 100%; margin: 1rem 0 1.5rem; padding: .6rem .8rem;
+                 font: inherit; color: inherit; background: var(--nv-card);
+                 border: 1px solid var(--nv-border); border-radius: .5rem; }
+    .nv-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); list-style: none; padding: 0; margin: 0; }
+    .nv-card { display: flex; flex-direction: column; gap: .5rem; background: var(--nv-card);
+               border: 1px solid var(--nv-border); border-radius: .75rem; padding: 1rem; }
+    .nv-card h2 { margin: 0; font-size: 1.2rem; }
+    .nv-card .nv-name { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .85rem; color: var(--nv-muted); }
+    .nv-card p { margin: 0; flex: 1; }
+    .nv-kind { align-self: flex-start; font-size: .75rem; text-transform: uppercase; letter-spacing: .04em;
+               color: var(--nv-muted); border: 1px solid var(--nv-border); border-radius: 999px; padding: .1rem .5rem; }
+    .nv-actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .25rem; }
+    .nv-actions a { display: inline-block; padding: .45rem .8rem; border-radius: .5rem; text-decoration: none;
+                    border: 1px solid var(--nv-accent); color: var(--nv-accent); }
+    .nv-actions a.nv-primary { background: var(--nv-accent); color: var(--nv-bg); }
+    .nv-empty, .nv-error { border: 1px dashed var(--nv-border); border-radius: .75rem; padding: 1.5rem; color: var(--nv-muted); }
+    .nv-error { border-style: solid; border-color: var(--nv-error); color: var(--nv-error); }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    footer { margin: 3rem 0 1rem; color: var(--nv-muted); font-size: .9rem; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>NthView</h1>
+      <p>Learn anything, in the nth view that suits you. One concept, many dimensions, one view at a time.</p>
+    </header>
+
+    <label for="nv-search" class="visually-hidden" style="position:absolute;left:-9999px">Filter views</label>
+    <input id="nv-search" class="nv-search" type="search" placeholder="Filter views…" autocomplete="off">
+
+    <ul id="nv-grid" class="nv-grid" aria-live="polite"></ul>
+    <div id="nv-status"></div>
+
+    <footer>
+      Each card is a skill in <code>skills/</code>. Add a view, then run <code>node scripts/build-registry.js</code> to register it here.
+      See <code>AGENTS.md</code> for the rules.
+    </footer>
+  </main>
+
+  <script src="registry.js"></script>
+  <script>
+    (function () {
+      var grid = document.getElementById("nv-grid");
+      var status = document.getElementById("nv-status");
+      var search = document.getElementById("nv-search");
+
+      function el(tag, attrs, children) {
+        var n = document.createElement(tag);
+        Object.keys(attrs || {}).forEach(function (k) {
+          if (k === "text") n.textContent = attrs[k]; else n.setAttribute(k, attrs[k]);
+        });
+        (children || []).forEach(function (c) { n.appendChild(c); });
+        return n;
+      }
+
+      var registry = window.NthViewRegistry;
+      if (!registry || !Array.isArray(registry.skills)) {
+        status.appendChild(el("div", { class: "nv-error", role: "alert", text:
+          "registry.js could not be loaded. Run: node scripts/build-registry.js" }));
+        return;
+      }
+      var skills = registry.skills.slice().sort(function (a, b) {
+        if (a.kind !== b.kind) return a.kind === "view" ? -1 : 1;
+        return a.name < b.name ? -1 : 1;
+      });
+
+      function card(s) {
+        var actions = [];
+        if (s.demo) actions.push(el("a", { class: "nv-primary", href: s.demo, text: "Open demo" }));
+        actions.push(el("a", { href: s.skill, text: "Skill file" }));
+        if (s.schema) actions.push(el("a", { href: s.schema, text: "Schema" }));
+        return el("li", { class: "nv-card", "data-search": (s.name + " " + s.title + " " + s.description).toLowerCase() }, [
+          el("span", { class: "nv-kind", text: s.kind }),
+          el("h2", { text: s.title }),
+          el("span", { class: "nv-name", text: s.name }),
+          el("p", { text: s.description }),
+          el("div", { class: "nv-actions" }, actions)
+        ]);
+      }
+
+      if (!skills.length) {
+        status.appendChild(el("div", { class: "nv-empty", text:
+          "No views yet. The first view will appear here once it is added under skills/ and registered." }));
+        search.disabled = true;
+        return;
+      }
+      skills.forEach(function (s) { grid.appendChild(card(s)); });
+
+      search.addEventListener("input", function () {
+        var q = search.value.trim().toLowerCase();
+        var shown = 0;
+        Array.prototype.forEach.call(grid.children, function (li) {
+          var hit = !q || li.getAttribute("data-search").indexOf(q) !== -1;
+          li.hidden = !hit; if (hit) shown++;
+        });
+        status.textContent = q && !shown ? "No views match “" + search.value + "”." : "";
+      });
+    })();
+  </script>
+</body>
+</html>
