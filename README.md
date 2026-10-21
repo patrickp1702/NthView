@@ -15,3 +15,9 @@ one that works for you.
 ## Views
 
 One concept, many dimensions, one view at a time.
+
+- **Island Quest** (`skills/nthview-island-quest`) — a playable 3D island
+  adventure: one lesson per island, hands-on activities, a quiz each, then a
+  final exam and report card. Demo: `skills/nthview-island-quest/examples/example.html`.
+
+Open `index.html` for the gallery of all views.
