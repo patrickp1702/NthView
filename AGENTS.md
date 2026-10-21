@@ -21,8 +21,10 @@ commit, and then update every existing view to match.
    `{ path, message }`. It never throws.
 5. `build` calls `validate` first and renders the standard error panel on
    invalid data. It never renders a half-broken view.
-6. No external dependencies, network calls, CDNs, fonts or linked files.
-   Plain JavaScript and injected CSS only. Works offline.
+6. **Single file.** The output depends on no sibling or local file: the
+   view's own code is inlined. Third-party libraries and fonts may be loaded
+   from the allowed CDNs (§5.4), pinned to a version and declared in
+   `NthView.libs`. Nothing else is fetched at runtime.
 7. Every data object carries an integer `schemaVersion`.
 8. The deliverable is **one** standalone HTML file built with the exact
    template in §6. Scripts are inlined in the order validate.js, view.js,
@@ -78,7 +80,8 @@ NthView/
 ├── index.html                     # gallery page: lists every skill (§7)
 ├── registry.js                    # GENERATED list the gallery reads — never edit
 ├── scripts/
-│   └── build-registry.js          # scans skills/, checks §3, writes registry.js
+│   ├── build-registry.js          # scans skills/, checks §3, writes registry.js
+│   └── build-html.js              # assembles a standalone output file exactly as §6
 ├── skills/
 │   ├── nthview-<view>/            # one folder per view (see §3)
 │   │   ├── SKILL.md
@@ -270,7 +273,8 @@ Rules:
 - `title` (string, required) is always present at the root so every view has
   a page heading.
 - The example must pass the validator with zero errors and is the exact data
-  used in `examples/example.html`.
+  used in `examples/example.html`. A long example is fine: `scripts/build-html.js
+  --example` reads it from this file, so it stays the single copy.
 - The validator implements the rules written here and nothing more. If the
   validator needs a rule, add it to this file first.
 
@@ -489,14 +493,48 @@ Rules the skeleton enforces and every view must keep:
    so light and dark mode share one rule set.
 5. DOM is built with `el()` and `textContent`, never with `innerHTML` from
    data, so content cannot inject markup.
-6. No `fetch`, `XMLHttpRequest`, `import`, `<link>`, `<script src>`,
-   `@import`, `url(` or `@font-face`.
+6. No `fetch`, `XMLHttpRequest`, `import`, and no local resources
+   (`src="./x.js"`, `href="x.css"`, `url(./img.png)`). The only external
+   resources are the CDN entries declared in `NthView.libs` (§5.4).
 7. Responsive from 320px up; no horizontal page scroll.
 8. Keyboard: every interactive element is a real `button`, `a`, `input` or
    has `tabindex="0"` plus a key handler; visible focus comes from the shared
    `:focus-visible` rule; correct roles and `aria-*` attributes.
 9. Re-running `build()` replaces the previous render.
 10. ES2018 or lower, no module syntax, no build step.
+
+### 5.4 External libraries (CDN)
+
+A view that genuinely needs a library (3D, charts, maths typesetting) or a
+web font may load it from a CDN. The output stays one shareable file; the
+browser fetches the library when the file opens. Declare every such resource
+on the global, directly after `NthView.build` is defined:
+
+```js
+NthView.libs = [
+  { kind: "script", src: "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js",
+    global: "THREE", name: "three.js r128" },
+  { kind: "style", href: "https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible&display=swap",
+    name: "Google Fonts" }
+];
+```
+
+Rules:
+
+1. Allowed hosts, and no others: `cdnjs.cloudflare.com`, `cdn.jsdelivr.net`,
+   `unpkg.com`, `fonts.googleapis.com`, `fonts.gstatic.com`. Always `https`.
+2. Pin the version in the URL (`three.js/r128/`, `chart.js/4.4.1/`). Never
+   `latest`.
+3. For every `script` entry, `build()` checks that `root[global]` exists and,
+   if not, renders the standard error panel with one error at `$`:
+   `"<name> did not load from <src>. This file needs internet access the
+   first time it opens."` It never throws and never renders a broken scene.
+4. The HTML template (§6) carries one tag per entry, before the inlined
+   scripts. `scripts/build-html.js` writes them from `NthView.libs`.
+5. `SKILL.md` names each library and states that the file needs internet
+   access to load it.
+6. Prefer no library when plain JavaScript and CSS do the job. A view with
+   no libraries omits `NthView.libs` entirely.
 
 ---
 
@@ -516,6 +554,10 @@ four placeholders filled in. No other structure is permitted.
 </head>
 <body>
   <div id="app"></div>
+
+{{one tag per entry in NthView.libs, in order, or nothing when the view has none:
+  <link rel="stylesheet" href="…">   for kind "style"
+  <script src="…"></script>          for kind "script"}}
 
   <script type="application/json" id="nthview-data">
 {{serialised JSON, with every "<" replaced by "\u003c"}}
@@ -548,9 +590,22 @@ Rules:
 3. The two scripts are copied **verbatim** and in that order. Never minify,
    edit or link them.
 4. The bootstrap script is exactly the three lines shown.
-5. No `http://`, `https://`, `src=`, `href=`, `@import` or `url(` anywhere.
+5. The only `src=`, `href=` and `url(` values are the CDN entries from
+   `NthView.libs`, `data:` URIs, or hyperlinks the view renders from the
+   data. Never a relative or local path: the file must work when it is the
+   only file on the machine.
 6. Output file name: `<concept-slug>-<view>.html`, lowercase kebab-case.
 7. One file, one view.
+
+The repo tool assembles this template exactly, including the library tags
+and the `\u003c` escaping, and is the recommended way to build any output:
+
+```bash
+node scripts/build-html.js skills/nthview-<view> data.json out.html
+```
+
+Pass `--example` instead of `data.json` to use the complete example from the
+view's `references/schema.md`.
 
 ---
 
@@ -605,8 +660,8 @@ skills/<name>/SKILL.md  ──(frontmatter name + description)──▶  scripts
   parser reads one `key: value` line per field; no YAML folding).
 - Every view must have `examples/example.html`, because the gallery's
   "Open demo" link points at it; the script refuses a view without one.
-- `index.html` follows the same standards as a view: no external resources,
-  light and dark mode, responsive, keyboard accessible, content rendered with
+- `index.html` follows the same standards as a view: no external resources
+  (it needs none), light and dark mode, responsive, keyboard accessible, content rendered with
   `textContent` so a description can never inject markup.
 
 ---
@@ -634,11 +689,11 @@ when the time comes; touch nothing else.
 {
   "name": "nthview",
   "version": "0.1.0",
-  "description": "Learn anything, in the nth view that suits you. Skills that turn any concept into one standalone, offline HTML view.",
+  "description": "Learn anything, in the nth view that suits you. Skills that turn any concept into one shareable, single-file HTML view.",
   "author": { "name": "NthView contributors" },
   "repository": "https://github.com/<owner>/NthView",
   "license": "<SPDX id>",
-  "keywords": ["learning", "education", "skills", "html", "offline"]
+  "keywords": ["learning", "education", "skills", "html", "single-file"]
 }
 ```
 
@@ -717,8 +772,10 @@ Copy into the task; every box must be ticked.
 **view.js (§5.3)**
 - [ ] Built from the skeleton; only header, `CSS` and `render` changed.
 - [ ] Error panel verified by feeding invalid data.
-- [ ] Zero hits for `fetch(`, `XMLHttpRequest`, `import`, `url(`,
-      `@import`, `@font-face`, `http://`, `https://`.
+- [ ] No `fetch(`, `XMLHttpRequest` or `import`; every URL is an allowed
+      CDN host declared in `NthView.libs` (§5.4), version pinned.
+- [ ] With a CDN library blocked, the page shows the error panel, not a
+      blank screen.
 - [ ] Checked at 320px and desktop width; both colour schemes; keyboard-only.
 - [ ] Re-running `build()` replaces the render.
 
@@ -748,10 +805,11 @@ node skills/nthview-<view>/scripts/validate.js /path/to/data.json
 ```
 
 ```bash
-grep -nE 'https?://|src=|href=|@import|url\(|@font-face|fetch\(|XMLHttpRequest|\bimport\b' skills/nthview-<view>/assets/view.js skills/nthview-<view>/examples/example.html
+node scripts/build-registry.js --check
 ```
 
-The last command must print nothing.
+The first command checks the folder structure, forbidden calls and every URL
+against the allowed CDN hosts, and must print no errors.
 
 ---
 
@@ -769,11 +827,14 @@ The last command must print nothing.
 - JSON keys `camelCase`; ids inside data are lowercase kebab-case strings.
 - Output file: `<concept-slug>-<view>.html`.
 
-### No external dependencies
-- No npm packages, CDNs, fonts, icon libraries, images by URL, analytics.
-- Node is used only to run `validate.js`; it is not a dependency of the
-  output. No `package.json` in the repo.
-- Draw icons and diagrams with inline SVG built via `el()` or use Unicode.
+### Dependencies
+- No npm packages, bundlers or build steps. No `package.json` in the repo.
+- CDN libraries and fonts only as §5.4 allows: allowed hosts, pinned
+  versions, declared in `NthView.libs`, checked in `build()`.
+- No analytics, tracking, or data fetched at runtime. The JSON is embedded.
+- Node is used only to run the repo scripts; it is not a dependency of the
+  output.
+- Prefer inline SVG built via `el()` or Unicode over images and icon fonts.
 
 ### Error-message style
 - Format: `path: message`. Path from the root with `.` and `[n]`; root is `$`.
@@ -817,5 +878,5 @@ $: expected an object, got array
 
 Everything in §§3–6 that goes beyond these sources (the fixed five files, the
 `NthView` global, the validator shape, the skeletons, the error panel, the
-HTML template) is NthView's own contract, fixed so every view behaves
+CDN rules, the HTML template) is NthView's own contract, fixed so every view behaves
 identically for users and agents.

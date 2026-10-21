@@ -31,7 +31,19 @@ var REQUIRED_VIEW_FILES = [
   "references/schema.md",
   "examples/example.html"
 ];
-var FORBIDDEN = /https?:\/\/|src=|href=|@import|url\(|@font-face|fetch\(|XMLHttpRequest|\bimport\b/;
+var FORBIDDEN_CALLS = /fetch\(|XMLHttpRequest|\bimport\b/;
+var CDN_HOSTS = ["cdnjs.cloudflare.com", "cdn.jsdelivr.net", "unpkg.com", "fonts.googleapis.com", "fonts.gstatic.com"];
+var URL_RE = /https?:\/\/[a-z0-9.-]+\.[a-z]{2,}[^\s"'`)<>]*/gi;
+var ATTR_RE = /(?:src|href)=["']([^"']+)["']|url\(["']?([^"')]+)["']?\)/g;
+function allowedUrl(u) {
+  if (/^(data:|#|mailto:)/.test(u)) return true;
+  if (/^http:\/\/www\.w3\.org\//.test(u)) return true; // XML namespace identifiers, never fetched
+  var m = u.match(/^https:\/\/([^\/]+)\//);
+  return !!m && CDN_HOSTS.indexOf(m[1]) !== -1;
+}
+function stripDataBlock(html) {
+  return html.replace(/<script type="application\/json" id="nthview-data">[\s\S]*?<\/script>/, "");
+}
 var NAME_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
 var errors = [];
@@ -82,9 +94,22 @@ if (fs.existsSync(skillsDir)) {
       ["assets/view.js", "examples/example.html"].forEach(function (f) {
         var p = path.join(full, f);
         if (!fs.existsSync(p)) return;
-        var lines = fs.readFileSync(p, "utf8").split(/\r?\n/);
-        lines.forEach(function (line, i) {
-          if (FORBIDDEN.test(line)) error(rel(p) + ":" + (i + 1), "forbidden external reference or import: " + line.trim().slice(0, 80));
+        var text = fs.readFileSync(p, "utf8");
+        if (f === "examples/example.html") text = stripDataBlock(text);
+        text.split(/\r?\n/).forEach(function (line, i) {
+          var where = rel(p) + ":" + (i + 1), m;
+          if (FORBIDDEN_CALLS.test(line)) error(where, "forbidden runtime call or import: " + line.trim().slice(0, 80));
+          URL_RE.lastIndex = 0;
+          while ((m = URL_RE.exec(line))) {
+            if (!allowedUrl(m[0])) error(where, "URL is not on an allowed CDN host (" + CDN_HOSTS.join(", ") + "): " + m[0]);
+          }
+          if (f === "examples/example.html") {
+            ATTR_RE.lastIndex = 0;
+            while ((m = ATTR_RE.exec(line))) {
+              var u = m[1] || m[2];
+              if (!allowedUrl(u)) error(where, "local or non-CDN resource reference (the file must stand alone): " + u);
+            }
+          }
         });
       });
       var ex = path.join(full, "examples/example.html");
