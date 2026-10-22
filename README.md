@@ -17,8 +17,9 @@ one that works for you.
 One concept, many dimensions, one view at a time.
 
 - **Island Quest** (`skills/nthview-island-quest`) — a playable 3D island
-  adventure: one lesson per island, hands-on activities, a quiz each, then a
-  final exam and report card. Demo: `skills/nthview-island-quest/examples/example.html`.
+  adventure: one lesson per island (3 to 60, laid out in rings), 25 kinds of
+  hands-on activity, four world themes, then a final exam and report card.
+  Demo: `skills/nthview-island-quest/examples/example.html`.
 
 - **Scenario Quiz** (`skills/nthview-scenario-quiz`) — a story-based decision
   quiz: you are given a role in a scenario, face a sequence of choices, and
