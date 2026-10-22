@@ -26,4 +26,14 @@ One concept, many dimensions, one view at a time.
   every option explains why it is right, wrong or tempting; ends with a full
   review. Demo: `skills/nthview-scenario-quiz/examples/example.html`.
 
+- **Explorable Lab** (`skills/nthview-explorable`) — learn by tinkering: a
+  guided sequence of live, slider-driven models with predict-then-observe
+  prompts and eleven visualisation kinds. Demo: `skills/nthview-explorable/examples/example.html`.
+- **Detective Case** (`skills/nthview-detective`) — learn by deduction: the
+  concept's facts are clues, misconceptions are suspects, and you crack the
+  case on an evidence board. Demo: `skills/nthview-detective/examples/example.html`.
+- **Concept Map** (`skills/nthview-concept-map`) — learn by structure: tour a
+  living map of the idea, then rebuild it from memory with hints and
+  explanations for every slip. Demo: `skills/nthview-concept-map/examples/example.html`.
+
 Open `index.html` for the gallery of all views.
