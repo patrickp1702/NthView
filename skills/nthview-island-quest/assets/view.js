@@ -23,6 +23,13 @@
     "  --display:\"Bricolage Grotesque\",\"Avenir Next\",\"Segoe UI\",system-ui,sans-serif;--body:\"Atkinson Hyperlegible\",\"Segoe UI\",system-ui,sans-serif;",
     "  background:var(--sky);color:var(--ink);font-family:var(--body);-webkit-tap-highlight-color:transparent}",
     "@media (prefers-color-scheme:dark){.nthview.nthview-island-quest{--sky:#141b34;--sea:#0f3b47;--sand:#b9a072;--stone:#8d7a55;--panel:rgba(22,30,58,.95);--panel-solid:#161e3a;--ink:#eef1fa;--muted:#a9b2cf;--line:#33406b;--chip:#222c52;--ok:#5ed6a3;--no:#ff8a98;--coin:#f4c55b;--star:#ffd76a}}",
+    /* world themes: the 3D palette is read from these variables */
+    ".nthview.nthview-island-quest.nthview-theme-aurora{--sky:#2a2f6e;--sea:#17395c;--sand:#d8d3ea;--stone:#746f9c;--panel:rgba(245,244,255,.95);--panel-solid:#f6f5ff;--ink:#1a1a3f;--muted:#4f4f7e;--line:#cfccee;--chip:#ebe9fb}",
+    "@media (prefers-color-scheme:dark){.nthview.nthview-island-quest.nthview-theme-aurora{--sky:#070b24;--sea:#061a2e;--sand:#9b95bd;--stone:#4b4772;--panel:rgba(14,16,42,.95);--panel-solid:#0e102a;--ink:#eeedff;--muted:#aaa8d8;--line:#2f3166;--chip:#1b1e4a;--ok:#6ee7b7;--no:#fb7185;--coin:#fcd34d;--star:#fde68a}}",
+    ".nthview.nthview-island-quest.nthview-theme-canyon{--sky:#f7d8b4;--sea:#2f9c8c;--sand:#d98d4e;--stone:#8a4a2a;--panel:rgba(255,250,243,.95);--panel-solid:#fffaf3;--ink:#3b2314;--muted:#7a5236;--line:#ead6c2;--chip:#f7eadb;--ok:#2d8a4e;--no:#b8322f}",
+    "@media (prefers-color-scheme:dark){.nthview.nthview-island-quest.nthview-theme-canyon{--sky:#2b1522;--sea:#0e4a46;--sand:#a85f33;--stone:#5a2d18;--panel:rgba(40,22,18,.95);--panel-solid:#28160f;--ink:#fbeee2;--muted:#d6b39a;--line:#5a3a2a;--chip:#3a241a;--ok:#6ed19a;--no:#ff8f82;--coin:#f6c45a;--star:#ffd36a}}",
+    ".nthview.nthview-island-quest.nthview-theme-snow{--sky:#e4edf5;--sea:#3c6683;--sand:#f5f8fb;--stone:#8ea0b4;--panel:rgba(255,255,255,.95);--panel-solid:#fff;--ink:#162433;--muted:#4e6378;--line:#cfdbe7;--chip:#eef3f8;--ok:#1f7a8c;--no:#b3405a}",
+    "@media (prefers-color-scheme:dark){.nthview.nthview-island-quest.nthview-theme-snow{--sky:#0d1726;--sea:#102a3f;--sand:#c9d4e0;--stone:#56687d;--panel:rgba(16,26,42,.95);--panel-solid:#101a2a;--ink:#eef4fb;--muted:#a5b6c8;--line:#2c3f56;--chip:#1a2a3e;--ok:#67d4e4;--no:#ff8aa0;--coin:#f4c55b;--star:#ffd76a}}",
     "body:has(> .nthview-island-quest){margin:0;overflow:hidden}",
     ".nthview-island-quest .nthview-hidden{display:none!important}",
     ".nthview-island-quest button{font:inherit;color:inherit;cursor:pointer}",
@@ -33,10 +40,12 @@
     ".nthview-island-quest .nthview-hud{position:absolute;top:0;left:0;right:0;padding:12px 14px 0;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;pointer-events:none;z-index:5}",
     ".nthview-island-quest .nthview-chip{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:8px 14px;pointer-events:auto}",
     ".nthview-island-quest .nthview-brand{font-family:var(--display);font-weight:800;font-size:1.1rem;letter-spacing:-.01em}",
-    ".nthview-island-quest .nthview-tray{display:flex;gap:6px;margin-top:8px;pointer-events:auto;flex-wrap:wrap;max-width:200px}",
+    ".nthview-island-quest .nthview-tray{display:flex;gap:5px;margin-top:8px;pointer-events:auto;flex-wrap:wrap;max-width:210px}",
     ".nthview-island-quest .nthview-gem{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:.72rem;color:var(--muted);background:var(--panel)}",
+    ".nthview-island-quest .nthview-tray.nthview-dense .nthview-gem{width:17px;height:17px;font-size:.58rem;border-width:1.5px}",
     ".nthview-island-quest .nthview-gem.nthview-on{border-color:transparent;color:#10152b}",
     ".nthview-island-quest .nthview-mini{display:block;margin-top:8px;width:112px;height:112px;border-radius:50%;border:2px solid var(--line);background:color-mix(in srgb,var(--panel-solid) 70%,transparent);pointer-events:none}",
+    ".nthview-island-quest .nthview-mini.nthview-wide{width:140px;height:140px}",
     ".nthview-island-quest .nthview-hud-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px}",
     ".nthview-island-quest .nthview-score{display:flex;align-items:center;gap:8px;font-size:1rem}",
     ".nthview-island-quest .nthview-score b{font-family:var(--display);font-size:1.15rem}",
@@ -62,14 +71,14 @@
     ".nthview-island-quest .nthview-btn.nthview-primary{background:var(--accent,var(--nv-accent));color:#10152b;border-color:transparent}",
     ".nthview-island-quest .nthview-btn:disabled{opacity:.45}",
     /* panel */
-    ".nthview-island-quest .nthview-panel{position:absolute;top:0;right:0;bottom:0;width:min(470px,100%);background:var(--panel);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-left:1px solid var(--line);z-index:8;overflow-y:auto;padding:18px 24px 28px;transform:translateX(105%);transition:transform .35s cubic-bezier(.2,.8,.2,1)}",
+    ".nthview-island-quest .nthview-panel{position:absolute;top:0;right:0;bottom:0;width:min(470px,100%);background:var(--panel);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-left:1px solid var(--line);z-index:8;overflow-y:auto;overflow-x:hidden;padding:18px 24px 28px;transform:translateX(105%);transition:transform .35s cubic-bezier(.2,.8,.2,1)}",
     ".nthview-island-quest .nthview-panel.nthview-open{transform:none}",
     "@media (max-width:640px){.nthview-island-quest .nthview-panel{top:auto;width:100%;max-height:80%;border-left:0;border-top:1px solid var(--line);border-radius:20px 20px 0 0;transform:translateY(105%);padding:16px 18px 24px}}",
     ".nthview-island-quest .nthview-close{position:sticky;top:0;float:right;background:var(--chip);border:1px solid var(--line);border-radius:10px;padding:6px 12px;font-size:.9rem;z-index:2}",
     ".nthview-island-quest .nthview-kicker{color:var(--muted);margin:2px 0 0;font-size:.95rem}",
-    ".nthview-island-quest .nthview-panel h2{font-family:var(--display);font-weight:800;font-size:2rem;line-height:1.02;letter-spacing:-.02em;margin:4px 0 12px;max-width:13ch;color:var(--ink)}",
+    ".nthview-island-quest .nthview-panel h2{font-family:var(--display);font-weight:800;font-size:2rem;line-height:1.02;letter-spacing:-.02em;margin:4px 0 12px;max-width:13ch;color:var(--ink);overflow-wrap:anywhere}",
     ".nthview-island-quest .nthview-panel h2::after{content:\"\";display:block;width:56px;height:6px;border-radius:3px;background:var(--accent);margin-top:10px}",
-    ".nthview-island-quest .nthview-panel p{line-height:1.6;max-width:60ch}",
+    ".nthview-island-quest .nthview-panel p{line-height:1.6;max-width:60ch;overflow-wrap:anywhere}",
     ".nthview-island-quest .nthview-lead{font-size:1.08rem}",
     ".nthview-island-quest .nthview-box{background:var(--chip);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin:18px 0}",
     ".nthview-island-quest .nthview-box.nthview-task{border:2px solid var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--panel-solid))}",
@@ -91,16 +100,18 @@
     ".nthview-island-quest .nthview-frow{margin:12px 0}",
     ".nthview-island-quest .nthview-flabel{font-size:.95rem;margin-bottom:5px}",
     ".nthview-island-quest .nthview-fline{display:flex;align-items:center;gap:10px}",
-    ".nthview-island-quest .nthview-track{flex:1;height:14px;border-radius:7px;background:color-mix(in srgb,var(--ink) 9%,transparent);overflow:hidden}",
+    ".nthview-island-quest .nthview-track{flex:1;height:14px;border-radius:7px;background:color-mix(in srgb,var(--ink) 9%,transparent);overflow:visible;position:relative}",
     ".nthview-island-quest .nthview-track .nthview-bar{height:100%;border-radius:7px;background:var(--accent);transition:width 1.4s ease-out}",
     ".nthview-island-quest .nthview-bar.nthview-grey{background:#9aa3b8}",
     ".nthview-island-quest .nthview-bar.nthview-dashed{background:repeating-linear-gradient(90deg,var(--accent) 0 9px,transparent 9px 15px)}",
+    ".nthview-island-quest .nthview-track .nthview-mark{position:absolute;top:-5px;height:24px;width:4px;border-radius:2px;background:var(--ok);transform:translateX(-50%);box-shadow:0 0 0 2px var(--panel-solid)}",
     ".nthview-island-quest .nthview-fline b{min-width:5.2ch;text-align:right;font-family:var(--display)}",
     ".nthview-island-quest .nthview-quiz{margin-top:22px;border-top:1px solid var(--line);padding-top:16px}",
     ".nthview-island-quest .nthview-q{font-weight:700;font-size:1.08rem}",
     ".nthview-island-quest .nthview-opts{display:grid;gap:8px}",
     ".nthview-island-quest .nthview-opt{text-align:left;background:var(--panel-solid);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;line-height:1.35}",
     ".nthview-island-quest .nthview-opt:hover:not(:disabled){border-color:var(--accent,var(--nv-accent))}",
+    ".nthview-island-quest .nthview-opt.nthview-sel{border-color:var(--accent);box-shadow:inset 0 0 0 1.5px var(--accent)}",
     ".nthview-island-quest .nthview-opt.nthview-right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 14%,var(--panel-solid))}",
     ".nthview-island-quest .nthview-opt.nthview-wrong{border-color:var(--no);opacity:.7;text-decoration:line-through}",
     ".nthview-island-quest .nthview-fb{margin-top:12px;line-height:1.5}",
@@ -110,10 +121,63 @@
     ".nthview-island-quest .nthview-remember .nthview-box-title{margin-bottom:4px}",
     ".nthview-island-quest .nthview-remember .nthview-btn{margin-top:8px}",
     ".nthview-island-quest .nthview-stars-earned{font-size:1.4rem;color:var(--star);letter-spacing:2px;margin:0 0 6px}",
+    /* activity widgets */
+    ".nthview-island-quest .nthview-list{display:grid;gap:8px;margin-top:10px}",
+    ".nthview-island-quest .nthview-item{display:flex;align-items:center;gap:10px;background:var(--panel-solid);border:1.5px solid var(--line);border-radius:12px;padding:8px 10px;line-height:1.3}",
+    ".nthview-island-quest .nthview-item.nthview-right{border-color:var(--ok)}",
+    ".nthview-island-quest .nthview-item.nthview-wrong{border-color:var(--no)}",
+    ".nthview-island-quest .nthview-num{width:28px;height:28px;border-radius:50%;background:var(--chip);display:grid;place-items:center;font-family:var(--display);font-weight:800;flex:none;font-size:.9rem}",
+    ".nthview-island-quest .nthview-item.nthview-right .nthview-num{background:var(--ok);color:#fff}",
+    ".nthview-island-quest .nthview-txt{flex:1;min-width:0;overflow-wrap:anywhere}",
+    ".nthview-island-quest .nthview-note{display:block;font-size:.84rem;color:var(--muted)}",
+    ".nthview-island-quest .nthview-mv{display:flex;gap:4px;flex:none}",
+    ".nthview-island-quest .nthview-mv button{width:34px;height:34px;border-radius:10px;border:1.5px solid var(--line);background:var(--chip);font-size:1rem;line-height:1}",
+    ".nthview-island-quest .nthview-seg{display:inline-flex;flex-wrap:wrap;gap:4px}",
+    ".nthview-island-quest .nthview-seg button{border:1.5px solid var(--line);background:var(--panel-solid);border-radius:8px;padding:4px 9px;font-size:.85rem;font-weight:700}",
+    ".nthview-island-quest .nthview-seg button[aria-pressed=true]{background:var(--accent);border-color:transparent;color:#10152b}",
+    ".nthview-island-quest .nthview-check{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}",
+    ".nthview-island-quest .nthview-cols{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}",
+    ".nthview-island-quest .nthview-cols .nthview-opt{padding:10px 12px;display:flex;align-items:center;gap:6px}",
+    ".nthview-island-quest .nthview-badge{display:inline-grid;place-items:center;min-width:22px;height:22px;border-radius:50%;background:var(--accent);color:#10152b;font-family:var(--display);font-weight:800;font-size:.8rem;flex:none}",
+    ".nthview-island-quest .nthview-select{font:inherit;border:1.5px solid var(--accent);border-radius:8px;padding:2px 6px;background:var(--panel-solid);color:inherit;margin:0 2px;max-width:100%}",
+    ".nthview-island-quest .nthview-select.nthview-wrong{border-color:var(--no)}",
+    ".nthview-island-quest .nthview-select.nthview-right{border-color:var(--ok)}",
+    ".nthview-island-quest .nthview-cloze{line-height:2.2;font-size:1.05rem;margin-top:8px}",
+    ".nthview-island-quest .nthview-range{width:100%;accent-color:var(--accent);margin-top:10px}",
+    ".nthview-island-quest .nthview-numrow{display:flex;gap:10px;align-items:center;margin-top:8px;flex-wrap:wrap}",
+    ".nthview-island-quest .nthview-numrow input[type=number]{font:inherit;width:8ch;border:1.5px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--panel-solid);color:inherit}",
+    ".nthview-island-quest .nthview-cb{display:flex;gap:10px;align-items:flex-start;background:var(--panel-solid);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer;line-height:1.35}",
+    ".nthview-island-quest .nthview-cb input{width:20px;height:20px;margin:2px 0 0;accent-color:var(--accent);flex:none}",
+    ".nthview-island-quest .nthview-cb.nthview-right{border-color:var(--ok)}",
+    ".nthview-island-quest .nthview-cb.nthview-wrong{border-color:var(--no)}",
+    ".nthview-island-quest .nthview-tf{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}",
+    ".nthview-island-quest .nthview-tf .nthview-opt{text-align:center;font-family:var(--display);font-weight:800;font-size:1.2rem;padding:16px}",
+    ".nthview-island-quest .nthview-sw{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}",
+    ".nthview-island-quest .nthview-toggle{width:52px;height:30px;border-radius:15px;border:0;background:#9aa3b8;position:relative;flex:none;padding:0}",
+    ".nthview-island-quest .nthview-toggle::after{content:\"\";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:transform .2s}",
+    ".nthview-island-quest .nthview-toggle[aria-checked=true]{background:var(--accent)}",
+    ".nthview-island-quest .nthview-toggle[aria-checked=true]::after{transform:translateX(22px)}",
+    ".nthview-island-quest .nthview-lamp{display:inline-block;width:12px;height:12px;border-radius:50%;background:#9aa3b8;margin-right:8px;vertical-align:middle;flex:none}",
+    ".nthview-island-quest .nthview-lamp.nthview-ok{background:var(--ok);box-shadow:0 0 8px var(--ok)}",
+    ".nthview-island-quest .nthview-lamp.nthview-no{background:var(--no);box-shadow:0 0 8px var(--no)}",
+    ".nthview-island-quest .nthview-lamp.nthview-note{background:var(--coin);box-shadow:0 0 8px var(--coin)}",
+    ".nthview-island-quest .nthview-dots{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}",
+    ".nthview-island-quest .nthview-dot{min-width:30px;height:30px;padding:0 8px;border-radius:15px;border:2px solid var(--line);display:grid;place-items:center;font-size:.8rem;font-weight:700;background:var(--panel-solid)}",
+    ".nthview-island-quest .nthview-dot.nthview-on{background:var(--accent);border-color:transparent;color:#10152b}",
+    ".nthview-island-quest .nthview-card3{perspective:900px;margin-top:10px}",
+    ".nthview-island-quest .nthview-flip{position:relative;min-height:160px;transition:transform .5s;transform-style:preserve-3d;border-radius:16px}",
+    ".nthview-island-quest .nthview-flip.nthview-flipped{transform:rotateY(180deg)}",
+    ".nthview-island-quest .nthview-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:grid;place-items:center;text-align:center;padding:18px;border-radius:16px;background:var(--panel-solid);border:2px solid var(--accent);font-family:var(--display);font-weight:700;font-size:1.15rem;overflow:auto}",
+    ".nthview-island-quest .nthview-face.nthview-back{transform:rotateY(180deg);font-family:var(--body);font-weight:400;font-size:1rem}",
+    ".nthview-island-quest .nthview-bins{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:10px}",
+    ".nthview-island-quest .nthview-bin{border:2px dashed var(--line);border-radius:12px;padding:8px;min-height:60px;text-align:center}",
+    ".nthview-island-quest .nthview-bin b{display:block;font-family:var(--display)}",
+    ".nthview-island-quest .nthview-bin.nthview-full{border-style:solid;border-color:var(--accent)}",
+    ".nthview-island-quest .nthview-stamp{display:inline-block;background:var(--chip);border-radius:8px;padding:2px 8px;margin:3px 2px 0;font-size:.84rem}",
     /* overlays */
     ".nthview-island-quest .nthview-overlay{position:absolute;inset:0;z-index:20;display:grid;place-items:center;padding:20px 16px;background:color-mix(in srgb,var(--sky) 55%,transparent);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);overflow-y:auto}",
     ".nthview-island-quest .nthview-card{background:var(--panel-solid);border:1px solid var(--line);border-radius:24px;padding:28px;max-width:600px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3)}",
-    ".nthview-island-quest .nthview-card h1{font-family:var(--display);font-weight:800;font-size:clamp(2.4rem,7vw,3.8rem);line-height:.95;letter-spacing:-.035em;margin:0 0 14px}",
+    ".nthview-island-quest .nthview-card h1{font-family:var(--display);font-weight:800;font-size:clamp(2.4rem,7vw,3.8rem);line-height:.95;letter-spacing:-.035em;margin:0 0 14px;overflow-wrap:anywhere}",
     ".nthview-island-quest .nthview-card p{line-height:1.6}",
     ".nthview-island-quest .nthview-big{font-size:1.1rem}",
     ".nthview-island-quest .nthview-card ol,.nthview-island-quest .nthview-card ul{padding-left:1.3rem;line-height:1.55}",
@@ -127,7 +191,7 @@
     ".nthview-island-quest table.nthview-t{border-collapse:collapse;width:100%;font-size:.95rem;margin-top:8px}",
     ".nthview-island-quest table.nthview-t th,.nthview-island-quest table.nthview-t td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left}",
     ".nthview-island-quest a{color:var(--nv-accent)}",
-    "@media (prefers-reduced-motion:reduce){.nthview-island-quest .nthview-panel,.nthview-island-quest .nthview-toast,.nthview-island-quest .nthview-track .nthview-bar{transition:none}}"
+    "@media (prefers-reduced-motion:reduce){.nthview-island-quest .nthview-panel,.nthview-island-quest .nthview-toast,.nthview-island-quest .nthview-track .nthview-bar,.nthview-island-quest .nthview-flip,.nthview-island-quest .nthview-toggle::after{transition:none}}"
   ].join("\n");
 
   function injectStyles() {
@@ -160,8 +224,28 @@
   }
 
   // ---- view-specific rendering: data is already valid here ---------------
-  var PALETTE = ["#3d8fd6", "#a77fd1", "#c99312", "#1fa874", "#e0679e", "#9aa3b8", "#7ea31c", "#d9534f", "#2aa198"];
-  var PALETTE_DARK = ["#6eb6f2", "#b48ad8", "#f4c55b", "#5ed6a3", "#f28db8", "#e8e6da", "#c6e46a", "#ff8a98", "#6fd3c7"];
+  /* island accent palettes per world theme (light-mode, dark-mode) */
+  var PALETTES = {
+    lagoon: { light: ["#3d8fd6", "#a77fd1", "#c99312", "#1fa874", "#e0679e", "#9aa3b8", "#7ea31c", "#d9534f", "#2aa198"],
+      dark: ["#6eb6f2", "#b48ad8", "#f4c55b", "#5ed6a3", "#f28db8", "#e8e6da", "#c6e46a", "#ff8a98", "#6fd3c7"] },
+    aurora: { light: ["#22d3ee", "#a78bfa", "#f472b6", "#a3e635", "#fbbf24", "#60a5fa", "#2dd4bf", "#fb7185", "#e879f9"],
+      dark: ["#67e8f9", "#c4b5fd", "#f9a8d4", "#bef264", "#fde047", "#93c5fd", "#5eead4", "#fda4af", "#f0abfc"] },
+    canyon: { light: ["#d97706", "#c2410c", "#0e7490", "#65a30d", "#b91c1c", "#7c3aed", "#ca8a04", "#0f766e", "#be185d"],
+      dark: ["#fbbf24", "#fb923c", "#22d3ee", "#a3e635", "#f87171", "#c4b5fd", "#fde047", "#5eead4", "#f472b6"] },
+    snow: { light: ["#2563eb", "#7c3aed", "#db2777", "#059669", "#d97706", "#0891b2", "#4f46e5", "#e11d48", "#0d9488"],
+      dark: ["#93c5fd", "#c4b5fd", "#f9a8d4", "#6ee7b7", "#fcd34d", "#67e8f9", "#a5b4fc", "#fda4af", "#5eead4"] }
+  };
+  /* 3D lighting and sky extras per world theme */
+  var THEME3D = {
+    lagoon: { hemi: [0xffffff, 0x445566], sun: 0xffffff, sunI: [.9, .55], hemiI: [1, .7], stars: "dark", extra: "clouds" },
+    aurora: { hemi: [0x9fb0ff, 0x1a1a3a], sun: 0xb9c6ff, sunI: [.7, .55], hemiI: [.85, .7], stars: "always", extra: "aurora" },
+    canyon: { hemi: [0xffe3c4, 0x6b3a1e], sun: 0xffd6a3, sunI: [1, .5], hemiI: [1, .65], stars: "dark", extra: "mesas" },
+    snow: { hemi: [0xffffff, 0x90a4b8], sun: 0xeef5ff, sunI: [.8, .5], hemiI: [1.05, .75], stars: "dark", extra: "snow" }
+  };
+  /* which activity types take the place of the quiz (the activity is the question) */
+  var REPLACES_QUIZ = ["pads", "truefalse", "multi", "order", "match", "sort", "rank", "cloze", "estimate", "odd", "hotspot", "fork", "beacons", "steps", "gather", "predict", "confidence"];
+  /* field tasks played on the island itself */
+  var FIELD_TYPES = ["collect", "pads", "hotspot", "fork", "beacons", "steps", "gather"];
 
   /* text with **bold** -> fragment of text and <b> nodes; never innerHTML */
   function rich(text) {
@@ -185,6 +269,16 @@
       if (exprs) { var c = exprs(inner); if (c) return String(c); }
       return m;
     });
+  }
+  /* deterministic shuffle (seeded by a string) that never returns the original order */
+  function seeded(str) { var h = 2166136261; for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return function () { h += 0x6D2B79F5; var t = Math.imul(h ^ (h >>> 15), 1 | h); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+  function shuffledIdx(n, seed) {
+    var idx = [], i; for (i = 0; i < n; i++) idx.push(i);
+    var rnd = seeded(seed);
+    for (i = n - 1; i > 0; i--) { var j = Math.floor(rnd() * (i + 1)); var t = idx[i]; idx[i] = idx[j]; idx[j] = t; }
+    var same = idx.every(function (v, k) { return v === k; });
+    if (same && n > 1) idx.push(idx.shift());
+    return idx;
   }
 
   // ---- expression compiler (identical copy lives in scripts/validate.js) --
@@ -245,20 +339,50 @@
   function evalExpr(src, env) { var c = compileExpr(src); return c.fn ? c.fn(env) : 0; }
 
   /* ======================================================================
+     The archipelago layout: concentric rings around the finale hub.
+     Ring k (1-based) has radius 50 + 36·(k−1) and room for 7·k islands.
+     Islands fill ring 1 first, in play order; a partial ring spreads its
+     islands evenly. Every island gets a causeway inward (ring 1 to the hub,
+     ring k to the nearest island of ring k−1) and a causeway to each ring
+     neighbour whose shore is at most 40 units away.
+     ====================================================================== */
+  var R_HUB = 16, R_ISLE = 11, RING_R0 = 50, RING_STEP = 36, RING_CAP = 7, NEIGHBOUR_GAP = 40;
+  function layoutRings(N) {
+    var rings = [], left = N, k = 1, slots = [];
+    while (left > 0) {
+      var m = Math.min(RING_CAP * k, left), r = RING_R0 + RING_STEP * (k - 1);
+      rings.push({ r: r, m: m, first: N - left });
+      for (var j = 0; j < m; j++) {
+        var a = Math.PI + j * 2 * Math.PI / m;
+        slots.push({ ring: k - 1, r: r, m: m, slot: j, angle: a, x: Math.sin(a) * r, z: Math.cos(a) * r });
+      }
+      left -= m; k++;
+    }
+    return { rings: rings, slots: slots, outer: rings[rings.length - 1].r + R_ISLE };
+  }
+  function angDiff(a, b) { var d = a - b; return Math.abs(Math.atan2(Math.sin(d), Math.cos(d))); }
+
+  /* ======================================================================
      The game. Everything below is driven by `data`.
      ====================================================================== */
   function render(container, data) {
     var THREE = root.THREE, doc = root.document;
     var N = data.islands.length;
     var hero = data.companion.name;
+    var themeName = data.theme || "lagoon";
+    var T3 = THEME3D[themeName] || THEME3D.lagoon;
+    var PAL = PALETTES[themeName] || PALETTES.lagoon;
+    Object.keys(THEME3D).forEach(function (k) { container.classList.remove("nthview-theme-" + k); });
+    container.classList.add("nthview-theme-" + themeName);
     var reduceMotion = root.matchMedia && root.matchMedia("(prefers-reduced-motion: reduce)").matches;
     var isDark = function () { return !!(root.matchMedia && root.matchMedia("(prefers-color-scheme: dark)").matches); };
     var css = function (n) { return getComputedStyle(container).getPropertyValue(n).trim(); };
 
     /* ---------- DOM scaffold ---------- */
     var canvas = el("canvas", { class: "nthview-canvas", tabindex: "0", "aria-label": "3D islands. Use WASD or arrow keys to move and drag to look. Use the guide at the bottom of the screen to walk to the next lesson." });
-    var tray = el("div", { class: "nthview-tray", "aria-label": "Lessons finished" });
-    var mini = el("canvas", { class: "nthview-mini", width: "224", height: "224", "aria-hidden": "true" });
+    var tray = el("div", { class: "nthview-tray" + (N > 14 ? " nthview-dense" : ""), "aria-label": "Lessons finished" });
+    var miniPx = N > 7 ? 280 : 224;
+    var mini = el("canvas", { class: "nthview-mini" + (N > 7 ? " nthview-wide" : ""), width: String(miniPx), height: String(miniPx), "aria-hidden": "true" });
     var coinCount = el("b", { text: String(data.coins || 10) }), starCount = el("b", { text: "0" });
     var soundBtn = el("button", { type: "button", class: "nthview-chip", "aria-pressed": "true", text: "Sound on" });
     var helpBtn = el("button", { type: "button", class: "nthview-chip", text: "How to play" });
@@ -305,8 +429,9 @@
     var totalStars = function () { return Object.keys(state.stars).reduce(function (a, k) { return a + state.stars[k]; }, 0); };
     var maxStars = 3 * (N + data.finale.questions.length);
     function renderScore() { coinCount.textContent = String(state.coins); starCount.textContent = String(totalStars()); }
-    function attempt(key) { state.attempts[key] = (state.attempts[key] || 0) + 1; state.coins = Math.max(0, state.coins - 1); renderScore(); }
+    function attempt(key, cost) { state.attempts[key] = (state.attempts[key] || 0) + 1; state.coins = Math.max(0, state.coins - (cost === undefined ? 1 : cost)); renderScore(); }
     function award(key) { var a = state.attempts[key] || 1; var st = a === 1 ? 3 : a === 2 ? 2 : 1; state.stars[key] = st; renderScore(); return st; }
+    function awardStars(key, st) { state.stars[key] = st; renderScore(); return st; }
     var toastTimer;
     function toast(msg) { toastEl.textContent = msg; toastEl.classList.add("nthview-show"); clearTimeout(toastTimer); toastTimer = setTimeout(function () { toastEl.classList.remove("nthview-show"); }, 3400); }
 
@@ -331,6 +456,7 @@
           case "win": [523, 659, 784, 1047, 1319].forEach(function (f, i) { tone(f, i * .1, .45); }); break;
           case "open": tone(440, 0, .07, "triangle", .035); break;
           case "step": tone(330, 0, .05, "triangle", .02); break;
+          case "thunder": tone(55, 0, 1.4, "sawtooth", .05); tone(42, .25, 1.6, "sawtooth", .04); break;
         }
       } catch (e) { /* audio is optional */ }
     }
@@ -342,18 +468,21 @@
     var W = function () { return container.clientWidth || 800; }, H = function () { return container.clientHeight || 600; };
     renderer.setSize(W(), H(), false);
     var scene = new THREE.Scene();
-    var camera = new THREE.PerspectiveCamera(60, W() / H(), .1, 900);
-    var hemi = new THREE.HemisphereLight(0xffffff, 0x445566, .9); scene.add(hemi);
-    var sun = new THREE.DirectionalLight(0xffffff, .8); sun.position.set(40, 80, 30); scene.add(sun);
+    var LAYOUT = layoutRings(N);
+    var WORLD_R = LAYOUT.outer;
+    var camera = new THREE.PerspectiveCamera(60, W() / H(), .1, Math.max(900, WORLD_R * 4));
+    var hemi = new THREE.HemisphereLight(T3.hemi[0], T3.hemi[1], .9); scene.add(hemi);
+    var sun = new THREE.DirectionalLight(T3.sun, .8); sun.position.set(40, 80, 30); scene.add(sun);
     var M = function (c, o) { return new THREE.MeshStandardMaterial(Object.assign({ color: c, roughness: .75, metalness: .05, flatShading: true }, o || {})); };
     var glow = function (c, i, o) { return M(c, Object.assign({ emissive: c, emissiveIntensity: i === undefined ? .6 : i }, o || {})); };
     var sandMat = M("#e3cf9f"), stoneMat = M("#b9a77d");
     var seaMat = new THREE.MeshStandardMaterial({ color: "#4d93a6", roughness: .35, metalness: .1, flatShading: true, transparent: true, opacity: .95 });
-    var seaGeo = new THREE.PlaneGeometry(700, 700, 90, 90);
+    var seaSize = Math.max(700, WORLD_R * 2 + 320);
+    var seaGeo = new THREE.PlaneGeometry(seaSize, seaSize, 90, 90);
     var sea = new THREE.Mesh(seaGeo, seaMat); sea.rotation.x = -Math.PI / 2; sea.position.y = -1.6; scene.add(sea);
     var seaPos = seaGeo.attributes.position;
     var starGeo = new THREE.BufferGeometry(); var sp = [];
-    for (var si = 0; si < 900; si++) { var th = Math.random() * Math.PI * 2, ph = Math.random() * Math.PI * .45, rr = 400; sp.push(rr * Math.sin(ph) * Math.cos(th), rr * Math.cos(ph) + 20, rr * Math.sin(ph) * Math.sin(th)); }
+    for (var si = 0; si < 900; si++) { var th = Math.random() * Math.PI * 2, ph = Math.random() * Math.PI * .45, rr = Math.max(400, WORLD_R * 2.2); sp.push(rr * Math.sin(ph) * Math.cos(th), rr * Math.cos(ph) + 20, rr * Math.sin(ph) * Math.sin(th)); }
     starGeo.setAttribute("position", new THREE.Float32BufferAttribute(sp, 3));
     var stars = new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 1.4, sizeAttenuation: false, fog: false })); scene.add(stars);
 
@@ -364,8 +493,8 @@
       var x = c.getContext("2d"); var font = function (s) { return "800 " + s + "px " + FONT; };
       x.font = font(80); var tw = x.measureText(text).width; var lead = num != null ? 118 : 48; var w = Math.min(cw - 16, tw + lead + 56), l = (cw - w) / 2, r = 80;
       x.fillStyle = "rgba(12,16,34,.76)"; x.beginPath(); x.moveTo(l + r, 20); x.lineTo(l + w - r, 20); x.arc(l + w - r, 100, r, -Math.PI / 2, Math.PI / 2); x.lineTo(l + r, 180); x.arc(l + r, 100, r, Math.PI / 2, Math.PI * 1.5); x.fill();
-      if (num != null) { x.fillStyle = color; x.beginPath(); x.arc(l + 74, 100, 44, 0, Math.PI * 2); x.fill(); x.fillStyle = "#10152b"; x.font = font(58); x.textAlign = "center"; x.textBaseline = "middle"; x.fillText(String(num), l + 74, 104); x.textAlign = "left"; x.font = font(80); }
-      x.fillStyle = "#ffffff"; x.textBaseline = "middle"; x.fillText(text, l + lead, 104);
+      if (num != null) { x.fillStyle = color; x.beginPath(); x.arc(l + 74, 100, 44, 0, Math.PI * 2); x.fill(); x.fillStyle = "#10152b"; x.font = font(num > 99 ? 46 : 58); x.textAlign = "center"; x.textBaseline = "middle"; x.fillText(String(num), l + 74, 104); x.textAlign = "left"; x.font = font(80); }
+      x.fillStyle = "#ffffff"; x.textBaseline = "middle"; x.fillText(text, l + lead, 104, cw - lead - l - 30);
       var tex = new THREE.CanvasTexture(c); tex.anisotropy = 4;
       var s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false })); s.scale.set(15, 2.34, 1); return s;
     }
@@ -373,58 +502,131 @@
       var c = doc.createElement("canvas"); c.width = 256; c.height = 256; var x = c.getContext("2d");
       x.fillStyle = "rgba(12,16,34,.8)"; x.beginPath(); x.arc(128, 128, 118, 0, Math.PI * 2); x.fill();
       x.fillStyle = color; x.beginPath(); x.arc(128, 128, 100, 0, Math.PI * 2); x.fill();
-      x.fillStyle = "#10152b"; x.font = "800 " + (text.length > 2 ? 70 : 130) + "px " + FONT; x.textAlign = "center"; x.textBaseline = "middle"; x.fillText(text, 128, 136);
+      x.fillStyle = "#10152b"; x.font = "800 " + (text.length > 6 ? 40 : text.length > 2 ? 70 : 130) + "px " + FONT; x.textAlign = "center"; x.textBaseline = "middle"; x.fillText(text, 128, 136, 190);
       var tex = new THREE.CanvasTexture(c); var s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false })); s.scale.set(size || 1.3, size || 1.3, 1); return s;
     }
+    /* a small floating sign: wide pill with text, used by field tasks */
+    function makeSign(text, color, width) {
+      var lb = makeLabel(text, color || "#ffffff"); var w = width || 6; lb.scale.set(w, w * .156, 1); return lb;
+    }
 
-    /* ---------- world ---------- */
-    var R_RING = N <= 7 ? 50 : 50 + (N - 7) * 6, R_HUB = 16, R_ISLE = 11, RING_ROAD = 11.5;
+    /* ---------- world: islands, causeways, walk graph ---------- */
     var islands = [{ x: 0, z: 0, r: R_HUB }], bridges = [];
+    var rockSpots = [], postSpots = [], lampSpots = [];
     function island(x, z, r) {
       var g = new THREE.Mesh(new THREE.CylinderGeometry(r, r * .72, 7, 30), sandMat); g.position.set(x, -3.5, z); scene.add(g);
       for (var i = 0; i < 7; i++) {
         var a = Math.random() * Math.PI * 2, d = r * (.82 + Math.random() * .12);
-        var rock = new THREE.Mesh(new THREE.DodecahedronGeometry(.5 + Math.random() * .7, 0), stoneMat);
-        rock.position.set(x + Math.cos(a) * d, .2, z + Math.sin(a) * d); rock.rotation.set(Math.random(), Math.random(), 0); scene.add(rock);
+        rockSpots.push({ x: x + Math.cos(a) * d, z: z + Math.sin(a) * d, s: .5 + Math.random() * .7, rx: Math.random(), ry: Math.random() });
       }
     }
     island(0, 0, R_HUB);
 
     var STATIONS = data.islands.map(function (isl, i) {
-      return { id: isl.id, name: isl.name, idx: i, data: isl, lightColor: isl.color || PALETTE[i % PALETTE.length], darkColor: isl.color || PALETTE_DARK[i % PALETTE_DARK.length] };
+      return { id: isl.id, name: isl.name, idx: i, data: isl, lightColor: isl.color || PAL.light[i % PAL.light.length], darkColor: isl.color || PAL.dark[i % PAL.dark.length] };
     });
     var coinPickups = [];
+    /* graph nodes: {x,z}; edges: adjacency lists of {to,w} */
+    var nodes = [], adj = [];
+    function addNode(x, z) { nodes.push({ x: x, z: z }); adj.push([]); return nodes.length - 1; }
+    function link(a, b) { var w = Math.hypot(nodes[a].x - nodes[b].x, nodes[a].z - nodes[b].z); adj[a].push({ to: b, w: w }); adj[b].push({ to: a, w: w }); }
+    var hubRing = []; /* {angle, node, inner} */
+
     STATIONS.forEach(function (s, i) {
+      var slot = LAYOUT.slots[i];
       s.color = isDark() ? s.darkColor : s.lightColor;
-      s.angle = Math.PI + i * 2 * Math.PI / N;
+      s.ring = slot.ring; s.angle = slot.angle; s.slot = slot.slot; s.ringSize = slot.m;
       s.dir = { x: Math.sin(s.angle), z: Math.cos(s.angle) };
-      s.x = s.dir.x * R_RING; s.z = s.dir.z * R_RING;
+      s.x = slot.x; s.z = slot.z;
       s.toWorld = function (lx, lz) { return { x: s.x + lx * Math.cos(s.angle) + lz * Math.sin(s.angle), z: s.z - lx * Math.sin(s.angle) + lz * Math.cos(s.angle) }; };
       islands.push({ x: s.x, z: s.z, r: R_ISLE }); island(s.x, s.z, R_ISLE);
-      var a0 = R_HUB - 1.5, a1 = R_RING - R_ISLE + 1.5, len = a1 - a0;
-      var b = new THREE.Mesh(new THREE.BoxGeometry(3.4, .5, len), stoneMat);
-      b.position.set(s.dir.x * (a0 + len / 2), -.25, s.dir.z * (a0 + len / 2)); b.rotation.y = s.angle; scene.add(b);
-      s.lamps = [];
-      for (var k = 0; k <= len; k += 3.2) {
-        [-1, 1].forEach(function (side) {
-          var px = s.dir.x * (a0 + k) + Math.cos(s.angle) * side * 1.6, pz = s.dir.z * (a0 + k) - Math.sin(s.angle) * side * 1.6;
-          var post = new THREE.Mesh(new THREE.CylinderGeometry(.09, .09, 1, 5), stoneMat); post.position.set(px, .5, pz); scene.add(post);
-          var lamp = new THREE.Mesh(new THREE.SphereGeometry(.14, 8, 6), glow(s.color, .9)); lamp.position.set(px, 1.05, pz); scene.add(lamp); s.lamps.push(lamp);
-        });
-      }
-      [.28, .5, .72].forEach(function (f, k) {
-        var dd = a0 + len * f, side = (k % 2 ? 1 : -1) * .7;
-        var c = new THREE.Mesh(new THREE.CylinderGeometry(.42, .42, .1, 18), glow("#f4c55b", .7, { metalness: .5, roughness: .3 })); c.rotation.x = Math.PI / 2;
-        var wx = s.dir.x * dd + Math.cos(s.angle) * side, wz = s.dir.z * dd - Math.sin(s.angle) * side; c.position.set(wx, 1.2, wz); scene.add(c); coinPickups.push({ mesh: c, x: wx, z: wz, got: false });
-      });
-      s.bridge = { ax: s.dir.x * (R_HUB - 3), az: s.dir.z * (R_HUB - 3), bx: s.dir.x * (R_RING - R_ISLE + 3), bz: s.dir.z * (R_RING - R_ISLE + 3) };
-      bridges.push(s.bridge);
       s.g = new THREE.Group(); s.g.position.set(s.x, 0, s.z); s.g.rotation.y = s.angle; scene.add(s.g);
+      s.lamps = []; s.nodes = [];
+      var arrive = s.toWorld(0, -6); s.arrive = addNode(arrive.x, arrive.z); s.nodes.push(s.arrive);
       s.beacon = new THREE.Mesh(new THREE.CylinderGeometry(.55, .55, 60, 12, 1, true), new THREE.MeshBasicMaterial({ color: s.color, transparent: true, opacity: .1, depthWrite: false, fog: false }));
       s.beacon.position.set(s.x, 30, s.z); scene.add(s.beacon);
       s.label = makeLabel(s.name, s.color, i + 1); s.label.position.set(s.x, 10.5, s.z); scene.add(s.label);
       s.beaconBase = .04;
     });
+
+    /* a causeway between two landmasses; p/q are centres, rp/rq radii; owner colours the lamps */
+    function causeway(p, q, rp, rq, owner, nodeP, nodeQ) {
+      var dx = q.x - p.x, dz = q.z - p.z, L = Math.hypot(dx, dz), ux = dx / L, uz = dz / L, ang = Math.atan2(ux, uz);
+      var a0 = rp - 1.5, a1 = L - rq + 1.5, len = a1 - a0;
+      /* top sits 5 cm below the island surface so the overlap under the shore never z-fights */
+      var b = new THREE.Mesh(new THREE.BoxGeometry(3.4, .5, len), stoneMat);
+      b.position.set(p.x + ux * (a0 + len / 2), -.3, p.z + uz * (a0 + len / 2)); b.rotation.y = ang; scene.add(b);
+      var sideX = Math.cos(ang), sideZ = -Math.sin(ang);
+      for (var k = 1.2; k <= len - .5; k += 3.4) {
+        [-1, 1].forEach(function (side) {
+          var px = p.x + ux * (a0 + k) + sideX * side * 1.6, pz = p.z + uz * (a0 + k) + sideZ * side * 1.6;
+          postSpots.push({ x: px, z: pz }); lampSpots.push({ x: px, z: pz, owner: owner });
+        });
+      }
+      [.28, .5, .72].forEach(function (f, k) {
+        var dd = a0 + len * f, side = (k % 2 ? 1 : -1) * .7;
+        var c = new THREE.Mesh(new THREE.CylinderGeometry(.42, .42, .1, 18), glow("#f4c55b", .7, { metalness: .5, roughness: .3 })); c.rotation.x = Math.PI / 2;
+        var wx = p.x + ux * dd + sideX * side, wz = p.z + uz * dd + sideZ * side; c.position.set(wx, 1.2, wz); scene.add(c); coinPickups.push({ mesh: c, x: wx, z: wz, got: false });
+      });
+      var br = { ax: p.x + ux * (rp - 3), az: p.z + uz * (rp - 3), bx: p.x + ux * (L - rq + 3), bz: p.z + uz * (L - rq + 3) };
+      bridges.push(br);
+      var nP = nodeP !== undefined ? nodeP : addNode(br.ax, br.az);
+      var nQ = nodeQ !== undefined ? nodeQ : addNode(br.bx, br.bz);
+      link(nP, nQ);
+      return { bridge: br, nP: nP, nQ: nQ };
+    }
+    /* spokes inward and neighbour causeways */
+    STATIONS.forEach(function (s) {
+      if (s.ring === 0) {
+        var hr = addNode(s.dir.x * 11.5, s.dir.z * 11.5), hi = addNode(s.dir.x * 4.3, s.dir.z * 4.3); link(hr, hi);
+        hubRing.push({ angle: s.angle, node: hr, inner: hi });
+        var cw = causeway({ x: 0, z: 0 }, { x: s.x, z: s.z }, R_HUB, R_ISLE, s, hr);
+        s.nodes.push(cw.nQ); s.spoke = cw.bridge;
+      } else {
+        var best = null, bd = 99;
+        STATIONS.forEach(function (o) { if (o.ring === s.ring - 1) { var d = angDiff(o.angle, s.angle); if (d < bd) { bd = d; best = o; } } });
+        s.parent = best;
+        var cw2 = causeway({ x: best.x, z: best.z }, { x: s.x, z: s.z }, R_ISLE, R_ISLE, s);
+        best.nodes.push(cw2.nP); s.nodes.push(cw2.nQ); s.spoke = cw2.bridge;
+      }
+    });
+    STATIONS.forEach(function (s) {
+      if (s.ringSize < 2) return;
+      var nextSlot = (s.slot + 1) % s.ringSize; if (s.ringSize === 2 && s.slot === 1) return;
+      var o = STATIONS.filter(function (c) { return c.ring === s.ring && c.slot === nextSlot; })[0]; if (!o) return;
+      var gap = Math.hypot(o.x - s.x, o.z - s.z) - 2 * R_ISLE; if (gap > NEIGHBOUR_GAP) return;
+      var cw = causeway({ x: s.x, z: s.z }, { x: o.x, z: o.z }, R_ISLE, R_ISLE, s);
+      s.nodes.push(cw.nP); o.nodes.push(cw.nQ);
+    });
+    /* on-island connections: every node of an island reaches every other */
+    STATIONS.forEach(function (s) { for (var a = 0; a < s.nodes.length; a++) for (var b = a + 1; b < s.nodes.length; b++) link(s.nodes[a], s.nodes[b]); });
+    hubRing.sort(function (a, b) { return a.angle - b.angle; });
+    for (var hi2 = 0; hi2 < hubRing.length; hi2++) { if (hubRing.length > 1) link(hubRing[hi2].node, hubRing[(hi2 + 1) % hubRing.length].node); }
+
+    /* instanced rocks, posts and lamps (one draw call each, lamps per island colour) */
+    (function () {
+      var dummy = new THREE.Object3D();
+      /* no rocks on the pathway: drop any within 3 units of a causeway, extended 8 units into each shore */
+      rockSpots = rockSpots.filter(function (r) {
+        return !bridges.some(function (b) {
+          var vx = b.bx - b.ax, vz = b.bz - b.az, L = Math.hypot(vx, vz) || 1, ux = vx / L, uz = vz / L;
+          var ext = { ax: b.ax - ux * 8, az: b.az - uz * 8, bx: b.bx + ux * 8, bz: b.bz + uz * 8 };
+          return segDist(r.x, r.z, ext) < 3;
+        });
+      });
+      var rocks = new THREE.InstancedMesh(new THREE.DodecahedronGeometry(1, 0), stoneMat, rockSpots.length);
+      rockSpots.forEach(function (r, i) { dummy.position.set(r.x, .2, r.z); dummy.rotation.set(r.rx, r.ry, 0); dummy.scale.setScalar(r.s); dummy.updateMatrix(); rocks.setMatrixAt(i, dummy.matrix); });
+      scene.add(rocks);
+      var posts = new THREE.InstancedMesh(new THREE.CylinderGeometry(.09, .09, 1, 5), stoneMat, postSpots.length);
+      postSpots.forEach(function (r, i) { dummy.position.set(r.x, .5, r.z); dummy.rotation.set(0, 0, 0); dummy.scale.setScalar(1); dummy.updateMatrix(); posts.setMatrixAt(i, dummy.matrix); });
+      scene.add(posts);
+      STATIONS.forEach(function (s) {
+        var mine = lampSpots.filter(function (l) { return l.owner === s; }); if (!mine.length) return;
+        var lm = new THREE.InstancedMesh(new THREE.SphereGeometry(.14, 8, 6), new THREE.MeshBasicMaterial({ color: s.color }), mine.length);
+        mine.forEach(function (l, i) { dummy.position.set(l.x, 1.05, l.z); dummy.rotation.set(0, 0, 0); dummy.scale.setScalar(1); dummy.updateMatrix(); lm.setMatrixAt(i, dummy.matrix); });
+        scene.add(lm); s.lampMesh = lm;
+      });
+    })();
 
     function segDist(px, pz, b) { var vx = b.bx - b.ax, vz = b.bz - b.az; var t = ((px - b.ax) * vx + (pz - b.az) * vz) / (vx * vx + vz * vz); t = Math.max(0, Math.min(1, t)); return Math.hypot(px - (b.ax + vx * t), pz - (b.az + vz * t)); }
     function walkable(x, z) {
@@ -433,12 +635,13 @@
       return false;
     }
 
-    /* ---------- centre ---------- */
-    var plinth = new THREE.Mesh(new THREE.CylinderGeometry(3.2, 3.8, .6, 8), stoneMat); plinth.position.y = .3; scene.add(plinth);
+    /* ---------- centre (the finale hub) ---------- */
+    var crownR = Math.max(2.55, N * .62 / (2 * Math.PI)), pillarW = Math.min(.55, 2 * Math.PI * crownR / N * .6);
+    var plinth = new THREE.Mesh(new THREE.CylinderGeometry(crownR + .7, crownR + 1.3, .6, 8), stoneMat); plinth.position.y = .3; scene.add(plinth);
     var obelisk = new THREE.Mesh(new THREE.OctahedronGeometry(1.3, 0), M("#9aa3b8", { emissive: "#222222", metalness: .3, roughness: .3 })); obelisk.position.y = 3.8; obelisk.scale.y = 1.8; scene.add(obelisk);
     var crown = STATIONS.map(function (s, i) {
-      var a = i / N * Math.PI * 2; var h = .7 + 2.4 * (1 - Math.exp(-(i + .6) / 2.1));
-      var pm = new THREE.Mesh(new THREE.BoxGeometry(.55, h, .55), M("#8a93a8", { emissive: "#000000" })); pm.position.set(Math.sin(a) * 2.55, .6 + h / 2, Math.cos(a) * 2.55); scene.add(pm); return { p: pm, s: s };
+      var a = i / N * Math.PI * 2; var h = .7 + 2.4 * (1 - Math.exp(-(i + .6) / Math.max(2.1, N / 3)));
+      var pm = new THREE.Mesh(new THREE.BoxGeometry(pillarW, h, pillarW), M("#8a93a8", { emissive: "#000000" })); pm.position.set(Math.sin(a) * crownR, .6 + h / 2, Math.cos(a) * crownR); scene.add(pm); return { p: pm, s: s };
     });
     var examLabel = makeLabel(data.finale.name, "#ffffff"); examLabel.position.set(0, 9.6, 0); scene.add(examLabel);
     var marker = new THREE.Mesh(new THREE.ConeGeometry(1, 2, 4), glow("#ffd76a", .9)); marker.rotation.x = Math.PI; scene.add(marker);
@@ -454,13 +657,62 @@
       crown.forEach(function (c) { var on = !!state.done[c.s.id]; c.p.material.color.set(on ? c.s.color : "#8a93a8"); c.p.material.emissive.set(on ? c.s.color : "#000000"); c.p.material.emissiveIntensity = on ? .6 : 0; });
       var all = state.doneCount === N; obelisk.material.emissive.set(all ? "#ffffff" : "#222222"); obelisk.material.emissiveIntensity = all ? .6 : .4;
     }
+
+    /* ---------- sky extras per world theme ---------- */
+    var skyUpdaters = [];
+    (function () {
+      if (T3.extra === "clouds" || T3.extra === "mesas") {
+        var cloudMat = new THREE.MeshStandardMaterial({ color: "#ffffff", roughness: 1, flatShading: true, transparent: true, opacity: .85 });
+        var clouds = [];
+        for (var i = 0; i < 7; i++) {
+          var cg = new THREE.Group(); var a = i / 7 * Math.PI * 2, d = WORLD_R * .6 + Math.random() * WORLD_R * .8;
+          for (var k = 0; k < 3; k++) { var cs = new THREE.Mesh(new THREE.IcosahedronGeometry(3 + Math.random() * 3, 0), cloudMat); cs.position.set((k - 1) * 4.2, Math.random() * 1.2, (Math.random() - .5) * 2); cg.add(cs); }
+          cg.position.set(Math.cos(a) * d, 38 + Math.random() * 14, Math.sin(a) * d); scene.add(cg); clouds.push({ g: cg, v: .4 + Math.random() * .5 });
+        }
+        skyUpdaters.push(function (t, dt) { if (reduceMotion) return; clouds.forEach(function (c) { c.g.position.x += c.v * dt; if (c.g.position.x > WORLD_R * 1.6) c.g.position.x = -WORLD_R * 1.6; }); });
+        if (T3.extra === "mesas") {
+          var mesaMat = M("#8a4a2a");
+          for (var mi = 0; mi < 9; mi++) { var ma = mi / 9 * Math.PI * 2 + .3, md = WORLD_R + 120 + Math.random() * 60; var mesa = new THREE.Mesh(new THREE.CylinderGeometry(14 + Math.random() * 10, 20 + Math.random() * 14, 18 + Math.random() * 22, 7), mesaMat); mesa.position.set(Math.cos(ma) * md, 5, Math.sin(ma) * md); scene.add(mesa); }
+        }
+      }
+      if (T3.extra === "aurora") {
+        var curtains = [];
+        for (var ci = 0; ci < 3; ci++) {
+          var c = doc.createElement("canvas"); c.width = 64; c.height = 256; var x = c.getContext("2d");
+          var gr = x.createLinearGradient(0, 0, 0, 256); gr.addColorStop(0, "rgba(120,255,200,0)"); gr.addColorStop(.35, ci === 1 ? "rgba(170,120,255,.55)" : "rgba(90,255,190,.55)"); gr.addColorStop(.7, "rgba(90,180,255,.3)"); gr.addColorStop(1, "rgba(90,180,255,0)");
+          x.fillStyle = gr; x.fillRect(0, 0, 64, 256);
+          var tex = new THREE.CanvasTexture(c);
+          var mesh = new THREE.Mesh(new THREE.PlaneGeometry(WORLD_R * 2.4, 70, 24, 1), new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending, fog: false }));
+          var ca = Math.PI * 1.1 + ci * .5; var cd = WORLD_R * 1.8 + ci * 40;
+          mesh.position.set(Math.sin(ca) * cd, 95 + ci * 12, Math.cos(ca) * cd); mesh.lookAt(0, 60, 0); scene.add(mesh); curtains.push(mesh);
+        }
+        skyUpdaters.push(function (t) {
+          if (reduceMotion) return;
+          curtains.forEach(function (m, i) { var pos = m.geometry.attributes.position; for (var v = 0; v < pos.count; v++) { var px = pos.getX(v); pos.setZ(v, Math.sin(px * .02 + t * .5 + i) * 6); } pos.needsUpdate = true; m.material.opacity = .7 + Math.sin(t * .6 + i) * .2; });
+        });
+      }
+      if (T3.extra === "snow") {
+        var sn = 1400, sg = new THREE.BufferGeometry(), sa = new Float32Array(sn * 3);
+        for (var fi = 0; fi < sn; fi++) { sa[fi * 3] = (Math.random() - .5) * 120; sa[fi * 3 + 1] = Math.random() * 40; sa[fi * 3 + 2] = (Math.random() - .5) * 120; }
+        sg.setAttribute("position", new THREE.BufferAttribute(sa, 3));
+        var snow = new THREE.Points(sg, new THREE.PointsMaterial({ color: 0xffffff, size: .35, transparent: true, opacity: .9 })); scene.add(snow);
+        skyUpdaters.push(function (t, dt, pp) {
+          snow.position.set(pp.x, 0, pp.z); if (reduceMotion) return;
+          var arr = sg.attributes.position.array;
+          for (var q = 0; q < sn; q++) { arr[q * 3 + 1] -= dt * (2.5 + (q % 5) * .4); arr[q * 3] += Math.sin(t + q) * dt * .4; if (arr[q * 3 + 1] < -1) arr[q * 3 + 1] = 40; }
+          sg.attributes.position.needsUpdate = true;
+        });
+      }
+    })();
+
     function applyTheme() {
-      var sky = css("--sky") || "#cfe3ee"; scene.background = new THREE.Color(sky); scene.fog = new THREE.Fog(sky, 70, 300);
+      var dark = isDark();
+      var sky = css("--sky") || "#cfe3ee"; scene.background = new THREE.Color(sky); scene.fog = new THREE.Fog(sky, 70, Math.max(300, WORLD_R * 2.2));
       seaMat.color.set(css("--sea") || "#4d93a6"); sandMat.color.set(css("--sand") || "#e3cf9f"); stoneMat.color.set(css("--stone") || "#b9a77d");
-      stars.visible = isDark(); hemi.intensity = isDark() ? .7 : 1; sun.intensity = isDark() ? .55 : .9;
+      stars.visible = T3.stars === "always" || dark; hemi.intensity = dark ? T3.hemiI[1] : T3.hemiI[0]; sun.intensity = dark ? T3.sunI[1] : T3.sunI[0];
       STATIONS.forEach(function (s) {
-        s.color = isDark() ? s.darkColor : s.lightColor; s.beacon.material.color.set(s.color);
-        s.lamps.forEach(function (l) { l.material.color.set(s.color); l.material.emissive.set(s.color); });
+        s.color = dark ? s.darkColor : s.lightColor; s.beacon.material.color.set(s.color);
+        if (s.lampMesh) s.lampMesh.material.color.set(s.color);
         if (s.recolor) s.recolor(s.color);
       });
       refreshWorld(); renderTray();
@@ -489,6 +741,7 @@
     var body = new THREE.Mesh(new THREE.IcosahedronGeometry(.75, 1), M("#f4f6fb", { emissive: "#ffffff", emissiveIntensity: .15, roughness: .4 })); body.position.y = 1.1; player.add(body);
     var visor = new THREE.Mesh(new THREE.BoxGeometry(.9, .22, .3), M("#1b2440", { emissive: "#6eb6f2", emissiveIntensity: .8 })); visor.position.set(0, 1.25, .62); player.add(visor);
     var halo = new THREE.Mesh(new THREE.TorusGeometry(.55, .07, 6, 24), glow("#ffd76a", .8)); halo.rotation.x = Math.PI / 2; halo.position.y = 2.25; player.add(halo);
+    var carryGroup = new THREE.Group(); carryGroup.position.y = 3.1; player.add(carryGroup);
     player.position.set(0, 0, 6.5);
     var yaw = 0, pitch = .34;
     var robo = new THREE.Group(); scene.add(robo);
@@ -502,8 +755,95 @@
     })();
     robo.position.set(0, 0, 8.2); var roboJump = 0;
 
-    /* ---------- scenery per theme, field tasks per activity ---------- */
+    /* ---------- scenery per island theme ---------- */
     var updaters = [];
+
+    /* ---------- occasional weather and ambient life: random per load, never on every island ---------- */
+    (function () {
+      if (reduceMotion) return;
+      var weatherKinds = themeName === "snow" ? ["snow"] : themeName === "canyon" ? ["rain", "storm"] : ["rain", "storm", "snow"];
+      var maxWeather = Math.max(1, Math.round(N * .3)), weathered = 0;
+      STATIONS.slice().sort(function () { return Math.random() - .5; }).forEach(function (s) {
+        if (weathered < maxWeather && Math.random() < .3) { weathered++; addWeather(s, weatherKinds[Math.floor(Math.random() * weatherKinds.length)]); }
+      });
+      if (Math.random() < .7) addFlock();
+      if (N > 10 && Math.random() < .5) addFlock();
+      STATIONS.forEach(function (s) { if (Math.random() < .3) addFireflies(s); if (Math.random() < .25) addBugs(s); });
+
+      function addWeather(s, kind) {
+        var cloud = new THREE.Group();
+        var cmat = new THREE.MeshStandardMaterial({ color: kind === "storm" ? "#5a6070" : kind === "snow" ? "#e8edf5" : "#9aa3b3", roughness: 1, flatShading: true, transparent: true, opacity: .92 });
+        for (var k = 0; k < 4; k++) { var puff = new THREE.Mesh(new THREE.IcosahedronGeometry(2.2 + Math.random() * 1.6, 0), cmat); puff.position.set((k - 1.5) * 3.2, Math.random() * .8, (Math.random() - .5) * 2.5); cloud.add(puff); }
+        cloud.position.set(s.x, 17, s.z); scene.add(cloud);
+        var n = kind === "snow" ? 140 : 170, geo = new THREE.BufferGeometry(), arr = new Float32Array(n * 3);
+        for (var i = 0; i < n; i++) { var a = Math.random() * Math.PI * 2, d = Math.random() * 7.5; arr[i * 3] = s.x + Math.cos(a) * d; arr[i * 3 + 1] = Math.random() * 16; arr[i * 3 + 2] = s.z + Math.sin(a) * d; }
+        geo.setAttribute("position", new THREE.BufferAttribute(arr, 3));
+        var pts = new THREE.Points(geo, new THREE.PointsMaterial({ color: kind === "snow" ? 0xffffff : 0xbfe3ff, size: kind === "snow" ? .32 : .16, transparent: true, opacity: kind === "snow" ? .9 : .6 })); scene.add(pts);
+        var bolt = null, flashT = 0, nextFlash = 5 + Math.random() * 9;
+        if (kind === "storm") {
+          var bp = [], px = s.x + (Math.random() - .5) * 6, pz = s.z + (Math.random() - .5) * 6, y = 15;
+          while (y > .5) { var ny = Math.max(.5, y - 2 - Math.random() * 2), nx = px + (Math.random() - .5) * 2.4, nz = pz + (Math.random() - .5) * 2.4; bp.push(px, y, pz, nx, ny, nz); px = nx; pz = nz; y = ny; }
+          var bg = new THREE.BufferGeometry(); bg.setAttribute("position", new THREE.Float32BufferAttribute(bp, 3));
+          bolt = new THREE.LineSegments(bg, new THREE.LineBasicMaterial({ color: 0xfff6c8, transparent: true, opacity: 0, fog: false })); scene.add(bolt);
+        }
+        updaters.push(function (t, dt) {
+          var p = geo.attributes.position.array;
+          for (var q = 0; q < n; q++) { p[q * 3 + 1] -= dt * (kind === "snow" ? 2.2 + (q % 4) * .4 : 14 + (q % 5) * 2); if (kind === "snow") p[q * 3] += Math.sin(t * 1.3 + q) * dt * .6; if (p[q * 3 + 1] < 0) p[q * 3 + 1] = 16; }
+          geo.attributes.position.needsUpdate = true;
+          cloud.position.x = s.x + Math.sin(t * .3) * .8;
+          if (bolt) {
+            nextFlash -= dt;
+            if (nextFlash <= 0) { nextFlash = 6 + Math.random() * 10; flashT = .22; sfx("thunder"); }
+            if (flashT > 0) { flashT -= dt; var on = Math.floor(flashT * 40) % 2 === 0; bolt.material.opacity = on ? 1 : .2; cmat.emissive.set(on ? "#cfd8ff" : "#000000"); }
+            else { bolt.material.opacity = 0; cmat.emissive.set("#000000"); }
+          }
+        });
+      }
+      function addFlock() {
+        var g = new THREE.Group(), birds = [], count = 5 + Math.floor(Math.random() * 3);
+        var bmat = new THREE.MeshBasicMaterial({ color: isDark() ? 0xdde3f0 : 0x2a3350 });
+        for (var i = 0; i < count; i++) {
+          var b = new THREE.Group();
+          [-1, 1].forEach(function (side) { var w = new THREE.Mesh(new THREE.BoxGeometry(1.1, .05, .3), bmat); w.position.x = side * .55; w.userData.side = side; b.add(w); });
+          b.position.set((i % 2 ? 1 : -1) * Math.ceil(i / 2) * 1.6, -Math.ceil(i / 2) * .3, -Math.ceil(i / 2) * 1.4); g.add(b); birds.push(b);
+        }
+        var R = WORLD_R * (.5 + Math.random() * .5), H = 22 + Math.random() * 10, ang = Math.random() * Math.PI * 2, speed = (.08 + Math.random() * .05) * (Math.random() < .5 ? 1 : -1);
+        scene.add(g);
+        updaters.push(function (t, dt) {
+          ang += speed * dt; g.position.set(Math.cos(ang) * R, H + Math.sin(t * .7) * 1.5, Math.sin(ang) * R);
+          g.rotation.y = Math.atan2(-Math.sin(ang) * speed, Math.cos(ang) * speed) ;
+          birds.forEach(function (b, i) { b.children.forEach(function (w) { w.rotation.z = w.userData.side * Math.sin(t * 9 + i) * .6; }); });
+        });
+      }
+      function addFireflies(s) {
+        var n = 7 + Math.floor(Math.random() * 5), geo = new THREE.BufferGeometry(), arr = new Float32Array(n * 3), seeds = [];
+        for (var i = 0; i < n; i++) seeds.push({ a: Math.random() * Math.PI * 2, d: 2 + Math.random() * 7, h: 1 + Math.random() * 2.5, p: Math.random() * 10 });
+        geo.setAttribute("position", new THREE.BufferAttribute(arr, 3));
+        var mat = new THREE.PointsMaterial({ color: 0xfff1a8, size: .28, transparent: true, opacity: .9, fog: false });
+        scene.add(new THREE.Points(geo, mat));
+        updaters.push(function (t) {
+          for (var i = 0; i < n; i++) { var sd = seeds[i], a = sd.a + t * .25 + Math.sin(t * .7 + sd.p) * .5; arr[i * 3] = s.x + Math.cos(a) * (sd.d + Math.sin(t + sd.p) * .8); arr[i * 3 + 1] = sd.h + Math.sin(t * 1.6 + sd.p) * .5; arr[i * 3 + 2] = s.z + Math.sin(a) * (sd.d + Math.cos(t * .9 + sd.p) * .8); }
+          geo.attributes.position.needsUpdate = true; mat.opacity = (isDark() ? .5 : .3) + .4 * Math.abs(Math.sin(t * 2.2));
+        });
+      }
+      function addBugs(s) {
+        var bugs = [], n = 3 + Math.floor(Math.random() * 3), bmat = M("#2a2420", { roughness: .6 });
+        for (var i = 0; i < n; i++) {
+          var b = new THREE.Mesh(new THREE.SphereGeometry(.16, 6, 5), bmat); b.scale.set(1, .6, 1.5);
+          var a = Math.random() * Math.PI * 2, d = Math.random() * R_ISLE * .6; b.position.set(s.x + Math.cos(a) * d, .1, s.z + Math.sin(a) * d); scene.add(b);
+          bugs.push({ m: b, h: Math.random() * Math.PI * 2, turn: 0, pause: Math.random() * 2 });
+        }
+        updaters.push(function (t, dt) {
+          bugs.forEach(function (bug) {
+            bug.pause -= dt; if (bug.pause > 0) return;
+            bug.turn -= dt; if (bug.turn <= 0) { bug.turn = .8 + Math.random() * 2; bug.h += (Math.random() - .5) * 1.6; if (Math.random() < .25) bug.pause = .5 + Math.random() * 1.5; }
+            var nx = bug.m.position.x + Math.sin(bug.h) * dt * 1.1, nz = bug.m.position.z + Math.cos(bug.h) * dt * 1.1;
+            if (Math.hypot(nx - s.x, nz - s.z) > R_ISLE * .7) { bug.h += Math.PI; return; }
+            bug.m.position.x = nx; bug.m.position.z = nz; bug.m.rotation.y = bug.h;
+          });
+        });
+      }
+    })();
     function figure(sc, color) {
       var f = new THREE.Group();
       var b = new THREE.Mesh(new THREE.CylinderGeometry(.55, .75, 2, 8), M(color || "#c8cdd8")); b.position.y = 1; f.add(b);
@@ -516,48 +856,54 @@
       var tag = makeTag(opt.label, "#ffffff", 1.9); tag.position.set(lx, 1.6, lz); s.g.add(tag);
       var w = s.toWorld(lx, lz); return { mesh: pad, ring: ring, tag: tag, id: opt.id, label: opt.label, why: opt.hint || "", x: w.x, z: w.z };
     }
+    function pillar(s, lx, lz, h, color) {
+      var m = new THREE.Mesh(new THREE.BoxGeometry(.9, h, .9), M(color || "#c8cdd8", { emissive: s.color, emissiveIntensity: 0 })); m.position.set(lx, h / 2, lz); s.g.add(m); return m;
+    }
     var THEMES = {
       grove: function (s) {
         var trees = [];
-        for (var i = 0; i < 10; i++) {
-          var a = i / 10 * Math.PI * 2, t = new THREE.Group();
+        for (var i = 0; i < 8; i++) {
+          var a = i / 8 * Math.PI * 2 + .2, t = new THREE.Group();
           var cone = new THREE.Mesh(new THREE.ConeGeometry(.95, 3.4, 6), glow(s.color, .25)); cone.position.y = 2.6; t.add(cone);
           var trunk = new THREE.Mesh(new THREE.CylinderGeometry(.18, .24, 1, 6), stoneMat); trunk.position.y = .5; t.add(trunk);
-          t.position.set(Math.cos(a) * 7.2, 0, Math.sin(a) * 7.2); s.g.add(t); trees.push(t);
+          t.position.set(Math.cos(a) * 7.6, 0, Math.sin(a) * 7.6); s.g.add(t); trees.push(t);
         }
-        var ballot = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.6, 2.2), M("#f4f1e8")); ballot.position.y = .8; s.g.add(ballot);
-        var slot = new THREE.Mesh(new THREE.BoxGeometry(1.2, .06, .2), M("#1b2440")); slot.position.y = 1.62; s.g.add(slot);
-        s.pulse = function () { ballot.scale.setScalar(1.12); };
-        updaters.push(function (t) { if (!reduceMotion) trees.forEach(function (tr, i) { tr.rotation.z = Math.sin(t * 1.2 + i) * .03; }); ballot.scale.lerp(new THREE.Vector3(1, 1, 1), .1); });
+        if (s.data.activity && s.data.activity.type === "collect") {
+          var ballot = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.6, 2.2), M("#f4f1e8")); ballot.position.y = .8; s.g.add(ballot);
+          var slot = new THREE.Mesh(new THREE.BoxGeometry(1.2, .06, .2), M("#1b2440")); slot.position.y = 1.62; s.g.add(slot);
+          s.pulse = function () { ballot.scale.setScalar(1.12); };
+          updaters.push(function () { ballot.scale.lerp(new THREE.Vector3(1, 1, 1), .1); });
+        }
+        updaters.push(function (t) { if (!reduceMotion) trees.forEach(function (tr, i) { tr.rotation.z = Math.sin(t * 1.2 + i) * .03; }); });
       },
       tower: function (s) {
         var rings = [];
-        var core = new THREE.Mesh(new THREE.CylinderGeometry(.5, .9, 12, 8), stoneMat); core.position.y = 6; s.g.add(core);
-        for (var i = 0; i < 9; i++) { var r = new THREE.Mesh(new THREE.TorusGeometry(2.6 - i * .18, .22, 6, 28), glow(s.color, .9 - i * .09)); r.rotation.x = Math.PI / 2; r.position.y = 1 + i * 1.25; s.g.add(r); rings.push(r); }
-        var top = new THREE.Mesh(new THREE.OctahedronGeometry(.7, 0), M("#888888", { emissive: "#333333" })); top.position.y = 12.8; s.g.add(top);
+        var core = new THREE.Mesh(new THREE.CylinderGeometry(.5, .9, 12, 8), stoneMat); core.position.set(0, 6, -1); s.g.add(core);
+        for (var i = 0; i < 9; i++) { var r = new THREE.Mesh(new THREE.TorusGeometry(2.6 - i * .18, .22, 6, 28), glow(s.color, .9 - i * .09)); r.rotation.x = Math.PI / 2; r.position.set(0, 1 + i * 1.25, -1); s.g.add(r); rings.push(r); }
+        var top = new THREE.Mesh(new THREE.OctahedronGeometry(.7, 0), M("#888888", { emissive: "#333333" })); top.position.set(0, 12.8, -1); s.g.add(top);
         updaters.push(function (t) { if (reduceMotion) return; rings.forEach(function (r, i) { r.rotation.z = t * .4 * (i % 2 ? 1 : -1); r.material.emissiveIntensity = .15 + .75 * Math.max(0, Math.sin(t * 1.6 - i * .55)) * (1 - i / 11); }); });
       },
       arena: function (s) {
-        var floor = new THREE.Mesh(new THREE.TorusGeometry(5.6, .25, 6, 40), glow(s.color, .4)); floor.rotation.x = Math.PI / 2; floor.position.y = .1; s.g.add(floor);
+        var floor = new THREE.Mesh(new THREE.TorusGeometry(6.2, .25, 6, 40), glow(s.color, .4)); floor.rotation.x = Math.PI / 2; floor.position.y = .1; s.g.add(floor);
       },
       workshop: function (s) {
-        var stand = new THREE.Mesh(new THREE.CylinderGeometry(4.2, 4.6, .3, 10), stoneMat); stand.position.y = .15; s.g.add(stand);
+        var stand = new THREE.Mesh(new THREE.CylinderGeometry(4.6, 5, .3, 10), stoneMat); stand.position.set(0, .15, 1.5); s.g.add(stand);
       },
       canyon: function (s) {
-        var wall = new THREE.Mesh(new THREE.BoxGeometry(14, 1.2, 1.2), stoneMat); wall.position.set(0, .6, 5.5); s.g.add(wall);
+        var wall = new THREE.Mesh(new THREE.BoxGeometry(14, 1.2, 1.2), stoneMat); wall.position.set(0, .6, 7.5); s.g.add(wall);
       },
       hall: function (s) {
-        for (var i = -1; i <= 1; i += 2) { var col = new THREE.Mesh(new THREE.CylinderGeometry(.35, .4, 6, 8), M("#c8cdd8")); col.position.set(i * 6.5, 3, 4.5); s.g.add(col); }
-        var beam = new THREE.Mesh(new THREE.BoxGeometry(13.8, .5, .6), M("#c8cdd8")); beam.position.set(0, 6.2, 4.5); s.g.add(beam);
+        for (var i = -1; i <= 1; i += 2) { var col = new THREE.Mesh(new THREE.CylinderGeometry(.35, .4, 6, 8), M("#c8cdd8")); col.position.set(i * 6.5, 3, 6.5); s.g.add(col); }
+        var beam = new THREE.Mesh(new THREE.BoxGeometry(13.8, .5, .6), M("#c8cdd8")); beam.position.set(0, 6.2, 6.5); s.g.add(beam);
       },
       clock: function (s) {
-        var stand = new THREE.Mesh(new THREE.BoxGeometry(8, .8, 1.6), stoneMat); stand.position.y = .4; s.g.add(stand);
+        var stand = new THREE.Mesh(new THREE.BoxGeometry(8, .8, 1.6), stoneMat); stand.position.set(0, .4, 2); s.g.add(stand);
       },
       plain: function () {}
     };
     /* visual builders used by `tune` activities */
     function circleVisual(s) {
-      var holder = new THREE.Group(); s.g.add(holder); var heads = [];
+      var holder = new THREE.Group(); holder.position.z = 1.5; s.g.add(holder); var heads = [];
       updaters.push(function (t) { if (reduceMotion) return; heads.forEach(function (h, i) { h.material.emissiveIntensity = .3 + .7 * Math.max(0, Math.sin(t * 2.2 - i * 1.3)); }); });
       return function (count, extra) {
         holder.clear(); heads = []; count = Math.max(0, Math.min(12, Math.round(count))); extra = Math.max(0, Math.min(36, Math.round(extra)));
@@ -571,7 +917,7 @@
       };
     }
     function gridVisual(s, leader) {
-      var holder = new THREE.Group(); s.g.add(holder); var nodes = [];
+      var holder = new THREE.Group(); holder.position.z = 1.5; s.g.add(holder); var nodes = [];
       updaters.push(function (t) { if (reduceMotion) return; nodes.forEach(function (n) { n.material.emissiveIntensity = .25 + .6 * Math.max(0, Math.sin(t * 2.4 - n.position.y * 1.1)); }); });
       return function (cols, rows) {
         holder.clear(); nodes = []; cols = Math.max(1, Math.min(8, Math.round(cols))); rows = Math.max(0, Math.min(6, Math.round(rows)));
@@ -583,11 +929,15 @@
         if (pts.length) { var lg = new THREE.BufferGeometry(); lg.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3)); holder.add(new THREE.LineSegments(lg, new THREE.LineBasicMaterial({ color: s.color, transparent: true, opacity: .45 }))); }
       };
     }
+    /* a glowing pulse applied to a list of meshes with emissive materials */
+    function pulseAll(meshes, speed, base, amp) {
+      updaters.push(function (t) { if (reduceMotion) return; meshes.forEach(function (m, i) { if (m.userData.lock) return; m.material.emissiveIntensity = base + amp * Math.max(0, Math.sin(t * speed - i * .8)); }); });
+    }
+    function spreadX(i, n, gap) { return (i - (n - 1) / 2) * gap; }
 
-    STATIONS.forEach(function (s) {
-      (THEMES[s.data.theme] || THEMES.plain)(s);
-      var act = s.data.activity; if (!act) return;
-      if (act.type === "collect") {
+    /* ---------- 3D presence per activity: field tasks and live props ---------- */
+    var PROPS = {
+      collect: function (s, act) {
         var n = act.items.length;
         s.task = { type: "collect", total: n, collected: [], items: [] };
         act.items.forEach(function (L, i) {
@@ -597,11 +947,12 @@
           s.task.items.push({ mesh: o, tag: tag, L: L, x: w.x, z: w.z, got: false, ph: i });
         });
         updaters.push(function (t) { if (reduceMotion) return; s.task.items.forEach(function (it) { if (!it.got) { it.mesh.position.y = 1 + Math.sin(t * 2.5 + it.ph) * .18; it.tag.position.y = 2.1 + Math.sin(t * 2.5 + it.ph) * .18; } }); });
-      } else if (act.type === "pads") {
+      },
+      pads: function (s, act) {
         var k = act.options.length, spread = 4.6;
         s.task = { type: "pad", answer: act.answer, onPad: null, pads: [] };
         act.options.forEach(function (opt, i) {
-          var x = (i - (k - 1) / 2) * spread;
+          var x = spreadX(i, k, spread);
           s.task.pads.push(makePad(s, x, -3.4, opt));
           if (opt.bars) {
             var a = new THREE.Mesh(new THREE.BoxGeometry(1.3, Math.max(.2, opt.bars[0] / 10), 1.3), M("#9aa3b8")); a.position.set(x - .8, Math.max(.2, opt.bars[0] / 10) / 2, 1.5); s.g.add(a);
@@ -614,21 +965,29 @@
             (function (fig, big) { updaters.push(function (t) { if (reduceMotion) return; if (big) fig.rotation.y = Math.sin(t * .4) * .3; else fig.position.y = Math.abs(Math.sin(t * 3 + x)) * .25; }); })(f, opt.size >= 2);
           }
         });
-      } else if (act.type === "tune" && act.visual) {
+      },
+      story: function (s, act) {
+        /* a row of story stones that light up frame by frame */
+        var stones = act.frames.map(function (f, i) { var st = new THREE.Mesh(new THREE.BoxGeometry(1.1, .5, .8), M("#f4f1e8", { emissive: s.color, emissiveIntensity: 0 })); st.position.set(spreadX(i, act.frames.length, 1.5), .25, 4.5); st.rotation.y = (i % 2 ? 1 : -1) * .12; s.g.add(st); return st; });
+        s.api = { step: function (n) { stones.forEach(function (st, i) { st.material.emissiveIntensity = i < n ? .7 : 0; }); } };
+      },
+      tune: function (s, act) {
+        if (!act.visual) return;
         var builder = act.visual.kind === "grid" ? gridVisual(s, !!act.visual.leader) : circleVisual(s);
         var env = {}; act.controls.forEach(function (c) { env[c.id] = c.value; });
         s.api = { build: function (e) { builder(evalExpr(act.visual.count, e), evalExpr(act.visual.extra, e)); } };
         s.api.build(env);
-      } else if (act.type === "race") {
-        var gears = [], labels = [];
+      },
+      race: function (s, act) {
+        var gears = [];
         act.bars.forEach(function (bar, i) {
           var gr = new THREE.Group();
           var ring = new THREE.Mesh(new THREE.TorusGeometry(2.1, .32, 6, 28), M("#c8cdd8", { emissive: "#000000" })); gr.add(ring);
           for (var ti = 0; ti < 12; ti++) { var ta = ti / 12 * Math.PI * 2; var tooth = new THREE.Mesh(new THREE.BoxGeometry(.5, .6, .5), M("#c8cdd8")); tooth.position.set(Math.cos(ta) * 2.5, Math.sin(ta) * 2.5, 0); tooth.rotation.z = ta; gr.add(tooth); }
           var hub = new THREE.Mesh(new THREE.CylinderGeometry(.5, .5, .6, 8), stoneMat); hub.rotation.x = Math.PI / 2; gr.add(hub);
-          var x = (i - (act.bars.length - 1) / 2) * 4.8; gr.position.set(x, 3.4, 0); s.g.add(gr); gears.push(gr);
+          var x = spreadX(i, act.bars.length, 4.8); gr.position.set(x, 3.4, 2); s.g.add(gr); gears.push(gr);
           var tag = bar.tag || bar.label.split(/\s+/)[0];
-          var lb = makeLabel(tag, "#ffffff"); lb.scale.set(5.5, .86, 1); lb.position.set(x, 6.9, 0); s.g.add(lb); labels.push(lb);
+          var lb = makeLabel(tag, "#ffffff"); lb.scale.set(5.5, .86, 1); lb.position.set(x, 6.9, 2); s.g.add(lb);
         });
         var mx = Math.max.apply(null, act.bars.map(function (b) { return b.value; })) || 1;
         var speeds = act.bars.map(function (b) { return b.value / mx; });
@@ -636,7 +995,188 @@
         gears.forEach(function (gg, i) { gg.children[0].material.emissive.set(i === hot ? s.color : "#000000"); gg.children[0].material.emissiveIntensity = i === hot ? .8 : 0; });
         s.recolor = function (c) { gears[hot].children[0].material.emissive.set(c); };
         updaters.push(function (t, dt) { var kk = reduceMotion ? 0 : 1; gears.forEach(function (gg, i) { gg.rotation.z += dt * 2.2 * speeds[i] * kk * (i % 2 ? -1 : 1); }); });
+      },
+      truefalse: function (s, act) {
+        var post = new THREE.Mesh(new THREE.CylinderGeometry(.18, .22, 4.2, 6), stoneMat); post.position.set(0, 2.1, 3); s.g.add(post);
+        var yes = new THREE.Mesh(new THREE.BoxGeometry(2.6, 1.1, .3), M("#f4f1e8", { emissive: "#1f8a5b", emissiveIntensity: 0 })); yes.position.set(-1.5, 3.6, 3); yes.rotation.y = .25; s.g.add(yes);
+        var no = new THREE.Mesh(new THREE.BoxGeometry(2.6, 1.1, .3), M("#f4f1e8", { emissive: "#b23a48", emissiveIntensity: 0 })); no.position.set(1.5, 2.6, 3); no.rotation.y = -.25; s.g.add(no);
+        var ty = makeSign(act.trueLabel || "True", "#5ed6a3", 3.2); ty.position.set(-1.5, 3.6, 3.3); s.g.add(ty);
+        var tn = makeSign(act.falseLabel || "False", "#ff8a98", 3.2); tn.position.set(1.5, 2.6, 3.3); s.g.add(tn);
+        s.api = { solved: function () { (act.answer ? yes : no).material.emissiveIntensity = .8; } };
+      },
+      multi: function (s, act) {
+        var cols = act.options.map(function (o, i) { return pillar(s, spreadX(i, act.options.length, 1.6), 3.5, 1.4 + (i % 3) * .5); });
+        s.api = {
+          select: function (picked) { cols.forEach(function (c, i) { c.material.emissiveIntensity = picked.indexOf(i) !== -1 ? .6 : 0; }); },
+          solved: function () { cols.forEach(function (c, i) { c.material.emissiveIntensity = act.options[i].correct ? .9 : 0; c.material.color.set(act.options[i].correct ? "#f4f1e8" : "#8a93a8"); }); }
+        };
+      },
+      order: function (s, act) {
+        var stones = act.items.map(function (it, i) {
+          var st = new THREE.Mesh(new THREE.CylinderGeometry(.9, 1, .35, 7), M("#f4f1e8", { emissive: s.color, emissiveIntensity: 0 })); st.position.set(spreadX(i, act.items.length, 2.1), .17, 3.8 + (i % 2) * .9); s.g.add(st);
+          var tag = makeTag("?", "#ffffff", 1.1); tag.position.set(st.position.x, 1.4, st.position.z); s.g.add(tag); return { st: st, tag: tag };
+        });
+        s.api = { solved: function () { stones.forEach(function (o, i) { o.st.material.emissiveIntensity = .7; s.g.remove(o.tag); var t2 = makeTag(String(i + 1), s.color, 1.1); t2.position.copy(o.tag.position); s.g.add(t2); }); } };
+      },
+      match: function (s, act) {
+        var n = act.pairs.length, left = [], right = [];
+        for (var i = 0; i < n; i++) { left.push(pillar(s, spreadX(i, n, 1.7), 2.2, 2.2)); right.push(pillar(s, spreadX(i, n, 1.7), 5.6, 2.2)); }
+        var beams = new THREE.Group(); s.g.add(beams);
+        s.api = {
+          solved: function () {
+            if (beams.children.length) return;
+            var pts = [];
+            left.forEach(function (l, i) { var r = right[i]; l.material.emissiveIntensity = .8; r.material.emissiveIntensity = .8; pts.push(l.position.x, 2.3, l.position.z, r.position.x, 2.3, r.position.z); });
+            var lg = new THREE.BufferGeometry(); lg.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3)); beams.add(new THREE.LineSegments(lg, new THREE.LineBasicMaterial({ color: s.color })));
+          }
+        };
+      },
+      sort: function (s, act) {
+        var bins = act.buckets.map(function (b, i) { var bx = spreadX(i, act.buckets.length, 3.2); var bin = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.2, 2.2), M("#c8cdd8", { emissive: s.color, emissiveIntensity: .1 })); bin.position.set(bx, .6, 4); s.g.add(bin); var sg = makeSign(b.label, s.color, 4); sg.position.set(bx, 2.1, 4); s.g.add(sg); return bin; });
+        s.api = { solved: function () { bins.forEach(function (b, i) { b.material.emissiveIntensity = .6; var count = act.items.filter(function (it) { return it.bucket === act.buckets[i].id; }).length; for (var k = 0; k < count; k++) { var cube = new THREE.Mesh(new THREE.BoxGeometry(.5, .5, .5), glow(s.color, .8)); cube.position.set(b.position.x + ((k % 3) - 1) * .6, 1.45 + Math.floor(k / 3) * .55, 4 + (k % 2) * .4 - .2); s.g.add(cube); } }); } };
+      },
+      rank: function (s, act) {
+        var n = act.items.length, cols = act.items.map(function (it, i) { var c = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1, 1.2), M("#c8cdd8", { emissive: s.color, emissiveIntensity: .1 })); c.position.set(spreadX(i, n, 1.7), .5, 4); c.scale.y = .3; s.g.add(c); return c; });
+        s.api = { solved: function () { cols.forEach(function (c, i) { var h = Math.max(.4, act.items[i].value / 100 * 6); c.scale.y = h; c.position.y = h / 2; c.material.emissiveIntensity = .7; }); } };
+      },
+      cloze: function (s, act) {
+        var tablet = new THREE.Mesh(new THREE.BoxGeometry(5, 3.4, .5), stoneMat); tablet.position.set(0, 2, 4); tablet.rotation.x = -.15; s.g.add(tablet);
+        var gaps = act.gaps.map(function (g, i) { var gm = new THREE.Mesh(new THREE.BoxGeometry(1.4, .4, .2), M("#f4f1e8", { emissive: s.color, emissiveIntensity: .8 })); gm.position.set(spreadX(i, act.gaps.length, 1.5), 2.6 - (i % 2) * 1.1, 3.7); gm.rotation.x = -.15; s.g.add(gm); return gm; });
+        pulseAll(gaps, 2.5, .3, .7);
+        s.api = { solved: function () { gaps.forEach(function (g) { g.userData.lock = true; g.material.emissiveIntensity = .9; g.material.color.set(s.color); }); } };
+      },
+      estimate: function (s, act) {
+        var tube = new THREE.Mesh(new THREE.CylinderGeometry(.9, .9, 6.5, 12, 1, true), new THREE.MeshStandardMaterial({ color: "#ffffff", transparent: true, opacity: .25, roughness: .2, side: THREE.DoubleSide })); tube.position.set(0, 3.25, 4); s.g.add(tube);
+        var fill = new THREE.Mesh(new THREE.CylinderGeometry(.7, .7, 1, 12), glow(s.color, .6)); fill.position.set(0, .5, 4); s.g.add(fill);
+        var real = new THREE.Mesh(new THREE.TorusGeometry(1.05, .09, 6, 24), glow("#5ed6a3", .9)); real.rotation.x = Math.PI / 2; real.visible = false; s.g.add(real);
+        var setFill = function (fr) { fr = Math.max(.02, Math.min(1, fr)); fill.scale.y = fr * 6.3; fill.position.y = fr * 6.3 / 2; };
+        setFill((act.answer - act.min) / (act.max - act.min) * .5 || .3);
+        s.api = { set: setFill, solved: function () { var fr = (act.answer - act.min) / (act.max - act.min); setFill(fr); real.position.set(0, .2 + fr * 6.3, 4); real.visible = true; } };
+      },
+      odd: function (s, act) {
+        var figs = act.items.map(function (it, i) { var a = Math.PI * .15 + i / (act.items.length - 1) * Math.PI * .7; var f = figure(.8, "#c8cdd8"); f.position.set(Math.cos(a) * 5.2, 0, 2 + Math.sin(a) * 4.2); f.lookAt(0, 0, -2); s.g.add(f); return f; });
+        s.api = { solved: function () { var f = figs[act.answer]; f.children.forEach(function (c) { c.material.emissive.set(s.color); c.material.emissiveIntensity = .8; }); updaters.push(function (t) { if (!reduceMotion) f.rotation.y = t * 1.5; }); } };
+      },
+      hotspot: function (s, act) {
+        var core = new THREE.Mesh(new THREE.IcosahedronGeometry(1.5, 1), M("#c8cdd8", { emissive: s.color, emissiveIntensity: .15, metalness: .2 })); core.position.set(0, 3, 3); s.g.add(core);
+        var ring = new THREE.Mesh(new THREE.TorusGeometry(3.2, .1, 6, 40), glow(s.color, .4)); ring.position.copy(core.position); ring.rotation.x = Math.PI / 2 + .3; s.g.add(ring);
+        s.task = { type: "hotspot", answer: act.answer, parts: [], hover: null };
+        act.parts.forEach(function (pt, i) {
+          var a = i / act.parts.length * Math.PI * 2 + .5; var px = Math.cos(a) * 3.2, py = 3 + Math.sin(i * 2.1) * 1.3, pz = 3 + Math.sin(a) * 3.2 * .35;
+          var m = new THREE.Mesh(new THREE.SphereGeometry(.55, 12, 10), glow(s.color, .5)); m.position.set(px, py, pz); s.g.add(m);
+          var stem = new THREE.Mesh(new THREE.CylinderGeometry(.04, .04, 1, 4), stoneMat); stem.position.set(px, py - .8, pz); s.g.add(stem);
+          var tag = makeSign(pt.label, "#ffffff", 3.6); tag.position.set(px, py + .95, pz); s.g.add(tag);
+          m.userData.part = pt; s.task.parts.push({ id: pt.id, label: pt.label, hint: pt.hint || "", mesh: m });
+        });
+        pulseAll(s.task.parts.map(function (pt) { return pt.mesh; }), 2.2, .3, .6);
+        updaters.push(function (t) { if (!reduceMotion) { core.rotation.y = t * .5; ring.rotation.z = t * .3; } });
+        s.api = { solved: function () { s.task.parts.forEach(function (pt) { pt.mesh.userData.lock = true; pt.mesh.material.emissiveIntensity = pt.id === act.answer ? 1 : .05; }); } };
+      },
+      fork: function (s, act) {
+        var k = act.paths.length;
+        var post = new THREE.Mesh(new THREE.CylinderGeometry(.15, .18, 3, 6), stoneMat); post.position.set(0, 1.5, -.5); s.g.add(post);
+        s.task = { type: "fork", answer: act.answer, paths: [], home: s.toWorld(0, -4), cool: 0 };
+        act.paths.forEach(function (pt, i) {
+          var ang = (i - (k - 1) / 2) * (k === 2 ? .9 : .7);
+          var ex = Math.sin(ang) * 7.2, ez = Math.cos(ang) * 7.2;
+          var plank = new THREE.Mesh(new THREE.BoxGeometry(1.8, .12, 7), M("#d9c9a4")); plank.position.set(Math.sin(ang) * 3.6, .08, Math.cos(ang) * 3.6); plank.rotation.y = -ang; s.g.add(plank);
+          var gate = new THREE.Mesh(new THREE.TorusGeometry(1.5, .14, 6, 24), glow(s.color, .5)); gate.position.set(ex, 1.6, ez); gate.rotation.y = -ang; s.g.add(gate);
+          var sign = makeSign(pt.label, "#ffffff", 4); sign.position.set(ex, 3.6, ez); s.g.add(sign);
+          var arrowSign = makeSign(pt.label, s.color, 3.2); arrowSign.position.set(Math.sin(ang) * 1.3, 2.6 + i * .5, -.5 + Math.cos(ang) * 1.3); s.g.add(arrowSign);
+          var w = s.toWorld(ex, ez); s.task.paths.push({ id: pt.id, label: pt.label, hint: pt.hint || "", x: w.x, z: w.z, gate: gate });
+        });
+        s.api = { solved: function () { s.task.paths.forEach(function (pt) { pt.gate.material.emissiveIntensity = pt.id === act.answer ? 1 : .05; }); } };
+      },
+      beacons: function (s, act) {
+        var n = act.items.length;
+        s.task = { type: "beacons", items: [], near: null };
+        act.items.forEach(function (it, i) {
+          var a = Math.PI * .1 + i / (n - 1) * Math.PI * .8; var lx = Math.cos(a) * 6.4, lz = 1 + Math.sin(a) * 5.6;
+          var bowl = new THREE.Mesh(new THREE.CylinderGeometry(.75, .45, .8, 8), stoneMat); bowl.position.set(lx, 1.2, lz); s.g.add(bowl);
+          var leg = new THREE.Mesh(new THREE.CylinderGeometry(.12, .16, 1, 5), stoneMat); leg.position.set(lx, .5, lz); s.g.add(leg);
+          var flame = new THREE.Mesh(new THREE.ConeGeometry(.5, 1.4, 6), glow(s.color, 1, { transparent: true, opacity: .95 })); flame.position.set(lx, 2.2, lz); flame.visible = false; s.g.add(flame);
+          var sign = makeSign(it.label, "#ffffff", 4.2); sign.position.set(lx, 3.4, lz); s.g.add(sign);
+          var w = s.toWorld(lx, lz); s.task.items.push({ id: it.id, label: it.label, want: it.lit, on: false, x: w.x, z: w.z, flame: flame, bowl: bowl });
+        });
+        updaters.push(function (t) { if (reduceMotion) return; s.task.items.forEach(function (it, i) { if (it.on) { it.flame.scale.y = 1 + Math.sin(t * 9 + i) * .18; it.flame.rotation.y = t * 2; } }); });
+      },
+      steps: function (s, act) {
+        var n = act.items.length, perm = shuffledIdx(n, s.id + ":steps");
+        s.task = { type: "steps", order: act.items.map(function (it) { return it.id; }), pos: 0, pads: [], standing: null };
+        act.items.forEach(function (it, i) {
+          var slot = perm[i]; var a = Math.PI * .05 + slot / (n - 1) * Math.PI * .9; var lx = Math.cos(a) * 5.8, lz = 1.5 + Math.sin(a) * 4.6;
+          var pd = makePad(s, lx, lz, { id: it.id, label: it.label }); pd.ring.scale.setScalar(.8); pd.mesh.scale.setScalar(.8); pd.tag.scale.setScalar(1.6); s.task.pads.push(pd);
+        });
+      },
+      gather: function (s, act) {
+        s.task = { type: "gather", items: [], bins: [], carrying: null, sorted: 0, total: act.items.length, nearBin: null };
+        act.bins.forEach(function (b, i) {
+          var bx = spreadX(i, act.bins.length, 4.2), bz = 5.5;
+          var bin = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.3, 2.4), M("#c8cdd8", { emissive: s.color, emissiveIntensity: .1 })); bin.position.set(bx, .65, bz); s.g.add(bin);
+          var sign = makeSign(b.label, s.color, 4.6); sign.position.set(bx, 2.4, bz); s.g.add(sign);
+          var w = s.toWorld(bx, bz); s.task.bins.push({ id: b.id, label: b.label, x: w.x, z: w.z, mesh: bin, count: 0 });
+        });
+        act.items.forEach(function (it, i) {
+          var a = Math.PI * 1.05 + i / act.items.length * Math.PI * .9; var d = 4 + (i % 2) * 2.2; var lx = Math.cos(a) * d, lz = 1 + Math.sin(a) * d;
+          var o = new THREE.Mesh(new THREE.IcosahedronGeometry(.45, 0), glow(s.color, .9)); o.position.set(lx, 1, lz); s.g.add(o);
+          var tag = makeSign(it.label, "#ffffff", 3.4); tag.position.set(lx, 2.1, lz); s.g.add(tag);
+          var w = s.toWorld(lx, lz); s.task.items.push({ label: it.label, bin: it.bin, x: w.x, z: w.z, mesh: o, tag: tag, where: "ground", ph: i });
+        });
+        updaters.push(function (t) { if (reduceMotion) return; s.task.items.forEach(function (it) { if (it.where === "ground") { it.mesh.position.y = 1 + Math.sin(t * 2.5 + it.ph) * .18; it.mesh.rotation.y = t; } }); });
+      },
+      compare: function (s, act) {
+        var groups = [act.before, act.after].map(function (side, gi) {
+          var g = new THREE.Group(); g.position.set(gi === 0 ? -3.2 : 3.2, 0, 4); s.g.add(g);
+          var base = new THREE.Mesh(new THREE.CylinderGeometry(2.6, 2.8, .3, 8), stoneMat); base.position.y = .15; g.add(base);
+          side.rows.forEach(function (r, i) { var h = Math.max(.3, r.value / 100 * 5); var c = new THREE.Mesh(new THREE.BoxGeometry(.8, h, .8), M(gi === 0 ? "#9aa3b8" : "#f4f1e8", { emissive: s.color, emissiveIntensity: gi === 0 ? 0 : .2 })); c.position.set(spreadX(i, side.rows.length, 1), .3 + h / 2, 0); g.add(c); });
+          var sign = makeSign(side.label, gi === 0 ? "#c8cdd8" : s.color, 4.4); sign.position.set(0, 6, 0); g.add(sign); return g;
+        });
+        s.api = { show: function (which) { groups.forEach(function (g, i) { g.scale.setScalar(i === which ? 1.12 : .9); }); } };
+      },
+      bars: function (s, act) {
+        var n = act.items.length, cols = [], ghosts = [];
+        act.items.forEach(function (it, i) {
+          var x = spreadX(i, n, 1.7);
+          var c = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1, 1.1), glow(s.color, .4)); c.position.set(x, .5, 4); c.scale.y = .3; s.g.add(c); cols.push(c);
+          var gh = new THREE.Mesh(new THREE.BoxGeometry(1.25, 1, 1.25), new THREE.MeshStandardMaterial({ color: "#ffffff", transparent: true, opacity: .35, flatShading: true })); gh.position.set(x, .5, 4); gh.visible = false; s.g.add(gh); ghosts.push(gh);
+        });
+        var setH = function (m, fr) { var h = Math.max(.25, fr * 6); m.scale.y = h; m.position.y = h / 2; };
+        s.api = { set: function (fracs) { cols.forEach(function (c, i) { setH(c, fracs[i]); }); }, reveal: function () { ghosts.forEach(function (g, i) { g.visible = true; setH(g, act.items[i].value / 100); }); } };
+      },
+      switches: function (s, act) {
+        var box = new THREE.Mesh(new THREE.BoxGeometry(5.2, 2.6, 2), M("#c8cdd8", { metalness: .2 })); box.position.set(0, 1.3, 4.5); s.g.add(box);
+        var lamps = act.switches.map(function (sw, i) { var l = new THREE.Mesh(new THREE.SphereGeometry(.3, 10, 8), M("#f4f1e8", { emissive: s.color, emissiveIntensity: sw.on ? .9 : 0 })); l.position.set(spreadX(i, act.switches.length, 1.1), 2.2, 3.45); s.g.add(l); var sg = makeSign(sw.label, "#ffffff", 3.2); sg.position.set(l.position.x, 3.3 + (i % 2) * .5, 3.4); s.g.add(sg); return l; });
+        var status = new THREE.Mesh(new THREE.SphereGeometry(.6, 12, 10), M("#f4f1e8", { emissive: "#9aa3b8", emissiveIntensity: .5 })); status.position.set(0, 3.4, 4.5); s.g.add(status);
+        var toneColor = { ok: "#5ed6a3", no: "#ff8a98", note: "#f4c55b" };
+        s.api = { set: function (states, tone) { lamps.forEach(function (l, i) { l.material.emissiveIntensity = states[i] ? .9 : 0; }); status.material.emissive.set(toneColor[tone] || "#9aa3b8"); status.material.emissiveIntensity = tone ? .9 : .5; } };
+      },
+      predict: function (s, act) {
+        var orb = new THREE.Mesh(new THREE.SphereGeometry(1.4, 16, 12), new THREE.MeshStandardMaterial({ color: "#ffffff", emissive: s.color, emissiveIntensity: .25, transparent: true, opacity: .8, roughness: .1 })); orb.position.set(0, 2.6, 4); s.g.add(orb);
+        var stand = new THREE.Mesh(new THREE.CylinderGeometry(.8, 1.1, 1.2, 8), stoneMat); stand.position.set(0, .6, 4); s.g.add(stand);
+        var rings = [0, 1].map(function (i) { var r = new THREE.Mesh(new THREE.TorusGeometry(2 + i * .5, .07, 6, 36), glow(s.color, .5)); r.position.copy(orb.position); r.rotation.x = Math.PI / 2 + i * .5; s.g.add(r); return r; });
+        var energy = 0;
+        updaters.push(function (t, dt) { energy = Math.max(0, energy - dt * .4); orb.material.emissiveIntensity = .25 + energy; if (!reduceMotion) rings.forEach(function (r, i) { r.rotation.z += dt * (.4 + energy * 3) * (i ? -1 : 1); }); });
+        s.api = { run: function () { energy = 1.2; }, solved: function () { energy = .6; } };
+      },
+      confidence: function (s, act) {
+        var rings = [0, 1, 2].map(function (i) { var r = new THREE.Mesh(new THREE.TorusGeometry(2.4 - i * .7, .18, 6, 32), M("#c8cdd8", { emissive: s.color, emissiveIntensity: .1 })); r.position.set(0, .3 + i * .22, 4); r.rotation.x = Math.PI / 2; s.g.add(r); return r; });
+        var pin = new THREE.Mesh(new THREE.ConeGeometry(.35, 1.4, 6), glow("#ffd76a", .8)); pin.position.set(0, 1.6, 4); pin.rotation.x = Math.PI; pin.visible = false; s.g.add(pin);
+        s.api = { solved: function (st) { rings.forEach(function (r, i) { r.material.emissiveIntensity = i < st ? .9 : .1; }); pin.visible = true; } };
+      },
+      flashcards: function (s, act) {
+        var deck = new THREE.Group(); deck.position.set(0, 0, 4); s.g.add(deck);
+        var n = Math.min(act.cards.length, 10);
+        for (var i = 0; i < n; i++) { var card = new THREE.Mesh(new THREE.BoxGeometry(2.6, .12, 1.7), M(i === n - 1 ? "#f4f1e8" : "#e8e6da", { emissive: s.color, emissiveIntensity: i === n - 1 ? .25 : 0 })); card.position.y = .3 + i * .14; card.rotation.y = (i % 2 ? 1 : -1) * .06 * i; deck.add(card); }
+        var top = deck.children[n - 1]; var flipT = 0, flipDir = 0;
+        updaters.push(function (t, dt) { if (flipDir) { flipT = Math.max(0, Math.min(1, flipT + dt * 2.2 * flipDir)); top.rotation.x = flipT * Math.PI; top.position.y = .3 + (n - 1) * .14 + Math.sin(flipT * Math.PI) * 1.4; if (flipT === 0 || flipT === 1) flipDir = 0; } });
+        s.api = { flip: function (back) { flipDir = back ? 1 : -1; if (reduceMotion) { flipT = back ? 1 : 0; top.rotation.x = flipT * Math.PI; flipDir = 0; } } };
       }
+    };
+
+    STATIONS.forEach(function (s) {
+      (THEMES[s.data.theme] || THEMES.plain)(s);
+      var act = s.data.activity; if (!act) return;
+      if (PROPS[act.type]) PROPS[act.type](s, act);
     });
 
     /* ---------- HUD tray & minimap ---------- */
@@ -650,14 +1190,14 @@
     }
     var mctx = mini.getContext("2d");
     function drawMini(t) {
-      if (!mctx) return; var MW = mini.width, cx = MW / 2, k = MW / 2 / (R_RING + R_ISLE + 5); mctx.clearRect(0, 0, MW, MW);
-      var ink = css("--ink") || "#17203d", tgt = nextTarget();
-      mctx.strokeStyle = ink; mctx.globalAlpha = .35; mctx.lineWidth = 5;
-      STATIONS.forEach(function (s) { mctx.beginPath(); mctx.moveTo(cx + s.dir.x * R_HUB * k, cx - s.dir.z * R_HUB * k); mctx.lineTo(cx + s.x * k, cx - s.z * k); mctx.stroke(); });
+      if (!mctx) return; var MW = mini.width, cx = MW / 2, k = MW / 2 / (WORLD_R + 4); mctx.clearRect(0, 0, MW, MW);
+      var ink = css("--ink") || "#17203d", sand = css("--sand") || "#e3cf9f", tgt = nextTarget();
+      mctx.strokeStyle = ink; mctx.globalAlpha = .35; mctx.lineWidth = Math.max(2, 5 * k / .9); mctx.lineCap = "round";
+      bridges.forEach(function (b) { mctx.beginPath(); mctx.moveTo(cx + b.ax * k, cx - b.az * k); mctx.lineTo(cx + b.bx * k, cx - b.bz * k); mctx.stroke(); });
       mctx.globalAlpha = 1;
-      var isle = function (x, z, r, fill, stroke) { mctx.beginPath(); mctx.arc(cx + x * k, cx - z * k, r * k, 0, Math.PI * 2); mctx.fillStyle = fill; mctx.fill(); if (stroke) { mctx.lineWidth = 4; mctx.strokeStyle = stroke; mctx.stroke(); } };
-      isle(0, 0, R_HUB, css("--sand") || "#e3cf9f", state.doneCount === N ? "#ffd76a" : null);
-      STATIONS.forEach(function (s) { var done = !!state.done[s.id]; isle(s.x, s.z, R_ISLE, done ? s.color : (css("--sand") || "#e3cf9f"), s.isNext ? "#ffd76a" : null); if (!done && !s.isNext) { mctx.globalAlpha = .35; isle(s.x, s.z, R_ISLE, ink, null); mctx.globalAlpha = 1; } });
+      var isle = function (x, z, r, fill, stroke) { mctx.beginPath(); mctx.arc(cx + x * k, cx - z * k, Math.max(2.5, r * k), 0, Math.PI * 2); mctx.fillStyle = fill; mctx.fill(); if (stroke) { mctx.lineWidth = 3; mctx.strokeStyle = stroke; mctx.stroke(); } };
+      isle(0, 0, R_HUB, sand, state.doneCount === N ? "#ffd76a" : null);
+      STATIONS.forEach(function (s) { var done = !!state.done[s.id]; isle(s.x, s.z, R_ISLE, done ? s.color : sand, s.isNext ? "#ffd76a" : null); if (!done && !s.isNext) { mctx.globalAlpha = .35; isle(s.x, s.z, R_ISLE, ink, null); mctx.globalAlpha = 1; } });
       if (tgt === "summit" && !state.finished) { mctx.beginPath(); mctx.arc(cx, cx, 5 + Math.sin(t * 4) * 2, 0, Math.PI * 2); mctx.fillStyle = "#ffd76a"; mctx.fill(); }
       var pp = player.position; mctx.save(); mctx.translate(cx + pp.x * k, cx - pp.z * k); mctx.rotate(Math.PI - yaw);
       mctx.fillStyle = ink; mctx.beginPath(); mctx.moveTo(0, -9); mctx.lineTo(6, 6); mctx.lineTo(0, 3); mctx.lineTo(-6, 6); mctx.closePath(); mctx.fill(); mctx.restore();
@@ -723,8 +1263,32 @@
       var d = box("Your task on this island", "nthview-task"); var t = p("", text); t.style.margin = "0"; d.appendChild(t);
       var row = el("div", { class: "nthview-row" }); row.style.marginTop = "12px"; row.appendChild(btn("Close this and go", "nthview-primary", closePanel)); d.appendChild(row); return d;
     }
+    function feedback() { return el("div", { class: "nthview-fb", "aria-live": "polite" }); }
+    function checkRow(label, fn) { var row = el("div", { class: "nthview-check" }); var b = btn(label || "Check my answer", "nthview-primary", fn); row.appendChild(b); row.button = b; return row; }
+    function segControl(labels, current, onPick, ariaLabel) {
+      var seg = el("div", { class: "nthview-seg", role: "group", "aria-label": ariaLabel || "" }); var btns = [];
+      labels.forEach(function (l, i) { var b = el("button", { type: "button", "aria-pressed": String(current === i), text: l }); b.addEventListener("click", function () { btns.forEach(function (x, k) { x.setAttribute("aria-pressed", String(k === i)); }); onPick(i); }); btns.push(b); seg.appendChild(b); });
+      seg.set = function (i) { btns.forEach(function (x, k) { x.setAttribute("aria-pressed", String(k === i)); }); }; seg.buttons = btns; return seg;
+    }
+    /* the shared scoring step for panel tasks: one attempt per check */
+    function solvedPanel(s, fb, msg) {
+      var st = award(s.id); sfx("ok"); fb.className = "nthview-fb nthview-ok"; fb.textContent = (msg || "Correct!") + " " + starsText(st) + (st === 3 ? " First try!" : "");
+      if (s.api && s.api.solved) s.api.solved(st); earn(s);
+      setTimeout(function () { if (state.panelOpen) openLesson(s, true); }, 1400);
+    }
+    function judge(s, ok, fb, okMsg, badMsg) {
+      attempt(s.id);
+      if (ok) { solvedPanel(s, fb, okMsg); return true; }
+      sfx("no"); fb.className = "nthview-fb nthview-no"; fb.textContent = badMsg; return false;
+    }
+    function fieldSolve(s) {
+      if (state.done[s.id]) return; award(s.id); sfx("ok"); if (s.api && s.api.solved) s.api.solved(); earn(s);
+      setTimeout(function () { if (!state.panelOpen) openLesson(s, true); }, 600);
+    }
+    function markRows(rows, marks) { rows.forEach(function (r, i) { r.classList.remove("nthview-right", "nthview-wrong"); if (marks) r.classList.add(marks[i] ? "nthview-right" : "nthview-wrong"); }); }
 
-    /* ---------- activities inside the panel ---------- */
+    /* ---------- activities inside the panel ----------
+       Each returns true when the lesson may show its question/remember part. */
     var ACTIVITIES = {
       collect: function (s, act) {
         var task = s.task, complete = task.collected.length >= task.total;
@@ -741,13 +1305,13 @@
         if (act.resultNote) d.appendChild(p("nthview-cap", act.resultNote));
         pbody.appendChild(d); return true;
       },
-      pads: function (s, act) {
-        if (!state.done[s.id]) { pbody.appendChild(taskBox(act.prompt)); return false; }
+      pads: function (s, act, done) {
+        if (!done) { pbody.appendChild(taskBox(act.prompt)); return false; }
         return true;
       },
       story: function (s, act) {
         var w = box(act.title || "Try it"); var row = el("div", { class: "nthview-row" }); var story = el("div", { class: "nthview-story" }); var step = 1;
-        var draw = function () { story.textContent = ""; act.frames.slice(0, step).forEach(function (f) { story.appendChild(p("", f)); }); next.disabled = step >= act.frames.length; };
+        var draw = function () { story.textContent = ""; act.frames.slice(0, step).forEach(function (f) { story.appendChild(p("", f)); }); next.disabled = step >= act.frames.length; if (s.api) s.api.step(step); };
         var next = btn(act.buttonLabel, "nthview-primary", function () { step++; sfx("step"); draw(); });
         var reset = btn(act.resetLabel || "Start over", "", function () { step = 1; draw(); });
         row.appendChild(next); row.appendChild(reset); w.appendChild(row); w.appendChild(story); if (act.caption) w.appendChild(p("nthview-cap", act.caption)); pbody.appendChild(w); draw(); return true;
@@ -789,34 +1353,406 @@
         w.appendChild(row);
         act.bars.forEach(function (b) { var r = barRow(b.label, 0, "", "normal"); var bar = r.querySelector(".nthview-bar"), val = r.querySelector("b"); bars.push({ bar: bar, val: val, value: b.value, show: b.show }); w.appendChild(r); });
         if (act.caption) w.appendChild(p("nthview-cap", act.caption)); pbody.appendChild(w); return true;
+      },
+      truefalse: function (s, act, done) {
+        var w = box(act.title || "True or false?"); w.appendChild(p("nthview-q", act.statement));
+        var fb = feedback(), grid = el("div", { class: "nthview-tf" }), locked = done;
+        [true, false].forEach(function (v) {
+          var b = el("button", { type: "button", class: "nthview-opt", text: v ? (act.trueLabel || "True") : (act.falseLabel || "False") });
+          if (done) { b.disabled = true; if (v === act.answer) b.classList.add("nthview-right"); }
+          b.addEventListener("click", function () {
+            if (locked) return;
+            if (v === act.answer) { locked = true; b.classList.add("nthview-right"); Array.prototype.forEach.call(grid.children, function (x) { x.disabled = true; }); judge(s, true, fb, act.why || "Correct!"); }
+            else { b.classList.add("nthview-wrong"); b.disabled = true; judge(s, false, fb, "", act.why ? "Not quite. " + act.why : "Not quite. It's the other one."); }
+          });
+          grid.appendChild(b);
+        });
+        w.appendChild(grid); w.appendChild(fb); if (done && act.why) w.appendChild(p("nthview-cap", act.why)); pbody.appendChild(w); return done;
+      },
+      multi: function (s, act, done) {
+        var w = box(act.title || "Pick all that apply"); w.appendChild(p("nthview-q", act.question));
+        var list = el("div", { class: "nthview-opts" }), fb = feedback(), inputs = [], labels = [];
+        act.options.forEach(function (o, i) {
+          var cb = el("input", { type: "checkbox" }); var lab = el("label", { class: "nthview-cb" + (done && o.correct ? " nthview-right" : "") }, [cb, el("span", { text: o.text })]);
+          if (done) { cb.checked = !!o.correct; cb.disabled = true; }
+          cb.addEventListener("change", function () { if (s.api) s.api.select(inputs.map(function (c, k) { return c.checked ? k : -1; }).filter(function (k) { return k >= 0; })); markRows(labels, null); });
+          inputs.push(cb); labels.push(lab); list.appendChild(lab);
+        });
+        w.appendChild(list);
+        if (!done) {
+          w.appendChild(checkRow("Check my answer", function () {
+            var wrong = []; act.options.forEach(function (o, i) { if (!!inputs[i].checked !== !!o.correct) wrong.push(i); });
+            if (!wrong.length) { inputs.forEach(function (c) { c.disabled = true; }); markRows(labels, act.options.map(function (o) { return !!o.correct; })); judge(s, true, fb, "That's the full set!"); return; }
+            if (!inputs.some(function (c) { return c.checked; })) { fb.className = "nthview-fb nthview-no"; fb.textContent = "Tick at least one option first."; return; }
+            var missed = wrong.filter(function (i) { return act.options[i].correct; }).length, extra = wrong.length - missed;
+            var why = wrong.map(function (i) { return !act.options[i].correct && act.options[i].why; }).filter(Boolean)[0];
+            judge(s, false, fb, "", (wrong.length === 1 ? "One option is off." : wrong.length + " options are off.") + (missed ? " You missed " + missed + "." : "") + (extra ? " " + extra + " should not be ticked." : "") + (why ? " Hint: " + why : ""));
+          }));
+        }
+        w.appendChild(fb); pbody.appendChild(w); return done;
+      },
+      order: function (s, act, done) {
+        var n = act.items.length, cur = done ? act.items.map(function (_, i) { return i; }) : shuffledIdx(n, s.id + ":order");
+        var w = box(act.title || "Put these in order"); w.appendChild(p("nthview-q", act.prompt));
+        var list = el("div", { class: "nthview-list" }), fb = feedback();
+        function draw(marks, focusPos, focusDir) {
+          list.textContent = "";
+          cur.forEach(function (idx, pos) {
+            var it = act.items[idx]; var row = el("div", { class: "nthview-item" + (done ? " nthview-right" : marks ? (marks[pos] ? " nthview-right" : " nthview-wrong") : "") });
+            row.appendChild(el("span", { class: "nthview-num", text: String(pos + 1) }));
+            var txt = el("div", { class: "nthview-txt" }); txt.appendChild(rich(it.text)); if (done && it.note) txt.appendChild(el("span", { class: "nthview-note", text: it.note })); row.appendChild(txt);
+            if (!done) {
+              var up = el("button", { type: "button", "aria-label": "Move up: " + it.text, text: "↑" }), dn = el("button", { type: "button", "aria-label": "Move down: " + it.text, text: "↓" });
+              up.disabled = pos === 0; dn.disabled = pos === n - 1;
+              up.addEventListener("click", function () { swap(pos, pos - 1, "up"); }); dn.addEventListener("click", function () { swap(pos, pos + 1, "down"); });
+              row.appendChild(el("div", { class: "nthview-mv" }, [up, dn]));
+              if (focusPos === pos) setTimeout(function () { var b = row.querySelectorAll("button")[focusDir === "up" ? 0 : 1]; (b.disabled ? row.querySelectorAll("button")[focusDir === "up" ? 1 : 0] : b).focus(); }, 0);
+            }
+            list.appendChild(row);
+          });
+        }
+        function swap(a, b, dir) { var t = cur[a]; cur[a] = cur[b]; cur[b] = t; sfx("step"); draw(null, b, dir); }
+        draw(); w.appendChild(list);
+        if (!done) w.appendChild(checkRow("Check the order", function () {
+          var marks = cur.map(function (idx, pos) { return idx === pos; }); var right = marks.filter(Boolean).length;
+          if (right === n) { done = true; draw(); judge(s, true, fb, "Perfect order!"); }
+          else { draw(marks); judge(s, false, fb, "", right + " of " + n + " are in the right place (green). Move the others."); }
+        }));
+        w.appendChild(fb); pbody.appendChild(w); return done;
+      },
+      match: function (s, act, done) {
+        var n = act.pairs.length, perm = shuffledIdx(n, s.id + ":match"), pairOf = {}, selLeft = null;
+        if (done) { act.pairs.forEach(function (_, i) { pairOf[i] = perm.indexOf(i); }); }
+        var w = box(act.title || "Match the pairs"); w.appendChild(p("nthview-q", act.prompt));
+        var leftCol = el("div", { class: "nthview-opts", role: "group", "aria-label": "Left items" }), rightCol = el("div", { class: "nthview-opts", role: "group", "aria-label": "Right items" }), fb = feedback();
+        var leftBtns = [], rightBtns = [], check;
+        function leftFor(k) { for (var i in pairOf) if (pairOf[i] === k) return Number(i); return null; }
+        function draw(marks) {
+          leftBtns.forEach(function (b, i) { b.className = "nthview-opt" + (selLeft === i ? " nthview-sel" : "") + (marks ? (marks[i] ? " nthview-right" : " nthview-wrong") : done ? " nthview-right" : ""); b.textContent = ""; b.appendChild(el("span", { class: "nthview-badge", text: String(i + 1) })); b.appendChild(doc.createTextNode(act.pairs[i].left)); b.setAttribute("aria-pressed", String(selLeft === i)); });
+          rightBtns.forEach(function (b, k) { var li = leftFor(k); b.className = "nthview-opt" + (li !== null && marks ? (marks[li] ? " nthview-right" : " nthview-wrong") : done ? " nthview-right" : ""); b.textContent = ""; if (li !== null) b.appendChild(el("span", { class: "nthview-badge", text: String(li + 1) })); b.appendChild(doc.createTextNode(act.pairs[perm[k]].right)); b.setAttribute("aria-label", act.pairs[perm[k]].right + (li !== null ? ", paired with " + (li + 1) : ", not paired")); });
+          if (check) check.button.disabled = Object.keys(pairOf).length < n;
+        }
+        act.pairs.forEach(function (pr, i) {
+          var b = el("button", { type: "button", class: "nthview-opt" }); if (done) b.disabled = true;
+          b.addEventListener("click", function () { selLeft = selLeft === i ? null : i; sfx("step"); draw(); }); leftBtns.push(b); leftCol.appendChild(b);
+          var rb = el("button", { type: "button", class: "nthview-opt" }); if (done) rb.disabled = true;
+          rb.addEventListener("click", function () {
+            var li = leftFor(i);
+            if (selLeft !== null) { if (li !== null) delete pairOf[li]; pairOf[selLeft] = i; selLeft = null; sfx("pick"); }
+            else if (li !== null) { delete pairOf[li]; sfx("step"); }
+            draw();
+          }); rightBtns.push(rb); rightCol.appendChild(rb);
+        });
+        w.appendChild(el("div", { class: "nthview-cols" }, [leftCol, rightCol]));
+        if (!done) {
+          w.appendChild(p("nthview-cap", "Tap an item on the left, then its partner on the right. Tap a paired item on the right to undo."));
+          check = checkRow("Check the pairs", function () {
+            var marks = act.pairs.map(function (_, i) { return pairOf[i] !== undefined && perm[pairOf[i]] === i; }); var right = marks.filter(Boolean).length;
+            if (right === n) { done = true; leftBtns.concat(rightBtns).forEach(function (b) { b.disabled = true; }); draw(); judge(s, true, fb, "All " + n + " pairs matched!"); }
+            else { act.pairs.forEach(function (_, i) { if (!marks[i]) delete pairOf[i]; }); draw(marks); judge(s, false, fb, "", right + " of " + n + " pairs are right. The wrong pairs were undone; try them again."); }
+          }); w.appendChild(check);
+        }
+        w.appendChild(fb); draw(); pbody.appendChild(w); return done;
+      },
+      sort: function (s, act, done) {
+        var w = box(act.title || "Sort them"); w.appendChild(p("nthview-q", act.prompt));
+        var choice = act.items.map(function (it) { return done ? act.buckets.map(function (b) { return b.id; }).indexOf(it.bucket) : -1; });
+        var bins = el("div", { class: "nthview-bins", "aria-hidden": "true" }), binEls = act.buckets.map(function (b) { var d = el("div", { class: "nthview-bin" }, [el("b", { text: b.label })]); bins.appendChild(d); return d; });
+        var list = el("div", { class: "nthview-list" }), rows = [], fb = feedback();
+        function drawBins() { binEls.forEach(function (d, k) { d.textContent = ""; d.appendChild(el("b", { text: act.buckets[k].label })); var any = false; act.items.forEach(function (it, i) { if (choice[i] === k) { any = true; d.appendChild(el("span", { class: "nthview-stamp", text: it.text })); } }); d.classList.toggle("nthview-full", any); }); }
+        act.items.forEach(function (it, i) {
+          var row = el("div", { class: "nthview-item" + (done ? " nthview-right" : "") }); var txt = el("div", { class: "nthview-txt" }); txt.appendChild(rich(it.text)); row.appendChild(txt);
+          var seg = segControl(act.buckets.map(function (b) { return b.label; }), choice[i], function (k) { choice[i] = k; sfx("step"); row.classList.remove("nthview-wrong"); drawBins(); }, "Bucket for " + it.text);
+          if (done) seg.buttons.forEach(function (b) { b.disabled = true; });
+          row.appendChild(seg); rows.push(row); list.appendChild(row);
+        });
+        w.appendChild(bins); w.appendChild(list); drawBins();
+        if (!done) w.appendChild(checkRow("Check the buckets", function () {
+          if (choice.indexOf(-1) !== -1) { fb.className = "nthview-fb nthview-no"; fb.textContent = "Choose a bucket for every item first."; return; }
+          var marks = act.items.map(function (it, i) { return act.buckets[choice[i]].id === it.bucket; }); var right = marks.filter(Boolean).length;
+          if (right === act.items.length) { done = true; markRows(rows, marks); rows.forEach(function (r) { Array.prototype.forEach.call(r.querySelectorAll("button"), function (b) { b.disabled = true; }); }); judge(s, true, fb, "Every item is in the right bucket!"); }
+          else { markRows(rows, marks); judge(s, false, fb, "", right + " of " + act.items.length + " are in the right bucket. Fix the red ones."); }
+        }));
+        w.appendChild(fb); pbody.appendChild(w); return done;
+      },
+      rank: function (s, act, done) {
+        var n = act.items.length, cur = done ? act.items.map(function (_, i) { return i; }) : shuffledIdx(n, s.id + ":rank");
+        var w = box(act.title || "Rank them"); w.appendChild(p("nthview-q", act.prompt));
+        var list = el("div", { class: "nthview-list" }), fb = feedback(), reveal = el("div");
+        function draw(marks, focusPos, focusDir) {
+          list.textContent = "";
+          cur.forEach(function (idx, pos) {
+            var it = act.items[idx]; var row = el("div", { class: "nthview-item" + (done ? " nthview-right" : marks ? (marks[pos] ? " nthview-right" : " nthview-wrong") : "") });
+            row.appendChild(el("span", { class: "nthview-num", text: String(pos + 1) })); var txt = el("div", { class: "nthview-txt" }); txt.appendChild(rich(it.text)); row.appendChild(txt);
+            if (!done) {
+              var up = el("button", { type: "button", "aria-label": "Move up: " + it.text, text: "↑" }), dn = el("button", { type: "button", "aria-label": "Move down: " + it.text, text: "↓" });
+              up.disabled = pos === 0; dn.disabled = pos === n - 1;
+              up.addEventListener("click", function () { swap(pos, pos - 1, "up"); }); dn.addEventListener("click", function () { swap(pos, pos + 1, "down"); });
+              row.appendChild(el("div", { class: "nthview-mv" }, [up, dn]));
+              if (focusPos === pos) setTimeout(function () { var bs = row.querySelectorAll("button"); var b = bs[focusDir === "up" ? 0 : 1]; (b.disabled ? bs[focusDir === "up" ? 1 : 0] : b).focus(); }, 0);
+            }
+            list.appendChild(row);
+          });
+        }
+        function swap(a, b, dir) { var t = cur[a]; cur[a] = cur[b]; cur[b] = t; sfx("step"); draw(null, b, dir); }
+        function showValues() { reveal.textContent = ""; var d = box("The real numbers"); act.items.forEach(function (it) { d.appendChild(barRow(it.text, it.value, it.show, "normal")); }); if (act.caption) d.appendChild(p("nthview-cap", act.caption)); reveal.appendChild(d); }
+        draw(); w.appendChild(list);
+        if (!done) w.appendChild(checkRow("Check my ranking", function () {
+          var marks = cur.map(function (idx, pos) { return idx === pos; }); var right = marks.filter(Boolean).length;
+          if (right === n) { done = true; draw(); showValues(); judge(s, true, fb, "Ranked perfectly!"); }
+          else { draw(marks); judge(s, false, fb, "", right + " of " + n + " are in the right spot (green). Rethink the others."); }
+        }));
+        w.appendChild(fb); w.appendChild(reveal); if (done) showValues(); pbody.appendChild(w); return done;
+      },
+      cloze: function (s, act, done) {
+        var w = box(act.title || "Fill the gaps"); var parts = act.text.split("___"), selects = [], para = el("p", { class: "nthview-cloze" }), fb = feedback();
+        parts.forEach(function (pt, i) {
+          para.appendChild(rich(pt));
+          if (i < act.gaps.length) {
+            var sel = el("select", { class: "nthview-select" + (done ? " nthview-right" : ""), "aria-label": "Gap " + (i + 1) }); sel.appendChild(el("option", { value: "", text: "…" }));
+            act.gaps[i].options.forEach(function (o, k) { sel.appendChild(el("option", { value: String(k), text: o })); });
+            if (done) { sel.value = String(act.gaps[i].answer); sel.disabled = true; }
+            sel.addEventListener("change", function () { sel.classList.remove("nthview-wrong"); });
+            selects.push(sel); para.appendChild(sel);
+          }
+        });
+        w.appendChild(para);
+        if (!done) w.appendChild(checkRow("Check the gaps", function () {
+          if (selects.some(function (x) { return x.value === ""; })) { fb.className = "nthview-fb nthview-no"; fb.textContent = "Fill every gap first."; return; }
+          var wrong = 0; selects.forEach(function (x, i) { var ok = Number(x.value) === act.gaps[i].answer; x.classList.toggle("nthview-wrong", !ok); x.classList.toggle("nthview-right", ok); if (!ok) wrong++; });
+          if (!wrong) { done = true; selects.forEach(function (x) { x.disabled = true; }); judge(s, true, fb, "Every gap is right!"); }
+          else judge(s, false, fb, "", (selects.length - wrong) + " of " + selects.length + " gaps are right. The red ones need another look.");
+        }));
+        w.appendChild(fb); pbody.appendChild(w); return done;
+      },
+      estimate: function (s, act, done) {
+        var w = box(act.title || "Make an estimate"); w.appendChild(p("nthview-q", act.question));
+        var step = act.step || 1, unit = act.unit ? " " + act.unit : "", start = done ? act.answer : Math.round((act.min + act.max) / 2 / step) * step;
+        var range = el("input", { type: "range", class: "nthview-range", min: String(act.min), max: String(act.max), step: String(step), value: String(start), "aria-label": "Estimate" });
+        var num = el("input", { type: "number", min: String(act.min), max: String(act.max), step: String(step), value: String(start), "aria-label": "Estimate as a number" });
+        var bar = el("div", { class: "nthview-bar" }), track = el("div", { class: "nthview-track" }, [bar]), fb = feedback();
+        var frac = function (v) { return Math.max(0, Math.min(1, (v - act.min) / (act.max - act.min))); };
+        var sync = function (v) { v = Math.max(act.min, Math.min(act.max, v)); range.value = String(v); num.value = String(v); bar.style.width = frac(v) * 100 + "%"; if (s.api) s.api.set(frac(v)); };
+        range.addEventListener("input", function () { sync(Number(range.value)); }); num.addEventListener("input", function () { if (num.value !== "") sync(Number(num.value)); });
+        w.appendChild(range); w.appendChild(el("div", { class: "nthview-numrow" }, [num, el("span", { text: act.unit || "" }), el("span", { class: "nthview-cap", text: "from " + act.min + " to " + act.max + unit })]));
+        w.appendChild(el("div", { class: "nthview-fline" }, [track, el("b", { text: "" })])); sync(start);
+        if (done) { range.disabled = true; num.disabled = true; var mk = el("span", { class: "nthview-mark" }); mk.style.left = frac(act.answer) * 100 + "%"; track.appendChild(mk); w.appendChild(p("nthview-readout", "Answer: " + act.answer + unit)); if (act.reveal) w.appendChild(p("nthview-cap", act.reveal)); }
+        else w.appendChild(checkRow("Check my estimate", function () {
+          var v = Number(num.value); if (num.value === "" || isNaN(v)) { fb.className = "nthview-fb nthview-no"; fb.textContent = "Type or slide to a number first."; return; }
+          var diff = v - act.answer;
+          if (Math.abs(diff) <= act.tolerance) { done = true; range.disabled = true; num.disabled = true; var mk = el("span", { class: "nthview-mark" }); mk.style.left = frac(act.answer) * 100 + "%"; track.appendChild(mk); judge(s, true, fb, "Close enough! The answer is " + act.answer + unit + "." + (act.reveal ? " " + act.reveal : "")); }
+          else judge(s, false, fb, "", diff > 0 ? "Too high. Try a lower number." : "Too low. Try a higher number.");
+        }));
+        w.appendChild(fb); pbody.appendChild(w); return done;
+      },
+      odd: function (s, act, done) {
+        var w = box(act.title || "Spot the odd one out"); w.appendChild(p("nthview-q", act.prompt));
+        var list = el("div", { class: "nthview-opts" }), fb = feedback(), locked = done;
+        act.items.forEach(function (it, i) {
+          var b = el("button", { type: "button", class: "nthview-opt", text: it }); if (done) { b.disabled = true; if (i === act.answer) b.classList.add("nthview-right"); }
+          b.addEventListener("click", function () {
+            if (locked) return;
+            if (i === act.answer) { locked = true; b.classList.add("nthview-right"); Array.prototype.forEach.call(list.children, function (x) { x.disabled = true; }); judge(s, true, fb, act.why || "That's the odd one!"); }
+            else { b.classList.add("nthview-wrong"); b.disabled = true; judge(s, false, fb, "", "That one belongs with the others. Which one is different?"); }
+          });
+          list.appendChild(b);
+        });
+        w.appendChild(list); w.appendChild(fb); if (done && act.why) w.appendChild(p("nthview-cap", act.why)); pbody.appendChild(w); return done;
+      },
+      hotspot: function (s, act, done) {
+        if (done) { var d = box("You found it"); d.appendChild(p("", "**" + act.parts.filter(function (pt) { return pt.id === act.answer; })[0].label + "** was the right part.")); pbody.appendChild(d); return true; }
+        pbody.appendChild(taskBox(act.prompt));
+        var w = box("Or pick the part from this list"); var list = el("div", { class: "nthview-chips nthview-row" });
+        act.parts.forEach(function (pt) { list.appendChild(btn(pt.label, "", function () { chooseHotspot(s, s.task.parts.filter(function (x) { return x.id === pt.id; })[0]); })); });
+        w.appendChild(list); pbody.appendChild(w); return false;
+      },
+      fork: function (s, act, done) {
+        if (done) { var d = box("Your choice"); d.appendChild(p("", "You took **" + act.paths.filter(function (pt) { return pt.id === act.answer; })[0].label + "**. Good call.")); pbody.appendChild(d); return true; }
+        pbody.appendChild(taskBox(act.prompt)); pbody.appendChild(p("nthview-cap", "Walk down a path and through its gate to choose. A wrong gate sends you back to the signpost and costs a coin."));
+        return false;
+      },
+      beacons: function (s, act, done) {
+        var task = s.task;
+        if (done) { var d = box("The lit beacons"); d.appendChild(el("div", { class: "nthview-dots" }, act.items.map(function (it) { return el("span", { class: "nthview-dot" + (it.lit ? " nthview-on" : ""), text: it.label }); }))); pbody.appendChild(d); return true; }
+        pbody.appendChild(taskBox(act.prompt));
+        var w = box("Beacons (you can also light them from here)"); var list = el("div", { class: "nthview-list" }), fb = feedback();
+        task.items.forEach(function (it) {
+          var row = el("div", { class: "nthview-sw" }, [el("span", { text: it.label })]);
+          var tg = el("button", { type: "button", class: "nthview-toggle", role: "switch", "aria-checked": String(it.on), "aria-label": "Light " + it.label });
+          tg.addEventListener("click", function () { setBeacon(s, it, !it.on); tg.setAttribute("aria-checked", String(it.on)); });
+          row.appendChild(tg); list.appendChild(row);
+        });
+        w.appendChild(list); w.appendChild(checkRow("Check the beacons", function () { checkBeacons(s, fb); })); w.appendChild(fb); pbody.appendChild(w); return false;
+      },
+      steps: function (s, act, done) {
+        var task = s.task;
+        var dots = el("div", { class: "nthview-dots" }, act.items.map(function (it, i) { return el("span", { class: "nthview-dot" + (done || i < task.pos ? " nthview-on" : ""), text: done || i < task.pos ? it.label : "?" }); }));
+        if (done) { var d = box("The right order"); d.appendChild(dots); pbody.appendChild(d); return true; }
+        pbody.appendChild(taskBox(act.prompt)); var w = box("Steps so far: " + task.pos + " of " + act.items.length); w.appendChild(dots); pbody.appendChild(w); return false;
+      },
+      gather: function (s, act, done) {
+        var task = s.task;
+        var bins = el("div", { class: "nthview-bins" }, act.bins.map(function (b) { var d = el("div", { class: "nthview-bin" + (done ? " nthview-full" : "") }, [el("b", { text: b.label })]); act.items.forEach(function (it, i) { if (done || task.items[i].where === "binned") { if (it.bin === b.id) d.appendChild(el("span", { class: "nthview-stamp", text: it.label })); } }); return d; }));
+        if (done) { var d = box("Everything sorted"); d.appendChild(bins); pbody.appendChild(d); return true; }
+        pbody.appendChild(taskBox(act.prompt + " Sorted so far: " + task.sorted + " of " + task.total + ".")); var w = box("The bins"); w.appendChild(bins); pbody.appendChild(w); return false;
+      },
+      compare: function (s, act) {
+        var w = box(act.title || "Before and after"); if (act.prompt) w.appendChild(p("", act.prompt));
+        var sides = [act.before, act.after], which = 0, body = el("div");
+        var seg = segControl([act.before.label, act.after.label], 0, function (i) { which = i; sfx("step"); draw(true); }, "Before or after");
+        function draw(animate) {
+          var side = sides[which]; body.textContent = ""; var t = p("", side.text); t.style.marginTop = "8px"; body.appendChild(t);
+          side.rows.forEach(function (r) { var row = barRow(r.label, animate ? 0 : r.value, r.show, which === 0 ? "grey" : "normal"); body.appendChild(row); if (animate) requestAnimationFrame(function () { row.querySelector(".nthview-bar").style.width = r.value + "%"; }); });
+          if (s.api) s.api.show(which);
+        }
+        w.appendChild(seg); w.appendChild(body); if (act.caption) w.appendChild(p("nthview-cap", act.caption)); pbody.appendChild(w); draw(false); return true;
+      },
+      bars: function (s, act) {
+        var w = box(act.title || "Build the bars"); w.appendChild(p("", act.prompt)); var guesses = act.items.map(function () { return 50; }), rows = [], revealed = false;
+        act.items.forEach(function (it, i) {
+          var r = barRow(it.label, 50, "50", "normal"); var bar = r.querySelector(".nthview-bar"), val = r.querySelector("b"), track = r.querySelector(".nthview-track");
+          var range = el("input", { type: "range", class: "nthview-range", min: "0", max: "100", step: "1", value: "50", "aria-label": "Your guess for " + it.label }); range.style.marginTop = "2px";
+          range.addEventListener("input", function () { guesses[i] = Number(range.value); bar.style.width = guesses[i] + "%"; bar.style.transition = "none"; val.textContent = String(guesses[i]); if (s.api) s.api.set(guesses.map(function (g) { return g / 100; })); });
+          r.appendChild(range); rows.push({ range: range, track: track, val: val, bar: bar }); w.appendChild(r);
+        });
+        if (s.api) s.api.set(guesses.map(function (g) { return g / 100; }));
+        var fb = feedback();
+        w.appendChild(checkRow(act.buttonLabel || "Reveal the real numbers", function () {
+          if (revealed) return; revealed = true; sfx("pick");
+          rows.forEach(function (r, i) { r.range.disabled = true; var mk = el("span", { class: "nthview-mark" }); mk.style.left = act.items[i].value + "%"; r.track.appendChild(mk); r.val.textContent = act.items[i].show; });
+          if (s.api) s.api.reveal(); fb.className = "nthview-fb nthview-ok"; fb.textContent = act.revealText || "The green marks show the real values.";
+        }));
+        w.appendChild(fb); pbody.appendChild(w); return true;
+      },
+      switches: function (s, act) {
+        var w = box(act.title || "Flip the switches"); if (act.prompt) w.appendChild(p("", act.prompt));
+        var env = {}; act.switches.forEach(function (sw) { env[sw.id] = sw.on ? 1 : 0; });
+        var readout = el("p", { class: "nthview-readout" }), lamp = el("span", { class: "nthview-lamp", "aria-hidden": "true" });
+        function upd() {
+          var r = null; for (var i = 0; i < act.readout.length; i++) { var c = act.readout[i]; if (c.when === undefined || evalExpr(c.when, env)) { r = c; break; } }
+          readout.textContent = ""; readout.appendChild(lamp); readout.appendChild(doc.createTextNode(r ? r.text : "")); lamp.className = "nthview-lamp" + (r && r.tone ? " nthview-" + r.tone : "");
+          if (s.api) s.api.set(act.switches.map(function (sw) { return env[sw.id]; }), r ? r.tone : null);
+        }
+        act.switches.forEach(function (sw) {
+          var tg = el("button", { type: "button", class: "nthview-toggle", role: "switch", "aria-checked": String(!!sw.on), "aria-label": sw.label });
+          tg.addEventListener("click", function () { env[sw.id] = env[sw.id] ? 0 : 1; tg.setAttribute("aria-checked", String(!!env[sw.id])); sfx("step"); upd(); });
+          w.appendChild(el("div", { class: "nthview-sw" }, [el("span", { text: sw.label }), tg]));
+        });
+        w.appendChild(readout); if (act.caption) w.appendChild(p("nthview-cap", act.caption)); pbody.appendChild(w); upd(); return true;
+      },
+      predict: function (s, act, done) {
+        var w = box(act.title || "Predict, then watch"); w.appendChild(p("nthview-q", act.question)); var wasDone = done;
+        var picked = done ? (state.picks[s.id] !== undefined ? state.picks[s.id] : act.options.map(function (o) { return !!o.correct; }).indexOf(true)) : null;
+        var list = el("div", { class: "nthview-opts" }), fb = feedback(), frames = el("div", { class: "nthview-story" }), opts = [];
+        act.options.forEach(function (o, i) {
+          var b = el("button", { type: "button", class: "nthview-opt", text: o.text }); if (done) { b.disabled = true; if (o.correct) b.classList.add("nthview-right"); else if (i === picked) b.classList.add("nthview-wrong"); }
+          b.addEventListener("click", function () { if (done) return; picked = i; opts.forEach(function (x, k) { x.classList.toggle("nthview-sel", k === i); x.setAttribute("aria-pressed", String(k === i)); }); run.button.disabled = false; sfx("step"); });
+          opts.push(b); list.appendChild(b);
+        });
+        w.appendChild(list);
+        var run = checkRow(act.runLabel || "Run it and watch", function () {
+          if (picked === null || done) return; done = true; run.button.disabled = true; opts.forEach(function (x) { x.disabled = true; }); state.picks[s.id] = picked; if (s.api) s.api.run(); sfx("pick");
+          var i = 0; var show = function () {
+            if (i < act.frames.length) { frames.appendChild(p("", act.frames[i])); i++; if (reduceMotion) show(); else setTimeout(show, 1000); return; }
+            var right = !!act.options[picked].correct; opts[picked].classList.add(right ? "nthview-right" : "nthview-wrong"); opts.forEach(function (x, k) { if (act.options[k].correct) x.classList.add("nthview-right"); });
+            if (!right) attempt(s.id); var st = awardStars(s.id, right ? 3 : 1); if (right) sfx("ok"); else sfx("no");
+            fb.className = "nthview-fb " + (right ? "nthview-ok" : "nthview-no"); fb.textContent = (right ? "Your prediction was right! " : "Not what you predicted. ") + act.result + " " + starsText(st);
+            if (s.api && s.api.solved) s.api.solved(st); earn(s); setTimeout(function () { if (state.panelOpen) openLesson(s, true); }, 1800);
+          }; show();
+        }); run.button.disabled = true;
+        if (!done) w.appendChild(run);
+        w.appendChild(frames); if (wasDone) { act.frames.forEach(function (f) { frames.appendChild(p("", f)); }); w.appendChild(p("nthview-readout", act.result)); }
+        w.appendChild(fb); pbody.appendChild(w); return done;
+      },
+      confidence: function (s, act, done) {
+        var w = box(act.title || "How sure are you?"); w.appendChild(p("nthview-q", act.question));
+        var list = el("div", { class: "nthview-opts" }), fb = feedback(), picked = null, conf = 1, opts = [];
+        var LEVELS = ["I'm sure", "I think so", "Just guessing"];
+        act.options.forEach(function (o, i) {
+          var b = el("button", { type: "button", class: "nthview-opt", text: o.text, "aria-pressed": "false" }); if (done) { b.disabled = true; if (o.correct) b.classList.add("nthview-right"); }
+          b.addEventListener("click", function () { if (done || b.disabled) return; picked = i; opts.forEach(function (x, k) { x.classList.toggle("nthview-sel", k === i); x.setAttribute("aria-pressed", String(k === i)); }); lock.button.disabled = false; sfx("step"); });
+          opts.push(b); list.appendChild(b);
+        });
+        w.appendChild(list);
+        var seg = segControl(LEVELS, conf, function (i) { conf = i; sfx("step"); }, "Confidence");
+        var lock = checkRow("Lock in my answer", function () {
+          if (picked === null || done) return; var o = act.options[picked];
+          if (o.correct) { done = true; attempt(s.id, 1); opts.forEach(function (x) { x.disabled = true; }); opts[picked].classList.add("nthview-right"); var st = awardStars(s.id, 3 - conf); sfx("ok"); fb.className = "nthview-fb nthview-ok"; fb.textContent = (act.okText || "Correct!") + " " + starsText(st) + (conf === 0 ? " Sure and right: full marks." : conf === 1 ? " Right, and you half knew it." : " Right, but a guess: one star."); if (s.api) s.api.solved(st); earn(s); setTimeout(function () { if (state.panelOpen) openLesson(s, true); }, 1400); }
+          else { attempt(s.id, conf === 0 ? 2 : 1); opts[picked].classList.add("nthview-wrong"); opts[picked].classList.remove("nthview-sel"); opts[picked].disabled = true; picked = null; lock.button.disabled = true; sfx("no"); fb.className = "nthview-fb nthview-no"; fb.textContent = (conf === 0 ? "Sure, but wrong: that cost two coins. " : "Not quite. ") + (o.why || "Try again."); }
+        }); lock.button.disabled = true;
+        if (!done) { w.appendChild(p("nthview-cap", "Pick an answer, say how sure you are, then lock it in. Being sure and right earns 3 stars; being sure and wrong costs 2 coins.")); w.appendChild(seg); w.appendChild(lock); }
+        w.appendChild(fb); if (done && act.okText) w.appendChild(p("nthview-cap", act.okText)); pbody.appendChild(w); return done;
+      },
+      flashcards: function (s, act) {
+        var w = box(act.title || "Flip the cards"); if (act.prompt) w.appendChild(p("", act.prompt));
+        var i = 0, flipped = false, known = {}; var front = el("div", { class: "nthview-face" }), back = el("div", { class: "nthview-face nthview-back" });
+        var card = el("div", { class: "nthview-flip" }, [front, back]); var holder = el("div", { class: "nthview-card3" }, [card]);
+        var counter = el("span", { class: "nthview-cap", "aria-live": "polite" }); var flipBtn = btn("Flip", "nthview-primary", function () { flipped = !flipped; card.classList.toggle("nthview-flipped", flipped); if (s.api) s.api.flip(flipped); sfx("step"); });
+        var prev = btn("Previous", "", function () { i = (i + act.cards.length - 1) % act.cards.length; draw(); }), next = btn("Next", "", function () { i = (i + 1) % act.cards.length; draw(); });
+        var got = btn("Got it", "", function () { known[i] = !known[i]; draw(); sfx("pick"); });
+        function draw() { flipped = false; card.classList.remove("nthview-flipped"); if (s.api) s.api.flip(false); front.textContent = ""; front.appendChild(rich(act.cards[i].front)); back.textContent = ""; back.appendChild(rich(act.cards[i].back)); counter.textContent = "Card " + (i + 1) + " of " + act.cards.length + " · " + Object.keys(known).filter(function (k) { return known[k]; }).length + " marked as known"; got.textContent = known[i] ? "Got it ✓" : "Got it"; got.setAttribute("aria-pressed", String(!!known[i])); }
+        w.appendChild(holder); w.appendChild(el("div", { class: "nthview-check" }, [flipBtn, prev, next, got])); w.appendChild(counter); pbody.appendChild(w); draw(); return true;
       }
     };
 
-    function openLesson(s) {
+    function openLesson(s, toEnd) {
       stopWalk();
       var isl = s.data, done = !!state.done[s.id];
       head(s); pbody.appendChild(p("nthview-lead", isl.lead)); (isl.body || []).forEach(function (t) { pbody.appendChild(p("", t)); });
-      var isPads = isl.activity && isl.activity.type === "pads";
+      var replaces = isl.activity && REPLACES_QUIZ.indexOf(isl.activity.type) !== -1;
       if (isl.findings && !isl.findings.after) pbody.appendChild(findings(isl.findings));
       var ready = true;
-      if (isl.activity) ready = ACTIVITIES[isl.activity.type](s, isl.activity);
+      if (isl.activity) ready = ACTIVITIES[isl.activity.type](s, isl.activity, done);
       if (isl.aside) { var ad = box(isl.aside.title); var at = p("", isl.aside.text); at.style.margin = "0"; ad.appendChild(at); pbody.appendChild(ad); }
       if (ready && isl.findings && isl.findings.after) pbody.appendChild(findings(isl.findings));
+      var rem = null;
       if (ready) {
-        if (isPads) { if (done) pbody.appendChild(remember(s)); }
+        if (replaces) { if (done) rem = remember(s); }
         else {
           quiz(pbody, { key: s.id, q: isl.quiz, solved: done, onSolve: function () { earn(s); pbody.appendChild(remember(s)); } });
-          if (done) pbody.appendChild(remember(s));
+          if (done) rem = remember(s);
         }
+        if (rem) pbody.appendChild(rem);
       }
-      openPanel(s.color);
+      if (!state.panelOpen) openPanel(s.color); else { panel.style.setProperty("--accent", s.color); }
+      if (toEnd && rem) setTimeout(function () { rem.scrollIntoView({ block: "nearest", behavior: reduceMotion ? "auto" : "smooth" }); }, 50);
     }
 
+    /* ---------- field task actions ---------- */
     function choosePad(s, pad) {
       if (state.done[s.id]) return;
       attempt(s.id);
-      if (pad.id === s.task.answer) { award(s.id); sfx("ok"); earn(s); setTimeout(function () { openLesson(s); }, 500); }
+      if (pad.id === s.task.answer) { fieldSolve(s); }
       else { sfx("no"); toast(pad.why || "Not this one."); }
+    }
+    function chooseHotspot(s, part) {
+      if (state.done[s.id] || !part) return;
+      attempt(s.id);
+      if (part.id === s.task.answer) { burst(s.x, 4, s.z, s.color, 60); fieldSolve(s); if (state.panelOpen) setTimeout(function () { openLesson(s, true); }, 600); }
+      else { sfx("no"); part.mesh.userData.lock = true; part.mesh.material.emissiveIntensity = .05; toast(part.hint || "Not that part. Try another."); }
+    }
+    function chooseFork(s, path) {
+      if (state.done[s.id]) return;
+      attempt(s.id);
+      if (path.id === s.task.answer) { burst(path.x, 3, path.z, s.color, 80); fieldSolve(s); }
+      else { sfx("no"); toast(path.hint || "Not that way. Back to the signpost."); burst(player.position.x, 1.5, player.position.z, "#9aa3b8", 30); player.position.set(s.task.home.x, 0, s.task.home.z); robo.position.set(s.task.home.x, 0, s.task.home.z + 1.5); s.task.cool = .8; }
+    }
+    function setBeacon(s, it, on) { if (state.done[s.id]) return; it.on = on; it.flame.visible = on; it.bowl.material = on ? glow(s.color, .6) : stoneMat; sfx(on ? "pick" : "step"); guideKey = ""; }
+    function checkBeacons(s, fb) {
+      if (state.done[s.id]) return; var task = s.task;
+      var lit = task.items.filter(function (it) { return it.on; }).length; if (!lit) { toast("Light at least one beacon first."); return; }
+      attempt(s.id);
+      var wrong = task.items.filter(function (it) { return it.on !== it.want; }).length;
+      if (!wrong) { if (fb) { fb.className = "nthview-fb nthview-ok"; fb.textContent = "Exactly the right beacons!"; } task.items.forEach(function (it) { if (it.on) burst(it.x, 3, it.z, s.color, 30); }); fieldSolve(s); if (state.panelOpen) setTimeout(function () { openLesson(s, true); }, 600); }
+      else { sfx("no"); var msg = wrong + " beacon" + (wrong > 1 ? "s are" : " is") + " wrong. Some should be lit, some should not."; toast(msg); if (fb) { fb.className = "nthview-fb nthview-no"; fb.textContent = msg; } }
+    }
+    function dropOrb(s) {
+      var task = s.task, it = task.carrying, bin = task.nearBin; if (!it || !bin || state.done[s.id]) return;
+      if (it.bin === bin.id) {
+        it.where = "binned"; task.carrying = null; task.sorted++; carryGroup.remove(it.mesh); bin.count++;
+        it.mesh.position.set(bin.mesh.position.x + ((bin.count % 3) - 1) * .6, 1.5 + Math.floor((bin.count - 1) / 3) * .5, bin.mesh.position.z); s.g.add(it.mesh); sfx("pick"); burst(bin.x, 2, bin.z, s.color, 30); guideKey = "";
+        if (task.sorted >= task.total) { fieldSolve(s); } else toast("Yes! " + it.label + " goes in " + bin.label + ". " + (task.total - task.sorted) + " to go.");
+      } else { attempt(s.id); sfx("no"); toast(it.label + " doesn't belong in " + bin.label + ". Try the other bin."); }
     }
 
     function openExam() {
@@ -861,25 +1797,117 @@
     }
     function finish() { if (!state.finished) { state.finished = true; sfx("win"); burst(0, 6, 0, "#ffd76a", 200); roboJump = 1; } closePanel(); showReport(); }
 
-    /* ---------- auto-walk ---------- */
-    var auto = null;
-    var angOf = function (x, z) { return Math.atan2(x, z); };
-    var ringPt = function (a, r) { r = r || RING_ROAD; return { x: Math.sin(a) * r, z: Math.cos(a) * r }; };
-    var islePt = function (s) { return { x: s.dir.x * (R_RING - 4), z: s.dir.z * (R_RING - 4) }; };
-    function areaStation(pp) { for (var i = 0; i < N; i++) { var s = STATIONS[i]; if (Math.hypot(pp.x - s.x, pp.z - s.z) < R_ISLE + .5 || segDist(pp.x, pp.z, s.bridge) < 2) return s; } return null; }
-    function buildRoute(target) {
-      var pp = player.position, pts = [], cur = areaStation(pp), tS = target === "summit" ? null : target;
-      if (cur && cur === tS) { pts.push(islePt(cur)); return pts; }
-      var a;
-      if (cur) { a = cur.angle; pts.push(ringPt(a)); }
-      else { var r = Math.hypot(pp.x, pp.z); a = r < 1 ? (tS ? tS.angle : 0) : angOf(pp.x, pp.z); if (tS) pts.push(ringPt(a)); }
-      if (!tS) { pts.push(ringPt(a, 4.3)); return pts; }
-      var d = tS.angle - a; d = Math.atan2(Math.sin(d), Math.cos(d));
-      var n = Math.max(1, Math.ceil(Math.abs(d) / .4));
-      for (var k = 1; k <= n; k++) pts.push(ringPt(a + d * k / n));
-      pts.push(islePt(tS)); return pts;
+    /* ---------- auto-walk over the causeway graph ---------- */
+    var auto = null, faceTarget = null;
+
+    /* ---------- occasional rides: a bird, a balloon or a glider carries the coach ---------- */
+    var ride = null;
+    var RIDE_CHANCE = .35, RIDE_MIN_LEN = 30;
+    function makeBird() {
+      var g = new THREE.Group();
+      var body = new THREE.Mesh(new THREE.ConeGeometry(.55, 2.4, 6), M("#f4f6fb", { roughness: .5 })); body.rotation.x = Math.PI / 2; g.add(body);
+      var head = new THREE.Mesh(new THREE.SphereGeometry(.42, 10, 8), M("#f4f6fb", { roughness: .5 })); head.position.set(0, .25, 1.35); g.add(head);
+      var beak = new THREE.Mesh(new THREE.ConeGeometry(.16, .6, 5), M("#f4a224")); beak.rotation.x = Math.PI / 2; beak.position.set(0, .2, 1.85); g.add(beak);
+      var tail = new THREE.Mesh(new THREE.BoxGeometry(.9, .08, .9), M("#dfe3ee")); tail.position.set(0, .1, -1.3); tail.rotation.y = Math.PI / 4; g.add(tail);
+      var wings = [-1, 1].map(function (side) {
+        var pivot = new THREE.Group(); pivot.position.set(side * .35, .2, 0);
+        var w = new THREE.Mesh(new THREE.BoxGeometry(3, .08, 1.1), M("#e6eaf5")); w.position.x = side * 1.5; pivot.add(w); g.add(pivot); return pivot;
+      });
+      [-1, 1].forEach(function (side) { var eye = new THREE.Mesh(new THREE.SphereGeometry(.07, 6, 6), M("#1b2440")); eye.position.set(side * .22, .38, 1.65); g.add(eye); });
+      g.userData.wings = wings; g.userData.lift = 3.2; return g;
     }
-    function startWalk(target) { if (state.panelOpen) closePanel(); auto = { pts: buildRoute(target), target: target }; guideKey = ""; }
+    function makeBalloon() {
+      var g = new THREE.Group();
+      var env = new THREE.Mesh(new THREE.SphereGeometry(2.6, 14, 12), glow("#ff6b6b", .25, { color: "#ff8a80" })); env.position.y = 7; env.scale.y = 1.15; g.add(env);
+      for (var i = 0; i < 6; i++) { var stripe = new THREE.Mesh(new THREE.BoxGeometry(.12, 5.4, .12), M(i % 2 ? "#ffd76a" : "#f4f6fb")); var a = i / 6 * Math.PI * 2; stripe.position.set(Math.cos(a) * 2.62, 7, Math.sin(a) * 2.62); stripe.rotation.y = -a; g.add(stripe); }
+      var neck = new THREE.Mesh(new THREE.CylinderGeometry(.5, .35, .8, 8), M("#b23a48")); neck.position.y = 3.9; g.add(neck);
+      var basket = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.1, 2.2), M("#b9875a", { roughness: .9 })); basket.position.y = .9; g.add(basket);
+      [-1, 1].forEach(function (sx) { [-1, 1].forEach(function (sz) { var rope = new THREE.Mesh(new THREE.CylinderGeometry(.03, .03, 3.2, 4), M("#6b5a46")); rope.position.set(sx * .95, 2.9, sz * .95); rope.rotation.z = -sx * .12; rope.rotation.x = sz * .12; g.add(rope); }); });
+      var flame = new THREE.Mesh(new THREE.SphereGeometry(.22, 8, 6), glow("#ffb020", 1)); flame.position.y = 3.3; g.add(flame); g.userData.flame = flame;
+      g.userData.lift = 0; g.userData.playerOffset = { y: .55 }; return g;
+    }
+    function makeGlider() {
+      var g = new THREE.Group();
+      var mat = new THREE.MeshStandardMaterial({ color: "#ffd76a", emissive: "#ffd76a", emissiveIntensity: .7, transparent: true, opacity: .75, side: THREE.DoubleSide, flatShading: true });
+      [-1, 1].forEach(function (side) { var w = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 1.3), mat); w.position.set(side * 1.8, 2.7, -.2); w.rotation.x = -Math.PI / 2; w.rotation.z = side * .22; g.add(w); });
+      var spar = new THREE.Mesh(new THREE.CylinderGeometry(.05, .05, 7.2, 5), M("#1b2440")); spar.rotation.z = Math.PI / 2; spar.position.y = 2.72; g.add(spar);
+      g.userData.lift = 0; g.userData.attached = true; g.scale.setScalar(.01); return g;
+    }
+    function maybeRide(target, pts, len) {
+      if (reduceMotion || len < RIDE_MIN_LEN || Math.random() > RIDE_CHANCE || pts.length < 2) return false;
+      var kinds = ["bird", "balloon", "glider"], kind = kinds[Math.floor(Math.random() * kinds.length)];
+      var pp = player.position, to = pts[pts.length - 1];
+      var vehicle = kind === "bird" ? makeBird() : kind === "balloon" ? makeBalloon() : makeGlider();
+      var dirx = to.x - pp.x, dirz = to.z - pp.z, dl = Math.hypot(dirx, dirz) || 1;
+      if (kind === "bird") vehicle.position.set(pp.x - dirx / dl * 26, 18, pp.z - dirz / dl * 26);
+      else if (kind === "balloon") vehicle.position.set(pp.x, 22, pp.z);
+      else { vehicle.position.set(pp.x, 0, pp.z); }
+      if (kind === "glider") player.add(vehicle); else scene.add(vehicle);
+      ride = { kind: kind, phase: "approach", t: 0, from: { x: pp.x, z: pp.z }, to: { x: to.x, z: to.z }, target: target, vehicle: vehicle,
+        apex: Math.min(26, 9 + len * .09), carryDur: Math.max(2.6, Math.min(5.5, len / 13)), approachDur: kind === "glider" ? .8 : 1.4, releaseDur: 1.3, start: { x: vehicle.position.x, y: vehicle.position.y, z: vehicle.position.z } };
+      keys = {}; joyVec.x = joyVec.y = 0; guideKey = ""; sfx("open");
+      toast(kind === "bird" ? "A friendly bird swoops in to carry you!" : kind === "balloon" ? "A balloon drifts down. Hop in!" : "Your halo unfolds into a glider!");
+      return true;
+    }
+    function easeInOut(k) { return k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2; }
+    function rideTick(dt, t) {
+      if (!ride) return;
+      var pp = player.position, v = ride.vehicle, r = ride; r.t += dt;
+      var dx = r.to.x - r.from.x, dz = r.to.z - r.from.z, heading = Math.atan2(dx, dz);
+      if (v.userData.wings) v.userData.wings.forEach(function (w, i) { w.rotation.z = (i ? -1 : 1) * Math.sin(t * 11) * .55; });
+      if (v.userData.flame) v.userData.flame.scale.setScalar(.8 + Math.abs(Math.sin(t * 7)) * .6);
+      if (r.phase === "approach") {
+        var k = easeInOut(Math.min(1, r.t / r.approachDur));
+        if (r.kind === "glider") { v.scale.setScalar(.01 + k * .99); }
+        else {
+          var ty = r.kind === "bird" ? pp.y + v.userData.lift : pp.y;
+          v.position.set(r.start.x + (pp.x - r.start.x) * k, r.start.y + (ty - r.start.y) * k, r.start.z + (pp.z - r.start.z) * k);
+          v.rotation.y = heading;
+        }
+        if (r.t >= r.approachDur) { r.phase = "carry"; r.t = 0; sfx("pick"); roboJump = 1; }
+      } else if (r.phase === "carry") {
+        var kc = easeInOut(Math.min(1, r.t / r.carryDur)), h = Math.sin(kc * Math.PI) * r.apex;
+        pp.x = r.from.x + dx * kc; pp.z = r.from.z + dz * kc; pp.y = h + (r.kind === "balloon" ? v.userData.playerOffset.y : 0);
+        var dYaw = Math.atan2(Math.sin(Math.atan2(-dx, -dz) - yaw), Math.cos(Math.atan2(-dx, -dz) - yaw)); yaw += dYaw * Math.min(1, dt * 2.5);
+        var dFace = Math.atan2(Math.sin(heading - player.rotation.y), Math.cos(heading - player.rotation.y)); player.rotation.y += dFace * Math.min(1, dt * 6);
+        if (r.kind !== "glider") { v.position.set(pp.x, r.kind === "bird" ? pp.y + v.userData.lift : h, pp.z); v.rotation.y = heading; v.rotation.z = r.kind === "bird" ? Math.sin(t * 2) * .08 : 0; }
+        else { v.rotation.z = Math.sin(t * 1.7) * .12; }
+        body.position.y = 1.1; halo.visible = r.kind !== "glider";
+        if (r.t >= r.carryDur) { r.phase = "release"; r.t = 0; pp.y = 0; faceTarget = r.target === "summit" ? { x: 0, z: 0 } : { x: r.target.x, z: r.target.z }; sfx("coin"); burst(pp.x, 2, pp.z, "#ffd76a", 40); arriveAt(r.target); }
+      } else {
+        var kr = Math.min(1, r.t / r.releaseDur);
+        if (r.kind === "glider") { v.scale.setScalar(Math.max(.01, 1 - kr)); halo.visible = true; }
+        else { v.position.x += Math.sin(heading) * dt * 14; v.position.z += Math.cos(heading) * dt * 14; v.position.y += dt * (r.kind === "bird" ? 9 : 6); }
+        if (kr >= 1) { if (v.parent) v.parent.remove(v); halo.visible = true; ride = null; guideKey = ""; }
+      }
+    }
+    function landNodes(pp) {
+      for (var i = 0; i < N; i++) { var s = STATIONS[i]; if (Math.hypot(pp.x - s.x, pp.z - s.z) < R_ISLE) return s.nodes; }
+      if (Math.hypot(pp.x, pp.z) < R_HUB) return hubRing.map(function (h) { return h.node; });
+      var best = null, bd = 1e9;
+      for (var j = 0; j < bridges.length; j++) { var d = segDist(pp.x, pp.z, bridges[j]); if (d < bd) { bd = d; best = bridges[j]; } }
+      if (best && best.nodes) return best.nodes;
+      return nodes.map(function (_, k) { return k; });
+    }
+    function nearestOf(list, pp) { var best = list[0], bd = 1e9; list.forEach(function (n) { var d = Math.hypot(nodes[n].x - pp.x, nodes[n].z - pp.z); if (d < bd) { bd = d; best = n; } }); return best; }
+    function dijkstra(src, targets) {
+      var dist = nodes.map(function () { return Infinity; }), prev = nodes.map(function () { return -1; }), seen = nodes.map(function () { return false; });
+      dist[src] = 0;
+      for (;;) {
+        var u = -1, ud = Infinity; for (var i = 0; i < nodes.length; i++) if (!seen[i] && dist[i] < ud) { ud = dist[i]; u = i; }
+        if (u === -1) break; seen[u] = true;
+        adj[u].forEach(function (e) { var nd = ud + e.w; if (nd < dist[e.to]) { dist[e.to] = nd; prev[e.to] = u; } });
+      }
+      var end = targets[0]; targets.forEach(function (t) { if (dist[t] < dist[end]) end = t; });
+      var path = []; for (var v = end; v !== -1; v = prev[v]) path.unshift(v); return path;
+    }
+    function buildRoute(target) {
+      var pp = player.position, src = nearestOf(landNodes(pp), pp);
+      var targets = target === "summit" ? hubRing.map(function (h) { return h.inner; }) : [target.arrive];
+      var path = dijkstra(src, targets);
+      return path.map(function (n) { return { x: nodes[n].x, z: nodes[n].z }; });
+    }
+    function startWalk(target) { if (state.panelOpen) closePanel(); var pts = buildRoute(target); var len = 0; for (var i = 1; i < pts.length; i++) len += Math.hypot(pts[i].x - pts[i - 1].x, pts[i].z - pts[i - 1].z); if (!maybeRide(target, pts, len)) auto = { pts: pts, target: target, speed: Math.min(20, 12 + len / 30) }; guideKey = ""; }
     function stopWalk() { if (auto) { auto = null; guideKey = ""; } }
     function arriveAt(t) { setTimeout(function () { if (state.panelOpen) return; if (t === "summit") { if (state.doneCount === N) openExam(); } else if (isUnlocked(t)) openLesson(t); }, 300); }
 
@@ -892,6 +1920,35 @@
       guide.style.setProperty("--accent", accent);
       arrowTarget = arrow; gArrow.classList.toggle("nthview-hidden", !arrow);
     }
+    /* field-task guidance; returns {small, big, actions, key} or null */
+    function fieldGuide(here, task) {
+      var read = { label: "Read the lesson", fn: function () { openLesson(here); } };
+      switch (task.type) {
+        case "pad":
+          if (task.onPad) return { key: "pad" + task.onPad.id, small: "Standing on the pad", big: task.onPad.label, actions: [{ label: "Choose this one", fn: function () { choosePad(here, task.onPad); } }, read] };
+          return null;
+        case "collect":
+          if (task.collected.length < task.total) return { key: "collect" + task.collected.length, small: "Answers collected: " + task.collected.length + " of " + task.total, big: task.collected.length ? "Keep going, walk into the rest" : "Walk into the glowing letters", actions: [read] };
+          return null;
+        case "steps":
+          return { key: "steps" + task.pos, small: "Pads stepped in order: " + task.pos + " of " + task.order.length, big: task.pos ? "Good. Which pad comes next?" : "Step on the pads in the right order", actions: [read] };
+        case "beacons":
+          var lit = task.items.filter(function (it) { return it.on; }).length; var acts = [];
+          if (task.near) acts.push({ label: (task.near.on ? "Put out " : "Light ") + task.near.label, fn: function () { setBeacon(here, task.near, !task.near.on); } });
+          if (lit) acts.push({ label: "Check the beacons", fn: function () { checkBeacons(here); } });
+          acts.push(read);
+          return { key: "beacons" + lit + (task.near ? task.near.id + task.near.on : ""), small: lit + " beacon" + (lit === 1 ? "" : "s") + " lit", big: task.near ? task.near.label : "Walk up to a beacon", actions: acts };
+        case "gather":
+          if (task.carrying && task.nearBin) return { key: "drop" + task.nearBin.id, small: "Carrying " + task.carrying.label, big: "Drop it into " + task.nearBin.label + "?", actions: [{ label: "Drop it here", fn: function () { dropOrb(here); } }, read] };
+          if (task.carrying) return { key: "carry", small: "Carrying " + task.carrying.label, big: "Walk to the right bin", actions: [read] };
+          return { key: "gather" + task.sorted, small: "Sorted: " + task.sorted + " of " + task.total, big: "Walk into an orb to pick it up", actions: [read] };
+        case "fork":
+          return { key: "fork", small: "At the fork", big: "Walk through the gate you choose", actions: [read] };
+        case "hotspot":
+          return { key: "hotspot", small: "Find the right part", big: "Click a glowing part", actions: [{ label: "Pick from a list", fn: function () { openLesson(here); } }] };
+      }
+      return null;
+    }
     function updateGuide() {
       var show = state.started && !state.panelOpen && intro.classList.contains("nthview-hidden") && end.classList.contains("nthview-hidden");
       guide.classList.toggle("nthview-hidden", !show); if (!show) return;
@@ -899,26 +1956,27 @@
       var tPos = tgt === "summit" ? { x: 0, z: 0 } : { x: tgt.x, z: tgt.z };
       var here = nearby && nearby !== "summit" ? nearby : null;
       var task = here && here.task && !state.done[here.id] && isUnlocked(here) ? here.task : null;
+      var fg = task && !auto ? fieldGuide(here, task) : null;
       var mode;
-      if (auto) mode = "walking";
+      if (ride) mode = "riding";
+      else if (auto) mode = "walking";
       else if (state.finished) mode = "finished";
-      else if (task && task.type === "pad" && task.onPad) mode = "pad";
-      else if (task && task.type === "collect" && task.collected.length < task.total) mode = "collect";
+      else if (fg) mode = "field";
       else if (nearby && nearby === tgt) mode = "at-target";
       else if (here && state.done[here.id]) mode = "at-done";
       else if (here) mode = "at-locked";
       else if (nearby === "summit") mode = "summit-locked";
       else mode = "roam";
-      var key = mode + "|" + tName + "|" + (here ? here.id : String(nearby)) + "|" + (task && task.type === "collect" ? task.collected.length : "") + "|" + (task && task.onPad ? task.onPad.id : "");
+      var key = mode + "|" + tName + "|" + (here ? here.id : String(nearby)) + "|" + (fg ? fg.key : "");
       if (key !== guideKey) {
         guideKey = key;
         var walkBtn = { label: "Walk me there", fn: function () { startWalk(tgt); } };
         var lessonNo = tgt === "summit" ? "" : "lesson " + (tgt.idx + 1);
         var finaleLower = lower(data.finale.name);
-        if (mode === "walking") setGuide("On the way to", auto.target === "summit" ? data.finale.name : auto.target.name, [{ label: "Stop walking", fn: stopWalk }], auto.target === "summit" ? "#ffd76a" : auto.target.color, null);
+        if (mode === "riding") setGuide(ride.kind === "bird" ? "Carried by a bird to" : ride.kind === "balloon" ? "Floating by balloon to" : "Gliding to", ride.target === "summit" ? data.finale.name : ride.target.name, [], ride.target === "summit" ? "#ffd76a" : ride.target.color, null);
+        else if (mode === "walking") setGuide("On the way to", auto.target === "summit" ? data.finale.name : auto.target.name, [{ label: "Stop walking", fn: stopWalk }], auto.target === "summit" ? "#ffd76a" : auto.target.color, null);
         else if (mode === "finished") setGuide(hero + " passed the exam", "Explore as long as you like", [{ label: "See my report card", fn: showReport }], "#1fa874", null);
-        else if (mode === "pad") setGuide("Standing on the pad", task.onPad.label, [{ label: "Choose this one", fn: function () { choosePad(here, task.onPad); } }, { label: "Read the lesson", fn: function () { openLesson(here); } }], here.color, null);
-        else if (mode === "collect") setGuide("Answers collected: " + task.collected.length + " of " + task.total, task.collected.length ? "Keep going, walk into the rest" : "Walk into the glowing letters", [{ label: "Read the lesson", fn: function () { openLesson(here); } }], here.color, null);
+        else if (mode === "field") setGuide(fg.small, fg.big, fg.actions, here.color, null);
         else if (mode === "at-target") setGuide(tgt === "summit" ? "You made it" : "You're at lesson " + (tgt.idx + 1), tName, [{ label: tgt === "summit" ? "Take " + finaleLower : (tgt.task ? "Start the task" : "Start the lesson"), fn: function () { if (tgt === "summit") openExam(); else openLesson(tgt); } }], tColor, null);
         else if (mode === "at-done") setGuide("Lesson " + (here.idx + 1) + ", done " + starsText(state.stars[here.id] || 0), here.name, [{ label: tgt === "summit" ? "Walk me to " + finaleLower : "Walk me to " + lessonNo, fn: function () { startWalk(tgt); } }, { label: "Read it again", fn: function () { openLesson(here); } }], here.color, tPos);
         else if (mode === "at-locked") setGuide("Not open yet", "Finish " + lessonNo + " first", [walkBtn], tColor, tPos);
@@ -945,10 +2003,17 @@
     function onKeyUp(e) { delete keys[e.key.toLowerCase()]; }
     function onBlur() { keys = {}; }
     root.addEventListener("keydown", onKeyDown); root.addEventListener("keyup", onKeyUp); root.addEventListener("blur", onBlur);
-    var drag = null;
-    canvas.addEventListener("pointerdown", function (e) { drag = { id: e.pointerId, x: e.clientX, y: e.clientY }; canvas.setPointerCapture(e.pointerId); canvas.focus({ preventScroll: true }); });
+    var drag = null, raycaster = new THREE.Raycaster(), ndc = new THREE.Vector2();
+    canvas.addEventListener("pointerdown", function (e) { drag = { id: e.pointerId, x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY }; canvas.setPointerCapture(e.pointerId); canvas.focus({ preventScroll: true }); });
     canvas.addEventListener("pointermove", function (e) { if (!drag || drag.id !== e.pointerId) return; var dx = e.clientX - drag.x, dy = e.clientY - drag.y; drag.x = e.clientX; drag.y = e.clientY; yaw -= dx * .006; pitch = Math.max(.05, Math.min(1.1, pitch + dy * .004)); });
-    var endDrag = function (e) { if (drag && drag.id === e.pointerId) drag = null; };
+    function clickScene(e) {
+      var here = nearby && nearby !== "summit" ? nearby : null; if (!here || !here.task || here.task.type !== "hotspot" || state.done[here.id] || !isUnlocked(here) || state.panelOpen) return;
+      var r = canvas.getBoundingClientRect(); ndc.set((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+      raycaster.setFromCamera(ndc, camera);
+      var hits = raycaster.intersectObjects(here.task.parts.map(function (pt) { return pt.mesh; }));
+      if (hits.length) chooseHotspot(here, hits[0].object.userData.part && here.task.parts.filter(function (pt) { return pt.id === hits[0].object.userData.part.id; })[0]);
+    }
+    var endDrag = function (e) { if (drag && drag.id === e.pointerId) { if (e.type === "pointerup" && Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) < 6) clickScene(e); drag = null; } };
     canvas.addEventListener("pointerup", endDrag); canvas.addEventListener("pointercancel", endDrag);
     var joyVec = { x: 0, y: 0 }, joyId = null;
     function joyMove(e) { var r = joy.getBoundingClientRect(); var x = (e.clientX - r.left - r.width / 2) / (r.width / 2), y = (e.clientY - r.top - r.height / 2) / (r.height / 2); var l = Math.hypot(x, y); if (l > 1) { x /= l; y /= l; } joyVec.x = x; joyVec.y = y; knob.style.transform = "translate(" + x * 34 + "px," + y * 34 + "px)"; }
@@ -960,6 +2025,44 @@
     helpBtn.addEventListener("click", function () { intro.classList.remove("nthview-hidden"); startBtn.textContent = "Back to the islands"; startBtn.focus(); });
     function onStart() { intro.classList.add("nthview-hidden"); guideKey = ""; sfx("open"); if (!state.started) { state.started = true; toast("Press \"Walk me there\" at the bottom to reach lesson 1. Grab the coins on the bridge!"); } canvas.focus(); }
 
+    /* ---------- per-frame field task checks ---------- */
+    function fieldTick(near, pp, t, dt) {
+      var task = near.task;
+      if (task.type === "collect") {
+        task.items.forEach(function (it) {
+          if (it.got || Math.hypot(pp.x - it.x, pp.z - it.z) >= 1.4) return;
+          it.got = true; near.g.remove(it.mesh); near.g.remove(it.tag); task.collected.push(it.L); if (near.pulse) near.pulse(); sfx("pick"); burst(it.x, 1.5, it.z, near.color, 30); guideKey = "";
+          if (task.collected.length >= task.total) {
+            var counts = {}; task.collected.forEach(function (a) { counts[a] = (counts[a] || 0) + 1; }); var top = Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a]; })[0];
+            sfx("win"); roboJump = 1; toast("All " + task.total + " answers collected! Most popular: " + top + "."); setTimeout(function () { if (!state.panelOpen && !auto) openLesson(near); }, 700);
+          }
+        });
+      } else if (task.type === "pad") {
+        var on = null; task.pads.forEach(function (pd) { var hit = Math.hypot(pp.x - pd.x, pp.z - pd.z) < 1.9; pd.mesh.material.emissiveIntensity += ((hit ? .7 : 0) - pd.mesh.material.emissiveIntensity) * .2; if (hit) on = pd; });
+        if (on !== task.onPad) { task.onPad = on; guideKey = ""; if (on) sfx("step"); }
+      } else if (task.type === "steps") {
+        var st = null; task.pads.forEach(function (pd) { if (Math.hypot(pp.x - pd.x, pp.z - pd.z) < 1.6) st = pd; });
+        if (st !== task.standing) {
+          task.standing = st;
+          if (st) {
+            if (st.id === task.order[task.pos]) { task.pos++; st.mesh.material.emissiveIntensity = .8; st.ring.material.emissiveIntensity = 1; sfx("pick"); burst(st.x, 1.5, st.z, near.color, 20); guideKey = ""; if (task.pos >= task.order.length) fieldSolve(near); }
+            else { attempt(near.id); sfx("no"); toast(task.pos ? "Not that one next. Start again from the first step." : "Not the first step. Which comes first?"); task.pos = 0; task.pads.forEach(function (pd) { pd.mesh.material.emissiveIntensity = 0; pd.ring.material.emissiveIntensity = .5; }); guideKey = ""; }
+          }
+        }
+      } else if (task.type === "beacons") {
+        var nb = null, nd = 2.4; task.items.forEach(function (it) { var d = Math.hypot(pp.x - it.x, pp.z - it.z); if (d < nd) { nd = d; nb = it; } });
+        if (nb !== task.near) { task.near = nb; guideKey = ""; }
+      } else if (task.type === "gather") {
+        if (!task.carrying) task.items.forEach(function (it) { if (task.carrying || it.where !== "ground" || Math.hypot(pp.x - it.x, pp.z - it.z) >= 1.4) return; it.where = "carried"; task.carrying = it; near.g.remove(it.mesh); near.g.remove(it.tag); it.mesh.position.set(0, 0, 0); carryGroup.add(it.mesh); sfx("pick"); guideKey = ""; toast("Picked up " + it.label + ". Carry it to the right bin."); });
+        var bn = null, bd = 2.8; task.bins.forEach(function (b) { var d = Math.hypot(pp.x - b.x, pp.z - b.z); if (d < bd) { bd = d; bn = b; } });
+        if (bn !== task.nearBin) { task.nearBin = bn; guideKey = ""; }
+        if (task.carrying && !reduceMotion) { task.carrying.mesh.rotation.y = t * 2; task.carrying.mesh.position.y = Math.sin(t * 3) * .1; }
+      } else if (task.type === "fork") {
+        if (task.cool > 0) { task.cool -= dt; return; }
+        task.paths.forEach(function (pt) { if (Math.hypot(pp.x - pt.x, pp.z - pt.z) < 1.7 && !state.done[near.id] && task.cool <= 0) chooseFork(near, pt); });
+      }
+    }
+
     /* ---------- loop ---------- */
     var clock = new THREE.Clock(); var frame = 0; var camTarget = new THREE.Vector3(); var alive = true;
     function tick() {
@@ -967,7 +2070,8 @@
       var dt = Math.min(clock.getDelta(), .05), t = clock.elapsedTime; frame++;
       var pp = player.position;
       var mx = 0, mz = 0;
-      if (state.started && !state.panelOpen) {
+      rideTick(dt, t);
+      if (state.started && !state.panelOpen && !ride) {
         var f = 0, r = 0;
         if (keys.w || keys.arrowup) f += 1; if (keys.s || keys.arrowdown) f -= 1;
         if (keys.a) r -= 1; if (keys.d) r += 1;
@@ -976,10 +2080,11 @@
         var len = Math.hypot(f, r);
         if (len > .15 && auto) stopWalk();
         if (auto) {
-          var w = auto.pts[0], dx = w.x - pp.x, dz = w.z - pp.z, d = Math.hypot(dx, dz), step = 12 * dt;
-          if (d <= step) { pp.x = w.x; pp.z = w.z; auto.pts.shift(); if (!auto.pts.length) { var tg = auto.target; auto = null; guideKey = ""; arriveAt(tg); } }
+          var w = auto.pts[0], dx = w.x - pp.x, dz = w.z - pp.z, d = Math.hypot(dx, dz), step = auto.speed * dt;
+          if (d <= step) { pp.x = w.x; pp.z = w.z; auto.pts.shift(); if (!auto.pts.length) { var tg = auto.target; auto = null; guideKey = ""; faceTarget = tg === "summit" ? { x: 0, z: 0 } : { x: tg.x, z: tg.z }; arriveAt(tg); } }
           else { mx = dx / d * step; mz = dz / d * step; pp.x += mx; pp.z += mz; var want = Math.atan2(-mx, -mz); var dy = want - yaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); yaw += dy * Math.min(1, dt * 2.5); }
         } else if (len > .05) {
+          faceTarget = null;
           var nn = Math.min(1, len); f /= len; r /= len;
           var spd = 11 * nn * dt, fx = -Math.sin(yaw), fz = -Math.cos(yaw), rx = Math.cos(yaw), rz = -Math.sin(yaw);
           mx = (fx * f + rx * r) * spd; mz = (fz * f + rz * r) * spd;
@@ -989,40 +2094,36 @@
       var moving = !!(mx || mz);
       if (moving) { var targ = Math.atan2(mx, mz); var dd = targ - player.rotation.y; dd = Math.atan2(Math.sin(dd), Math.cos(dd)); player.rotation.y += dd * Math.min(1, dt * 10); body.position.y = 1.1 + Math.abs(Math.sin(t * 9)) * .12; }
       else body.position.y += (1.1 + Math.sin(t * 2) * .06 - body.position.y) * .1;
+      /* after an auto-walk, turn the coach and the camera to face the island centre */
+      if (faceTarget && !auto && !moving) {
+        var fx2 = faceTarget.x - pp.x, fz2 = faceTarget.z - pp.z;
+        if (Math.hypot(fx2, fz2) > .5) {
+          var wantFace = Math.atan2(fx2, fz2), dFace = Math.atan2(Math.sin(wantFace - player.rotation.y), Math.cos(wantFace - player.rotation.y));
+          var wantYaw = Math.atan2(-fx2, -fz2), dYaw = Math.atan2(Math.sin(wantYaw - yaw), Math.cos(wantYaw - yaw));
+          player.rotation.y += dFace * Math.min(1, dt * 6); yaw += dYaw * Math.min(1, dt * 3);
+          if (Math.abs(dFace) < .01 && Math.abs(dYaw) < .01) faceTarget = null;
+        } else faceTarget = null;
+      }
       halo.rotation.z = t * 1.5;
       (function () {
         var bx = -Math.sin(player.rotation.y) * 1.9, bz = -Math.cos(player.rotation.y) * 1.9; var tx = pp.x + bx, tz = pp.z + bz; var dx = tx - robo.position.x, dz = tz - robo.position.z, d = Math.hypot(dx, dz);
+        if (ride && ride.phase === "carry") { robo.position.set(tx, pp.y + (ride.kind === "balloon" ? 0 : .3), tz); robo.rotation.y = player.rotation.y; robo.userData.tip.material.emissiveIntensity = 1; return; }
         if (d > .05) { var k = Math.min(1, dt * (d > 6 ? 8 : 3.5)); robo.position.x += dx * k; robo.position.z += dz * k; var want = Math.atan2(dx, dz); var dy = want - robo.rotation.y; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); robo.rotation.y += dy * Math.min(1, dt * 8); }
         if (roboJump > 0) { roboJump = Math.max(0, roboJump - dt * 1.2); robo.position.y = Math.abs(Math.sin(roboJump * Math.PI * 3)) * 1.2 * roboJump; } else robo.position.y = d > .6 && !reduceMotion ? Math.abs(Math.sin(t * 10)) * .15 : 0;
         robo.userData.tip.material.emissiveIntensity = .6 + .4 * Math.sin(t * 4);
       })();
       coinPickups.forEach(function (c) {
         if (c.got) return; c.mesh.rotation.z = t * 2.4; c.mesh.position.y = 1.2 + Math.sin(t * 3 + c.x) * .12;
-        if (Math.hypot(pp.x - c.x, pp.z - c.z) < 1.3) { c.got = true; scene.remove(c.mesh); state.coins++; renderScore(); sfx("coin"); burst(c.x, 1.4, c.z, "#f4c55b", 25); }
+        if (!ride && Math.hypot(pp.x - c.x, pp.z - c.z) < 1.3) { c.got = true; scene.remove(c.mesh); state.coins++; renderScore(); sfx("coin"); burst(c.x, 1.4, c.z, "#f4c55b", 25); }
       });
       var near = null;
       if (Math.hypot(pp.x, pp.z) < 5) near = "summit";
       else for (var i = 0; i < N; i++) if (Math.hypot(pp.x - STATIONS[i].x, pp.z - STATIONS[i].z) < R_ISLE) { near = STATIONS[i]; break; }
       if (near !== nearby) { nearby = near; guideKey = ""; }
-      if (near && near !== "summit" && near.task && isUnlocked(near) && !state.done[near.id]) {
-        var task = near.task;
-        if (task.type === "collect") {
-          task.items.forEach(function (it) {
-            if (it.got || Math.hypot(pp.x - it.x, pp.z - it.z) >= 1.4) return;
-            it.got = true; near.g.remove(it.mesh); near.g.remove(it.tag); task.collected.push(it.L); if (near.pulse) near.pulse(); sfx("pick"); burst(it.x, 1.5, it.z, near.color, 30); guideKey = "";
-            if (task.collected.length >= task.total) {
-              var counts = {}; task.collected.forEach(function (a) { counts[a] = (counts[a] || 0) + 1; }); var top = Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a]; })[0];
-              sfx("win"); roboJump = 1; toast("All " + task.total + " answers collected! Most popular: " + top + "."); setTimeout(function () { if (!state.panelOpen && !auto) openLesson(near); }, 700);
-            }
-          });
-        } else if (task.type === "pad") {
-          var on = null; task.pads.forEach(function (pd) { var hit = Math.hypot(pp.x - pd.x, pp.z - pd.z) < 1.9; pd.mesh.material.emissiveIntensity += ((hit ? .7 : 0) - pd.mesh.material.emissiveIntensity) * .2; if (hit) on = pd; });
-          if (on !== task.onPad) { task.onPad = on; guideKey = ""; if (on) sfx("step"); }
-        }
-      }
+      if (!ride && near && near !== "summit" && near.task && isUnlocked(near) && !state.done[near.id]) fieldTick(near, pp, t, dt);
       updateGuide();
-      var dist = 10.5; camTarget.set(pp.x, 1.8, pp.z);
-      camera.position.set(pp.x + Math.sin(yaw) * dist * Math.cos(pitch), 1.8 + dist * Math.sin(pitch), pp.z + Math.cos(yaw) * dist * Math.cos(pitch));
+      var dist = ride && ride.phase === "carry" ? 15 : 10.5; camTarget.set(pp.x, pp.y + 1.8, pp.z);
+      camera.position.set(pp.x + Math.sin(yaw) * dist * Math.cos(pitch), pp.y + 1.8 + dist * Math.sin(pitch), pp.z + Math.cos(yaw) * dist * Math.cos(pitch));
       camera.lookAt(camTarget);
       if (!reduceMotion) { for (var vi = 0; vi < seaPos.count; vi++) { var sx = seaPos.getX(vi), sy = seaPos.getY(vi); seaPos.setZ(vi, Math.sin(sx * .05 + t * .9) * .55 + Math.cos(sy * .07 + t * .7) * .45); } seaPos.needsUpdate = true; if (frame % 4 === 0) seaGeo.computeVertexNormals(); }
       obelisk.rotation.y = t * .4;
@@ -1030,7 +2131,7 @@
       if (tgt === "summit") marker.position.set(0, 11.6 + (reduceMotion ? 0 : Math.sin(t * 2.5) * .5), 0); else marker.position.set(tgt.x, 13.6 + (reduceMotion ? 0 : Math.sin(t * 2.5) * .5), tgt.z);
       marker.rotation.y = t * 1.2; marker.visible = !state.finished;
       STATIONS.forEach(function (s) { s.label.position.y = 10.5 + (reduceMotion ? 0 : Math.sin(t * 1.3 + s.angle) * .25); s.beacon.material.opacity = s.beaconBase + (s.isNext && !reduceMotion ? Math.sin(t * 3) * .12 : 0); });
-      updaters.forEach(function (u) { u(t, dt); }); updateBursts(dt);
+      updaters.forEach(function (u) { u(t, dt); }); skyUpdaters.forEach(function (u) { u(t, dt, pp); }); updateBursts(dt);
       if (frame % 3 === 0) drawMini(t);
       renderer.render(scene, camera);
       requestAnimationFrame(tick);
@@ -1041,6 +2142,7 @@
     var mq = root.matchMedia && root.matchMedia("(prefers-color-scheme: dark)");
     if (mq) { if (mq.addEventListener) mq.addEventListener("change", applyTheme); else if (mq.addListener) mq.addListener(applyTheme); }
 
+    state.picks = {};
     applyTheme(); renderTray(); renderScore(); refreshWorld();
     tick();
     if (doc.fonts && doc.fonts.ready) doc.fonts.ready.then(function () {

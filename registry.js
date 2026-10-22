@@ -6,7 +6,7 @@ window.NthViewRegistry = {
       "name": "nthview-island-quest",
       "title": "Island Quest",
       "kind": "view",
-      "description": "Turns a paper, article or concept into a playable 3D island adventure where each island is a short lesson with a hands-on activity and a one-question quiz, ending in a final exam and report card. Use when the user asks for a game, an adventure, an \"explorable explanation\", something playful for beginners or kids, or wants to learn by doing rather than reading; not for quick reference or dense technical detail.",
+      "description": "Turns a paper, article or concept into a playable 3D island adventure where each island is a short lesson with one of 25 hands-on activities (quiz, sorting, matching, ordering, estimating, lighting beacons, stepping on pads and more), ending in a final exam and report card; any number of islands from 3 to 60, in one of four world themes. Use when the user asks for a game, an adventure, an \"explorable explanation\", something playful for beginners or kids, or wants to learn by doing rather than reading; not for quick reference or dense technical detail.",
       "path": "skills/nthview-island-quest",
       "skill": "skills/nthview-island-quest/SKILL.md",
       "schema": "skills/nthview-island-quest/references/schema.md",

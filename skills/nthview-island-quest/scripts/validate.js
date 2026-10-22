@@ -15,7 +15,9 @@
 
   var SUPPORTED_VERSIONS = [1];
   var THEMES = ["grove", "tower", "arena", "workshop", "canyon", "hall", "clock", "plain"];
-  var ACTIVITY_TYPES = ["collect", "pads", "story", "tune", "race"];
+  var WORLD_THEMES = ["lagoon", "aurora", "canyon", "snow"];
+  var ACTIVITY_TYPES = ["collect", "pads", "story", "tune", "race", "truefalse", "multi", "order", "match", "sort", "rank", "cloze", "estimate", "odd", "hotspot", "fork", "beacons", "steps", "gather", "compare", "bars", "switches", "predict", "confidence", "flashcards"];
+  var REPLACES_QUIZ = ["pads", "truefalse", "multi", "order", "match", "sort", "rank", "cloze", "estimate", "odd", "hotspot", "fork", "beacons", "steps", "gather", "predict", "confidence"];
   var TONES = ["ok", "note", "no"];
   var ROW_STYLES = ["normal", "grey", "dashed"];
   var KEBAB = /^[a-z0-9]+(-[a-z0-9]+)*$/;
@@ -55,6 +57,7 @@
       requireString(data.companion, "name", "companion", 1, 20, error);
     }
     optionalInt(data, "coins", "$", 1, 99, error);
+    if (data.theme !== undefined) requireEnum(data, "theme", "$", WORLD_THEMES, error);
 
     if (requireObject(data, "intro", "$", error)) {
       requireStringArray(data.intro, "paragraphs", "intro", 1, 4, 400, error);
@@ -62,11 +65,13 @@
       optionalString(data.intro, "note", "intro", 300, error);
     }
 
-    if (requireArray(data, "islands", "$", 3, 9, error)) {
-      var ids = [];
-      data.islands.forEach(function (isl, i) { checkIsland(isl, "islands[" + i + "]", ids, error, warn); });
+    if (requireArray(data, "islands", "$", 3, 60, error)) {
+      var ids = [], types = {};
+      data.islands.forEach(function (isl, i) { checkIsland(isl, "islands[" + i + "]", ids, error, warn); if (isl && isl.activity && isl.activity.type) types[isl.activity.type] = (types[isl.activity.type] || 0) + 1; });
       if (data.islands.length < 5) warn("islands", "only " + data.islands.length + " islands; 5–7 make a fuller quest");
-      if (data.islands.length > 7) warn("islands", data.islands.length + " islands; the ring gets crowded above 7");
+      if (data.islands.length > 30) warn("islands", data.islands.length + " islands is a long quest (over 30); consider splitting the topic into two games");
+      var typeList = Object.keys(types);
+      if (data.islands.length >= 6 && typeList.length <= 2) warn("islands", "only " + typeList.length + " activity type(s) across " + data.islands.length + " islands; mix in more types for variety");
     }
 
     if (requireObject(data, "finale", "$", error)) {
@@ -124,11 +129,11 @@
     requireString(isl, "lead", path, 1, 600, error);
     optionalStringArray(isl, "body", path, 0, 3, 600, error);
 
-    var isPads = false;
+    var replaces = false, actType = null;
     if (isl.activity !== undefined) {
       if (isObject(isl.activity, path + ".activity", error)) {
         checkActivity(isl.activity, path + ".activity", error, warn);
-        isPads = isl.activity.type === "pads";
+        actType = isl.activity.type; replaces = REPLACES_QUIZ.indexOf(actType) !== -1;
       }
     } else {
       warn(path, "island has no activity; it will be a read-only lesson");
@@ -140,8 +145,10 @@
       requireString(isl.aside, "title", path + ".aside", 1, 60, error);
       requireString(isl.aside, "text", path + ".aside", 1, 600, error);
     }
-    if (isPads) {
-      if (isl.quiz !== undefined) error(path + ".quiz", "must be omitted when activity.type is \"pads\" (the pads are the question)");
+    if (replaces) {
+      if (isl.quiz !== undefined) error(path + ".quiz", "must be omitted when activity.type is \"" + actType + "\" (that activity is the question)");
+    } else if (isl.quiz === undefined) {
+      error(path + ".quiz", "is required when the activity is " + (actType ? "\"" + actType + "\"" : "absent") + " (only " + REPLACES_QUIZ.join(", ") + " replace the quiz)");
     } else if (requireObject(isl, "quiz", path, error)) {
       checkQuiz(isl.quiz, path + ".quiz", error, warn);
     }
@@ -249,7 +256,228 @@
         }
         optionalString(a, "caption", path, 300, error);
         break;
+      case "truefalse":
+        requireString(a, "statement", path, 1, 300, error);
+        if (typeof a.answer !== "boolean") error(path + ".answer", "must be true or false, got " + describe(a.answer));
+        optionalString(a, "why", path, 300, error);
+        optionalString(a, "trueLabel", path, 20, error);
+        optionalString(a, "falseLabel", path, 20, error);
+        if (a.why === undefined) warn(path, "truefalse has no \"why\"; a one-line reason helps the learner");
+        break;
+      case "multi":
+        requireString(a, "question", path, 1, 300, error);
+        if (requireArray(a, "options", path, 3, 6, error)) {
+          var mc = 0, mw = 0;
+          a.options.forEach(function (o, i) {
+            var p = path + ".options[" + i + "]"; if (!isObject(o, p, error)) return;
+            requireString(o, "text", p, 1, 200, error); optionalBool(o, "correct", p, error); optionalString(o, "why", p, 300, error);
+            if (o.correct === true) mc++; else mw++;
+          });
+          if (mc < 1) error(path + ".options", "at least one option must have \"correct\": true, found 0");
+          if (mw < 1) error(path + ".options", "at least one option must be wrong (no \"correct\": true), found 0");
+        }
+        break;
+      case "order":
+        requireString(a, "prompt", path, 1, 300, error);
+        if (requireArray(a, "items", path, 3, 7, error)) a.items.forEach(function (it, i) { var p = path + ".items[" + i + "]"; if (!isObject(it, p, error)) return; requireString(it, "text", p, 1, 120, error); optionalString(it, "note", p, 200, error); });
+        break;
+      case "match":
+        requireString(a, "prompt", path, 1, 300, error);
+        if (requireArray(a, "pairs", path, 3, 6, error)) {
+          var rights = [];
+          a.pairs.forEach(function (pr, i) {
+            var p = path + ".pairs[" + i + "]"; if (!isObject(pr, p, error)) return;
+            requireString(pr, "left", p, 1, 80, error);
+            if (requireString(pr, "right", p, 1, 80, error)) { if (rights.indexOf(pr.right) !== -1) error(p + ".right", "duplicate right-hand text " + describe(pr.right) + "; every right side must be unique or the pairs are ambiguous"); rights.push(pr.right); }
+          });
+        }
+        break;
+      case "sort":
+        requireString(a, "prompt", path, 1, 300, error);
+        var bucketIds = [];
+        if (requireArray(a, "buckets", path, 2, 4, error)) {
+          a.buckets.forEach(function (b, i) {
+            var p = path + ".buckets[" + i + "]"; if (!isObject(b, p, error)) return;
+            if (requireString(b, "id", p, 1, 30, error)) { if (!KEBAB.test(b.id)) error(p + ".id", "must be kebab-case, got " + describe(b.id)); else if (bucketIds.indexOf(b.id) !== -1) error(p + ".id", "duplicate bucket id " + describe(b.id)); else bucketIds.push(b.id); }
+            requireString(b, "label", p, 1, 30, error);
+          });
+        }
+        if (requireArray(a, "items", path, 3, 10, error)) {
+          var used = {};
+          a.items.forEach(function (it, i) {
+            var p = path + ".items[" + i + "]"; if (!isObject(it, p, error)) return;
+            requireString(it, "text", p, 1, 80, error);
+            if (requireString(it, "bucket", p, 1, 30, error) && bucketIds.length && bucketIds.indexOf(it.bucket) === -1) error(p + ".bucket", describe(it.bucket) + " is not one of the bucket ids (" + bucketIds.join(", ") + ")");
+            used[it.bucket] = true;
+          });
+          bucketIds.forEach(function (id) { if (!used[id]) warn(path + ".buckets", "bucket \"" + id + "\" has no items; it will stay empty"); });
+        }
+        break;
+      case "rank":
+        requireString(a, "prompt", path, 1, 300, error);
+        if (requireArray(a, "items", path, 3, 6, error)) {
+          var vals = [];
+          a.items.forEach(function (it, i) {
+            var p = path + ".items[" + i + "]"; if (!isObject(it, p, error)) return;
+            requireString(it, "text", p, 1, 80, error); if (requireNumber(it, "value", p, 0, 100, error)) vals.push(it.value); requireString(it, "show", p, 1, 12, error);
+          });
+          for (var vi = 1; vi < vals.length; vi++) if (vals[vi] === vals[vi - 1]) { warn(path + ".items", "two neighbouring items share the value " + vals[vi] + "; the ranking between them is a coin toss"); break; }
+        }
+        optionalString(a, "caption", path, 300, error);
+        break;
+      case "cloze":
+        var gapCount = 0;
+        if (requireString(a, "text", path, 1, 600, error)) gapCount = a.text.split("___").length - 1;
+        if (requireArray(a, "gaps", path, 1, 6, error)) {
+          a.gaps.forEach(function (g, i) {
+            var p = path + ".gaps[" + i + "]"; if (!isObject(g, p, error)) return;
+            var okOpts = requireStringArray(g, "options", p, 2, 5, 40, error);
+            if (requireInt(g, "answer", p, 0, 100, error) && okOpts && g.answer >= g.options.length) error(p + ".answer", "index " + g.answer + " is out of range (" + g.options.length + " options, valid indexes are 0–" + (g.options.length - 1) + ")");
+          });
+          if (typeof a.text === "string" && gapCount !== a.gaps.length) error(path + ".text", "has " + gapCount + " gap marker(s) \"___\" but gaps has " + a.gaps.length + " item(s); they must match");
+        }
+        break;
+      case "estimate":
+        requireString(a, "question", path, 1, 300, error);
+        var okMin2 = requireNumber(a, "min", path, -1e9, 1e9, error), okMax2 = requireNumber(a, "max", path, -1e9, 1e9, error), okAns = requireNumber(a, "answer", path, -1e9, 1e9, error), okTol = requireNumber(a, "tolerance", path, 0, 1e9, error);
+        if (okMin2 && okMax2 && a.min >= a.max) error(path + ".max", "must be greater than min (" + a.min + "), got " + a.max);
+        if (okMin2 && okMax2 && okAns && (a.answer < a.min || a.answer > a.max)) error(path + ".answer", "must be between min and max (" + a.min + "–" + a.max + "), got " + a.answer);
+        if (okMin2 && okMax2 && okTol && a.tolerance >= (a.max - a.min) / 2) warn(path + ".tolerance", "tolerance " + a.tolerance + " covers half the range; almost any guess will pass");
+        if (a.step !== undefined && (typeof a.step !== "number" || !(a.step > 0))) error(path + ".step", "must be a number greater than 0, got " + describe(a.step));
+        optionalString(a, "unit", path, 12, error);
+        optionalString(a, "reveal", path, 300, error);
+        break;
+      case "odd":
+        requireString(a, "prompt", path, 1, 300, error);
+        var okItems = requireStringArray(a, "items", path, 3, 6, 80, error);
+        if (requireInt(a, "answer", path, 0, 100, error) && okItems && a.answer >= a.items.length) error(path + ".answer", "index " + a.answer + " is out of range (" + a.items.length + " items, valid indexes are 0–" + (a.items.length - 1) + ")");
+        optionalString(a, "why", path, 300, error);
+        break;
+      case "hotspot":
+        requireString(a, "prompt", path, 1, 400, error);
+        checkIdList(a, "parts", path, 3, 6, 16, error, true);
+        break;
+      case "fork":
+        requireString(a, "prompt", path, 1, 400, error);
+        checkIdList(a, "paths", path, 2, 3, 16, error, true);
+        break;
+      case "beacons":
+        requireString(a, "prompt", path, 1, 400, error);
+        if (requireArray(a, "items", path, 3, 8, error)) {
+          var bIds = [], litN = 0, darkN = 0;
+          a.items.forEach(function (it, i) {
+            var p = path + ".items[" + i + "]"; if (!isObject(it, p, error)) return;
+            if (requireString(it, "id", p, 1, 30, error)) { if (!KEBAB.test(it.id)) error(p + ".id", "must be kebab-case, got " + describe(it.id)); else if (bIds.indexOf(it.id) !== -1) error(p + ".id", "duplicate beacon id " + describe(it.id)); else bIds.push(it.id); }
+            requireString(it, "label", p, 1, 16, error);
+            if (typeof it.lit !== "boolean") error(p + ".lit", "must be true or false, got " + describe(it.lit)); else if (it.lit) litN++; else darkN++;
+          });
+          if (litN < 1) error(path + ".items", "at least one beacon must have \"lit\": true, found 0");
+          if (darkN < 1) error(path + ".items", "at least one beacon must have \"lit\": false, found 0");
+        }
+        break;
+      case "steps":
+        requireString(a, "prompt", path, 1, 400, error);
+        checkIdList(a, "items", path, 3, 7, 12, error, false);
+        break;
+      case "gather":
+        requireString(a, "prompt", path, 1, 400, error);
+        var binIds = [];
+        if (requireArray(a, "bins", path, 2, 3, error)) {
+          a.bins.forEach(function (b, i) {
+            var p = path + ".bins[" + i + "]"; if (!isObject(b, p, error)) return;
+            if (requireString(b, "id", p, 1, 30, error)) { if (!KEBAB.test(b.id)) error(p + ".id", "must be kebab-case, got " + describe(b.id)); else if (binIds.indexOf(b.id) !== -1) error(p + ".id", "duplicate bin id " + describe(b.id)); else binIds.push(b.id); }
+            requireString(b, "label", p, 1, 16, error);
+          });
+        }
+        if (requireArray(a, "items", path, 3, 8, error)) {
+          var usedBins = {};
+          a.items.forEach(function (it, i) {
+            var p = path + ".items[" + i + "]"; if (!isObject(it, p, error)) return;
+            requireString(it, "label", p, 1, 12, error);
+            if (requireString(it, "bin", p, 1, 30, error) && binIds.length && binIds.indexOf(it.bin) === -1) error(p + ".bin", describe(it.bin) + " is not one of the bin ids (" + binIds.join(", ") + ")");
+            usedBins[it.bin] = true;
+          });
+          binIds.forEach(function (id) { if (!usedBins[id]) warn(path + ".bins", "bin \"" + id + "\" receives no items"); });
+        }
+        break;
+      case "compare":
+        optionalString(a, "prompt", path, 300, error);
+        ["before", "after"].forEach(function (k) {
+          if (!requireObject(a, k, path, error)) return;
+          var side = a[k], p = path + "." + k;
+          requireString(side, "label", p, 1, 40, error); requireString(side, "text", p, 1, 400, error);
+          if (requireArray(side, "rows", p, 1, 5, error)) side.rows.forEach(function (r, i) { var rp = p + ".rows[" + i + "]"; if (!isObject(r, rp, error)) return; requireString(r, "label", rp, 1, 80, error); requireNumber(r, "value", rp, 0, 100, error); requireString(r, "show", rp, 1, 12, error); });
+        });
+        optionalString(a, "caption", path, 300, error);
+        break;
+      case "bars":
+        requireString(a, "prompt", path, 1, 400, error);
+        if (requireArray(a, "items", path, 2, 5, error)) a.items.forEach(function (it, i) { var p = path + ".items[" + i + "]"; if (!isObject(it, p, error)) return; requireString(it, "label", p, 1, 80, error); requireNumber(it, "value", p, 0, 100, error); requireString(it, "show", p, 1, 12, error); });
+        optionalString(a, "revealText", path, 300, error);
+        optionalString(a, "buttonLabel", path, 40, error);
+        break;
+      case "switches":
+        checkSwitches(a, path, error, warn);
+        break;
+      case "predict":
+        requireString(a, "question", path, 1, 300, error);
+        if (requireArray(a, "options", path, 2, 4, error)) {
+          var pc = 0;
+          a.options.forEach(function (o, i) { var p = path + ".options[" + i + "]"; if (!isObject(o, p, error)) return; requireString(o, "text", p, 1, 200, error); optionalBool(o, "correct", p, error); if (o.correct === true) pc++; });
+          if (pc !== 1) error(path + ".options", "exactly one option must have \"correct\": true, found " + pc);
+        }
+        optionalString(a, "runLabel", path, 40, error);
+        requireStringArray(a, "frames", path, 1, 6, 300, error);
+        requireString(a, "result", path, 1, 300, error);
+        break;
+      case "confidence":
+        checkQuiz(a, path, error, warn);
+        break;
+      case "flashcards":
+        optionalString(a, "prompt", path, 300, error);
+        if (requireArray(a, "cards", path, 2, 10, error)) a.cards.forEach(function (c, i) { var p = path + ".cards[" + i + "]"; if (!isObject(c, p, error)) return; requireString(c, "front", p, 1, 120, error); requireString(c, "back", p, 1, 300, error); });
+        break;
     }
+  }
+
+  /* a list of {id, label[, hint]} objects with a root `answer` that must be one of the ids */
+  function checkIdList(a, key, path, min, max, labelMax, error, withAnswer) {
+    var ids = [];
+    if (requireArray(a, key, path, min, max, error)) {
+      a[key].forEach(function (it, i) {
+        var p = path + "." + key + "[" + i + "]"; if (!isObject(it, p, error)) return;
+        if (requireString(it, "id", p, 1, 30, error)) { if (!KEBAB.test(it.id)) error(p + ".id", "must be kebab-case, got " + describe(it.id)); else if (ids.indexOf(it.id) !== -1) error(p + ".id", "duplicate id " + describe(it.id)); else ids.push(it.id); }
+        requireString(it, "label", p, 1, labelMax, error);
+        optionalString(it, "hint", p, 300, error);
+      });
+    }
+    if (withAnswer && requireString(a, "answer", path, 1, 30, error) && ids.length && ids.indexOf(a.answer) === -1) error(path + ".answer", describe(a.answer) + " is not one of the " + key + " ids (" + ids.join(", ") + ")");
+  }
+
+  function checkSwitches(a, path, error, warn) {
+    optionalString(a, "prompt", path, 300, error);
+    var ids = [];
+    if (requireArray(a, "switches", path, 1, 4, error)) {
+      a.switches.forEach(function (sw, i) {
+        var p = path + ".switches[" + i + "]"; if (!isObject(sw, p, error)) return;
+        if (requireString(sw, "id", p, 1, 20, error)) { if (!CONTROL_ID.test(sw.id)) error(p + ".id", "must match ^[a-z][a-z0-9]*$, got " + describe(sw.id)); else if (ids.indexOf(sw.id) !== -1) error(p + ".id", "duplicate switch id " + describe(sw.id)); else ids.push(sw.id); }
+        requireString(sw, "label", p, 1, 60, error);
+        if (typeof sw.on !== "boolean") error(p + ".on", "must be true or false, got " + describe(sw.on));
+      });
+    }
+    if (requireArray(a, "readout", path, 1, 6, error)) {
+      a.readout.forEach(function (r, i) {
+        var p = path + ".readout[" + i + "]"; if (!isObject(r, p, error)) return;
+        if (r.when !== undefined) {
+          if (typeof r.when !== "string") error(p + ".when", "must be an expression string, got " + describe(r.when));
+          else { var c = compileExpr(r.when); if (c.error) error(p + ".when", "expression " + describe(r.when) + " is invalid: " + c.error); else c.ids.forEach(function (id) { if (ids.indexOf(id) === -1) error(p + ".when", "expression uses unknown switch id \"" + id + "\" (switches: " + ids.join(", ") + ")"); }); }
+        }
+        requireString(r, "text", p, 1, 300, error);
+        if (r.tone !== undefined) requireEnum(r, "tone", p, TONES, error);
+      });
+      if (a.readout.every(function (r) { return r && r.when !== undefined; })) warn(path + ".readout", "every readout has a \"when\"; add a last one without it so some text always shows");
+    }
+    optionalString(a, "caption", path, 300, error);
   }
 
   function checkTune(a, path, error, warn) {
