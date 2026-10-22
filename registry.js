@@ -11,6 +11,16 @@ window.NthViewRegistry = {
       "skill": "skills/nthview-island-quest/SKILL.md",
       "schema": "skills/nthview-island-quest/references/schema.md",
       "demo": "skills/nthview-island-quest/examples/example.html"
+    },
+    {
+      "name": "nthview-scenario-quiz",
+      "title": "Scenario Quiz",
+      "kind": "view",
+      "description": "Teaches a concept through a story-based decision quiz: the learner is placed in a role inside a scenario (an organisation, a codebase, a situation), faces a sequence of decisions and questions with several options, and gets a full explanation of why each option is right, wrong or tempting, ending in a complete review. Use when the user wants to understand a concept by making choices, asks for a quiz that teaches rather than tests, wants \"what would you do\" situations, or wants to see the common mistakes people make; not for drilling facts or grading someone.",
+      "path": "skills/nthview-scenario-quiz",
+      "skill": "skills/nthview-scenario-quiz/SKILL.md",
+      "schema": "skills/nthview-scenario-quiz/references/schema.md",
+      "demo": "skills/nthview-scenario-quiz/examples/example.html"
     }
   ]
 };

@@ -8,6 +8,7 @@ unlocks a final exam and a report card. Everything the player reads, every
 activity and every quiz comes from this JSON; the renderer supplies the world.
 
 Text fields accept one inline mark-up: `**bold**`. Nothing else is interpreted.
+Character limits count JavaScript string length, so one emoji counts as 2.
 
 ## External libraries
 The renderer loads **three.js r128** from cdnjs and two Google Fonts (see
@@ -48,7 +49,7 @@ needs internet access the first time it opens.
 | :- | :- | :- | :- | :- |
 | `id` | string | yes | kebab-case, 1–30 chars, unique | Stable key for scores |
 | `name` | string | yes | 1–40 chars | Island name on the 3D label and the panel |
-| `theme` | string | yes | one of `grove`, `tower`, `arena`, `workshop`, `canyon`, `hall`, `clock`, `plain` | Decorative scenery on the island |
+| `theme` | string | yes | one of `grove`, `tower`, `arena`, `workshop`, `canyon`, `hall`, `clock`, `plain` | Decorative scenery on the island. Any theme works with any activity; SKILL.md suggests pairings |
 | `color` | string | no | `#rrggbb` | Accent colour; defaults to a built-in palette by position |
 | `lead` | string | yes | 1–600 chars | Opening paragraph of the lesson |
 | `body` | string[] | no | 0–3 items, each 1–600 chars | Further paragraphs |
@@ -65,7 +66,7 @@ needs internet access the first time it opens.
 | `caption` | string | no | ≤200 chars, default "Right answers out of 100 questions" | Line above the bars |
 | `rows` | array | yes | 1–8 Row objects | One bar each |
 | `text` | string | no | ≤600 chars | Paragraph under the bars |
-| `after` | boolean | no | default `false` | `true` shows the findings only once the island is solved |
+| `after` | boolean | no | default `false` | `true` shows the findings only once the island is solved. Use it when the bars would give away a `pads` answer or a `collect` vote |
 
 Row: `label` (string, 1–80), `value` (number, 0–100, bar length), `show`
 (string, 1–12, printed next to the bar), `style` (one of `normal`, `grey`,
@@ -79,8 +80,9 @@ Row: `label` (string, 1–80), `value` (number, 0–100, bar length), `show`
 | `options` | array | yes | 2–4 Option objects, exactly one `correct` | |
 | `okText` | string | no | ≤200 chars, default "Correct!" | Shown on the right answer |
 
-Option: `text` (string, 1–200), `correct` (boolean, optional), `why` (string,
-≤300, optional feedback for a wrong pick).
+Option: `text` (string, 1–200), `correct` (boolean, optional; `false` is
+accepted and means the same as omitting it), `why` (string, ≤300, optional
+feedback for a wrong pick).
 
 ## Activities
 
@@ -92,7 +94,7 @@ Every activity has `type` and an optional `title` (1–60 chars, default
 | Field | Type | Required | Constraints |
 | :- | :- | :- | :- |
 | `prompt` | string | yes | 1–400; task text shown before collecting |
-| `items` | string[] | yes | 3–9 items, each 1–3 chars; the answers to pick up |
+| `items` | string[] | yes | 3–9 items, each 1–3 chars; the answers to pick up. Short tokens such as letters; the orbs show only the token, so explain what each stands for in `lead`, `body` or `prompt` |
 | `resultTitle` | string | no | ≤60, default "The vote" |
 | `resultText` | string | yes | 1–200; may use `{top}`, `{count}`, `{total}` |
 | `resultNote` | string | no | ≤300; small print under the result |
@@ -125,8 +127,8 @@ number 0.5–4, draws a figure of that height behind the pad).
 | :- | :- | :- | :- |
 | `controls` | array | yes | 1–3 Control objects |
 | `readout` | array | yes | 1–4 Readout objects; the first whose `when` is true (or has none) is shown |
-| `visual` | object | no | `kind` one of `circle`, `grid`; `count` expr; `extra` expr; `leader` boolean (grid only) |
-| `tally` | object | no | `count` expr, `icon` 1–2 chars, `max` integer 1–60 (default 30) |
+| `visual` | object | no | `kind` one of `circle`, `grid`; `count` expr; `extra` expr; `leader` boolean (grid only). See below |
+| `tally` | object | no | `count` expr, `icon` one emoji or 1–2 characters, `max` integer 1–60 (default 30) |
 | `outcomes` | object | no | `buttonLabel` 1–40; `cases` 1–8 of `{when, text, tone}`; `fallback` `{text, tone}` |
 | `caption` | string | no | ≤300 |
 
@@ -139,6 +141,16 @@ Tone: one of `ok`, `note`, `no`.
 `== != < <= > >=`, `&& || !` and parentheses. Nothing else. `{expr}` inside a
 readout text is replaced by its value.
 
+**What the visual draws on the island** (values are rounded and clamped):
+- `circle`: `count` figures standing in a ring (0–12) and `extra` paper slabs
+  stacked in the middle (0–36). Good for "members" and "notes" or "rounds".
+- `grid`: `count` cubes per row (1–8) and `extra` rows (0–6), wired to the
+  next row; `leader: true` adds one glowing node on top. Good for layered
+  teams or pipelines.
+
+`tally.count` is rounded to a whole number and shown as that many `icon`s in
+the panel, capped at `max`.
+
 ### `race` — press a button and watch bars race
 
 | Field | Type | Required | Constraints |
@@ -148,7 +160,9 @@ readout text is replaced by its value.
 | `caption` | string | no | ≤300 |
 
 `tag` is the short word drawn on the 3D gear; it defaults to the first word
-of `label`.
+of `label`. A larger `value` means a longer or slower thing: in the panel its
+bar is longer, and on the island its gear spins faster and glows. The bars
+start empty and animate when the button is pressed.
 
 ## Finale object
 
@@ -182,7 +196,8 @@ of `label`.
 - `report.glossaryColumns`, when present, has exactly two entries.
 
 ## Warnings (non-blocking)
-- Fewer than 5 islands, or more than 7 (the ring gets crowded).
+- Fewer than 5 islands ("5–7 make a fuller quest"), or more than 7 (the ring
+  gets crowded).
 - A `findings` object without `text`.
 - A wrong quiz option without a `why`.
 - `collect.items` where no answer is a clear majority.

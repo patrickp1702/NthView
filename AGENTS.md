@@ -82,6 +82,7 @@ NthView/
 ├── scripts/
 │   ├── build-registry.js          # scans skills/, checks §3, writes registry.js
 │   └── build-html.js              # assembles a standalone output file exactly as §6
+├── examples/                      # generated games/docs built WITH the skills (outputs, not skills)
 ├── skills/
 │   ├── nthview-<view>/            # one folder per view (see §3)
 │   │   ├── SKILL.md
@@ -104,6 +105,12 @@ Nothing else goes at the repo root except the files above and standard
 housekeeping (`.gitignore`, `CONTRIBUTING.md` if added). No `package.json`,
 no `node_modules`, no bundler. The root `scripts/` folder holds repo tooling
 only, never view code; the plugin layout permits it.
+
+The root `examples/` folder is for outputs produced *with* a view, such as a
+game about some topic built from `nthview-island-quest`: the JSON next to the
+HTML it produced, named `<concept-slug>-<view>.json` and `.html`. It is not
+scanned by the registry and nothing in `skills/` may depend on it. A view's
+own demo stays in `skills/<view>/examples/example.html`.
 
 ---
 
@@ -660,8 +667,8 @@ skills/<name>/SKILL.md  ──(frontmatter name + description)──▶  scripts
   parser reads one `key: value` line per field; no YAML folding).
 - Every view must have `examples/example.html`, because the gallery's
   "Open demo" link points at it; the script refuses a view without one.
-- `index.html` follows the same standards as a view: no external resources
-  (it needs none), light and dark mode, responsive, keyboard accessible, content rendered with
+- `index.html` follows the same standards as a view: only the Google Fonts
+  link as an external resource, light and dark mode, responsive, keyboard accessible, content rendered with
   `textContent` so a description can never inject markup.
 
 ---

@@ -5,62 +5,132 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
   <title>NthView — Gallery</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Inter:wght@400;500;700&display=swap">
   <style>
     :root {
-      --nv-bg: #fff; --nv-fg: #111; --nv-muted: #555; --nv-accent: #2563eb;
-      --nv-border: #ddd; --nv-card: #fafafa; --nv-error: #b91c1c;
+      --bg1: #f7f3ec; --bg2: #ece6f6; --ink: #111318; --muted: #5b5a66; --line: rgba(20, 20, 40, .12);
+      --surface: rgba(255, 255, 255, .82); --surface-2: rgba(255, 255, 255, .96);
+      --accent: #6d4aff; --accent-2: #ff6a8a; --accent-3: #19b3b0;
+      --display: "Fraunces", Georgia, serif; --body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
       color-scheme: light dark;
     }
     @media (prefers-color-scheme: dark) {
-      :root { --nv-bg: #111; --nv-fg: #eee; --nv-muted: #aaa; --nv-accent: #60a5fa;
-              --nv-border: #333; --nv-card: #1a1a1a; --nv-error: #f87171; }
+      :root { --bg1: #0d0f1a; --bg2: #1a1530; --ink: #fafbff; --muted: #b3b6cc; --line: rgba(255, 255, 255, .14);
+              --surface: rgba(22, 24, 44, .66); --surface-2: rgba(28, 30, 54, .9);
+              --accent: #9d8bff; --accent-2: #ff8fa8; --accent-3: #4fd6d2; }
     }
     * { box-sizing: border-box; }
-    body { margin: 0; background: var(--nv-bg); color: var(--nv-fg);
-           font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-    :focus-visible { outline: 3px solid var(--nv-accent); outline-offset: 2px; }
-    a { color: var(--nv-accent); }
-    main { max-width: 64rem; margin: 0 auto; padding: 1rem; }
-    header { margin: 2rem 0 1.5rem; }
-    header h1 { margin: 0 0 .25rem; font-size: 2rem; }
-    header p { margin: 0; color: var(--nv-muted); }
-    .nv-search { display: block; width: 100%; margin: 1rem 0 1.5rem; padding: .6rem .8rem;
-                 font: inherit; color: inherit; background: var(--nv-card);
-                 border: 1px solid var(--nv-border); border-radius: .5rem; }
-    .nv-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); list-style: none; padding: 0; margin: 0; }
-    .nv-card { display: flex; flex-direction: column; gap: .5rem; background: var(--nv-card);
-               border: 1px solid var(--nv-border); border-radius: .75rem; padding: 1rem; }
-    .nv-card h2 { margin: 0; font-size: 1.2rem; }
-    .nv-card .nv-name { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .85rem; color: var(--nv-muted); }
-    .nv-card p { margin: 0; flex: 1; }
-    .nv-kind { align-self: flex-start; font-size: .75rem; text-transform: uppercase; letter-spacing: .04em;
-               color: var(--nv-muted); border: 1px solid var(--nv-border); border-radius: 999px; padding: .1rem .5rem; }
-    .nv-actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .25rem; }
-    .nv-actions a { display: inline-block; padding: .45rem .8rem; border-radius: .5rem; text-decoration: none;
-                    border: 1px solid var(--nv-accent); color: var(--nv-accent); }
-    .nv-actions a.nv-primary { background: var(--nv-accent); color: var(--nv-bg); }
-    .nv-empty, .nv-error { border: 1px dashed var(--nv-border); border-radius: .75rem; padding: 1.5rem; color: var(--nv-muted); }
-    .nv-error { border-style: solid; border-color: var(--nv-error); color: var(--nv-error); }
-    code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
-    footer { margin: 3rem 0 1rem; color: var(--nv-muted); font-size: .9rem; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; min-height: 100vh; background: var(--bg1); color: var(--ink); font: 16px/1.55 var(--body); position: relative; isolation: isolate; }
+    :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+    a { color: var(--accent); }
+    .nv-backdrop { position: absolute; inset: 0; z-index: -1; overflow: hidden; background: linear-gradient(160deg, var(--bg1), var(--bg2)); }
+    .nv-blob { position: absolute; width: 60vmax; height: 60vmax; border-radius: 50%; filter: blur(90px); opacity: .5; animation: drift 34s ease-in-out infinite alternate; }
+    .nv-blob:nth-child(1) { background: color-mix(in srgb, var(--accent) 55%, var(--bg1)); top: -25vmax; left: -18vmax; }
+    .nv-blob:nth-child(2) { background: color-mix(in srgb, var(--accent-2) 50%, var(--bg1)); top: 10vmax; right: -22vmax; animation-duration: 40s; animation-delay: -10s; }
+    .nv-blob:nth-child(3) { background: color-mix(in srgb, var(--accent-3) 50%, var(--bg1)); bottom: -28vmax; left: 20%; animation-duration: 46s; animation-delay: -20s; }
+    @keyframes drift { from { transform: translate(0, 0) scale(1); } to { transform: translate(8vmax, 6vmax) scale(1.15); } }
+    @media (prefers-reduced-motion: reduce) { .nv-blob { animation: none !important; } .nv-card { transition: none; } }
+
+    main { max-width: 72rem; margin: 0 auto; padding: clamp(1rem, 4vw, 2.5rem) 1rem 4rem; }
+    header.nv-hero { display: grid; grid-template-columns: 1.3fr 1fr; gap: 2rem; align-items: center; margin: 1rem 0 2.5rem; }
+    @media (max-width: 760px) { header.nv-hero { grid-template-columns: 1fr; } .nv-kal-wrap { order: -1; max-width: 16rem; margin: 0 auto; } }
+    .nv-eyebrow { font-size: .74rem; letter-spacing: .16em; text-transform: uppercase; font-weight: 700; color: var(--accent); margin: 0 0 .6rem; }
+    h1 { font-family: var(--display); font-weight: 800; font-size: clamp(2.6rem, 7vw, 4.6rem); line-height: .98; letter-spacing: -.03em; margin: 0 0 1rem;
+         background: linear-gradient(120deg, var(--ink) 0%, var(--ink) 50%, var(--accent) 80%, var(--accent-2) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .nv-lede { font-size: 1.15rem; color: var(--muted); max-width: 36rem; margin: 0 0 1.4rem; }
+    .nv-lede b { color: var(--ink); }
+    .nv-kal-wrap { position: relative; aspect-ratio: 1; cursor: pointer; --kx: 0; --ky: 0; --turn: 0deg; touch-action: none; }
+    .nv-kal-wrap:focus-visible { outline: 3px solid var(--accent); outline-offset: 6px; border-radius: 50%; }
+    .nv-kal { width: 100%; height: 100%; display: block; overflow: visible; filter: drop-shadow(0 30px 60px rgba(0, 0, 0, .3)); }
+    .nv-kal .nv-kal-pointer { transform: translate(100px, 100px) rotate(var(--turn)); transition: transform .9s cubic-bezier(.2, .8, .2, 1); transform-origin: 0 0; }
+    .nv-kal .nv-piece { filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .25)); }
+    .nv-kal .nv-kal-rim { fill: none; stroke: color-mix(in srgb, var(--ink) 25%, transparent); stroke-width: 2.5; }
+    .nv-kal-wrap .nv-tip { position: absolute; left: 50%; bottom: -1.6rem; transform: translateX(-50%); font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); white-space: nowrap; opacity: .8; }
+
+    .nv-toolbar { display: flex; gap: .8rem; align-items: center; flex-wrap: wrap; margin: 0 0 1.2rem; }
+    .nv-search { flex: 1; min-width: 14rem; display: flex; align-items: center; gap: .6rem; background: var(--surface); backdrop-filter: blur(14px); border: 1px solid var(--line); border-radius: 999px; padding: .55rem .9rem .55rem 1rem; }
+    .nv-search svg { width: 1.1rem; height: 1.1rem; color: var(--muted); flex: none; }
+    .nv-search input { flex: 1; border: 0; background: transparent; font: inherit; color: inherit; outline: none; min-width: 0; }
+    .nv-count { font-size: .9rem; color: var(--muted); }
+
+    .nv-grid { display: grid; gap: 1.1rem; grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr)); list-style: none; padding: 0; margin: 0; }
+    .nv-card { display: flex; flex-direction: column; background: var(--surface); backdrop-filter: blur(18px) saturate(1.2); border: 1px solid var(--line); border-radius: 1.4rem; overflow: hidden;
+               box-shadow: 0 24px 60px -32px rgba(0, 0, 0, .45); transition: transform .25s cubic-bezier(.2, .8, .2, 1), box-shadow .25s; }
+    .nv-card { cursor: pointer; }
+    .nv-card:hover { transform: translateY(-6px); box-shadow: 0 40px 80px -30px rgba(0, 0, 0, .6); }
+    .nv-card-link { display: block; color: inherit; text-decoration: none; }
+    .nv-card-link:focus-visible { outline: none; }
+    .nv-card:has(.nv-card-link:focus-visible) { outline: 3px solid var(--accent); outline-offset: 3px; }
+    .nv-cover { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: linear-gradient(135deg, var(--c1), var(--c2)); }
+    .nv-cover::after { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 70% 30%, rgba(255, 255, 255, .35), transparent 55%); opacity: 0; transition: opacity .4s; }
+    .nv-card:hover .nv-cover::after { opacity: 1; }
+    .nv-cover svg { position: absolute; inset: 0; width: 100%; height: 100%; transition: transform 1.2s cubic-bezier(.2, .8, .2, 1); transform-origin: 60% 50%; }
+    .nv-card:hover .nv-cover svg { transform: scale(1.12) rotate(-3deg); }
+    .nv-cover .nv-num { transition: transform .5s cubic-bezier(.2, .8, .2, 1); }
+    .nv-card:hover .nv-cover .nv-num { transform: translateY(-4px) scale(1.08); }
+    .nv-body h2 { background: linear-gradient(currentColor, currentColor) no-repeat 0 100% / 0 2px; transition: background-size .35s; }
+    .nv-card:hover .nv-body h2 { background-size: 100% 2px; }
+    .nv-section { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin: 2.2rem 0 1rem; }
+    .nv-section h2 { font-family: var(--display); font-weight: 800; font-size: 1.6rem; letter-spacing: -.02em; margin: 0; }
+    .nv-section span { color: var(--muted); font-size: .9rem; }
+    .nv-cover .nv-kind { position: absolute; left: .9rem; top: .8rem; font-size: .7rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #fff; background: rgba(0, 0, 0, .35); backdrop-filter: blur(8px); border-radius: 999px; padding: .25rem .65rem; }
+    .nv-cover .nv-num { position: absolute; right: .9rem; bottom: .6rem; font-family: var(--display); font-weight: 800; font-size: 3rem; line-height: 1; color: rgba(255, 255, 255, .9); text-shadow: 0 6px 24px rgba(0, 0, 0, .35); }
+    .nv-body { padding: 1.1rem 1.2rem .6rem; display: flex; flex-direction: column; gap: .45rem; flex: 1; }
+    .nv-body h2 { font-family: var(--display); font-weight: 800; font-size: 1.45rem; letter-spacing: -.015em; margin: 0; line-height: 1.15; }
+    .nv-name { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .78rem; color: var(--muted); }
+    .nv-body p { margin: .2rem 0 .4rem; color: var(--muted); flex: 1; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+    .nv-actions { display: flex; flex-wrap: wrap; gap: 1rem; padding: 0 1.2rem 1.1rem; }
+    .nv-actions a { font-size: .85rem; font-weight: 600; color: var(--muted); text-decoration: none; border-bottom: 1px solid transparent; transition: color .15s, border-color .15s; }
+    .nv-actions a:hover { color: var(--ink); border-color: currentColor; }
+
+    .nv-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 1rem; margin: 3rem 0 1rem; }
+    .nv-step { background: var(--surface); backdrop-filter: blur(14px); border: 1px solid var(--line); border-radius: 1.2rem; padding: 1.1rem 1.2rem; }
+    .nv-step b { display: block; font-family: var(--display); font-size: 1.1rem; margin-bottom: .25rem; }
+    .nv-step span.nv-k { display: inline-grid; place-items: center; width: 1.8rem; height: 1.8rem; border-radius: .6rem; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; font-weight: 800; font-size: .85rem; margin-bottom: .6rem; }
+    .nv-step p { margin: 0; color: var(--muted); font-size: .95rem; }
+    .nv-empty, .nv-error { border: 1px dashed var(--line); border-radius: 1.2rem; padding: 2rem; color: var(--muted); background: var(--surface); text-align: center; }
+    .nv-error { border-style: solid; border-color: #d33; color: #d33; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .92em; background: var(--surface-2); padding: .1rem .35rem; border-radius: .35rem; }
+    footer { margin: 3rem 0 1rem; color: var(--muted); font-size: .9rem; text-align: center; }
+    .visually-hidden { position: absolute; left: -9999px; }
   </style>
 </head>
 <body>
+  <div class="nv-backdrop" aria-hidden="true"><div class="nv-blob"></div><div class="nv-blob"></div><div class="nv-blob"></div></div>
   <main>
-    <header>
-      <h1>NthView</h1>
-      <p>Learn anything, in the nth view that suits you. One concept, many dimensions, one view at a time.</p>
+    <header class="nv-hero">
+      <div>
+        <p class="nv-eyebrow">A kaleidoscope for learning</p>
+        <h1>NthView</h1>
+        <p class="nv-lede">Learn anything, in the <b>nth view</b> that suits you. The same content, turned, appears in a new form: a game, a scenario, a quiz. <b>One concept, many dimensions, one view at a time.</b></p>
+        <div class="nv-toolbar">
+          <label class="nv-search">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <span class="visually-hidden">Filter views</span>
+            <input id="nv-search" type="search" placeholder="Filter views…" autocomplete="off">
+          </label>
+          <span class="nv-count" id="nv-count"></span>
+        </div>
+      </div>
+      <div class="nv-kal-wrap" id="nv-kal-wrap" role="img" aria-label="Kaleidoscope" tabindex="0">
+        <svg class="nv-kal" viewBox="0 0 200 200" id="nv-kal" aria-hidden="true"></svg>
+        <span class="nv-tip" aria-hidden="true">Move or click to turn</span>
+      </div>
     </header>
 
-    <label for="nv-search" class="visually-hidden" style="position:absolute;left:-9999px">Filter views</label>
-    <input id="nv-search" class="nv-search" type="search" placeholder="Filter views…" autocomplete="off">
-
+    <div class="nv-section"><h2>The views</h2><span>Same content, turned</span></div>
     <ul id="nv-grid" class="nv-grid" aria-live="polite"></ul>
     <div id="nv-status"></div>
 
+    <section class="nv-steps" aria-label="How it works">
+      <div class="nv-step"><span class="nv-k">1</span><b>Pick a view</b><p>Each card is a skill an AI agent can load. Choose the dimension that fits how you learn.</p></div>
+      <div class="nv-step"><span class="nv-k">2</span><b>Hand over the content</b><p>A topic, a paper, pasted notes or code. The agent turns it into that view's data and checks it.</p></div>
+      <div class="nv-step"><span class="nv-k">3</span><b>Open one file</b><p>You get a single HTML file that runs on its own. Want another angle? Ask for another view.</p></div>
+    </section>
+
     <footer>
-      Each card is a skill in <code>skills/</code>. Add a view, then run <code>node scripts/build-registry.js</code> to register it here.
-      See <code>AGENTS.md</code> for the rules.
+      Each card is a skill in <code>skills/</code>. Add a view, then run <code>node scripts/build-registry.js</code> to register it here. See <code>AGENTS.md</code> for the rules.
     </footer>
   </main>
 
@@ -70,56 +140,184 @@
       var grid = document.getElementById("nv-grid");
       var status = document.getElementById("nv-status");
       var search = document.getElementById("nv-search");
+      var count = document.getElementById("nv-count");
+      var SVG = "http://www.w3.org/2000/svg";
 
       function el(tag, attrs, children) {
         var n = document.createElement(tag);
-        Object.keys(attrs || {}).forEach(function (k) {
-          if (k === "text") n.textContent = attrs[k]; else n.setAttribute(k, attrs[k]);
-        });
+        Object.keys(attrs || {}).forEach(function (k) { if (k === "text") n.textContent = attrs[k]; else n.setAttribute(k, attrs[k]); });
         (children || []).forEach(function (c) { n.appendChild(c); });
         return n;
+      }
+      function svgEl(tag, attrs) { var n = document.createElementNS(SVG, tag); Object.keys(attrs).forEach(function (k) { n.setAttribute(k, attrs[k]); }); return n; }
+      function hash(s) { var h = 0; for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return h; }
+
+      /* kaleidoscope hero: the coloured wedge disc, plus one wedge of tumbling
+         glass pieces mirrored 12 times so the pattern is symmetric by construction */
+      (function () {
+        var kal = document.getElementById("nv-kal"), wrap = document.getElementById("nv-kal-wrap");
+        var XLINK = "http://www.w3.org/1999/xlink";
+        var root = svgEl("g", { class: "nv-kal-pointer", transform: "translate(100 100)" });
+        kal.appendChild(root);
+
+        /* base disc: 12 coloured wedges with a highlight and a bead, as before */
+        /* the brand hues at full saturation, one step lighter than the page accents */
+        var cols = ["#8d72ff", "#ff8aa3", "#3fcac7", "#ffc76d", "#74a4ff", "#c877ff"];
+        for (var i = 0; i < 12; i++) {
+          var g = svgEl("g", { transform: "rotate(" + (i * 30) + ")" });
+          g.appendChild(svgEl("path", { d: "M0 0 L0 -92 A92 92 0 0 1 46 -80 Z", fill: cols[i % cols.length], opacity: ".9" }));
+          g.appendChild(svgEl("path", { d: "M0 0 L28 -60 L46 -80 Z", fill: "#fff", opacity: ".2" }));
+          root.appendChild(g);
+        }
+
+        /* one wedge (0 to 30 degrees) is a window onto a chamber of glass pieces.
+           The pieces glide over the whole centre; only the window is drawn, mirrored 12
+           times, so pieces crossing the mirror lines join into petals and stars. */
+        var defs = svgEl("defs", {});
+        var clip = svgEl("clipPath", { id: "nv-wedge" });
+        clip.appendChild(svgEl("path", { d: "M0 0 L92 0 A92 92 0 0 1 79.67 46 Z" }));
+        defs.appendChild(clip);
+        var glow = svgEl("radialGradient", { id: "nv-glow" });
+        glow.appendChild(svgEl("stop", { offset: "0", "stop-color": "#fff", "stop-opacity": ".55" }));
+        glow.appendChild(svgEl("stop", { offset: "1", "stop-color": "#fff", "stop-opacity": "0" }));
+        defs.appendChild(glow);
+        var cell = svgEl("g", { id: "nv-cell", "clip-path": "url(#nv-wedge)" });
+        cell.appendChild(svgEl("circle", { cx: "0", cy: "0", r: "64", fill: "url(#nv-glow)" }));
+        var star = "M0 -7 L2 -2.2 L7 -2.2 L3 1 L4.4 6 L0 3 L-4.4 6 L-3 1 L-7 -2.2 L-2 -2.2 Z";
+        var star6 = "M0 -7 L1.8 -3.1 L6.1 -3.5 L3.6 0 L6.1 3.5 L1.8 3.1 L0 7 L-1.8 3.1 L-6.1 3.5 L-3.6 0 L-6.1 -3.5 L-1.8 -3.1 Z";
+        var SHAPES = [
+          function () { return svgEl("path", { d: star }); },
+          function () { return svgEl("path", { d: star6 }); },
+          function () { return svgEl("rect", { x: "-1.4", y: "-11", width: "2.8", height: "22", rx: "1.4" }); },   /* stick */
+          function () { return svgEl("path", { d: "M0 -12 L3 9 L-3 9 Z" }); },                                 /* sliver */
+          function () { return svgEl("path", { d: "M0 -8 C 4 -3, 5 1, 3.5 4 A3.5 3.5 0 0 1 -3.5 4 C -5 1, -4 -3, 0 -8 Z" }); }, /* teardrop */
+          function () { return svgEl("path", { d: "M-4 -6 A7 7 0 1 0 -4 6 A5 5 0 1 1 -4 -6 Z" }); },           /* crescent */
+          function () { return svgEl("path", { d: "M0 -6 L5 0 L0 6 L-5 0 Z" }); }                            /* diamond */
+        ];
+        var GLASS = ["#b7a6ff", "#ffa9bd", "#8fe3df", "#ffd48f", "#9dbcff", "#d7a3ff", "#ffffff", "#c9b8ff", "#ffc4d2", "#a8ecea"];
+        var rnd = function (a, b) { return a + Math.random() * (b - a); };
+        var pieces = [];
+        var count = 9 + Math.floor(Math.random() * 3);
+        for (var n = 0; n < count; n++) {
+          var g = svgEl("g", { class: "nv-piece" });
+          var shape = SHAPES[n % SHAPES.length]();
+          shape.setAttribute("fill", GLASS[Math.floor(Math.random() * GLASS.length)]);
+          shape.setAttribute("fill-opacity", ".82");
+          shape.setAttribute("stroke", "rgba(255,255,255,.85)"); shape.setAttribute("stroke-width", ".7");
+          g.appendChild(shape); cell.appendChild(g);
+          /* each piece swings across the 30 degree window (centre 15 degrees), so it keeps
+             crossing both mirror lines and its reflections join into one motif */
+          pieces.push({ el: g, s: rnd(.9, 1.3),
+            p1: rnd(0, Math.PI * 2), p1t: 0, w1: rnd(.08, .2), amp: rnd(.35, .6),
+            R: 6 + 48 * Math.pow(Math.random(), 1.6), Rt: 0, r2: rnd(3, 8), w2: rnd(.15, .4), p2: rnd(0, Math.PI * 2),
+            rot: rnd(0, 360), ws: rnd(8, 26) * (Math.random() < .5 ? -1 : 1) });
+        }
+        pieces.forEach(function (pc) { pc.p1t = pc.p1; pc.Rt = pc.R; });
+        defs.appendChild(cell); kal.appendChild(defs);
+
+        /* mirror the window 12 times: even copies rotated, odd copies rotated and flipped */
+        for (var k = 0; k < 12; k++) {
+          var t = k % 2 === 0 ? "rotate(" + (30 * k) + ")" : "rotate(" + (30 * (k + 1)) + ") scale(1,-1)";
+          var u = svgEl("use", { href: "#nv-cell", transform: t });
+          u.setAttributeNS(XLINK, "xlink:href", "#nv-cell");
+          root.appendChild(u);
+        }
+        root.appendChild(svgEl("circle", { cx: "0", cy: "0", r: "96", class: "nv-kal-rim" }));
+        root.appendChild(svgEl("circle", { cx: "0", cy: "0", r: "3", fill: "#fff", opacity: ".9" }));
+
+        /* motion: calm orbits around the centre; tilt nudges the chamber, a turn eases
+           every piece to a new orbit so a new picture forms */
+        var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+        var turn = 0, tiltX = 0, tiltY = 0, spin = 0, last = null, time = rnd(0, 100);
+        function place(pc, x, y) { pc.el.setAttribute("transform", "translate(" + x.toFixed(2) + " " + y.toFixed(2) + ") rotate(" + pc.rot.toFixed(1) + ") scale(" + pc.s.toFixed(2) + ")"); }
+        function frame(dt) {
+          time += dt;
+          var th = -(spin + turn) * Math.PI / 180, c = Math.cos(th), sn = Math.sin(th);
+          var tx = (tiltX * 7) * c - (tiltY * 7) * sn, ty = (tiltX * 7) * sn + (tiltY * 7) * c;
+          pieces.forEach(function (pc) {
+            pc.p1 += (pc.p1t - pc.p1) * Math.min(1, dt * 1.6); pc.R += (pc.Rt - pc.R) * Math.min(1, dt * 1.6);
+            var theta = .2618 + pc.amp * Math.sin(pc.w1 * time + pc.p1), rho = Math.max(4, Math.min(60, pc.R + pc.r2 * Math.sin(pc.w2 * time + pc.p2)));
+            pc.rot += pc.ws * dt;
+            place(pc, Math.cos(theta) * rho + tx, Math.sin(theta) * rho + ty);
+          });
+        }
+        function tick(now) {
+          if (last === null) last = now;
+          var dt = Math.min(.05, (now - last) / 1000); last = now;
+          spin = (spin + dt * 5) % 360;
+          kal.style.transform = "rotate(" + spin + "deg)";
+          frame(dt);
+          requestAnimationFrame(tick);
+        }
+        frame(0);
+        if (!reduce) requestAnimationFrame(tick);
+
+        /* pointer tilt + click or Enter to turn the tube a notch */
+        wrap.addEventListener("pointermove", function (e) {
+          var r = wrap.getBoundingClientRect(); tiltX = (e.clientX - r.left) / r.width * 2 - 1; tiltY = (e.clientY - r.top) / r.height * 2 - 1;
+        });
+        wrap.addEventListener("pointerleave", function () { tiltX = 0; tiltY = 0; });
+        function step() { turn += 30; wrap.style.setProperty("--turn", turn + "deg"); pieces.forEach(function (pc) { pc.p1t = pc.p1 + rnd(-2, 2); pc.Rt = 6 + 48 * Math.pow(Math.random(), 1.6); }); }
+        wrap.addEventListener("click", step);
+        wrap.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); step(); } });
+      })();
+
+      var PALETTES = [["#6d4aff", "#ff6a8a"], ["#ff7a45", "#ffc14d"], ["#19b3b0", "#7ed957"], ["#4f8cff", "#8ad1ff"], ["#b84aff", "#ff6fb5"], ["#ff5a5f", "#ffb547"], ["#0ea5a0", "#6d4aff"], ["#f43f5e", "#a855f7"]];
+
+      function cover(s, index) {
+        var pal = PALETTES[index % PALETTES.length];
+        var c = el("div", { class: "nv-cover" });
+        c.style.setProperty("--c1", pal[0]); c.style.setProperty("--c2", pal[1]);
+        var art = svgEl("svg", { viewBox: "0 0 320 180", "aria-hidden": "true" });
+        var seed = hash(s.name);
+        for (var i = 0; i < 7; i++) {
+          var r = 18 + ((seed >>> (i * 3)) % 40), cx = 40 + ((seed >>> i) % 240), cy = 20 + ((seed >>> (i * 2)) % 140);
+          art.appendChild(svgEl("circle", { cx: cx, cy: cy, r: r, fill: "none", stroke: "rgba(255,255,255," + (0.18 + (i % 3) * 0.1) + ")", "stroke-width": 3 + (i % 3) * 2 }));
+        }
+        art.appendChild(svgEl("path", { d: "M-10 150 C 60 110, 120 190, 200 130 S 300 90, 340 120", fill: "none", stroke: "rgba(255,255,255,.55)", "stroke-width": "6", "stroke-linecap": "round" }));
+        art.appendChild(svgEl("circle", { cx: 200, cy: 130, r: 8, fill: "#fff" }));
+        c.appendChild(art);
+        c.appendChild(el("span", { class: "nv-kind", text: s.kind === "view" ? "View" : "Skill" }));
+        c.appendChild(el("span", { class: "nv-num", text: String(index + 1).padStart(2, "0") }));
+        return c;
       }
 
       var registry = window.NthViewRegistry;
       if (!registry || !Array.isArray(registry.skills)) {
-        status.appendChild(el("div", { class: "nv-error", role: "alert", text:
-          "registry.js could not be loaded. Run: node scripts/build-registry.js" }));
+        status.appendChild(el("div", { class: "nv-error", role: "alert", text: "registry.js could not be loaded. Run: node scripts/build-registry.js" }));
         return;
       }
-      var skills = registry.skills.slice().sort(function (a, b) {
-        if (a.kind !== b.kind) return a.kind === "view" ? -1 : 1;
-        return a.name < b.name ? -1 : 1;
-      });
+      var skills = registry.skills.slice().sort(function (a, b) { if (a.kind !== b.kind) return a.kind === "view" ? -1 : 1; return a.name < b.name ? -1 : 1; });
+      var views = skills.filter(function (s) { return s.kind === "view"; }).length;
+      count.textContent = views ? views + (views === 1 ? " view" : " views") + " so far" : "";
 
-      function card(s) {
-        var actions = [];
-        if (s.demo) actions.push(el("a", { class: "nv-primary", href: s.demo, text: "Open demo" }));
-        actions.push(el("a", { href: s.skill, text: "Skill file" }));
+      function card(s, i) {
+        var pal = PALETTES[i % PALETTES.length];
+        var target = s.demo || s.skill;
+        var li = el("li", { class: "nv-card", "data-search": (s.name + " " + s.title + " " + s.description).toLowerCase() });
+        li.style.setProperty("--c1", pal[0]); li.style.setProperty("--c2", pal[1]);
+        /* the whole tile opens the demo; the cover and title are the real link */
+        var link = el("a", { class: "nv-card-link", href: target, "aria-label": (s.demo ? "Open the " : "Open the skill file for ") + s.title });
+        link.appendChild(cover(s, i));
+        link.appendChild(el("div", { class: "nv-body" }, [el("h2", { text: s.title }), el("span", { class: "nv-name", text: s.name }), el("p", { text: s.description })]));
+        li.appendChild(link);
+        var actions = [el("a", { href: s.skill, text: "Skill file" })];
         if (s.schema) actions.push(el("a", { href: s.schema, text: "Schema" }));
-        return el("li", { class: "nv-card", "data-search": (s.name + " " + s.title + " " + s.description).toLowerCase() }, [
-          el("span", { class: "nv-kind", text: s.kind }),
-          el("h2", { text: s.title }),
-          el("span", { class: "nv-name", text: s.name }),
-          el("p", { text: s.description }),
-          el("div", { class: "nv-actions" }, actions)
-        ]);
+        li.appendChild(el("div", { class: "nv-actions" }, actions));
+        li.addEventListener("click", function (e) { if (e.target.closest("a")) return; window.location.href = target; });
+        return li;
       }
 
       if (!skills.length) {
-        status.appendChild(el("div", { class: "nv-empty", text:
-          "No views yet. The first view will appear here once it is added under skills/ and registered." }));
+        status.appendChild(el("div", { class: "nv-empty", text: "No views yet. The first view will appear here once it is added under skills/ and registered." }));
         search.disabled = true;
         return;
       }
-      skills.forEach(function (s) { grid.appendChild(card(s)); });
+      skills.forEach(function (s, i) { grid.appendChild(card(s, i)); });
 
       search.addEventListener("input", function () {
-        var q = search.value.trim().toLowerCase();
-        var shown = 0;
-        Array.prototype.forEach.call(grid.children, function (li) {
-          var hit = !q || li.getAttribute("data-search").indexOf(q) !== -1;
-          li.hidden = !hit; if (hit) shown++;
-        });
+        var q = search.value.trim().toLowerCase(), shown = 0;
+        Array.prototype.forEach.call(grid.children, function (li) { var hit = !q || li.getAttribute("data-search").indexOf(q) !== -1; li.hidden = !hit; if (hit) shown++; });
         status.textContent = q && !shown ? "No views match “" + search.value + "”." : "";
       });
     })();

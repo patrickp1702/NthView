@@ -20,4 +20,9 @@ One concept, many dimensions, one view at a time.
   adventure: one lesson per island, hands-on activities, a quiz each, then a
   final exam and report card. Demo: `skills/nthview-island-quest/examples/example.html`.
 
+- **Scenario Quiz** (`skills/nthview-scenario-quiz`) — a story-based decision
+  quiz: you are given a role in a scenario, face a sequence of choices, and
+  every option explains why it is right, wrong or tempting; ends with a full
+  review. Demo: `skills/nthview-scenario-quiz/examples/example.html`.
+
 Open `index.html` for the gallery of all views.
