@@ -1,0 +1,1866 @@
+/* NthView — detective renderer — schemaVersion 1
+ * Requires scripts/validate.js to be loaded first. Fonts come from Google Fonts (see NthView.libs).
+ */
+(function (root) {
+  "use strict";
+  var NthView = root.NthView = root.NthView || {};
+  var STYLE_ID = "nthview-style";
+
+  var THEMES = ["noir", "parchment", "neon", "newsroom", "forensic"];
+
+  /* Each theme: its native palette, then the variant for the other colour scheme.
+     Every variant stays on one side of brightness: light variants use near-black ink
+     on light surfaces, dark variants near-white ink on dark surfaces. */
+  var FX = "--hand-size:1.22rem;--blinds:0;--rain:0;--grid:0;--dust:0;--torch:0;--cork:0;--gridlines:0;--tape:0;--pinop:1;";
+  var PALETTES = {
+    noir: { dark: true,
+      base: FX + "--bg1:#0d0c0b;--bg2:#1f1b17;--fog1:#4a3524;--fog2:#26303f;--surface:rgba(26,23,19,.82);--surface-2:#211d18;--paper:#2b2620;--paper-2:#3b3329;--line:rgba(255,236,200,.17);--ink:#f7f0e4;--muted:#cdbfa8;--accent:#e6ae52;--accent-2:#d0513b;--on-accent:#120f0c;--ok:#86d895;--no:#ff7564;--warn:#f2c14e;--hl:rgba(230,174,82,.36);--pin:#d9412b;--board:#4a3424;--board-2:#33231a;--frame:#1e150e;--str-no:#ef4a3a;--str-ok:#86d895;--wall:#24211d;--floor:#161412;--trim:#3d362d;--obj:#4b453c;--obj-2:#6e6557;--obj-line:#c4b498;--blinds:.55;--rain:.3;--dust:.2;--torch:.62;--cork:1;--display:'Special Elite','Courier New',monospace;--body:'Inter',system-ui,sans-serif;--hand:'Caveat','Segoe Print',cursive;--mono:'IBM Plex Mono',ui-monospace,monospace;--radius:.45rem",
+      alt: "--bg1:#efe8dc;--bg2:#d8ccb7;--fog1:#d3bd96;--fog2:#b8c0cd;--surface:rgba(255,251,244,.88);--surface-2:#fffaf1;--paper:#fbf5e8;--paper-2:#efe3cc;--line:rgba(40,28,14,.18);--ink:#16120d;--muted:#5a4a36;--accent:#8f540c;--accent-2:#b3261e;--on-accent:#fff;--ok:#1e7a3c;--no:#b3261e;--warn:#8a5a00;--hl:rgba(245,190,60,.5);--pin:#c0321f;--board:#b88a5a;--board-2:#9c6f42;--frame:#5b3d22;--str-no:#c0261c;--str-ok:#1e7a3c;--wall:#e6dccb;--floor:#cdbfa8;--trim:#b3a184;--obj:#f6efe2;--obj-2:#d8cbb4;--obj-line:#4a3b28;--blinds:.4;--rain:0;--dust:.3;--torch:0" },
+    parchment: { dark: false,
+      base: FX + "--bg1:#f3e7cf;--bg2:#e0cba2;--fog1:#ecd4a2;--fog2:#d8b585;--surface:rgba(252,245,229,.9);--surface-2:#fdf6e6;--paper:#fbf1d9;--paper-2:#eedcb8;--line:rgba(80,50,20,.2);--ink:#1d140b;--muted:#5e4527;--accent:#8c2f1b;--accent-2:#8a5d12;--on-accent:#fff8ea;--ok:#2f6b3a;--no:#a3261b;--warn:#8a5a00;--hl:rgba(214,160,60,.45);--pin:#8c2f1b;--board:#b98d5c;--board-2:#9f7442;--frame:#5e3f1f;--str-no:#a3261b;--str-ok:#2f6b3a;--wall:#ead9b8;--floor:#d3bb8f;--trim:#b39466;--obj:#f7ecd3;--obj-2:#dcc59b;--obj-line:#4b3418;--dust:.55;--cork:1;--display:'Playfair Display',Georgia,serif;--body:'Lora',Georgia,serif;--hand:'Caveat','Segoe Print',cursive;--mono:'IBM Plex Mono',ui-monospace,monospace;--radius:.3rem",
+      alt: "--bg1:#1c140c;--bg2:#2c2013;--fog1:#4f371d;--fog2:#3a2a18;--surface:rgba(38,28,17,.84);--surface-2:#2a1f14;--paper:#33261a;--paper-2:#46351f;--line:rgba(255,230,190,.17);--ink:#f7ecd8;--muted:#d6c19e;--accent:#ee9877;--accent-2:#e3b75f;--on-accent:#1c140c;--ok:#8fd19a;--no:#ff8a78;--warn:#f0c060;--hl:rgba(227,183,95,.34);--pin:#e06a4c;--board:#4a3420;--board-2:#382714;--frame:#1f150b;--str-no:#ff7a66;--str-ok:#8fd19a;--wall:#2c2117;--floor:#1f170f;--trim:#4d3c29;--obj:#4b3c2c;--obj-2:#68543a;--obj-line:#e6d2ae;--dust:.35" },
+    neon: { dark: true,
+      base: FX + "--bg1:#06060f;--bg2:#140a2c;--fog1:#62107a;--fog2:#0a4e6b;--surface:rgba(13,13,34,.78);--surface-2:#11122c;--paper:#151735;--paper-2:#1f2250;--line:rgba(0,229,255,.28);--ink:#f4f6ff;--muted:#b2bae3;--accent:#00e5ff;--accent-2:#ff3bd9;--on-accent:#05060f;--ok:#3dff8b;--no:#ff4778;--warn:#ffd400;--hl:rgba(255,59,217,.3);--pin:#ff3bd9;--board:#0a0c22;--board-2:#141842;--frame:#03030a;--str-no:#ff4778;--str-ok:#3dff8b;--wall:#0f1131;--floor:#080920;--trim:#2c3180;--obj:#1b1e4c;--obj-2:#282c69;--obj-line:#22e8ff;--rain:.4;--grid:.6;--torch:.5;--gridlines:1;--hand-size:.98rem;--display:'Space Grotesk',system-ui,sans-serif;--body:'Space Grotesk',system-ui,sans-serif;--hand:'IBM Plex Mono',ui-monospace,monospace;--mono:'IBM Plex Mono',ui-monospace,monospace;--radius:.7rem",
+      alt: "--bg1:#eef0ff;--bg2:#dfe2fb;--fog1:#f6c6f0;--fog2:#bdeefa;--surface:rgba(255,255,255,.88);--surface-2:#fff;--paper:#ffffff;--paper-2:#eceeff;--line:rgba(80,40,160,.2);--ink:#0f1024;--muted:#4b4a6e;--accent:#6d28d9;--accent-2:#b5179e;--on-accent:#fff;--ok:#15803d;--no:#be123c;--warn:#a16207;--hl:rgba(192,38,211,.22);--pin:#c026d3;--board:#f4f5ff;--board-2:#dde0ff;--frame:#c9cdf5;--str-no:#be123c;--str-ok:#15803d;--wall:#e7e9ff;--floor:#d4d7f6;--trim:#a3a8e4;--obj:#ffffff;--obj-2:#dcdffb;--obj-line:#3b2f8a;--rain:0;--grid:.35;--torch:0" },
+    newsroom: { dark: false,
+      base: FX + "--bg1:#f4f3ef;--bg2:#e1dfd7;--fog1:#e8e4da;--fog2:#d5dbe2;--surface:rgba(255,255,255,.92);--surface-2:#fff;--paper:#fcfbf7;--paper-2:#eeece4;--line:rgba(0,0,0,.16);--ink:#111111;--muted:#4b4b4b;--accent:#c8102e;--accent-2:#1d4ed8;--on-accent:#fff;--ok:#18794e;--no:#c8102e;--warn:#9a6700;--hl:rgba(255,226,0,.6);--pin:#c8102e;--board:#c6c9cd;--board-2:#b2b6bb;--frame:#8f9399;--str-no:#c8102e;--str-ok:#18794e;--wall:#ecebe6;--floor:#d6d4cc;--trim:#b1aea4;--obj:#ffffff;--obj-2:#dedbd2;--obj-line:#222222;--blinds:.16;--dust:.12;--cork:.55;--tape:1;--pinop:0;--display:'Playfair Display',Georgia,serif;--body:'Inter',system-ui,sans-serif;--hand:'Caveat','Segoe Print',cursive;--mono:'IBM Plex Mono',ui-monospace,monospace;--radius:.15rem",
+      alt: "--bg1:#121212;--bg2:#1d1d1d;--fog1:#2c2c2c;--fog2:#1e2634;--surface:rgba(30,30,30,.88);--surface-2:#1e1e1e;--paper:#252525;--paper-2:#303030;--line:rgba(255,255,255,.17);--ink:#f5f5f5;--muted:#c0c0c0;--accent:#ff6174;--accent-2:#86a8ff;--on-accent:#121212;--ok:#5fd394;--no:#ff6174;--warn:#f2c14e;--hl:rgba(255,220,0,.3);--pin:#ff6174;--board:#2f3236;--board-2:#25282b;--frame:#151617;--str-no:#ff6174;--str-ok:#5fd394;--wall:#232323;--floor:#181818;--trim:#3b3b3b;--obj:#3a3a3a;--obj-2:#4b4b4b;--obj-line:#e2e2e2;--blinds:.1" },
+    forensic: { dark: false,
+      base: FX + "--bg1:#eef5f4;--bg2:#d6e7e4;--fog1:#c3ebe4;--fog2:#d4e2f5;--surface:rgba(255,255,255,.9);--surface-2:#fff;--paper:#ffffff;--paper-2:#ebf5f3;--line:rgba(10,60,70,.17);--ink:#0c1a1c;--muted:#3b585c;--accent:#0f766e;--accent-2:#2554d8;--on-accent:#fff;--ok:#15803d;--no:#c2410c;--warn:#a16207;--hl:rgba(20,184,166,.3);--pin:#2563eb;--board:#f7fbfb;--board-2:#dfeeec;--frame:#c3d9d6;--str-no:#c2410c;--str-ok:#15803d;--wall:#e8f1f0;--floor:#d2e1df;--trim:#a6c1be;--obj:#ffffff;--obj-2:#d8e7e5;--obj-line:#16424a;--grid:.35;--gridlines:1;--tape:1;--pinop:0;--display:'Space Grotesk',system-ui,sans-serif;--body:'Inter',system-ui,sans-serif;--hand:'Caveat','Segoe Print',cursive;--mono:'IBM Plex Mono',ui-monospace,monospace;--radius:.9rem",
+      alt: "--bg1:#071416;--bg2:#0d2327;--fog1:#0f4c4b;--fog2:#123b5e;--surface:rgba(10,28,32,.82);--surface-2:#0e2428;--paper:#122a2f;--paper-2:#18363c;--line:rgba(160,240,230,.18);--ink:#ecfbf9;--muted:#abcfcb;--accent:#2dd4bf;--accent-2:#6aaefc;--on-accent:#071416;--ok:#4ade80;--no:#fb923c;--warn:#facc15;--hl:rgba(45,212,191,.28);--pin:#60a5fa;--board:#0b1d21;--board-2:#13323a;--frame:#05100f;--str-no:#fb923c;--str-ok:#4ade80;--wall:#0f2428;--floor:#0a1a1d;--trim:#1f4a50;--obj:#173b40;--obj-2:#21525a;--obj-line:#a3f5ea;--grid:.45;--torch:.4" }
+  };
+
+  function themeCss() {
+    var out = [];
+    THEMES.forEach(function (t) {
+      var pl = PALETTES[t];
+      out.push(".nthview-detective[data-theme=" + t + "]{" + pl.base + "}");
+      out.push("@media (prefers-color-scheme:" + (pl.dark ? "light" : "dark") + "){.nthview-detective[data-theme=" + t + "]{" + pl.alt + "}}");
+    });
+    return out.join("\n");
+  }
+
+  var GRAIN = "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 .6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>\")";
+  var CORK = "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='c'><feTurbulence type='fractalNoise' baseFrequency='.55' numOctaves='3' seed='4' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.06 0 0 0 0 0.02 0 0 0 1.2 -.35'/></filter><rect width='100%' height='100%' filter='url(%23c)'/></svg>\")";
+
+  var CSS_VIEW = [
+    themeCss(),
+    "&.nthview[data-theme]{max-width:none;margin:0;padding:0;min-height:100vh;position:relative;isolation:isolate;background:var(--bg1);color:var(--ink);font-family:var(--body);line-height:1.55;--nv-accent:var(--accent);overflow-x:clip}",
+    "body:has(> .nthview-detective){margin:0}",
+    "& button{font:inherit;color:inherit;cursor:pointer}",
+    "& button:disabled{cursor:default}",
+    "&[data-theme] p{margin:.4rem 0 .85rem}",
+    "&[data-theme] h1,&[data-theme] h2,&[data-theme] h3{font-family:var(--display);line-height:1.15;letter-spacing:-.01em}",
+    "&[data-theme] h1{font-size:clamp(2.1rem,6.4vw,3.7rem);font-weight:900;margin:.2rem 0 .6rem;letter-spacing:-.02em}",
+    "&[data-theme] h2{font-size:clamp(1.4rem,3.6vw,1.95rem);font-weight:800;margin:.4rem 0 .8rem}",
+    "&[data-theme] h3{font-size:1.12rem;font-weight:800;margin:1rem 0 .4rem}",
+    "& .nthview-muted{color:var(--muted)}",
+    "& .nthview-small{font-size:.9rem}",
+    "& [tabindex='-1']:focus{outline:none}",
+    "& .nthview-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}",
+    "& svg{display:block}",
+    /* backdrop */
+    "& .nthview-backdrop{position:fixed;inset:0;z-index:-1;overflow:hidden;background:radial-gradient(120% 90% at 50% 0%,var(--bg2),var(--bg1) 70%);pointer-events:none}",
+    "& .nthview-fog{position:absolute;width:62vmax;height:62vmax;border-radius:50%;filter:blur(90px);opacity:.42;animation:nthview-drift 34s ease-in-out infinite alternate}",
+    "& .nthview-fog:nth-child(1){background:var(--fog1);top:-24vmax;left:-18vmax}",
+    "& .nthview-fog:nth-child(2){background:var(--fog2);bottom:-26vmax;right:-16vmax;animation-duration:42s;animation-delay:-11s}",
+    "& .nthview-fog:nth-child(3){background:var(--fog1);top:30vmax;right:20%;width:40vmax;height:40vmax;opacity:.25;animation-duration:50s;animation-delay:-23s}",
+    "& .nthview-blinds{position:absolute;inset:-20%;opacity:var(--blinds);background:repeating-linear-gradient(172deg,transparent 0 46px,rgba(255,226,170,.13) 46px 74px);transform:skewY(-8deg);animation:nthview-sweep 26s ease-in-out infinite alternate;mix-blend-mode:screen}",
+    "& .nthview-rain{position:absolute;inset:-10% 0 0;opacity:var(--rain);background-image:repeating-linear-gradient(100deg,transparent 0 22px,rgba(190,215,255,.16) 22px 23px),repeating-linear-gradient(100deg,transparent 0 37px,rgba(190,215,255,.1) 37px 38px);background-size:240px 240px,320px 320px;animation:nthview-rain 1.1s linear infinite}",
+    "& .nthview-gridfloor{position:absolute;left:-50%;right:-50%;bottom:-10%;height:55%;opacity:var(--grid);background-image:linear-gradient(var(--accent) 1px,transparent 1px),linear-gradient(90deg,var(--accent) 1px,transparent 1px);background-size:60px 60px;transform:perspective(420px) rotateX(62deg);transform-origin:50% 100%;-webkit-mask-image:linear-gradient(transparent,#000 70%);mask-image:linear-gradient(transparent,#000 70%);animation:nthview-gridmove 6s linear infinite}",
+    "& .nthview-dust{position:absolute;inset:0;opacity:var(--dust);background-image:radial-gradient(circle,var(--muted) 0 1px,transparent 1.6px),radial-gradient(circle,var(--muted) 0 1.4px,transparent 2px);background-size:140px 160px,230px 210px;background-position:0 0,60px 90px;animation:nthview-dust 40s linear infinite}",
+    "& .nthview-grain{position:absolute;inset:0;opacity:.08;background-image:" + GRAIN + ";mix-blend-mode:overlay}",
+    "& .nthview-vignette{position:absolute;inset:0;background:radial-gradient(120% 100% at 50% 40%,transparent 55%,rgba(0,0,0,.35))}",
+    "@keyframes nthview-drift{from{transform:translate(0,0) scale(1)}to{transform:translate(8vmax,6vmax) scale(1.16)}}",
+    "@keyframes nthview-sweep{from{transform:skewY(-8deg) translateX(-6%)}to{transform:skewY(-8deg) translateX(6%)}}",
+    "@keyframes nthview-rain{from{background-position:0 0,0 0}to{background-position:-40px 240px,-50px 320px}}",
+    "@keyframes nthview-gridmove{from{background-position:0 0,0 0}to{background-position:0 60px,0 0}}",
+    "@keyframes nthview-dust{from{background-position:0 0,60px 90px}to{background-position:140px -160px,-170px -120px}}",
+    /* chrome */
+    "& .nthview-top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg1) 72%,transparent);backdrop-filter:blur(14px) saturate(1.2);-webkit-backdrop-filter:blur(14px) saturate(1.2);border-bottom:1px solid var(--line)}",
+    "& .nthview-topin{max-width:68rem;margin:0 auto;padding:.55rem 1rem;display:flex;align-items:center;gap:.6rem 1rem;flex-wrap:wrap}",
+    "& .nthview-case{display:flex;align-items:center;gap:.6rem;min-width:0;flex:1 1 12rem}",
+    "& .nthview-case b{font-family:var(--display);font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
+    "& .nthview-caseno{font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;border:1.5px solid var(--accent-2);color:var(--accent-2);padding:.08rem .4rem;border-radius:.2rem;white-space:nowrap;transform:rotate(-3deg)}",
+    "& .nthview-nav{display:flex;gap:.3rem;flex-wrap:wrap}",
+    "& .nthview-navbtn{display:inline-flex;align-items:center;gap:.38rem;border:1px solid transparent;background:transparent;border-radius:999px;padding:.36rem .7rem;font-size:.86rem;font-weight:700;color:var(--muted);transition:background .2s,color .2s,border-color .2s}",
+    "& .nthview-navbtn svg{width:1.05rem;height:1.05rem}",
+    "& .nthview-navbtn:hover{color:var(--ink);background:var(--surface)}",
+    "& .nthview-navbtn[aria-current=page]{color:var(--ink);background:var(--surface);border-color:var(--line)}",
+    "& .nthview-count{display:inline-grid;place-items:center;min-width:1.25rem;height:1.25rem;padding:0 .3rem;border-radius:999px;background:var(--accent);color:var(--on-accent);font-size:.72rem;font-weight:800}",
+    "& .nthview-meter{display:inline-flex;align-items:center;gap:.4rem;font-family:var(--mono);font-size:.8rem;color:var(--muted);white-space:nowrap}",
+    "& .nthview-meter svg{width:1rem;height:1rem;color:var(--accent)}",
+    "& .nthview-frame{max-width:68rem;margin:0 auto;padding:clamp(1rem,3.5vw,2.2rem) 1rem 5rem}",
+    "& .nthview-stage{position:relative}",
+    "& .nthview-screen{transition:opacity .38s ease,transform .45s cubic-bezier(.2,.8,.2,1),filter .38s ease}",
+    "& .nthview-enter{opacity:0;transform:translateY(18px) scale(.99);filter:blur(5px)}",
+    "& .nthview-leave{position:absolute;inset:0 0 auto 0;opacity:0;transform:translateY(-12px);filter:blur(4px);pointer-events:none}",
+    "& .nthview-rise{animation:nthview-rise .6s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0)*70ms)}",
+    "@keyframes nthview-rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}",
+    "@keyframes nthview-pop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.06)}100%{transform:scale(1);opacity:1}}",
+    "@keyframes nthview-stamp{0%{transform:scale(2.4) rotate(-14deg);opacity:0}70%{transform:scale(.94) rotate(-9deg);opacity:1}100%{transform:scale(1) rotate(-9deg);opacity:1}}",
+    "@keyframes nthview-shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(3px)}}",
+    "@keyframes nthview-pulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 50%,transparent)}50%{box-shadow:0 0 0 8px transparent}}",
+    "@keyframes nthview-flash{0%{opacity:.85}100%{opacity:0}}",
+    "@keyframes nthview-dots{0%,80%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}",
+    "@keyframes nthview-ring{0%{r:30;opacity:.7}100%{r:64;opacity:0}}",
+    /* generic pieces */
+    "& .nthview-eyebrow{font-family:var(--mono);font-size:.74rem;text-transform:uppercase;letter-spacing:.18em;color:var(--accent);font-weight:600;margin:0 0 .4rem}",
+    "& .nthview-card{position:relative;background:var(--surface);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--line);border-radius:var(--radius);padding:1.15rem 1.25rem;margin:.9rem 0;box-shadow:0 26px 60px -34px rgba(0,0,0,.55)}",
+    "& .nthview-paper{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 1px 0 rgba(255,255,255,.05) inset,0 18px 40px -26px rgba(0,0,0,.6)}",
+    "& .nthview-label{font-family:var(--mono);font-size:.7rem;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);margin:0 0 .35rem;font-weight:600}",
+    "& .nthview-actions{display:flex;gap:.7rem;flex-wrap:wrap;align-items:center;margin-top:1.1rem}",
+    "& .nthview-btn{display:inline-flex;align-items:center;gap:.5rem;border:1.5px solid var(--accent);background:var(--surface);color:var(--ink);border-radius:999px;padding:.68rem 1.25rem;font-weight:800;letter-spacing:.01em;transition:transform .18s,box-shadow .18s,filter .18s,background .18s}",
+    "& .nthview-btn svg{width:1.1rem;height:1.1rem}",
+    "& .nthview-btn:hover:not(:disabled){transform:translateY(-2px)}",
+    "& .nthview-btn:disabled{opacity:.5}",
+    "& .nthview-primary{background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 70%,var(--accent-2)));color:var(--on-accent);border-color:transparent;box-shadow:0 14px 32px -14px var(--accent)}",
+    "& .nthview-primary:hover:not(:disabled){filter:brightness(1.06);box-shadow:0 18px 40px -14px var(--accent)}",
+    "& .nthview-ghost{border-color:transparent;background:transparent;color:var(--muted);padding-left:.5rem;padding-right:.5rem;font-weight:700}",
+    "& .nthview-ghost:hover:not(:disabled){color:var(--ink);transform:none;text-decoration:underline}",
+    "& .nthview-back{margin:0 0 .8rem -.4rem}",
+    "& .nthview-tag{display:inline-flex;align-items:center;gap:.3rem;font-family:var(--mono);font-size:.66rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;border-radius:.25rem;padding:.12rem .45rem;white-space:nowrap;border:1px solid var(--line);background:var(--surface-2)}",
+    "& .nthview-tag-no{color:var(--no);border-color:color-mix(in srgb,var(--no) 50%,transparent);background:color-mix(in srgb,var(--no) 12%,var(--surface-2))}",
+    "& .nthview-tag-ok{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 50%,transparent);background:color-mix(in srgb,var(--ok) 12%,var(--surface-2))}",
+    "& .nthview-tag-warn{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 50%,transparent);background:color-mix(in srgb,var(--warn) 12%,var(--surface-2))}",
+    "& .nthview-tag-accent{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 50%,transparent)}",
+    "& .nthview-tags{display:flex;gap:.35rem;flex-wrap:wrap;align-items:center}",
+    "& .nthview-grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,17rem),1fr));gap:1rem}",
+    "& .nthview-toast{position:fixed;left:50%;top:4.6rem;z-index:60;transform:translate(-50%,-14px);opacity:0;background:var(--surface-2);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:.55rem 1.1rem;font-weight:700;font-size:.9rem;box-shadow:0 18px 40px -16px rgba(0,0,0,.6);transition:opacity .25s,transform .3s;pointer-events:none;max-width:calc(100vw - 2rem);text-align:center}",
+    "& .nthview-toast.nthview-show{opacity:1;transform:translate(-50%,0)}",
+    /* stamp */
+    "& .nthview-stamp{display:inline-block;font-family:var(--mono);font-weight:600;text-transform:uppercase;letter-spacing:.2em;color:var(--accent-2);border:3px double var(--accent-2);padding:.3rem .8rem;border-radius:.3rem;transform:rotate(-9deg);opacity:.9}",
+    "& .nthview-stamp-anim{animation:nthview-stamp .7s cubic-bezier(.2,.8,.2,1) both}",
+    "& .nthview-outstamp.nthview-stamp-anim{animation-name:nthview-outstamp}",
+    "@keyframes nthview-outstamp{0%{transform:scale(2.2) rotate(-16deg);opacity:0}100%{transform:rotate(-8deg);opacity:1}}",
+    /* briefing */
+    "& .nthview-folder{position:relative;background:var(--paper);border:1px solid var(--line);border-radius:0 var(--radius) var(--radius) var(--radius);padding:clamp(1.2rem,4vw,2.4rem);margin-top:2.2rem;box-shadow:0 40px 80px -40px rgba(0,0,0,.7)}",
+    "& .nthview-folder::before{content:'';position:absolute;left:-1px;top:-2rem;width:min(16rem,60%);height:2rem;background:var(--paper);border:1px solid var(--line);border-bottom:0;border-radius:var(--radius) var(--radius) 0 0}",
+    "& .nthview-foldertab{position:absolute;left:1rem;top:-1.6rem;font-family:var(--mono);font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);z-index:1}",
+    "& .nthview-report{margin-top:2.4rem;font-size:1.05rem}& .nthview-report p:last-child{margin-bottom:0}",
+    "& .nthview-folder .nthview-stamp{position:absolute;right:clamp(.6rem,3vw,2rem);top:clamp(.6rem,3vw,1.6rem);font-size:clamp(.7rem,2vw,.95rem)}",
+    "& .nthview-question{position:relative;border-left:4px solid var(--accent-2);background:color-mix(in srgb,var(--accent-2) 9%,var(--paper));padding:.9rem 1.1rem;border-radius:0 var(--radius) var(--radius) 0;margin:1.1rem 0}",
+    "& .nthview-question p{margin:0}& .nthview-question p:not(.nthview-label){font-family:var(--display);font-size:clamp(1.15rem,2.8vw,1.45rem);font-weight:800;line-height:1.3}",
+    "& .nthview-role{display:flex;gap:1rem;align-items:center;margin:1.2rem 0}",
+    "& .nthview-role .nthview-sil{flex:none;width:4.2rem;height:4.2rem}",
+    "& .nthview-role b{display:block;font-family:var(--display);font-size:1.1rem}",
+    "& .nthview-cast{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,10.5rem),1fr));gap:.8rem;margin:.6rem 0 1rem}",
+    "& .nthview-person{display:flex;gap:.7rem;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:.6rem .7rem}",
+    "& .nthview-person .nthview-face{flex:none;width:3.2rem;height:3.2rem}",
+    "& .nthview-person b{display:block;font-size:.95rem;line-height:1.2}",
+    "& .nthview-person span{font-size:.8rem;color:var(--muted);line-height:1.25;display:block}",
+    "& .nthview-theorylist{list-style:none;padding:0;margin:.4rem 0;display:grid;gap:.5rem}",
+    "& .nthview-theorylist li{display:flex;gap:.7rem;align-items:center;padding:.5rem .7rem;border:1px dashed var(--line);border-radius:var(--radius)}",
+    "& .nthview-theorylist .nthview-face{flex:none;width:2.2rem;height:2.2rem}",
+    "& .nthview-q{font-family:var(--hand);font-size:1.25rem;line-height:1.2}",
+    /* map */
+    "& .nthview-maphead{display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;flex-wrap:wrap}",
+    "& .nthview-progress{display:flex;align-items:center;gap:.7rem}",
+    "& .nthview-progress svg{width:3.4rem;height:3.4rem}",
+    "& .nthview-locs{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,15.5rem),1fr));gap:1rem;margin:1rem 0}",
+    "& .nthview-loc{position:relative;display:flex;flex-direction:column;gap:.5rem;text-align:left;background:var(--surface);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:var(--radius);padding:1rem 1.05rem;min-height:10rem;transition:transform .22s cubic-bezier(.2,.8,.2,1),border-color .2s,box-shadow .22s;box-shadow:0 22px 50px -34px rgba(0,0,0,.6)}",
+    "& .nthview-loc:hover:not([aria-disabled=true]),& .nthview-loc:focus-visible{transform:translateY(-4px) rotate(-.4deg);border-color:var(--accent);box-shadow:0 26px 50px -24px color-mix(in srgb,var(--accent) 60%,transparent)}",
+    "& .nthview-loc[aria-disabled=true]{opacity:.62;border-style:dashed}",
+    "& .nthview-loctop{display:flex;align-items:center;gap:.7rem}",
+    "& .nthview-locicon{flex:none;width:2.6rem;height:2.6rem;border-radius:calc(var(--radius) + .2rem);display:grid;place-items:center;background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 26%,var(--surface-2)),color-mix(in srgb,var(--accent-2) 18%,var(--surface-2)));border:1px solid var(--line);color:var(--accent)}",
+    "& .nthview-locicon svg{width:1.4rem;height:1.4rem}",
+    "& .nthview-loc .nthview-face{width:2.6rem;height:2.6rem;flex:none}",
+    "& .nthview-loc b{display:block;font-family:var(--display);font-size:1.06rem;line-height:1.2}",
+    "& .nthview-loc .nthview-kind{display:block;font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}",
+    "& .nthview-loc p{margin:0;font-size:.92rem;color:var(--muted);flex:1}",
+    "& .nthview-locfoot{display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap}",
+    "& .nthview-pips{display:flex;gap:.25rem}",
+    "& .nthview-pip{width:.6rem;height:.6rem;border-radius:50%;border:1.5px solid var(--accent);background:transparent}",
+    "& .nthview-pip.nthview-on{background:var(--accent)}",
+    /* location */
+    "& .nthview-lochead{display:flex;gap:1rem;align-items:center;flex-wrap:wrap}",
+    "& .nthview-lochead .nthview-face{width:4.4rem;height:4.4rem}",
+    "& .nthview-lochead .nthview-locicon{width:3.4rem;height:3.4rem}",
+    "& .nthview-lochead h2{margin:.1rem 0}",
+    "& .nthview-found{display:flex;gap:.45rem;flex-wrap:wrap;align-items:center;margin-top:1rem}",
+    "& .nthview-chip{display:inline-flex;align-items:center;gap:.4rem;border:1px solid var(--line);background:var(--surface-2);border-radius:999px;padding:.32rem .75rem;font-size:.85rem;font-weight:700;transition:border-color .2s,background .2s,transform .2s}",
+    "& button.nthview-chip:hover{border-color:var(--accent);transform:translateY(-1px)}",
+    "& .nthview-chip svg{width:.95rem;height:.95rem;color:var(--accent)}",
+    "& .nthview-chip.nthview-done{border-color:color-mix(in srgb,var(--ok) 55%,transparent)}",
+    "& .nthview-chip.nthview-done svg{color:var(--ok)}",
+    "& .nthview-note{border-radius:var(--radius);padding:.85rem 1rem;background:var(--surface);border:1px solid var(--line);margin:.8rem 0;min-height:1rem}",
+    "& .nthview-note:empty{display:none}",
+    "& .nthview-note.nthview-hit{border-color:color-mix(in srgb,var(--accent) 60%,transparent);background:color-mix(in srgb,var(--accent) 10%,var(--surface))}",
+    "& .nthview-note p{margin:0}",
+    "& .nthview-note p + p{margin-top:.45rem}",
+    /* examine */
+    "& .nthview-scene{position:relative;max-width:54rem;margin:0 auto;border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);box-shadow:0 30px 70px -40px rgba(0,0,0,.8);background:var(--wall);touch-action:manipulation}",
+    "& .nthview-scene svg{width:100%;height:auto}",
+    "& .nthview-torch{position:absolute;inset:0;pointer-events:none;opacity:var(--torch);background:radial-gradient(circle at var(--mx,50%) var(--my,45%),transparent 0,transparent 16%,rgba(0,0,0,.78) 46%);transition:background .08s}",
+    "& .nthview-hot{cursor:pointer}",
+    "& .nthview-hot .nthview-halo{fill:transparent;stroke:var(--accent);stroke-width:3;stroke-dasharray:6 7;opacity:0;transition:opacity .2s}",
+    "& .nthview-hot:hover .nthview-halo,& .nthview-hot.nthview-sel .nthview-halo{opacity:1}",
+    "& .nthview-hot .nthview-ping{fill:none;stroke:var(--accent);stroke-width:2;animation:nthview-ring 2.4s ease-out infinite}",
+    "& .nthview-hot.nthview-seen .nthview-ping{display:none}",
+    "& .nthview-hot .nthview-obj{transition:transform .25s cubic-bezier(.2,.8,.2,1)}",
+    "& .nthview-hot:hover .nthview-obj{transform:scale(1.06)}",
+    "& .nthview-hot .nthview-seenmark{opacity:0;transition:opacity .3s}",
+    "& .nthview-hot.nthview-seen .nthview-seenmark{opacity:1}",
+    "& .nthview-spots{display:flex;flex-wrap:wrap;gap:.45rem;margin:.8rem 0}",
+    /* interview */
+    "& .nthview-interview{display:grid;grid-template-columns:minmax(0,11rem) minmax(0,1fr);gap:1.2rem;align-items:start}",
+    "@media (max-width:640px){& .nthview-interview{grid-template-columns:1fr}& .nthview-bio{position:static;display:flex;gap:.8rem;align-items:center;text-align:left}& .nthview-bio .nthview-face{width:4.4rem!important;height:4.4rem!important;margin:0!important}}",
+    "& .nthview-bio{text-align:center;position:sticky;top:5rem}",
+    "& .nthview-bio .nthview-face{width:9rem;height:9rem;margin:0 auto .6rem}",
+    "& .nthview-bio b{display:block;font-family:var(--display);font-size:1.1rem}",
+    "& .nthview-chat{display:flex;flex-direction:column;gap:.6rem;margin-bottom:1rem}",
+    "& .nthview-bubble{max-width:88%;padding:.7rem .95rem;border-radius:1rem;border:1px solid var(--line);background:var(--paper);animation:nthview-rise .4s cubic-bezier(.2,.8,.2,1) both}",
+    "& .nthview-bubble p{margin:0}",
+    "& .nthview-them{align-self:flex-start;border-bottom-left-radius:.25rem}",
+    "& .nthview-you{align-self:flex-end;border-bottom-right-radius:.25rem;background:color-mix(in srgb,var(--accent) 16%,var(--surface-2));font-weight:600}",
+    "& .nthview-typing{display:inline-flex;gap:.3rem;padding:.25rem .1rem}",
+    "& .nthview-typing i{width:.45rem;height:.45rem;border-radius:50%;background:var(--muted);animation:nthview-dots 1s infinite}",
+    "& .nthview-typing i:nth-child(2){animation-delay:.15s}& .nthview-typing i:nth-child(3){animation-delay:.3s}",
+    "& .nthview-asks{display:grid;gap:.5rem;list-style:none;padding:0;margin:.4rem 0}",
+    "& .nthview-ask{display:flex;gap:.6rem;align-items:center;width:100%;text-align:left;border:1.5px solid var(--line);background:var(--surface);border-radius:calc(var(--radius) + .2rem);padding:.65rem .85rem;transition:border-color .18s,transform .18s,background .18s}",
+    "& .nthview-ask:hover:not(:disabled){border-color:var(--accent);transform:translateX(3px);background:var(--surface-2)}",
+    "& .nthview-ask svg{flex:none;width:1.1rem;height:1.1rem;color:var(--accent)}",
+    "& .nthview-ask .nthview-tag{margin-left:auto}",
+    "& .nthview-cluehit{display:inline-flex;align-items:center;gap:.35rem;margin-top:.45rem;font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}",
+    "& .nthview-cluehit svg{width:.9rem;height:.9rem}",
+    /* document */
+    "& .nthview-doc{position:relative;padding:clamp(1rem,4vw,2rem);max-width:44rem;margin:1rem auto;background-image:linear-gradient(transparent calc(100% - 1px),color-mix(in srgb,var(--line) 60%,transparent) 1px);background-size:100% 2rem}",
+    "& .nthview-doc .nthview-stamp{position:absolute;right:1rem;top:1rem;font-size:.7rem}",
+    "& .nthview-doc h3{font-size:clamp(1.1rem,3vw,1.35rem);margin:.2rem 0 .7rem;padding-right:5rem}",
+    "& .nthview-docmeta{display:grid;grid-template-columns:auto 1fr;gap:.15rem .9rem;font-family:var(--mono);font-size:.78rem;margin:0 0 1rem;padding-bottom:.8rem;border-bottom:1px solid var(--line)}",
+    "& .nthview-docmeta dt{color:var(--muted);text-transform:uppercase;letter-spacing:.08em}",
+    "& .nthview-docmeta dd{margin:0}",
+    "& .nthview-lines{list-style:none;margin:0;padding:0;display:grid;gap:.15rem}",
+    "& .nthview-line{display:block;width:100%;text-align:left;border:0;background:linear-gradient(100deg,var(--hl),var(--hl)) no-repeat 0 60%/0% 80%;border-radius:.2rem;padding:.35rem .4rem;line-height:1.5;transition:background-size .55s cubic-bezier(.2,.8,.2,1),box-shadow .2s}",
+    "& .nthview-line:hover{box-shadow:inset 3px 0 0 var(--accent)}",
+    "& .nthview-line.nthview-marked{background-size:100% 80%}",
+    "& .nthview-line.nthview-key{font-weight:700}",
+    "& [data-doc=email] .nthview-docmeta,& [data-doc=memo] .nthview-docmeta{font-family:var(--body)}",
+    "& [data-doc=label]{border:3px solid var(--ink);border-radius:.3rem}",
+    "& [data-doc=log] .nthview-line,& [data-doc=label] .nthview-line{font-family:var(--mono);font-size:.92rem}",
+    /* compare */
+    "& .nthview-compare{display:grid;gap:.35rem;margin:1rem 0}",
+    "& .nthview-exhibits{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}",
+    "& .nthview-exhibit{padding:.7rem .85rem;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);position:relative}",
+    "& .nthview-exhibit b{display:block;font-family:var(--display);font-size:.98rem;line-height:1.25}",
+    "& .nthview-exhibit .nthview-tagx{position:absolute;top:-.7rem;left:.7rem}",
+    "& .nthview-crow{display:grid;grid-template-columns:1fr 1fr;gap:.2rem .6rem;width:100%;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:var(--radius);padding:.5rem .6rem;transition:border-color .18s,background .18s}",
+    "& .nthview-crow:hover{border-color:var(--accent)}",
+    "& .nthview-crow .nthview-clabel{grid-column:1/-1;font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}",
+    "& .nthview-crow .nthview-cval{font-weight:600;padding:.15rem .35rem;border-radius:.3rem;overflow-wrap:anywhere}",
+    "& .nthview-crow.nthview-diff{border-color:var(--no);background:color-mix(in srgb,var(--no) 8%,var(--surface))}",
+    "& .nthview-crow.nthview-diff .nthview-cval{box-shadow:0 0 0 2px var(--no)}",
+    "& .nthview-crow.nthview-same{opacity:.75}",
+    /* timeline */
+    "& .nthview-tl{list-style:none;margin:1rem 0;padding:0 0 0 1.6rem;position:relative;display:grid;gap:.6rem}",
+    "& .nthview-tl::before{content:'';position:absolute;left:.55rem;top:.5rem;bottom:.5rem;width:2px;background:linear-gradient(var(--accent),var(--accent-2))}",
+    "& .nthview-ev{-webkit-user-select:none;user-select:none;position:relative;display:flex;align-items:center;gap:.6rem;background:var(--paper);border:1.5px solid var(--line);border-radius:var(--radius);padding:.6rem .6rem .6rem .8rem;transition:border-color .25s,background .25s,box-shadow .2s;touch-action:auto}",
+    "& .nthview-ev::before{content:'';position:absolute;left:-1.42rem;top:50%;width:.8rem;height:.8rem;margin-top:-.4rem;border-radius:50%;background:var(--bg1);border:2px solid var(--accent)}",
+    "& .nthview-ev.nthview-drag{box-shadow:0 18px 40px -16px rgba(0,0,0,.7);border-color:var(--accent);z-index:2}",
+    "& .nthview-ev.nthview-ok{border-color:var(--ok)}",
+    "& .nthview-ev.nthview-ok::before{background:var(--ok);border-color:var(--ok)}",
+    "& .nthview-ev.nthview-off{border-color:var(--warn)}",
+    "& .nthview-evtext{flex:1;min-width:0}",
+    "& .nthview-evtime{display:block;font-family:var(--mono);font-size:.74rem;letter-spacing:.06em;color:var(--accent)}",
+    "& .nthview-grip{flex:none;width:1.7rem;height:2.2rem;display:grid;place-items:center;color:var(--muted);cursor:grab;touch-action:none;border-radius:.3rem}",
+    "& .nthview-grip svg{width:1.1rem;height:1.1rem}",
+    "& .nthview-mv{flex:none;width:2.2rem;height:2.2rem;display:grid;place-items:center;border:1px solid var(--line);background:var(--surface-2);border-radius:.5rem}",
+    "& .nthview-mv svg{width:1rem;height:1rem}",
+    "& .nthview-mv:disabled{opacity:.3}",
+    /* ledger */
+    "& .nthview-rule{display:flex;gap:.7rem;align-items:flex-start;border:1.5px dashed var(--accent);border-radius:var(--radius);padding:.7rem .9rem;margin:.8rem 0;background:color-mix(in srgb,var(--accent) 7%,transparent)}",
+    "& .nthview-rule svg{flex:none;width:1.3rem;height:1.3rem;color:var(--accent);margin-top:.15rem}",
+    "& .nthview-rule p{margin:0}",
+    "& .nthview-ledger{margin:1rem 0;padding:.6rem;font-family:var(--mono);font-size:clamp(.7rem,2.2vw,.88rem)}",
+    "& .nthview-lrow{display:grid;grid-template-columns:repeat(var(--cols),minmax(0,1fr));gap:.3rem;width:100%;text-align:left;border:0;background:transparent;padding:.45rem .4rem;border-bottom:1px dashed var(--line);position:relative;transition:background .18s}",
+    "& .nthview-lrow > span{overflow-wrap:anywhere;padding:.05rem .2rem;border-radius:.2rem}",
+    "& button.nthview-lrow:hover{background:color-mix(in srgb,var(--accent) 9%,transparent)}",
+    "& .nthview-lhead{font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-size:.9em;border-bottom:2px solid var(--ink)}",
+    "& .nthview-lrow.nthview-flag{background:color-mix(in srgb,var(--no) 12%,transparent)}",
+    "& .nthview-lrow.nthview-flag > span.nthview-cell{box-shadow:0 0 0 2px var(--no)}",
+    "& .nthview-lrow.nthview-okrow{opacity:.6}",
+    "& .nthview-lrow .nthview-lmark{position:absolute;right:.3rem;top:50%;transform:translateY(-50%) rotate(-8deg);font-size:.62rem;letter-spacing:.14em;color:var(--no);border:2px solid var(--no);padding:0 .3rem;border-radius:.2rem;background:var(--paper)}",
+    /* lock */
+    "& .nthview-lock{display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr);gap:1.2rem;align-items:center;margin:1rem 0}",
+    "@media (max-width:560px){& .nthview-lock{grid-template-columns:1fr;justify-items:center}}",
+    "& .nthview-lockart{width:8rem;height:9rem;color:var(--accent)}",
+    "& .nthview-shackle{transition:transform .6s cubic-bezier(.2,.8,.2,1)}",
+    "& .nthview-open .nthview-shackle{transform:translateY(-16px)}",
+    "& .nthview-dials{display:flex;gap:.55rem;flex-wrap:wrap;justify-content:center}",
+    "& .nthview-dial{display:flex;flex-direction:column;align-items:center;gap:.3rem}",
+    "& .nthview-dialface{width:3.1rem;height:3.8rem;display:grid;place-items:center;font-family:var(--mono);font-weight:600;font-size:1.8rem;border-radius:.6rem;background:linear-gradient(var(--surface-2),var(--paper) 45%,var(--paper) 55%,var(--surface-2));border:1.5px solid var(--line);box-shadow:inset 0 6px 10px -6px rgba(0,0,0,.6),inset 0 -6px 10px -6px rgba(0,0,0,.6);overflow:hidden}",
+    "& .nthview-dialface span{display:block;animation:nthview-roll .22s ease}",
+    "@keyframes nthview-roll{from{transform:translateY(-60%);opacity:0}to{transform:none;opacity:1}}",
+    "& .nthview-shake{animation:nthview-shake .45s ease}",
+    "& .nthview-hints{margin:.6rem 0;padding-left:1.2rem}",
+    "& .nthview-hints li{margin:.3rem 0}",
+    /* lab */
+    "& .nthview-lab{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,15rem);gap:1.2rem;align-items:start}",
+    "@media (max-width:640px){& .nthview-lab{grid-template-columns:1fr}}",
+    "& .nthview-control{border:0;padding:0;margin:0 0 1rem}",
+    "& .nthview-control legend{font-weight:800;margin-bottom:.4rem;padding:0}",
+    "& .nthview-seg{display:flex;flex-wrap:wrap;gap:.4rem}",
+    "& .nthview-seg label{position:relative;display:inline-flex}",
+    "& .nthview-seg input{position:absolute;opacity:0;width:1px;height:1px}",
+    "& .nthview-seg span{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:.42rem .85rem;font-weight:700;font-size:.9rem;cursor:pointer;transition:border-color .18s,background .18s,color .18s}",
+    "& .nthview-seg input:checked + span{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 18%,var(--surface));}",
+    "& .nthview-seg input:focus-visible + span{outline:3px solid var(--accent);outline-offset:2px}",
+    "& .nthview-instrument{text-align:center;padding:1rem}",
+    "& .nthview-instrument svg{width:100%;max-width:13rem;height:auto;margin:0 auto}",
+    "& .nthview-reading{font-family:var(--display);font-weight:800;font-size:1.15rem;margin:.5rem 0 .1rem;min-height:1.5em}",
+    "& .nthview-needle{transition:transform 1s cubic-bezier(.2,.8,.2,1);transform-origin:100px 100px}",
+    "& .nthview-fill{transition:transform 1s cubic-bezier(.2,.8,.2,1);transform-box:fill-box;transform-origin:50% 100%}",
+    "& .nthview-colony{transition:opacity .4s ease,transform .4s ease;transform-box:fill-box;transform-origin:center}",
+    "& .nthview-runs{width:100%;border-collapse:collapse;font-size:.88rem;margin-top:.6rem}",
+    "& .nthview-runs th,& .nthview-runs td{text-align:left;padding:.35rem .4rem;border-bottom:1px solid var(--line);vertical-align:top}",
+    "& .nthview-runs th{font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}",
+    /* board */
+    "& .nthview-boardwrap{margin:1rem 0}",
+    "& .nthview-board{position:relative;min-height:22rem;padding:clamp(.9rem,3vw,1.6rem);border:clamp(6px,1.6vw,12px) solid var(--frame);border-radius:calc(var(--radius) + .3rem);background-color:var(--board);box-shadow:inset 0 0 40px rgba(0,0,0,.35),0 40px 80px -40px rgba(0,0,0,.8);overflow:hidden}",
+    "& .nthview-board::before{content:'';position:absolute;inset:0;opacity:var(--cork);background-image:" + CORK + ",radial-gradient(circle at 30% 40%,var(--board-2) 0 1.4px,transparent 2px),radial-gradient(circle at 70% 70%,var(--board-2) 0 1.1px,transparent 1.7px);background-size:160px 160px,11px 13px,17px 9px;pointer-events:none}",
+    "& .nthview-board::after{content:'';position:absolute;inset:0;opacity:var(--gridlines);background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:32px 32px;pointer-events:none}",
+    "& .nthview-board.nthview-droppable{box-shadow:inset 0 0 0 3px var(--accent),inset 0 0 40px rgba(0,0,0,.35)}",
+    "& .nthview-theories{position:relative;z-index:1;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,7.6rem),1fr));gap:clamp(.6rem,2vw,1.2rem)}",
+    "& .nthview-pinned{position:relative;z-index:1;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,7.6rem),1fr));gap:clamp(.7rem,2.4vw,1.4rem);margin-top:clamp(2.4rem,6vw,4rem)}",
+    "& .nthview-strings{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;overflow:visible}",
+    "& .nthview-strings.nthview-dragging{z-index:5}",
+    "& .nthview-strings path{fill:none;stroke-width:2.6;stroke-linecap:round;filter:drop-shadow(0 2px 1.5px rgba(0,0,0,.45))}",
+    "& .nthview-strings .nthview-s-no{stroke:var(--str-no)}",
+    "&[data-theme=neon] .nthview-strings path{filter:drop-shadow(0 0 4px var(--str-no))}",
+    "&[data-theme=neon] .nthview-strings .nthview-s-ok{filter:drop-shadow(0 0 5px var(--ok))}",
+    "& .nthview-strings .nthview-s-ok{stroke:var(--str-ok);stroke-dasharray:7 5}",
+    "& .nthview-strings .nthview-s-tmp{stroke:var(--accent);stroke-dasharray:4 5;opacity:.9}",
+    "& .nthview-strings .nthview-s-new{animation:nthview-drawin .8s cubic-bezier(.2,.8,.2,1) both}",
+    "@keyframes nthview-drawin{from{stroke-dashoffset:var(--len,600)}to{stroke-dashoffset:0}}",
+    "& .nthview-theory,& .nthview-cluecard{position:relative;display:flex;flex-direction:column;gap:.35rem;text-align:left;background:var(--paper);border:1px solid var(--line);border-radius:calc(var(--radius) * .6);padding:1.1rem .8rem .75rem;transform:rotate(var(--r,0deg));transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s,opacity .4s,filter .4s;box-shadow:0 14px 24px -14px rgba(0,0,0,.7)}",
+    "& .nthview-theory:hover,& .nthview-cluecard:hover{transform:rotate(0deg) translateY(-3px)}",
+    "& .nthview-theory{min-height:7.4rem}",
+    "& .nthview-theory .nthview-tt{font-family:var(--display);font-weight:800;font-size:.98rem;line-height:1.22}",
+    "& .nthview-theory .nthview-holder{display:flex;align-items:center;gap:.4rem;font-size:.75rem;color:var(--muted)}",
+    "& .nthview-theory .nthview-holder .nthview-face{width:1.7rem;height:1.7rem;flex:none}",
+    "& .nthview-theory .nthview-tally{display:flex;gap:.35rem;flex-wrap:wrap;margin-top:auto}",
+    "& .nthview-theory.nthview-out{background:color-mix(in srgb,var(--paper) 55%,transparent);box-shadow:none}",
+    "& .nthview-theory.nthview-out > :not(.nthview-outstamp):not(.nthview-pin):not(.nthview-tape){filter:grayscale(1);opacity:.45}",
+    "& .nthview-theory.nthview-out .nthview-tt{text-decoration:line-through;text-decoration-color:var(--no);text-decoration-thickness:2px}",
+    "& .nthview-outstamp{position:absolute;right:.45rem;top:.75rem;transform:rotate(-8deg);font-family:var(--mono);font-weight:600;font-size:.68rem;letter-spacing:.2em;color:var(--no);border:2.5px solid var(--no);padding:.1rem .5rem;border-radius:.25rem;background:color-mix(in srgb,var(--paper) 80%,transparent);white-space:nowrap}",
+    "& .nthview-theory.nthview-target{animation:nthview-pulse 1.6s ease-out infinite;border-color:var(--accent)}",
+    "& .nthview-theory.nthview-hover{transform:rotate(0) scale(1.04);border-color:var(--accent);box-shadow:0 0 0 3px var(--accent),0 20px 30px -14px rgba(0,0,0,.7)}",
+    "& .nthview-cluecard{min-height:6.2rem;touch-action:manipulation;-webkit-user-select:none;user-select:none}",
+    "& .nthview-cluecard .nthview-ct{font-family:var(--hand);font-size:var(--hand-size);line-height:1.1;font-weight:700}",
+    "& .nthview-cluecard .nthview-ck{display:flex;align-items:center;gap:.3rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}",
+    "& .nthview-cluecard .nthview-ck svg{width:.85rem;height:.85rem}",
+    "& .nthview-cluecard[aria-pressed=true]{transform:rotate(0) translateY(-4px) scale(1.03);box-shadow:0 0 0 3px var(--accent),0 24px 34px -14px rgba(0,0,0,.75);z-index:4}",
+    "& .nthview-cluecard.nthview-herring::after{content:'RED HERRING';position:absolute;right:.4rem;bottom:.4rem;font-family:var(--mono);font-size:.55rem;letter-spacing:.12em;color:var(--warn);border:1.5px solid var(--warn);padding:0 .25rem;border-radius:.15rem;transform:rotate(-6deg)}",
+    "& .nthview-pin{position:absolute;left:50%;top:-.45rem;width:1rem;height:1rem;margin-left:-.5rem;border-radius:50%;opacity:var(--pinop);background:radial-gradient(circle at 35% 30%,#fff8 0 18%,transparent 22%),radial-gradient(circle at 50% 50%,var(--pin) 0 60%,color-mix(in srgb,var(--pin) 60%,#000) 100%);box-shadow:0 3px 4px rgba(0,0,0,.5);z-index:2}",
+    "& .nthview-tape{position:absolute;left:50%;top:-.6rem;width:3.4rem;height:1.1rem;margin-left:-1.7rem;opacity:var(--tape);background:color-mix(in srgb,var(--accent-2) 28%,rgba(255,255,255,.55));transform:rotate(-4deg);box-shadow:0 1px 2px rgba(0,0,0,.25);z-index:2}",
+    "& .nthview-knot{position:absolute;left:50%;bottom:-.3rem;width:.55rem;height:.55rem;margin-left:-.275rem;border-radius:50%;background:var(--frame);opacity:.6}",
+    "& .nthview-boardhint{position:relative;z-index:1;text-align:center;font-family:var(--hand);font-size:1.3rem;color:var(--ink);background:var(--paper);display:inline-block;padding:.3rem .9rem;border-radius:.2rem;transform:rotate(-1.5deg);box-shadow:0 10px 20px -12px rgba(0,0,0,.7)}",
+    "& .nthview-emptyboard{grid-column:1/-1;text-align:center;padding:1rem 0}",
+    "& .nthview-tray{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin:.9rem 0}",
+    "& .nthview-tray .nthview-chip{touch-action:manipulation}",
+    "& .nthview-ghostcard{position:fixed;z-index:70;pointer-events:none;transform:translate(-50%,-60%) rotate(-4deg);background:var(--paper);border:1px solid var(--accent);border-radius:.4rem;padding:.4rem .7rem;font-family:var(--hand);font-weight:700;font-size:1.15rem;box-shadow:0 24px 40px -14px rgba(0,0,0,.8);color:var(--ink);max-width:14rem}",
+    "& .nthview-verdict{border-radius:var(--radius);padding:1rem 1.15rem;border:1.5px solid var(--line);background:var(--surface);backdrop-filter:blur(14px);margin:.9rem 0;animation:nthview-rise .4s cubic-bezier(.2,.8,.2,1) both}",
+    "& .nthview-verdict.nthview-v-no{border-color:color-mix(in srgb,var(--no) 60%,transparent);background:color-mix(in srgb,var(--no) 9%,var(--surface))}",
+    "& .nthview-verdict.nthview-v-ok{border-color:color-mix(in srgb,var(--ok) 60%,transparent);background:color-mix(in srgb,var(--ok) 9%,var(--surface))}",
+    "& .nthview-verdict.nthview-v-warn{border-color:color-mix(in srgb,var(--warn) 60%,transparent);background:color-mix(in srgb,var(--warn) 9%,var(--surface))}",
+    "& .nthview-verdict.nthview-dock{position:sticky;bottom:.8rem;z-index:10;max-height:36vh;overflow:auto;background:var(--surface-2);box-shadow:0 24px 60px -18px rgba(0,0,0,.75)}",
+    "& .nthview-verdict.nthview-dock.nthview-v-no{background:color-mix(in srgb,var(--no) 10%,var(--surface-2))}& .nthview-verdict.nthview-dock.nthview-v-ok{background:color-mix(in srgb,var(--ok) 10%,var(--surface-2))}& .nthview-verdict.nthview-dock.nthview-v-warn{background:color-mix(in srgb,var(--warn) 10%,var(--surface-2))}",
+    "& .nthview-verdict h3{margin:0 0 .4rem;display:flex;align-items:center;gap:.5rem}",
+    "& .nthview-verdict h3 svg{width:1.3rem;height:1.3rem;flex:none}",
+    "& .nthview-verdict p:last-child{margin-bottom:0}",
+    "& .nthview-standing{display:flex;gap:.8rem;align-items:center;flex-wrap:wrap;justify-content:space-between;border:1.5px solid var(--accent);border-radius:var(--radius);padding:.8rem 1rem;background:color-mix(in srgb,var(--accent) 12%,var(--surface));margin:.9rem 0}",
+    "& .nthview-standing p{margin:0;font-weight:700}",
+    /* overlay */
+    "& .nthview-overlay{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:1rem;background:color-mix(in srgb,var(--bg1) 62%,rgba(0,0,0,.45));backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);opacity:0;transition:opacity .25s}",
+    "& .nthview-overlay.nthview-show{opacity:1}",
+    "& .nthview-dialog{position:relative;width:min(34rem,100%);max-height:calc(100vh - 2rem);overflow:auto;background:var(--paper);border:1px solid var(--line);border-radius:calc(var(--radius) + .2rem);padding:1.6rem 1.4rem 1.3rem;box-shadow:0 40px 90px -30px rgba(0,0,0,.85);transform:translateY(24px) rotate(-1.2deg) scale(.96);transition:transform .45s cubic-bezier(.2,.8,.2,1)}",
+    "& .nthview-show .nthview-dialog{transform:none}",
+    "& .nthview-dialog .nthview-stamp{font-size:.72rem;margin-bottom:.8rem}",
+    "& .nthview-dialog h2{margin:.2rem 0 .5rem;display:flex;align-items:center;gap:.6rem}",
+    "& .nthview-dialog h2 svg{width:1.6rem;height:1.6rem;color:var(--accent);flex:none}",
+    "& .nthview-think{border-top:1px dashed var(--line);margin-top:1rem;padding-top:.9rem}",
+    "& .nthview-reveal{overflow:hidden;max-height:0;opacity:0;transition:max-height .6s ease,opacity .4s ease .1s}",
+    "& .nthview-reveal.nthview-open{max-height:60rem;opacity:1}",
+    /* debrief + file */
+    "& .nthview-closed{text-align:center;padding:1.2rem 0 .4rem}",
+    "& .nthview-closed .nthview-stamp{font-size:clamp(1.3rem,5vw,2.2rem);padding:.4rem 1.2rem;border-width:5px}",
+    "& .nthview-flashbulb{position:fixed;inset:0;background:#fff;z-index:80;pointer-events:none;animation:nthview-flash .9s ease-out forwards}",
+    "& .nthview-solution{border:2px solid var(--ok);background:color-mix(in srgb,var(--ok) 8%,var(--surface))}",
+    "& .nthview-wrongh{display:grid;grid-template-columns:auto minmax(0,1fr);gap:.2rem 1rem}",
+    "& .nthview-wrongh .nthview-face{width:3.4rem;height:3.4rem;grid-row:span 2}",
+    "& .nthview-wrongh > div{min-width:0}",
+    "@media (max-width:520px){& .nthview-wrongh{grid-template-columns:1fr}& .nthview-wrongh .nthview-face{grid-row:auto}}",
+    "& .nthview-evlist{list-style:none;padding:0;margin:.4rem 0 0;display:grid;gap:.45rem}",
+    "& .nthview-evlist li{display:flex;gap:.55rem;align-items:flex-start;font-size:.94rem}",
+    "& .nthview-evlist li svg{flex:none;width:1rem;height:1rem;margin-top:.25rem}",
+    "& .nthview-evlist .nthview-x{color:var(--no)}& .nthview-evlist .nthview-v{color:var(--ok)}& .nthview-evlist .nthview-h{color:var(--warn)}",
+    "& .nthview-choice{display:block;position:relative;cursor:pointer}",
+    "& .nthview-choice input{position:absolute;opacity:0;width:1px;height:1px}",
+    "& .nthview-choicebox{display:flex;gap:.8rem;align-items:flex-start;border:1.5px solid var(--line);background:var(--paper);border-radius:var(--radius);padding:.85rem 1rem;transition:border-color .18s,background .18s,transform .18s}",
+    "& .nthview-choice:hover .nthview-choicebox{border-color:var(--accent);transform:translateY(-2px)}",
+    "& .nthview-choice input:checked + .nthview-choicebox{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,var(--paper));box-shadow:0 0 0 2px var(--accent)}",
+    "& .nthview-choice input:focus-visible + .nthview-choicebox{outline:3px solid var(--accent);outline-offset:2px}",
+    "& .nthview-choicebox .nthview-face{width:2.6rem;height:2.6rem;flex:none}",
+    "& .nthview-choicebox b{display:block;font-family:var(--display);line-height:1.25}",
+    "& .nthview-choice.nthview-ruled .nthview-choicebox{opacity:.62}",
+    "& .nthview-choices{display:grid;gap:.6rem;margin:.6rem 0 1.2rem;border:0;padding:0}",
+    "& .nthview-choices legend{font-weight:800;margin-bottom:.5rem;padding:0}",
+    "& .nthview-conf{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem;border:0;padding:0;margin:.4rem 0 1rem}",
+    "& .nthview-conf legend{font-weight:800;margin-bottom:.5rem;padding:0}",
+    "& .nthview-conf .nthview-choicebox{flex-direction:column;align-items:center;text-align:center;gap:.25rem;padding:.7rem .5rem}",
+    "& .nthview-meterbar{display:flex;gap:3px}& .nthview-meterbar i{width:.5rem;height:1rem;border-radius:2px;background:var(--line)}& .nthview-meterbar i.nthview-on{background:var(--accent)}",
+    "& .nthview-concept{font-family:var(--display);font-size:clamp(2.4rem,9vw,4.6rem);font-weight:900;line-height:1;margin:.2rem 0 1rem;letter-spacing:-.03em;color:var(--accent)}",
+    "& .nthview-takeaways{counter-reset:t;list-style:none;padding:0;margin:.6rem 0;display:grid;gap:.6rem}",
+    "& .nthview-takeaways li{counter-increment:t;position:relative;padding:.7rem .9rem .7rem 3rem;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius)}",
+    "& .nthview-takeaways li::before{content:counter(t);position:absolute;left:.8rem;top:.65rem;width:1.6rem;height:1.6rem;display:grid;place-items:center;border-radius:50%;background:var(--accent);color:var(--on-accent);font-weight:800;font-size:.85rem}",
+    "& .nthview-fileclue{border-left:4px solid var(--accent)}",
+    "& .nthview-fileclue.nthview-missing{border-left-color:var(--line);opacity:.8}",
+    "& .nthview-fileclue h3{margin:.2rem 0 .3rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}",
+    "& .nthview-fileclue h3 svg{width:1.1rem;height:1.1rem;color:var(--accent)}",
+    "& .nthview-kv{margin:.45rem 0 0}",
+    "& .nthview-kv b{font-weight:800}",
+    "& .nthview-filegroup{margin-top:1.6rem}",
+    "& .nthview-filegroup > h3{display:flex;align-items:center;gap:.5rem;border-bottom:1px solid var(--line);padding-bottom:.35rem}",
+    "& .nthview-filegroup > h3 svg{width:1.15rem;height:1.15rem;color:var(--accent)}",
+    "@media (max-width:560px){& .nthview-toast{top:6.8rem}& .nthview-folder .nthview-stamp{position:static;margin:0 0 .9rem}& .nthview-verdict.nthview-dock{max-height:30vh;font-size:.92rem;padding:.8rem .9rem}& .nthview-theory{min-height:6.6rem;padding:1rem .65rem .65rem}& .nthview-theory .nthview-tt{font-size:.9rem}& .nthview-cluecard{padding:1rem .65rem .6rem}& .nthview-nav{width:100%;justify-content:space-between}& .nthview-navbtn{padding:.34rem .5rem;font-size:.8rem}& .nthview-navbtn .nthview-nl{display:none}& .nthview-navbtn[aria-current=page] .nthview-nl{display:inline}}",
+    "@media (prefers-reduced-motion:reduce){& *,& *::before,& *::after{animation:none!important;transition:none!important}& .nthview-torch{display:none}}"
+  ].map(function (rule) { return rule.replace(/&/g, ".nthview-detective"); });
+
+  var CSS = [
+    ".nthview{--nv-bg:#fff;--nv-fg:#111;--nv-muted:#555;--nv-accent:#2563eb;--nv-border:#ddd;--nv-error:#b91c1c;",
+    "  color-scheme:light dark;background:var(--nv-bg);color:var(--nv-fg);",
+    "  font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:60rem;margin:0 auto;padding:1rem;box-sizing:border-box}",
+    "@media (prefers-color-scheme:dark){.nthview{--nv-bg:#111;--nv-fg:#eee;--nv-muted:#aaa;--nv-accent:#60a5fa;--nv-border:#333;--nv-error:#f87171}}",
+    ".nthview *{box-sizing:border-box}",
+    ".nthview :focus-visible{outline:3px solid var(--nv-accent);outline-offset:2px}",
+    ".nthview-error-panel{border:2px solid var(--nv-error);border-radius:.5rem;padding:1rem}",
+    ".nthview-error-panel h2{margin:0 0 .5rem;color:var(--nv-error)}",
+    ".nthview-error-panel code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}",
+    /* ---- view-specific styles below, every class prefixed nthview- ---- */
+    CSS_VIEW.join("\n")
+  ].join("\n");
+
+  function injectStyles() {
+    if (root.document.getElementById(STYLE_ID)) return;
+    var style = root.document.createElement("style");
+    style.id = STYLE_ID;
+    style.textContent = CSS;
+    root.document.head.appendChild(style);
+  }
+
+  function el(tag, attrs, children) {
+    var node = root.document.createElement(tag);
+    Object.keys(attrs || {}).forEach(function (k) {
+      if (k === "text") node.textContent = attrs[k];
+      else node.setAttribute(k, attrs[k]);
+    });
+    (children || []).forEach(function (c) { node.appendChild(c); });
+    return node;
+  }
+
+  function renderErrorPanel(container, result) {
+    var items = result.errors.map(function (e) {
+      return el("li", {}, [el("code", { text: e.path }), root.document.createTextNode(": " + e.message)]);
+    });
+    container.appendChild(el("div", { class: "nthview-error-panel", role: "alert" }, [
+      el("h2", { text: "This view could not be built" }),
+      el("p", { text: "The data has " + result.errors.length + " problem(s). Fix them and rebuild the file." }),
+      el("ul", {}, items)
+    ]));
+  }
+
+  // ---- view-specific rendering: data is already valid here ---------------
+  var SVG_NS = "http://www.w3.org/2000/svg";
+  var uid = 0;
+
+  function sv(tag, attrs, children) {
+    var n = root.document.createElementNS(SVG_NS, tag);
+    Object.keys(attrs || {}).forEach(function (k) { n.setAttribute(k, attrs[k]); });
+    (children || []).forEach(function (c) { if (c) n.appendChild(c); });
+    return n;
+  }
+  function svgBox(viewBox, children, attrs) {
+    var a = { viewBox: viewBox, "aria-hidden": "true", focusable: "false" };
+    Object.keys(attrs || {}).forEach(function (k) { a[k] = attrs[k]; });
+    return sv("svg", a, children);
+  }
+  /* stroke icons on a 24-unit grid */
+  var ICON_PATHS = {
+    examine: "M10.5 17a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13zM15.3 15.3L21 21",
+    interview: "M4 5h11a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9l-4 3v-3H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zM19 9h1a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-1v2.5L16 18",
+    document: "M6 2.5h8l4.5 4.5v14.5H6zM14 2.5V7h4.5M9 11h6M9 14.5h6M9 18h4",
+    compare: "M3 5h7v15H3zM14 5h7v15h-7zM5.5 9h2M5.5 12.5h2M16.5 9h2M16.5 12.5h2",
+    timeline: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7v5l3.5 2",
+    ledger: "M3 4h18v16H3zM3 9h18M3 14.5h18M9 4v16M15 4v16",
+    lock: "M6 10h12v11H6zM8.5 10V7a3.5 3.5 0 0 1 7 0v3M12 14v3",
+    lab: "M9 2.5h6M10 2.5v6L4.5 19a1.6 1.6 0 0 0 1.4 2.4h12.2a1.6 1.6 0 0 0 1.4-2.4L14 8.5v-6M7 15h10",
+    board: "M3 4h18v14H3zM8 21l4-3 4 3M8 9h3M13 12h3",
+    pin: "M9 3h6l-1 6 3 3H7l3-3zM12 12v9",
+    file: "M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z",
+    gavel: "M14 4l6 6M11 7l6 6M12.5 5.5l-5 5M18.5 11.5l-5 5M10 13l-7 7M14 21h7",
+    check: "M5 12.5l4.5 4.5L19 7.5",
+    cross: "M7 7l10 10M17 7L7 17",
+    back: "M15 5l-7 7 7 7",
+    up: "M6 15l6-6 6 6",
+    down: "M6 9l6 6 6-6",
+    grip: "M9 6h.01M15 6h.01M9 12h.01M15 12h.01M9 18h.01M15 18h.01",
+    eye: "M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z",
+    herring: "M3 12c3-4 8-5 12-3l4-3v12l-4-3c-4 2-9 1-12-3zM13 11h.01",
+    bulb: "M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z",
+    physical: "M10.5 17a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13zM15.3 15.3L21 21",
+    testimony: "M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H9l-5 4v-4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z",
+    record: "M3 4h18v16H3zM3 9h18M3 14.5h18M9 4v16",
+    test: "M9 2.5h6M10 2.5v6L4.5 19a1.6 1.6 0 0 0 1.4 2.4h12.2a1.6 1.6 0 0 0 1.4-2.4L14 8.5v-6",
+    restart: "M4 4v6h6M4.5 15a8 8 0 1 0 1.9-8.3L4 10"
+  };
+  function icon(name, extra) {
+    var s = svgBox("0 0 24 24", [sv("path", { d: ICON_PATHS[name] || ICON_PATHS.examine, fill: "none", stroke: "currentColor", "stroke-width": name === "grip" ? "3.2" : "2", "stroke-linecap": "round", "stroke-linejoin": "round" })]);
+    if (extra) s.setAttribute("class", extra);
+    return s;
+  }
+
+  function rich(text) {
+    var frag = root.document.createDocumentFragment();
+    String(text).split(/(\*\*[^*]+\*\*)/).forEach(function (part) {
+      if (!part) return;
+      if (/^\*\*[^*]+\*\*$/.test(part)) frag.appendChild(el("b", { text: part.slice(2, -2) }));
+      else frag.appendChild(root.document.createTextNode(part));
+    });
+    return frag;
+  }
+  function para(cls, text) { var n = el("p", cls ? { class: cls } : {}); n.appendChild(rich(text)); return n; }
+  function kv(label, text, cls) { var n = el("p", { class: "nthview-kv" + (cls ? " " + cls : "") }); n.appendChild(el("b", { text: label + " " })); n.appendChild(rich(text)); return n; }
+  function btn(label, cls, onClick, iconName) {
+    var b = el("button", { type: "button", class: "nthview-btn" + (cls ? " " + cls : "") });
+    if (iconName) b.appendChild(icon(iconName));
+    b.appendChild(root.document.createTextNode(label));
+    b.addEventListener("click", onClick); return b;
+  }
+  function tag(cls, text) { return el("span", { class: "nthview-tag" + (cls ? " " + cls : ""), text: text }); }
+  function hash(s) { var h = 2166136261; s = String(s); for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; } return h; }
+  function rng(seed) { var x = hash(seed) || 1; return function () { x ^= x << 13; x >>>= 0; x ^= x >>> 17; x ^= x << 5; x >>>= 0; return x / 4294967296; }; }
+  function pickTheme(data) {
+    if (data.theme && THEMES.indexOf(data.theme) !== -1) return data.theme;
+    return THEMES[hash(data.title || "") % THEMES.length];
+  }
+
+  /* ---------- portraits: inline SVG assembled from a small set of parts ---------- */
+  var SKIN = { porcelain: "#f7dfcc", fair: "#efc6a4", tan: "#d29a6b", olive: "#b5875b", brown: "#8a5838", deep: "#5b3825" };
+  var HAIRC = { black: "#1d1815", brown: "#5b3b22", auburn: "#8a3c1d", blonde: "#d9b45d", red: "#b5481f", grey: "#9c9b98", white: "#e9e7e2" };
+  var OUTFITC = { suit: "#2f3a4f", shirt: "#5b7fa6", apron: "#2563eb", chef: "#f2f0eb", labcoat: "#f5f7f7", hoodie: "#6b4fa0", uniform: "#2f6b4f", cardigan: "#a3562a" };
+  var PICK = {
+    skin: ["porcelain", "fair", "tan", "olive", "brown", "deep"], hair: ["short", "long", "bob", "bun", "curly", "buzz", "ponytail"],
+    hairColor: ["black", "brown", "auburn", "blonde", "grey"], outfit: ["suit", "shirt", "hoodie", "cardigan", "uniform"]
+  };
+  function portraitSpec(person) {
+    var pt = person.portrait || {}, r = rng(person.id || person.name);
+    function pick(k) { return pt[k] || PICK[k][Math.floor(r() * PICK[k].length)]; }
+    return { skin: pick("skin"), hair: pick("hair"), hairColor: pick("hairColor"), outfit: pick("outfit"), outfitColor: pt.outfitColor,
+      accessory: pt.accessory || "none", facialHair: pt.facialHair || "none", expression: pt.expression || "neutral" };
+  }
+  function portrait(person) {
+    var s = portraitSpec(person), skin = SKIN[s.skin], hair = HAIRC[s.hairColor], cloth = s.outfitColor || OUTFITC[s.outfit];
+    var id = "nthview-clip-" + (++uid), parts = [];
+    function P(tag, a) { parts.push(sv(tag, a)); }
+    var back = [], front = [];
+    function B(tag, a) { back.push(sv(tag, a)); }
+    function F(tag, a) { front.push(sv(tag, a)); }
+    /* hair behind the head */
+    if (s.hair === "long") B("path", { d: "M27 42C25 20 38 14 50 14s25 6 23 28l4 40H23z", fill: hair });
+    if (s.hair === "bob") B("path", { d: "M27 44C25 21 38 15 50 15s25 6 23 29l1 20H26z", fill: hair });
+    if (s.hair === "ponytail") B("path", { d: "M64 26c16 2 20 22 12 40-2-12-5-22-12-30z", fill: hair });
+    if (s.hair === "bun") B("circle", { cx: "50", cy: "17", r: "9", fill: hair });
+    /* body and outfit */
+    var body = "M12 100C14 79 29 70 50 70s36 9 38 30z";
+    var outfit = [sv("path", { d: body, fill: s.outfit === "apron" ? "#e9e4da" : cloth })];
+    var light = "rgba(255,255,255,.85)", dark = "rgba(0,0,0,.22)";
+    if (s.outfit === "suit") outfit.push(sv("path", { d: "M41 71l9 17 9-17z", fill: "#f1f1f1" }), sv("path", { d: "M48.5 76h3l1.6 15-3.1 4-3.1-4z", fill: "#8a1c1c" }), sv("path", { d: "M41 71l9 17M59 71l-9 17", stroke: dark, "stroke-width": "1.6", fill: "none" }));
+    if (s.outfit === "shirt") outfit.push(sv("path", { d: "M41 70l9 9 9-9-3 9-6 2-6-2z", fill: light }));
+    if (s.outfit === "apron") outfit.push(sv("path", { d: "M35 82h30l3 18H32z", fill: cloth }), sv("path", { d: "M37 82l6-12M63 82l-6-12", stroke: cloth, "stroke-width": "2.5" }));
+    if (s.outfit === "chef") outfit.push(sv("path", { d: "M50 72v28", stroke: dark, "stroke-width": "1" }), sv("circle", { cx: "44", cy: "82", r: "1.6", fill: dark }), sv("circle", { cx: "44", cy: "91", r: "1.6", fill: dark }), sv("circle", { cx: "56", cy: "82", r: "1.6", fill: dark }), sv("circle", { cx: "56", cy: "91", r: "1.6", fill: dark }), sv("path", { d: "M40 71q10 6 20 0l-2 5q-8 3-16 0z", fill: "#c0392b" }));
+    if (s.outfit === "labcoat") outfit.push(sv("path", { d: "M42 71l8 12 8-12z", fill: "#7aa7d8" }), sv("path", { d: "M42 71l8 12v17M58 71l-8 12", stroke: "rgba(0,0,0,.2)", "stroke-width": "1.4", fill: "none" }), sv("rect", { x: "60", y: "84", width: "8", height: "6", rx: "1", fill: "rgba(0,0,0,.12)" }));
+    if (s.outfit === "hoodie") outfit.push(sv("path", { d: "M33 74q17 14 34 0", stroke: dark, "stroke-width": "5", fill: "none" }), sv("path", { d: "M46 80v8M54 80v8", stroke: light, "stroke-width": "1.5" }));
+    if (s.outfit === "uniform") outfit.push(sv("path", { d: "M41 70l9 8 9-8-2 7-7 3-7-3z", fill: dark }), sv("rect", { x: "58", y: "83", width: "9", height: "6", rx: "1", fill: "#f2c14e" }));
+    if (s.outfit === "cardigan") outfit.push(sv("path", { d: "M42 71l8 16 8-16z", fill: "#efe6d8" }), sv("path", { d: "M50 87v13", stroke: dark, "stroke-width": "1.2" }), sv("circle", { cx: "51.8", cy: "92", r: "1.2", fill: dark }), sv("circle", { cx: "51.8", cy: "97", r: "1.2", fill: dark }));
+    /* face */
+    var face = [
+      sv("rect", { x: "43", y: "56", width: "14", height: "16", rx: "5", fill: skin }),
+      sv("rect", { x: "43", y: "60", width: "14", height: "8", fill: "rgba(0,0,0,.12)" }),
+      sv("circle", { cx: "30.5", cy: "46", r: "5", fill: skin }), sv("circle", { cx: "69.5", cy: "46", r: "5", fill: skin }),
+      sv("ellipse", { cx: "50", cy: "43", rx: "19.5", ry: "22.5", fill: skin })
+    ];
+    if (s.facialHair === "beard") face.push(sv("path", { d: "M31 47c0 14 8 21 19 21s19-7 19-21c-3 6-8 9-19 9s-16-3-19-9z", fill: hair }));
+    if (s.facialHair === "stubble") face.push(sv("path", { d: "M33 50c1 10 8 16 17 16s16-6 17-16c-4 5-9 7-17 7s-13-2-17-7z", fill: hair, opacity: ".28" }));
+    var brows = { neutral: ["M38 39.5h8", "M54 39.5h8"], smile: ["M38 39q4-2 8 0", "M54 39q4-2 8 0"], worried: ["M38 40l8-2.4", "M54 37.6l8 2.4"], stern: ["M38 37.6l8 2.4", "M54 40l8-2.4"] }[s.expression];
+    face.push(sv("path", { d: brows[0] + "M" + brows[1].slice(1), stroke: s.hair === "bald" ? "#5a4a3a" : hair, "stroke-width": "2.2", "stroke-linecap": "round", fill: "none" }));
+    face.push(sv("circle", { cx: "42", cy: "45.5", r: "2.3", fill: "#1b1b1b" }), sv("circle", { cx: "58", cy: "45.5", r: "2.3", fill: "#1b1b1b" }));
+    face.push(sv("path", { d: "M50 47l-2.2 6h3.6", stroke: "rgba(0,0,0,.28)", "stroke-width": "1.4", fill: "none", "stroke-linecap": "round", "stroke-linejoin": "round" }));
+    var mouth = { neutral: "M44.5 58.5h11", smile: "M43.5 57q6.5 6 13 0", worried: "M44.5 60q5.5-4 11 0", stern: "M44.5 58.6l11-.6" }[s.expression];
+    face.push(sv("path", { d: mouth, stroke: "#6b2a20", "stroke-width": "2", fill: "none", "stroke-linecap": "round" }));
+    if (s.facialHair === "moustache") face.push(sv("path", { d: "M42 55.5q8-4 16 0q-8 1.5-16 0z", fill: hair }));
+    /* hair in front */
+    if (s.hair === "short" || s.hair === "long" || s.hair === "ponytail" || s.hair === "bun") F("path", { d: "M30 42C28 24 39 18 51 18s21 7 19 24c-5-8-12-12-20-12s-15 4-20 12z", fill: hair });
+    if (s.hair === "bob") F("path", { d: "M30 41c1-14 9-20 20-20s19 6 20 20c-8-6-31-6-40 0z", fill: hair });
+    if (s.hair === "buzz") F("path", { d: "M31 40c0-14 8-20 19-20s19 6 19 20c-6-7-32-7-38 0z", fill: hair, opacity: ".9" });
+    if (s.hair === "curly") [[31, 36], [35, 27], [42, 21], [50, 19], [58, 21], [65, 27], [69, 36]].forEach(function (c) { F("circle", { cx: String(c[0]), cy: String(c[1]), r: "6.6", fill: hair }); });
+    /* accessories */
+    var acc = [];
+    if (s.accessory === "glasses") acc.push(sv("path", { d: "M36.5 45.5a5.5 5.5 0 1 0 11 0a5.5 5.5 0 1 0-11 0zM52.5 45.5a5.5 5.5 0 1 0 11 0a5.5 5.5 0 1 0-11 0zM47.5 45h5M36.5 44.5l-5-1.5M63.5 44.5l5-1.5", stroke: "#1f1f1f", "stroke-width": "1.8", fill: "rgba(255,255,255,.12)" }));
+    if (s.accessory === "fedora") acc.push(sv("ellipse", { cx: "50", cy: "27", rx: "31", ry: "5.5", fill: "#3a3330" }), sv("path", { d: "M33 27c1-10 6-16 17-16s16 6 17 16z", fill: "#3a3330" }), sv("path", { d: "M33.4 24h33.2v3H33.4z", fill: "#8a1c1c" }));
+    if (s.accessory === "cap") acc.push(sv("path", { d: "M29 34c0-12 9-19 21-19s21 7 21 19z", fill: cloth }), sv("path", { d: "M47 33h30q2 4-4 5H47z", fill: cloth }), sv("path", { d: "M29 34h42", stroke: "rgba(0,0,0,.25)", "stroke-width": "1.5" }));
+    if (s.accessory === "headscarf") acc.push(sv("path", { d: "M28 46C26 22 38 14 50 14s24 8 22 32c-1 10-3 16-6 20 2-10 1-20-2-25-4-7-10-10-14-10s-10 3-14 10c-3 5-4 15-2 25-3-4-5-10-6-20z", fill: s.outfitColor || "#7c3aed" }));
+    if (s.accessory === "earrings") acc.push(sv("circle", { cx: "30.5", cy: "52.5", r: "2", fill: "#f2c14e" }), sv("circle", { cx: "69.5", cy: "52.5", r: "2", fill: "#f2c14e" }));
+    if (s.accessory === "headset") acc.push(sv("path", { d: "M29 44c0-16 9-24 21-24s21 8 21 24", stroke: "#222", "stroke-width": "3", fill: "none" }), sv("rect", { x: "25", y: "40", width: "8", height: "12", rx: "3", fill: "#222" }), sv("path", { d: "M29 52q2 9 13 9", stroke: "#222", "stroke-width": "2", fill: "none" }));
+    var g = [sv("circle", { cx: "50", cy: "50", r: "50", fill: "var(--paper-2)" })].concat(back, [sv("g", {}, outfit)], face, front, acc);
+    var svg = svgBox("0 0 100 100", [
+      sv("defs", {}, [sv("clipPath", { id: id }, [sv("circle", { cx: "50", cy: "50", r: "49" })])]),
+      sv("g", { "clip-path": "url(#" + id + ")" }, g),
+      sv("circle", { cx: "50", cy: "50", r: "48.5", fill: "none", stroke: "var(--line)", "stroke-width": "1.5" })
+    ], { class: "nthview-face" });
+    return svg;
+  }
+  function silhouette() {
+    return svgBox("0 0 100 100", [
+      sv("circle", { cx: "50", cy: "50", r: "49", fill: "var(--paper-2)", stroke: "var(--line)", "stroke-width": "1.5" }),
+      sv("path", { d: "M16 100c2-20 14-30 34-30s32 10 34 30z", fill: "var(--ink)", opacity: ".85" }),
+      sv("path", { d: "M38 70l12 18 12-18", fill: "none", stroke: "var(--paper-2)", "stroke-width": "2.5" }),
+      sv("ellipse", { cx: "50", cy: "48", rx: "17", ry: "20", fill: "var(--ink)", opacity: ".85" }),
+      sv("ellipse", { cx: "50", cy: "31", rx: "32", ry: "6", fill: "var(--ink)" }),
+      sv("path", { d: "M33 31c1-11 7-17 17-17s16 6 17 17z", fill: "var(--ink)" }),
+      sv("path", { d: "M33.5 27.5h33v3h-33z", fill: "var(--accent-2)" })
+    ], { class: "nthview-sil" });
+  }
+
+  /* ---------- examine scenes: backdrop + objects, all drawn from parts ---------- */
+  function sceneBackdrop(kind) {
+    var g = [];
+    g.push(sv("rect", { x: "0", y: "0", width: "800", height: "330", fill: "var(--wall)" }));
+    g.push(sv("path", { d: "M0 330H800V500H0z", fill: "var(--floor)" }));
+    for (var i = -6; i <= 14; i++) g.push(sv("path", { d: "M400 250L" + (i * 70 - 80) + " 500", stroke: "var(--trim)", "stroke-width": "1.2", opacity: ".35" }));
+    [360, 400, 452].forEach(function (y) { g.push(sv("path", { d: "M0 " + y + "H800", stroke: "var(--trim)", "stroke-width": "1", opacity: ".3" })); });
+    g.push(sv("rect", { x: "0", y: "322", width: "800", height: "10", fill: "var(--trim)", opacity: ".8" }));
+    if (kind === "kitchen" || kind === "lab") {
+      for (var y = 120; y < 322; y += 34) for (var x = (y / 34) % 2 ? 0 : -24; x < 800; x += 48) g.push(sv("rect", { x: String(x), y: String(y), width: "48", height: "34", fill: "none", stroke: "var(--trim)", "stroke-width": "1", opacity: ".45" }));
+      g.push(sv("rect", { x: "300", y: "292", width: "500", height: "40", fill: "var(--obj-2)" }));
+      g.push(sv("rect", { x: "300", y: "286", width: "500", height: "8", fill: "var(--obj-line)", opacity: ".5" }));
+      if (kind === "kitchen") { g.push(sv("path", { d: "M610 40h150v60H610z", fill: "var(--obj-2)", opacity: ".5" })); [630, 670, 710, 740].forEach(function (x) { g.push(sv("path", { d: "M" + x + " 100v40m-6 0h12", stroke: "var(--obj-line)", "stroke-width": "3", opacity: ".5" })); }); }
+      if (kind === "lab") g.push(sv("path", { d: "M90 40h200v120H90z", fill: "var(--obj-2)", opacity: ".45" }), sv("path", { d: "M90 160h200", stroke: "var(--obj-line)", "stroke-width": "3", opacity: ".5" }));
+    }
+    if (kind === "office" || kind === "room") {
+      g.push(sv("rect", { x: "500", y: "50", width: "230", height: "170", fill: "var(--bg2)", stroke: "var(--trim)", "stroke-width": "6" }));
+      for (var b = 62; b < 220; b += 14) g.push(sv("path", { d: "M503 " + b + "H727", stroke: "var(--obj-line)", "stroke-width": "4", opacity: ".35" }));
+      if (kind === "office") g.push(sv("rect", { x: "260", y: "280", width: "320", height: "16", fill: "var(--obj-2)" }), sv("path", { d: "M280 296v110M560 296v110", stroke: "var(--obj-2)", "stroke-width": "10" }));
+      else g.push(sv("rect", { x: "120", y: "70", width: "140", height: "100", fill: "var(--obj-2)", stroke: "var(--trim)", "stroke-width": "6", opacity: ".7" }));
+    }
+    if (kind === "storeroom") [110, 200, 290].forEach(function (y) { g.push(sv("rect", { x: "40", y: String(y), width: "720", height: "8", fill: "var(--obj-2)" })); for (var x = 60; x < 740; x += 95) g.push(sv("rect", { x: String(x), y: String(y - 46), width: "60", height: "46", fill: "var(--obj)", stroke: "var(--obj-line)", "stroke-width": "1.5", opacity: ".55" })); });
+    if (kind === "street") {
+      g.push(sv("rect", { x: "0", y: "0", width: "800", height: "330", fill: "var(--bg2)" }));
+      [[0, 90, 150], [140, 40, 130], [260, 120, 170], [420, 60, 120], [530, 20, 150], [670, 100, 130]].forEach(function (bl) { g.push(sv("rect", { x: String(bl[0]), y: String(bl[1]), width: String(bl[2]), height: String(330 - bl[1]), fill: "var(--wall)", stroke: "var(--trim)", "stroke-width": "2" })); for (var wy = bl[1] + 20; wy < 300; wy += 40) for (var wx = bl[0] + 16; wx < bl[0] + bl[2] - 20; wx += 34) g.push(sv("rect", { x: String(wx), y: String(wy), width: "16", height: "20", fill: "var(--accent)", opacity: ".18" })); });
+    }
+    return sv("g", {}, g);
+  }
+  function obj(kind) {
+    var L = { stroke: "var(--obj-line)", "stroke-width": "2.5", "stroke-linejoin": "round", "stroke-linecap": "round" };
+    function a(o) { var r = {}; Object.keys(L).forEach(function (k) { r[k] = L[k]; }); Object.keys(o).forEach(function (k) { r[k] = o[k]; }); return r; }
+    var F1 = "var(--obj)", F2 = "var(--obj-2)", n = [];
+    function S(tag, o) { n.push(sv(tag, a(o))); }
+    switch (kind) {
+      case "fridge": S("rect", { x: "-34", y: "-74", width: "68", height: "148", rx: "5", fill: F1 }); S("path", { d: "M-34-22H34", fill: "none" }); S("rect", { x: "22", y: "-62", width: "5", height: "28", rx: "2", fill: F2 }); S("rect", { x: "22", y: "-10", width: "5", height: "44", rx: "2", fill: F2 }); S("path", { d: "M-24 60h48M-24 66h48", fill: "none", opacity: ".6" }); break;
+      case "dial": S("circle", { r: "30", fill: F1 }); S("circle", { r: "21", fill: F2 }); for (var i = 0; i < 9; i++) { var an = (-135 + i * 33.75) * Math.PI / 180; S("path", { d: "M" + (25 * Math.sin(an)).toFixed(1) + " " + (-25 * Math.cos(an)).toFixed(1) + "L" + (29 * Math.sin(an)).toFixed(1) + " " + (-29 * Math.cos(an)).toFixed(1), fill: "none", "stroke-width": "2" }); } n.push(sv("path", { d: "M0 0L13 -12", stroke: "var(--accent-2)", "stroke-width": "4.5", "stroke-linecap": "round" })); S("circle", { r: "4", fill: F1 }); break;
+      case "alarm": S("rect", { x: "-30", y: "-22", width: "60", height: "44", rx: "7", fill: F1 }); [-14, -4, 6].forEach(function (x) { [-8, 4].forEach(function (y) { S("circle", { cx: String(x), cy: String(y), r: "2.6", fill: F2, "stroke-width": "1.2" }); }); }); n.push(sv("circle", { cx: "19", cy: "-9", r: "4.5", fill: "#e5483a" })); S("path", { d: "M-34-26l-6-6M34-26l6-6", fill: "none" }); break;
+      case "certificate": S("rect", { x: "-42", y: "-32", width: "84", height: "64", fill: F2, "stroke-width": "4" }); S("rect", { x: "-34", y: "-24", width: "68", height: "48", fill: F1, "stroke-width": "1.5" }); [-20, -10, 0, 10, 20].forEach(function (x) { n.push(sv("path", { d: "M" + x + " -10l2.4 5 5.4.6-4 3.7 1.1 5.3-4.9-2.7-4.9 2.7 1.1-5.3-4-3.7 5.4-.6z", fill: "#e0a33a" })); }); S("path", { d: "M-22 12h28", fill: "none", "stroke-width": "2" }); n.push(sv("circle", { cx: "22", cy: "14", r: "7", fill: "var(--accent-2)" })); break;
+      case "drawer": S("rect", { x: "-42", y: "-30", width: "84", height: "60", rx: "3", fill: F2 }); S("rect", { x: "-36", y: "-24", width: "72", height: "22", rx: "2", fill: F1 }); S("rect", { x: "-36", y: "3", width: "72", height: "21", rx: "2", fill: F1 }); S("path", { d: "M-8-13h16M-8 13.5h16", fill: "none", "stroke-width": "4" }); break;
+      case "bin": S("path", { d: "M-25-26H25L19 36H-19z", fill: F2 }); S("rect", { x: "-30", y: "-35", width: "60", height: "9", rx: "3", fill: F1 }); S("path", { d: "M-9-16l2 42M9-16l-2 42M0-16v42", fill: "none", opacity: ".6" }); break;
+      case "sink": S("path", { d: "M-44-6H44L35 22H-35z", fill: F1 }); S("path", { d: "M-30-6H30L24 12H-24z", fill: F2 }); S("path", { d: "M0-6V-32Q0-40 10-40H18", fill: "none", "stroke-width": "5" }); S("circle", { cx: "-14", cy: "-14", r: "4", fill: F1 }); S("circle", { cx: "14", cy: "-14", r: "4", fill: F1 }); break;
+      case "shelf": S("rect", { x: "-46", y: "-8", width: "92", height: "6", fill: F2 }); S("rect", { x: "-46", y: "28", width: "92", height: "6", fill: F2 }); [-36, -18, 4, 22].forEach(function (x, k) { S("rect", { x: String(x), y: String(-8 - 18 - (k % 2) * 6), width: "13", height: String(18 + (k % 2) * 6), rx: "2", fill: F1 }); }); [-32, -6, 16].forEach(function (x) { S("rect", { x: String(x), y: "8", width: "18", height: "20", rx: "2", fill: F1 }); }); break;
+      case "box": S("rect", { x: "-36", y: "-26", width: "72", height: "52", fill: "#c9a06a" }); n.push(sv("rect", { x: "-7", y: "-26", width: "14", height: "52", fill: "#e8d3a8", opacity: ".9" })); S("path", { d: "M-36-26l10-10h52l10 10", fill: "none" }); break;
+      case "laptop": S("rect", { x: "-32", y: "-34", width: "64", height: "42", rx: "3", fill: F2 }); n.push(sv("rect", { x: "-27", y: "-29", width: "54", height: "32", fill: "var(--accent)", opacity: ".3" })); S("path", { d: "M-42 8H42L48 18H-48z", fill: F1 }); break;
+      case "phone": S("rect", { x: "-17", y: "-32", width: "34", height: "64", rx: "6", fill: F2 }); n.push(sv("rect", { x: "-13", y: "-25", width: "26", height: "46", rx: "2", fill: "var(--accent)", opacity: ".35" })); S("circle", { cx: "0", cy: "26", r: "2.2", fill: F1, "stroke-width": "1" }); break;
+      case "note": n.push(sv("g", { transform: "rotate(-7)" }, [sv("rect", a({ x: "-26", y: "-26", width: "52", height: "52", fill: "#f6d55c", "stroke-width": "1.5" })), sv("path", a({ d: "M-16-10h32M-16 0h32M-16 10h20", fill: "none", "stroke-width": "2", stroke: "#5c4a12" }))])); break;
+      case "door": S("rect", { x: "-32", y: "-74", width: "64", height: "148", rx: "2", fill: F2 }); S("rect", { x: "-23", y: "-62", width: "46", height: "52", fill: F1, "stroke-width": "1.5" }); S("rect", { x: "-23", y: "2", width: "46", height: "60", fill: F1, "stroke-width": "1.5" }); n.push(sv("circle", { cx: "22", cy: "-4", r: "4", fill: "var(--accent)" })); break;
+      case "jar": S("rect", { x: "-21", y: "-18", width: "42", height: "48", rx: "9", fill: F1 }); S("rect", { x: "-23", y: "-29", width: "46", height: "11", rx: "2", fill: F2 }); n.push(sv("rect", { x: "-14", y: "-4", width: "28", height: "16", fill: "var(--accent)", opacity: ".35" })); break;
+      case "clipboard": S("rect", { x: "-30", y: "-38", width: "60", height: "76", rx: "4", fill: "#b8865a" }); S("rect", { x: "-23", y: "-28", width: "46", height: "60", fill: F1, "stroke-width": "1.5" }); S("rect", { x: "-11", y: "-43", width: "22", height: "11", rx: "2", fill: F2 }); S("path", { d: "M-15-16h30M-15-6h30M-15 4h30M-15 14h20", fill: "none", "stroke-width": "1.8" }); break;
+      case "camera": S("path", { d: "M30-40v24h-14", fill: "none", "stroke-width": "4" }); n.push(sv("g", { transform: "rotate(18)" }, [sv("rect", a({ x: "-30", y: "-14", width: "50", height: "26", rx: "4", fill: F2 })), sv("circle", a({ cx: "-30", cy: "-1", r: "8", fill: F1 }))])); n.push(sv("circle", { cx: "10", cy: "4", r: "2.6", fill: "#e5483a" })); break;
+      case "cabinet": S("rect", { x: "-32", y: "-56", width: "64", height: "112", rx: "3", fill: F2 }); [-48, -12, 24].forEach(function (y) { S("rect", { x: "-25", y: String(y), width: "50", height: "28", rx: "2", fill: F1 }); S("path", { d: "M-8 " + (y + 9) + "h16", fill: "none", "stroke-width": "3.5" }); }); break;
+      case "plant": S("path", { d: "M-20 10H20L14 42H-14z", fill: "#b5684a" }); [[-18, -14, -30], [0, -28, 0], [18, -14, 30], [-8, -4, -12], [10, -6, 14]].forEach(function (l) { n.push(sv("ellipse", { cx: String(l[0]), cy: String(l[1]), rx: "8", ry: "18", fill: "#3f8f5a", transform: "rotate(" + l[2] + " " + l[0] + " " + l[1] + ")" })); }); break;
+    }
+    return sv("g", { class: "nthview-obj" }, n);
+  }
+
+  var TYPE_LABEL = { examine: "Examine the scene", interview: "Interview", document: "Read the document", compare: "Compare exhibits", timeline: "Rebuild the timeline", ledger: "Check the numbers", lock: "Crack the lock", lab: "Run a test" };
+  var KIND_OF_TYPE = { examine: "physical", interview: "testimony", document: "document", compare: "document", timeline: "record", ledger: "record", lock: "physical", lab: "test" };
+  var KIND_LABEL = { physical: "Physical evidence", testimony: "Testimony", document: "Document", record: "Record", test: "Test result" };
+  var CONF = [["A hunch", 1], ["Fairly sure", 2], ["Certain", 3]];
+
+  function render(container, data) {
+    var doc = root.document;
+    var reduce = !!(root.matchMedia && root.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    container.setAttribute("data-theme", pickTheme(data));
+
+    /* ---------- model ---------- */
+    var M = { clue: {}, hyp: {}, cast: {}, loc: {}, locClues: {}, clueLocs: {}, correct: null, herringQs: [] };
+    data.clues.forEach(function (c) { M.clue[c.id] = c; M.clueLocs[c.id] = []; });
+    data.hypotheses.forEach(function (h) { M.hyp[h.id] = h; if (h.correct) M.correct = h; });
+    data.cast.forEach(function (c) { M.cast[c.id] = c; });
+    data.locations.forEach(function (l) {
+      M.loc[l.id] = l;
+      var ids = [];
+      function add(c) { if (c && ids.indexOf(c) === -1) { ids.push(c); M.clueLocs[c].push(l.id); } }
+      (l.hotspots || []).forEach(function (h) { add(h.clue); });
+      (l.questions || []).forEach(function (q) { add(q.clue); if (q.redHerring) M.herringQs.push({ loc: l, q: q }); });
+      (l.lines || []).forEach(function (x) { add(x.clue); });
+      (l.spots || []).forEach(function (x) { add(x.clue); });
+      (l.mismatches || []).forEach(function (x) { add(x.clue); });
+      (l.outcomes || []).forEach(function (x) { add(x.clue); });
+      add(l.clue);
+      M.locClues[l.id] = ids;
+    });
+    function kindOf(c) { return c.kind || KIND_OF_TYPE[M.loc[M.clueLocs[c.id][0]].type]; }
+    function ruleFor(c, hid) { return (c.rulesOut || []).filter(function (r) { return r.hypothesis === hid; })[0] || null; }
+    function supportsOf(c, hid) { return (c.supports || []).indexOf(hid) !== -1; }
+
+    /* ---------- state ---------- */
+    var S;
+    function fresh() {
+      S = { route: "briefing", locId: null, found: [], foundSet: {}, pinned: {}, links: [], linkSet: {}, eliminated: {}, visited: {}, ls: {},
+        herringSeen: {}, heard: {}, accusation: null, closed: false, selected: null, verdict: null, queue: [], overlayOpen: false, freshLinks: {} };
+    }
+    fresh();
+
+    /* ---------- chrome ---------- */
+    var backdrop = el("div", { class: "nthview-backdrop", "aria-hidden": "true" }, [
+      el("div", { class: "nthview-fog" }), el("div", { class: "nthview-fog" }), el("div", { class: "nthview-fog" }),
+      el("div", { class: "nthview-gridfloor" }), el("div", { class: "nthview-blinds" }), el("div", { class: "nthview-rain" }),
+      el("div", { class: "nthview-dust" }), el("div", { class: "nthview-grain" }), el("div", { class: "nthview-vignette" })]);
+    var topbar = el("header", { class: "nthview-top", hidden: "hidden" });
+    var frame = el("main", { class: "nthview-frame" });
+    var stage = el("div", { class: "nthview-stage" });
+    var status = el("div", { class: "nthview-sr", "aria-live": "polite" });
+    var toastEl = el("div", { class: "nthview-toast", role: "status", "aria-live": "polite" });
+    frame.appendChild(stage);
+    [backdrop, topbar, frame, status, toastEl].forEach(function (n) { container.appendChild(n); });
+    var screenNode = null, toastTimer = null;
+
+    function announce(t) { status.textContent = ""; setTimeout(function () { status.textContent = t; }, 30); }
+    function toast(t) {
+      toastEl.textContent = t; toastEl.classList.add("nthview-show");
+      clearTimeout(toastTimer); toastTimer = setTimeout(function () { toastEl.classList.remove("nthview-show"); }, 2600);
+    }
+    function rise(node, i) { node.classList.add("nthview-rise"); node.style.setProperty("--i", String(i)); return node; }
+
+    var navItems = [["map", "Locations", "examine"], ["board", "Board", "board"], ["file", "Case file", "file"], ["accuse", "Accuse", "gavel"]];
+    function renderTop() {
+      topbar.textContent = "";
+      var inner = el("div", { class: "nthview-topin" });
+      var cs = el("div", { class: "nthview-case" });
+      if (data.caseNumber) cs.appendChild(el("span", { class: "nthview-caseno", text: data.caseNumber }));
+      cs.appendChild(el("b", { text: data.title }));
+      inner.appendChild(cs);
+      var meter = el("span", { class: "nthview-meter", title: "Clues found" }, [icon("examine")]);
+      meter.appendChild(doc.createTextNode(S.found.length + "/" + data.clues.length + " clues"));
+      inner.appendChild(meter);
+      var nav = el("nav", { class: "nthview-nav", "aria-label": "Case" });
+      navItems.forEach(function (it) {
+        var cur = S.route === it[0] || (it[0] === "map" && S.route === "loc") || (it[0] === "accuse" && (S.route === "debrief" || S.route === "epilogue"));
+        var b = el("button", { type: "button", class: "nthview-navbtn" }, [icon(it[2]), el("span", { class: "nthview-nl", text: it[1] })]);
+        if (cur) b.setAttribute("aria-current", "page");
+        b.setAttribute("aria-label", it[1]);
+        if (it[0] === "board") { var unp = S.found.filter(function (c) { return !S.pinned[c]; }).length; if (unp) { b.appendChild(el("span", { class: "nthview-count", text: String(unp) })); b.setAttribute("aria-label", "Board, " + unp + " clue(s) to pin"); } }
+        b.addEventListener("click", function () { go(it[0] === "accuse" && S.closed ? "debrief" : it[0]); });
+        nav.appendChild(b);
+      });
+      inner.appendChild(nav);
+      topbar.appendChild(inner);
+    }
+
+    function show(node, focusEl) {
+      var old = screenNode; screenNode = node;
+      node.classList.add("nthview-screen", "nthview-enter");
+      stage.appendChild(node);
+      if (old) { old.classList.add("nthview-leave"); old.setAttribute("aria-hidden", "true"); setTimeout(function () { if (old.parentNode) old.parentNode.removeChild(old); }, reduce ? 0 : 460); }
+      void node.offsetWidth;
+      setTimeout(function () {
+        node.classList.remove("nthview-enter");
+        if (focusEl) focusEl.focus({ preventScroll: true });
+        var top = container.getBoundingClientRect().top + root.scrollY;
+        if (root.scrollY > top + 10) root.scrollTo({ top: Math.max(0, top), behavior: reduce ? "auto" : "smooth" });
+      }, 30);
+    }
+    function go(route, arg) {
+      S.route = route; S.selected = null;
+      if (route === "loc") { S.locId = arg; S.visited[arg] = true; }
+      if (route !== "board") S.verdict = null;
+      topbar.hidden = route === "briefing";
+      if (route !== "briefing") renderTop();
+      var scr = route === "briefing" ? briefingScreen() : route === "map" ? mapScreen() : route === "loc" ? locationScreen(M.loc[arg]) :
+        route === "board" ? boardScreen() : route === "accuse" ? accuseScreen() : route === "debrief" ? debriefScreen() : route === "epilogue" ? epilogueScreen() : fileScreen();
+      show(scr.node, scr.focus);
+    }
+
+    /* ---------- discovery + clue overlay ---------- */
+    function discover(id) {
+      if (S.foundSet[id]) return false;
+      S.foundSet[id] = true; S.found.push(id);
+      renderTop();
+      S.queue.push(id);
+      if (!S.overlayOpen) setTimeout(nextInQueue, reduce ? 0 : 260);
+      return true;
+    }
+    function nextInQueue() {
+      if (S.overlayOpen || !S.queue.length) return;
+      openClue(S.queue.shift());
+    }
+    function openClue(id) {
+      var c = M.clue[id], returnFocus = doc.activeElement;
+      S.overlayOpen = true;
+      var ov = el("div", { class: "nthview-overlay" });
+      var dlg = el("div", { class: "nthview-dialog", role: "dialog", "aria-modal": "true", "aria-labelledby": "nthview-dlg-h" });
+      dlg.appendChild(el("span", { class: "nthview-stamp nthview-stamp-anim", text: "New evidence" }));
+      dlg.appendChild(el("p", { class: "nthview-label", text: KIND_LABEL[kindOf(c)] }));
+      var h = el("h2", { id: "nthview-dlg-h", tabindex: "-1" }, [icon(kindOf(c))]); h.appendChild(doc.createTextNode(c.title)); dlg.appendChild(h);
+      dlg.appendChild(para("", c.text));
+      var think = el("div", { class: "nthview-think" });
+      think.appendChild(para("nthview-muted nthview-small", "Before you look: what does this clue tell you, and which theory might it hurt?"));
+      var rev = el("div", { class: "nthview-reveal" });
+      rev.appendChild(kv("What it proves:", c.proves));
+      rev.appendChild(kv("Why it matters:", c.why));
+      rev.appendChild(para("nthview-small nthview-muted", "Which theory does it rule out? Find out by linking it on the board."));
+      var why = btn("Why does this matter?", "", function () { rev.classList.add("nthview-open"); why.remove(); rev.setAttribute("tabindex", "-1"); rev.focus({ preventScroll: true }); }, "bulb");
+      think.appendChild(why); think.appendChild(rev); dlg.appendChild(think);
+      var more = S.queue.length > 0;
+      var pinB = btn("Pin to the board", "nthview-primary", function () { pin(id, true); close(); }, "pin");
+      var keepB = btn(more ? "Next clue" : "Keep investigating", "nthview-ghost", function () { close(); });
+      dlg.appendChild(el("div", { class: "nthview-actions" }, [pinB, keepB]));
+      ov.appendChild(dlg);
+      container.appendChild(ov);
+      topbar.setAttribute("inert", ""); frame.setAttribute("inert", "");
+      void ov.offsetWidth;
+      setTimeout(function () { ov.classList.add("nthview-show"); h.focus({ preventScroll: true }); }, 20);
+      announce("New evidence: " + c.title);
+      function onKey(e) {
+        if (e.key === "Escape") { e.preventDefault(); close(); }
+        if (e.key === "Tab") {
+          var f = Array.prototype.slice.call(dlg.querySelectorAll("button:not([disabled]),[tabindex]:not([tabindex=\"-1\"])")).filter(function (n) { return n.offsetParent !== null; });
+          if (!f.length) return;
+          var first = f[0], last = f[f.length - 1];
+          if (e.shiftKey && doc.activeElement === first) { e.preventDefault(); last.focus(); }
+          else if (!e.shiftKey && doc.activeElement === last) { e.preventDefault(); first.focus(); }
+        }
+      }
+      ov.addEventListener("keydown", onKey);
+      function close() {
+        ov.classList.remove("nthview-show");
+        topbar.removeAttribute("inert"); frame.removeAttribute("inert");
+        setTimeout(function () {
+          if (ov.parentNode) ov.parentNode.removeChild(ov);
+          S.overlayOpen = false;
+          if (S.queue.length) nextInQueue();
+          else if (returnFocus && returnFocus.isConnected) returnFocus.focus({ preventScroll: true });
+        }, reduce ? 0 : 220);
+        renderTop();
+        if (S.route === "loc") refreshFound();
+      }
+    }
+    function pin(id, quiet) {
+      if (S.pinned[id]) return;
+      S.pinned[id] = true; renderTop();
+      if (!quiet) announce(M.clue[id].title + " pinned to the board.");
+      else toast("Pinned to the board: " + M.clue[id].title);
+    }
+
+    /* ---------- briefing ---------- */
+    function briefingScreen() {
+      var s = el("section", { "aria-label": "Case briefing" }), k = 0;
+      s.appendChild(rise(el("p", { class: "nthview-eyebrow", text: "Detective case" }), k++));
+      var h1 = el("h1", { tabindex: "-1", text: data.title }); s.appendChild(rise(h1, k++));
+      if (data.subtitle) s.appendChild(rise(para("nthview-muted", data.subtitle), k++));
+      var f = el("div", { class: "nthview-folder" });
+      f.appendChild(el("span", { class: "nthview-foldertab", text: "Case file" + (data.caseNumber ? " " + data.caseNumber : "") }));
+      f.appendChild(el("span", { class: "nthview-stamp nthview-stamp-anim", text: "Confidential" }));
+      f.appendChild(el("p", { class: "nthview-label", text: data.briefing.heading || "Case briefing" }));
+      data.briefing.paragraphs.forEach(function (t) { f.appendChild(para("", t)); });
+      var q = el("div", { class: "nthview-question" }, [el("p", { class: "nthview-label", text: "The question" })]); q.appendChild(para("", data.briefing.question)); f.appendChild(q);
+      var role = el("div", { class: "nthview-role" }, [silhouette()]);
+      var rt = el("div"); rt.appendChild(el("span", { class: "nthview-label", text: "Your role" })); rt.appendChild(el("b", { text: data.detective.title }));
+      if (data.detective.description) rt.appendChild(para("nthview-muted nthview-small", data.detective.description));
+      role.appendChild(rt); f.appendChild(role);
+      f.appendChild(el("h3", { text: "Persons of interest" }));
+      var cast = el("div", { class: "nthview-cast" });
+      data.cast.forEach(function (c) {
+        var t = el("div"); t.appendChild(el("b", { text: c.name })); t.appendChild(el("span", { text: c.role }));
+        cast.appendChild(el("div", { class: "nthview-person", title: c.bio || c.role }, [portrait(c), t]));
+      });
+      f.appendChild(cast);
+      f.appendChild(el("h3", { text: "The theories going around" }));
+      var tl = el("ul", { class: "nthview-theorylist" });
+      data.hypotheses.forEach(function (h) {
+        var holder = h.holder ? M.cast[h.holder] : null;
+        var li = el("li", {}, holder ? [portrait(holder)] : []);
+        var tx = el("div"); tx.appendChild(el("span", { class: "nthview-q", text: "“" + h.title + "”" }));
+        if (holder) tx.appendChild(el("span", { class: "nthview-small nthview-muted", text: " — " + holder.name }));
+        li.appendChild(tx); tl.appendChild(li);
+      });
+      f.appendChild(tl);
+      if (data.briefing.stakes) f.appendChild(para("", "**How to crack it:** " + data.briefing.stakes));
+      f.appendChild(para("nthview-small nthview-muted", "Nothing is scored. Wrong links and red herrings explain themselves, and you can return to any location at any time."));
+      f.appendChild(el("div", { class: "nthview-actions" }, [btn("Take the case", "nthview-primary", function () { go("map"); }, "examine")]));
+      s.appendChild(rise(f, k++));
+      return { node: s, focus: h1 };
+    }
+
+    /* ---------- map ---------- */
+    function ring(done, total) {
+      var r = 26, c = 2 * Math.PI * r, frac = total ? done / total : 0;
+      return svgBox("0 0 64 64", [
+        sv("circle", { cx: "32", cy: "32", r: String(r), fill: "none", stroke: "var(--line)", "stroke-width": "6" }),
+        sv("circle", { cx: "32", cy: "32", r: String(r), fill: "none", stroke: "var(--accent)", "stroke-width": "6", "stroke-linecap": "round", "stroke-dasharray": c.toFixed(1), "stroke-dashoffset": (c * (1 - frac)).toFixed(1), transform: "rotate(-90 32 32)" }),
+        sv("text", { x: "32", y: "37", "text-anchor": "middle", "font-size": "15", "font-weight": "800", fill: "var(--ink)", "font-family": "var(--mono)" })
+      ]);
+    }
+    function isOpen(l) { return !l.requires || l.requires.every(function (c) { return S.foundSet[c]; }); }
+    function mapScreen() {
+      var s = el("section", { "aria-label": "Locations" });
+      var head = el("div", { class: "nthview-maphead" });
+      var ht = el("div"); ht.appendChild(el("p", { class: "nthview-eyebrow", text: "The investigation" }));
+      var h = el("h2", { tabindex: "-1", text: "Where to search" }); ht.appendChild(h);
+      ht.appendChild(para("nthview-muted", data.briefing.question));
+      head.appendChild(ht);
+      var pr = ring(S.found.length, data.clues.length); pr.querySelector("text").textContent = String(S.found.length);
+      head.appendChild(el("div", { class: "nthview-progress" }, [pr, el("span", { class: "nthview-small nthview-muted", text: "of " + data.clues.length + " clues found" })]));
+      s.appendChild(head);
+      var grid = el("div", { class: "nthview-locs" });
+      data.locations.forEach(function (l, i) {
+        var open = isOpen(l), ids = M.locClues[l.id], got = ids.filter(function (c) { return S.foundSet[c]; }).length;
+        var b = el("button", { type: "button", class: "nthview-loc" });
+        var person = l.type === "interview" ? M.cast[l.person] : l.host ? M.cast[l.host] : null;
+        var top = el("div", { class: "nthview-loctop" }, [person && open ? portrait(person) : el("span", { class: "nthview-locicon" }, [icon(open ? l.type : "lock")])]);
+        var tt = el("div"); tt.appendChild(el("span", { class: "nthview-kind", text: TYPE_LABEL[l.type] })); tt.appendChild(el("b", { text: l.name }));
+        top.appendChild(tt); b.appendChild(top);
+        b.appendChild(para("", open ? l.summary : (l.lockedNote || "Locked until you find more evidence.")));
+        var foot = el("div", { class: "nthview-locfoot" });
+        var pips = el("span", { class: "nthview-pips", "aria-hidden": "true" });
+        ids.forEach(function (c) { pips.appendChild(el("span", { class: "nthview-pip" + (S.foundSet[c] ? " nthview-on" : "") })); });
+        foot.appendChild(pips);
+        foot.appendChild(!open ? tag("", "Locked") : got === ids.length ? tag("nthview-tag-ok", "Cleared") : S.visited[l.id] ? tag("", "Visited") : tag("nthview-tag-accent", "New"));
+        b.appendChild(foot);
+        b.setAttribute("aria-label", l.name + ". " + TYPE_LABEL[l.type] + ". " + (open ? got + " of " + ids.length + " clues found." : "Locked. " + (l.lockedNote || "")));
+        if (!open) b.setAttribute("aria-disabled", "true");
+        b.addEventListener("click", function () { if (!isOpen(l)) { toast(l.lockedNote || "Locked until you find more evidence."); return; } go("loc", l.id); });
+        grid.appendChild(rise(b, i));
+      });
+      s.appendChild(grid);
+      var unp = S.found.filter(function (c) { return !S.pinned[c]; }).length;
+      var cta = el("div", { class: "nthview-standing" });
+      cta.appendChild(para("", unp ? unp + " clue(s) waiting to be pinned. Take them to the board and test them against the theories." : S.found.length ? "Your board is up to date. Keep searching, or test your theories." : "Find clues at the locations, then take them to the board."));
+      cta.appendChild(btn("Open the board", "nthview-primary", function () { go("board"); }, "board"));
+      s.appendChild(cta);
+      return { node: s, focus: h };
+    }
+
+    /* ---------- location shell ---------- */
+    var foundRow = null, curLoc = null;
+    function refreshFound() {
+      if (!foundRow || !curLoc) return;
+      foundRow.textContent = "";
+      var ids = M.locClues[curLoc.id], got = ids.filter(function (c) { return S.foundSet[c]; });
+      foundRow.appendChild(el("span", { class: "nthview-label", text: "Clues found here: " + got.length + " of " + ids.length }));
+      got.forEach(function (c) {
+        var ch = el("button", { type: "button", class: "nthview-chip" + (S.pinned[c] ? " nthview-done" : "") }, [icon(S.pinned[c] ? "check" : "pin")]);
+        ch.appendChild(doc.createTextNode(M.clue[c].title));
+        ch.setAttribute("aria-label", M.clue[c].title + (S.pinned[c] ? ", pinned. Reopen the clue" : ". Reopen the clue"));
+        ch.addEventListener("click", function () { S.queue.push(c); nextInQueue(); });
+        foundRow.appendChild(ch);
+      });
+    }
+    function locationScreen(l) {
+      curLoc = l;
+      var s = el("section", { "aria-label": l.name });
+      s.appendChild(btn("All locations", "nthview-ghost nthview-back", function () { go("map"); }, "back"));
+      var head = el("div", { class: "nthview-lochead" });
+      var person = l.type === "interview" ? null : l.host ? M.cast[l.host] : null;
+      head.appendChild(person ? portrait(person) : el("span", { class: "nthview-locicon" }, [icon(l.type)]));
+      var ht = el("div"); ht.appendChild(el("p", { class: "nthview-eyebrow", text: TYPE_LABEL[l.type] + (person ? " with " + person.name : "") }));
+      var h = el("h2", { tabindex: "-1", text: l.name }); ht.appendChild(h); head.appendChild(ht);
+      s.appendChild(head);
+      if (l.intro) s.appendChild(para("nthview-muted", l.intro));
+      var st = S.ls[l.id] = S.ls[l.id] || {};
+      var body = el("div");
+      ({ examine: examineView, interview: interviewView, document: documentView, compare: compareView, timeline: timelineView, ledger: ledgerView, lock: lockView, lab: labView })[l.type](l, st, body);
+      s.appendChild(body);
+      foundRow = el("div", { class: "nthview-found" });
+      s.appendChild(foundRow); refreshFound();
+      s.appendChild(el("div", { class: "nthview-actions" }, [btn("Back to all locations", "", function () { go("map"); }, "back"), btn("Open the board", "nthview-ghost", function () { go("board"); }, "board")]));
+      return { node: s, focus: h };
+    }
+    function noteBox() { return el("div", { class: "nthview-note", "aria-live": "polite" }); }
+    function setNote(box, text, hit, extra) {
+      box.textContent = ""; box.className = "nthview-note" + (hit ? " nthview-hit" : "");
+      box.appendChild(para("", text));
+      if (extra) box.appendChild(extra);
+      box.classList.remove("nthview-rise"); void box.offsetWidth; box.classList.add("nthview-rise");
+    }
+    function clueTag(id) { return el("span", { class: "nthview-cluehit" }, [icon("pin"), doc.createTextNode("Clue: " + M.clue[id].title)]); }
+    function reveal(id) { if (!discover(id)) { /* already found: nothing to queue */ } }
+
+    /* ---------- examine ---------- */
+    function examineView(l, st, body) {
+      st.seen = st.seen || {};
+      var scene = el("div", { class: "nthview-scene" });
+      var g = sv("g", {});
+      var hotNodes = {};
+      l.hotspots.forEach(function (hs) {
+        var cx = hs.x * 8, cy = hs.y * 5, tall = hs.object === "fridge" || hs.object === "door" || hs.object === "cabinet";
+        var grp = sv("g", { class: "nthview-hot" + (st.seen[hs.id] ? " nthview-seen" : ""), transform: "translate(" + cx + " " + cy + ")" }, [
+          sv("circle", { class: "nthview-ping", r: "30" }),
+          sv("ellipse", { cx: "0", cy: tall ? "70" : "36", rx: "40", ry: "7", fill: "rgba(0,0,0,.25)" }),
+          obj(hs.object),
+          sv("rect", { class: "nthview-halo", x: "-56", y: tall ? "-84" : "-50", width: "112", height: tall ? "168" : "100", rx: "14" }),
+          sv("g", { class: "nthview-seenmark", transform: "translate(" + (tall ? 36 : 40) + " " + (tall ? -70 : -38) + ")" }, [sv("circle", { r: "11", fill: "var(--accent)" }), sv("path", { d: "M-5 0l3.5 3.5L5.5-4", stroke: "var(--on-accent)", "stroke-width": "2.6", fill: "none", "stroke-linecap": "round" })])
+        ]);
+        grp.addEventListener("click", function () { examine(hs); });
+        hotNodes[hs.id] = grp; g.appendChild(grp);
+      });
+      var svg = svgBox("0 0 800 500", [sceneBackdrop(l.scene), g], { preserveAspectRatio: "xMidYMid slice" });
+      scene.appendChild(svg);
+      var torch = el("div", { class: "nthview-torch", "aria-hidden": "true" });
+      scene.appendChild(torch);
+      function aim(x, y) { torch.style.setProperty("--mx", x + "%"); torch.style.setProperty("--my", y + "%"); }
+      scene.addEventListener("pointermove", function (e) { var r = scene.getBoundingClientRect(); aim(((e.clientX - r.left) / r.width * 100).toFixed(1), ((e.clientY - r.top) / r.height * 100).toFixed(1)); });
+      body.appendChild(scene);
+      body.appendChild(el("p", { class: "nthview-label", style: "margin-top:1rem", text: "Things to examine" }));
+      var list = el("div", { class: "nthview-spots" }), chips = {};
+      l.hotspots.forEach(function (hs) {
+        var ch = el("button", { type: "button", class: "nthview-chip" + (st.seen[hs.id] ? " nthview-done" : "") }, [icon(st.seen[hs.id] ? "check" : "eye")]);
+        ch.appendChild(doc.createTextNode(hs.label));
+        ch.addEventListener("click", function () { examine(hs); });
+        ch.addEventListener("focus", function () { aim(hs.x, hs.y); });
+        chips[hs.id] = ch; list.appendChild(ch);
+      });
+      body.appendChild(list);
+      var note = noteBox(); body.appendChild(note);
+      function examine(hs) {
+        st.seen[hs.id] = true; aim(hs.x, hs.y);
+        Object.keys(hotNodes).forEach(function (k) { hotNodes[k].classList.toggle("nthview-sel", k === hs.id); });
+        hotNodes[hs.id].classList.add("nthview-seen");
+        var ch = chips[hs.id]; ch.classList.add("nthview-done"); ch.replaceChild(icon("check"), ch.firstChild);
+        setNote(note, "**" + hs.label + ".** " + hs.note, !!hs.clue, hs.clue ? clueTag(hs.clue) : null);
+        if (hs.clue) reveal(hs.clue);
+      }
+    }
+
+    /* ---------- interview ---------- */
+    function interviewView(l, st, body) {
+      st.asked = st.asked || [];
+      var person = M.cast[l.person];
+      var wrap = el("div", { class: "nthview-interview" });
+      var bio = el("div", { class: "nthview-bio" }, [portrait(person)]);
+      var bt = el("div"); bt.appendChild(el("b", { text: person.name })); bt.appendChild(el("span", { class: "nthview-small nthview-muted", text: person.role }));
+      if (person.bio) bt.appendChild(para("nthview-small nthview-muted", person.bio));
+      bio.appendChild(bt); wrap.appendChild(bio);
+      var right = el("div");
+      var chat = el("div", { class: "nthview-chat", role: "log", "aria-label": "Interview with " + person.name });
+      function themBubble(text, q) {
+        var b = el("div", { class: "nthview-bubble nthview-them" }); b.appendChild(para("", text));
+        if (q && q.clue) b.appendChild(clueTag(q.clue));
+        return b;
+      }
+      chat.appendChild(themBubble(l.opening));
+      st.asked.forEach(function (qid) { var q = l.questions.filter(function (x) { return x.id === qid; })[0]; chat.appendChild(el("div", { class: "nthview-bubble nthview-you" }, [para("", q.ask)])); chat.appendChild(themBubble(q.answer, q)); });
+      right.appendChild(chat);
+      right.appendChild(el("p", { class: "nthview-label", text: "Your questions" }));
+      var asks = el("ul", { class: "nthview-asks" }); right.appendChild(asks);
+      var hint = el("p", { class: "nthview-small nthview-muted" }); right.appendChild(hint);
+      wrap.appendChild(right); body.appendChild(wrap);
+      var unlockedBy = {};
+      l.questions.forEach(function (q) { (q.unlocks || []).forEach(function (u) { (unlockedBy[u] = unlockedBy[u] || []).push(q.id); }); });
+      function available(q) {
+        var gate = unlockedBy[q.id];
+        var vis = !gate || gate.some(function (g) { return st.asked.indexOf(g) !== -1; });
+        return vis && (!q.requires || q.requires.every(function (c) { return S.foundSet[c]; }));
+      }
+      var busy = false, seenAvail = st.seenAvail = st.seenAvail || {};
+      function drawAsks(focusFirst) {
+        asks.textContent = "";
+        var open = l.questions.filter(function (q) { return st.asked.indexOf(q.id) === -1 && available(q); });
+        var hidden = l.questions.filter(function (q) { return st.asked.indexOf(q.id) === -1 && !available(q); }).length;
+        open.forEach(function (q) {
+          var b = el("button", { type: "button", class: "nthview-ask" }, [icon("interview")]);
+          b.appendChild(el("span", { text: q.ask }));
+          if (Object.keys(seenAvail).length && !seenAvail[q.id]) b.appendChild(tag("nthview-tag-accent", "New"));
+          b.addEventListener("click", function () { ask(q); });
+          if (busy) b.disabled = true;
+          asks.appendChild(el("li", {}, [b]));
+        });
+        open.forEach(function (q) { seenAvail[q.id] = true; });
+        if (!open.length && !hidden) asks.appendChild(el("li", {}, [para("nthview-muted", person.name + " has told you everything they know.")]));
+        hint.textContent = hidden ? hidden + " more question(s) may open up as the conversation goes on or as you find evidence elsewhere." : "";
+        if (focusFirst) { var f = asks.querySelector("button"); if (f) f.focus({ preventScroll: true }); }
+      }
+      function ask(q) {
+        if (busy) return;
+        busy = true; st.asked.push(q.id); if (q.redHerring) S.heard[l.id + "/" + q.id] = true;
+        chat.appendChild(el("div", { class: "nthview-bubble nthview-you" }, [para("", q.ask)]));
+        var typing = el("div", { class: "nthview-bubble nthview-them", "aria-label": person.name + " is answering" }, [el("span", { class: "nthview-typing" }, [el("i"), el("i"), el("i")])]);
+        chat.appendChild(typing); drawAsks(false);
+        typing.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "nearest" });
+        setTimeout(function () {
+          chat.replaceChild(themBubble(q.answer, q), typing);
+          busy = false; announce(person.name + ": " + q.answer);
+          drawAsks(true);
+          if (q.clue) reveal(q.clue);
+        }, reduce ? 0 : 750);
+      }
+      drawAsks(false);
+    }
+
+    /* ---------- document ---------- */
+    function documentView(l, st, body) {
+      st.marked = st.marked || {};
+      body.appendChild(para("", "**" + (l.prompt || "Highlight the line that matters.") + "**"));
+      var d = el("article", { class: "nthview-paper nthview-doc", "data-doc": l.docType });
+      d.appendChild(el("span", { class: "nthview-stamp", text: l.docType }));
+      d.appendChild(el("h3", { text: l.docTitle }));
+      if (l.meta && l.meta.length) {
+        var dl = el("dl", { class: "nthview-docmeta" });
+        l.meta.forEach(function (m) { dl.appendChild(el("dt", { text: m.label })); dl.appendChild(el("dd", { text: m.value })); });
+        d.appendChild(dl);
+      }
+      var ul = el("ul", { class: "nthview-lines" });
+      var note = noteBox();
+      l.lines.forEach(function (ln, i) {
+        var b = el("button", { type: "button", class: "nthview-line" + (st.marked[i] ? " nthview-marked" : "") + (st.marked[i] && ln.clue ? " nthview-key" : ""), "aria-pressed": st.marked[i] ? "true" : "false" });
+        b.appendChild(rich(ln.text));
+        b.addEventListener("click", function () {
+          st.marked[i] = true; b.classList.add("nthview-marked"); b.setAttribute("aria-pressed", "true");
+          if (ln.clue) b.classList.add("nthview-key");
+          setNote(note, ln.clue ? (ln.note || M.clue[ln.clue].text) : (ln.note || "Nothing out of place in this line."), !!ln.clue, ln.clue ? clueTag(ln.clue) : null);
+          if (ln.clue) reveal(ln.clue);
+        });
+        ul.appendChild(el("li", {}, [b]));
+      });
+      d.appendChild(ul); body.appendChild(d); body.appendChild(note);
+    }
+
+    /* ---------- compare ---------- */
+    function compareView(l, st, body) {
+      st.picked = st.picked || {};
+      body.appendChild(para("", "**" + (l.prompt || "Compare the two exhibits. Select any row that matters.") + "**"));
+      var cmp = el("div", { class: "nthview-compare" });
+      var ex = el("div", { class: "nthview-exhibits" });
+      [["A", l.left], ["B", l.right]].forEach(function (side) {
+        var e = el("div", { class: "nthview-exhibit" }, [el("span", { class: "nthview-tagx" }, [tag("nthview-tag-accent", "Exhibit " + side[0])])]);
+        e.appendChild(el("b", { text: side[1].label }));
+        if (side[1].caption) e.appendChild(el("span", { class: "nthview-small nthview-muted", text: side[1].caption }));
+        ex.appendChild(e);
+      });
+      cmp.appendChild(ex);
+      var note = noteBox();
+      l.rowLabels.forEach(function (lab, r) {
+        var spot = l.spots.filter(function (s) { return s.row === r; })[0];
+        var b = el("button", { type: "button", class: "nthview-crow" + (st.picked[r] ? (spot ? " nthview-diff" : " nthview-same") : "") }, [
+          el("span", { class: "nthview-clabel", text: lab }), el("span", { class: "nthview-cval", text: l.left.rows[r] }), el("span", { class: "nthview-cval", text: l.right.rows[r] })]);
+        b.setAttribute("aria-label", lab + ". Exhibit A: " + l.left.rows[r] + ". Exhibit B: " + l.right.rows[r]);
+        b.addEventListener("click", function () {
+          st.picked[r] = true; b.classList.add(spot ? "nthview-diff" : "nthview-same");
+          if (spot) { setNote(note, "**" + lab + ".** " + spot.note, !!spot.clue, spot.clue ? clueTag(spot.clue) : null); if (spot.clue) reveal(spot.clue); }
+          else setNote(note, "**" + lab + ".** " + (l.sameNote || "These match."), false);
+        });
+        cmp.appendChild(b);
+      });
+      body.appendChild(cmp); body.appendChild(note);
+    }
+
+    /* ---------- timeline ---------- */
+    function timelineView(l, st, body) {
+      var n = l.events.length;
+      if (!st.order) {
+        var r = rng(l.id + "/order"), o = l.events.map(function (_, i) { return i; });
+        for (var i = n - 1; i > 0; i--) { var j = Math.floor(r() * (i + 1)), t = o[i]; o[i] = o[j]; o[j] = t; }
+        if (o.every(function (v, k) { return v === k; })) o.push(o.shift());
+        st.order = o; st.checks = 0;
+      }
+      body.appendChild(para("", "**" + (l.prompt || "Put the events in the order they happened.") + "**"));
+      body.appendChild(para("nthview-small nthview-muted", "Drag a card by its handle, or use the arrow buttons. Check as often as you like."));
+      var list = el("ol", { class: "nthview-tl", "aria-label": "Events" });
+      var note = noteBox();
+      var actions = el("div", { class: "nthview-actions" });
+      var marks = null;
+      function draw(focusIdx, focusDir) {
+        list.textContent = "";
+        st.order.forEach(function (ev, pos) {
+          var e = l.events[ev];
+          var li = el("li", { class: "nthview-ev" + (st.solved ? " nthview-ok" : marks ? (marks[pos] ? " nthview-ok" : " nthview-off") : ""), "data-ev": String(ev) });
+          if (!st.solved) { var grip = el("span", { class: "nthview-grip", "aria-hidden": "true" }, [icon("grip")]); li.appendChild(grip); dragify(grip, li); }
+          var tx = el("div", { class: "nthview-evtext" });
+          tx.appendChild(el("span", { class: "nthview-evtime", text: st.solved ? e.time : "??:??" }));
+          tx.appendChild(el("span", { text: e.text }));
+          li.appendChild(tx);
+          if (!st.solved) {
+            var up = el("button", { type: "button", class: "nthview-mv", "aria-label": "Move earlier: " + e.text }, [icon("up")]);
+            var dn = el("button", { type: "button", class: "nthview-mv", "aria-label": "Move later: " + e.text }, [icon("down")]);
+            if (pos === 0) up.disabled = true; if (pos === n - 1) dn.disabled = true;
+            up.addEventListener("click", function () { move(pos, pos - 1, "up"); });
+            dn.addEventListener("click", function () { move(pos, pos + 1, "down"); });
+            li.appendChild(up); li.appendChild(dn);
+          }
+          list.appendChild(li);
+        });
+        if (focusIdx !== undefined) {
+          var li2 = list.children[focusIdx]; if (li2) { var bs = li2.querySelectorAll("button"); var f = focusDir === "up" ? (bs[0].disabled ? bs[1] : bs[0]) : (bs[1].disabled ? bs[0] : bs[1]); if (f) f.focus({ preventScroll: true }); }
+        }
+        drawActions();
+      }
+      function move(from, to, dir) {
+        if (to < 0 || to >= n) return;
+        var v = st.order.splice(from, 1)[0]; st.order.splice(to, 0, v); marks = null;
+        announce("Moved to position " + (to + 1) + " of " + n);
+        draw(to, dir);
+      }
+      function dragify(handle, li) {
+        handle.addEventListener("pointerdown", function (e) {
+          if (st.solved) return;
+          e.preventDefault();
+          li.classList.add("nthview-drag");
+          function mv(ev) {
+            var others = Array.prototype.slice.call(list.children).filter(function (o) { return o !== li; });
+            var pos = 0;
+            others.forEach(function (o) { var r = o.getBoundingClientRect(); if (ev.clientY > r.top + r.height / 2) pos++; });
+            var ref = others[pos] || null;
+            if (li.nextSibling !== ref) list.insertBefore(li, ref);
+          }
+          function up() {
+            doc.removeEventListener("pointermove", mv); doc.removeEventListener("pointerup", up); doc.removeEventListener("pointercancel", up);
+            li.classList.remove("nthview-drag");
+            st.order = Array.prototype.slice.call(list.children).map(function (c) { return parseInt(c.getAttribute("data-ev"), 10); });
+            marks = null; draw();
+          }
+          doc.addEventListener("pointermove", mv); doc.addEventListener("pointerup", up); doc.addEventListener("pointercancel", up);
+        });
+      }
+      function solve(shown) {
+        st.solved = true; st.order = l.events.map(function (_, i) { return i; });
+        draw();
+        setNote(note, (shown ? "Here is the order. " : "That's the order. ") + l.solvedNote, true, clueTag(l.clue));
+        reveal(l.clue);
+      }
+      function drawActions() {
+        actions.textContent = "";
+        if (st.solved) return;
+        actions.appendChild(btn("Check the order", "nthview-primary", function () {
+          st.checks++;
+          var ok = st.order.every(function (v, k) { return v === k; });
+          if (ok) { solve(false); return; }
+          marks = st.order.map(function (v, k) { return v === k; });
+          var right = marks.filter(Boolean).length;
+          draw();
+          setNote(note, right + " of " + n + " are in the right place (green). Move the amber ones and check again.", false);
+        }, "check"));
+        if (st.checks >= 2) actions.appendChild(btn("Show me the order", "nthview-ghost", function () { solve(true); }));
+      }
+      draw();
+      body.appendChild(list); body.appendChild(actions); body.appendChild(note);
+      if (st.solved) setNote(note, l.solvedNote, true, clueTag(l.clue));
+    }
+
+    /* ---------- ledger ---------- */
+    function ledgerView(l, st, body) {
+      st.picked = st.picked || {};
+      body.appendChild(para("", "**" + (l.prompt || "Find the row that does not add up.") + "**"));
+      if (l.rule) body.appendChild(el("div", { class: "nthview-rule" }, [icon("document"), para("", "**The rule:** " + l.rule)]));
+      var t = el("div", { class: "nthview-paper nthview-ledger", style: "--cols:" + l.columns.length });
+      t.appendChild(el("div", { class: "nthview-lrow nthview-lhead", "aria-hidden": "true" }, l.columns.map(function (c) { return el("span", { text: c }); })));
+      var note = noteBox();
+      l.rows.forEach(function (row, r) {
+        var mm = l.mismatches.filter(function (m) { return m.row === r; })[0];
+        var b = el("button", { type: "button", class: "nthview-lrow" + (st.picked[r] ? (mm ? " nthview-flag" : " nthview-okrow") : "") });
+        row.forEach(function (cell, ci) { b.appendChild(el("span", { class: mm && st.picked[r] && (mm.cell === undefined || mm.cell === ci) ? "nthview-cell" : "", text: cell })); });
+        if (mm && st.picked[r]) b.appendChild(el("span", { class: "nthview-lmark", text: "MISMATCH", "aria-hidden": "true" }));
+        b.setAttribute("aria-label", row.map(function (c, ci) { return l.columns[ci] + ": " + c; }).join(", "));
+        b.addEventListener("click", function () {
+          st.picked[r] = true;
+          if (mm) {
+            b.classList.add("nthview-flag");
+            Array.prototype.forEach.call(b.children, function (sp, ci) { if (mm.cell === undefined || mm.cell === ci) sp.classList.add("nthview-cell"); });
+            if (!b.querySelector(".nthview-lmark")) b.appendChild(el("span", { class: "nthview-lmark", text: "MISMATCH", "aria-hidden": "true" }));
+            setNote(note, mm.note, !!mm.clue, mm.clue ? clueTag(mm.clue) : null);
+            if (mm.clue) reveal(mm.clue);
+          } else { b.classList.add("nthview-okrow"); setNote(note, l.okNote || "This row checks out.", false); }
+        });
+        t.appendChild(b);
+      });
+      body.appendChild(t); body.appendChild(note);
+    }
+
+    /* ---------- lock ---------- */
+    function lockView(l, st, body) {
+      var alpha = l.alphabet || "0123456789", len = l.answer.length;
+      st.dials = st.dials || l.answer.split("").map(function () { return 0; });
+      st.hints = st.hints || 0;
+      body.appendChild(para("", "**" + l.prompt + "**"));
+      var box = el("div", { class: "nthview-lock" + (st.open ? " nthview-open" : "") });
+      var art = svgBox("0 0 100 120", [
+        sv("path", { class: "nthview-shackle", d: "M28 54V34a22 22 0 0 1 44 0v20", fill: "none", stroke: "var(--obj-line)", "stroke-width": "9", "stroke-linecap": "round" }),
+        sv("rect", { x: "14", y: "50", width: "72", height: "62", rx: "10", fill: "var(--accent)" }),
+        sv("rect", { x: "14", y: "50", width: "72", height: "62", rx: "10", fill: "url(#nthview-lockshade)" }),
+        sv("defs", {}, [sv("linearGradient", { id: "nthview-lockshade", x1: "0", y1: "0", x2: "0", y2: "1" }, [sv("stop", { offset: "0", "stop-color": "#fff", "stop-opacity": ".35" }), sv("stop", { offset: "1", "stop-color": "#000", "stop-opacity": ".3" })])]),
+        sv("circle", { cx: "50", cy: "76", r: "7", fill: "var(--on-accent)" }), sv("path", { d: "M50 80v14", stroke: "var(--on-accent)", "stroke-width": "5", "stroke-linecap": "round" })
+      ], { class: "nthview-lockart" });
+      box.appendChild(art);
+      var right = el("div");
+      var dials = el("div", { class: "nthview-dials", role: "group", "aria-label": "Combination dials" });
+      var faces = [];
+      function setDial(k, v) {
+        st.dials[k] = (v + alpha.length) % alpha.length;
+        var f = faces[k]; f.textContent = ""; f.appendChild(el("span", { text: alpha[st.dials[k]] }));
+        f.setAttribute("aria-valuenow", String(st.dials[k])); f.setAttribute("aria-valuetext", alpha[st.dials[k]]);
+      }
+      for (var k = 0; k < len; k++) (function (k) {
+        var up = el("button", { type: "button", class: "nthview-mv", "aria-label": "Dial " + (k + 1) + " up" }, [icon("up")]);
+        var face = el("div", { class: "nthview-dialface", role: "spinbutton", tabindex: "0", "aria-label": "Dial " + (k + 1), "aria-valuemin": "0", "aria-valuemax": String(alpha.length - 1) });
+        var dn = el("button", { type: "button", class: "nthview-mv", "aria-label": "Dial " + (k + 1) + " down" }, [icon("down")]);
+        faces.push(face);
+        up.addEventListener("click", function () { if (!st.open) setDial(k, st.dials[k] + 1); });
+        dn.addEventListener("click", function () { if (!st.open) setDial(k, st.dials[k] - 1); });
+        face.addEventListener("keydown", function (e) {
+          if (st.open) return;
+          if (e.key === "ArrowUp") { setDial(k, st.dials[k] + 1); e.preventDefault(); }
+          else if (e.key === "ArrowDown") { setDial(k, st.dials[k] - 1); e.preventDefault(); }
+          else if (e.key.length === 1 && alpha.indexOf(e.key) !== -1) { setDial(k, alpha.indexOf(e.key)); if (faces[k + 1]) faces[k + 1].focus(); e.preventDefault(); }
+          else if (e.key.length === 1 && alpha.indexOf(e.key.toUpperCase()) !== -1) { setDial(k, alpha.indexOf(e.key.toUpperCase())); if (faces[k + 1]) faces[k + 1].focus(); e.preventDefault(); }
+        });
+        dials.appendChild(el("div", { class: "nthview-dial" }, [up, face, dn]));
+      })(k);
+      right.appendChild(dials);
+      faces.forEach(function (_, k) { setDial(k, st.dials[k]); });
+      var note = noteBox();
+      var hints = el("ol", { class: "nthview-hints" });
+      var actions = el("div", { class: "nthview-actions" });
+      function drawHints() { hints.textContent = ""; l.hints.slice(0, st.hints).forEach(function (h) { hints.appendChild(el("li", {}, [rich(h)])); }); }
+      function drawActions() {
+        actions.textContent = "";
+        if (st.open) return;
+        actions.appendChild(btn("Try the code", "nthview-primary", function () {
+          var code = st.dials.map(function (v) { return alpha[v]; }).join("");
+          if (code === l.answer) open();
+          else { st.tries = (st.tries || 0) + 1; box.classList.remove("nthview-shake"); void box.offsetWidth; box.classList.add("nthview-shake"); setNote(note, "The lock doesn't budge. Think about what you have already found" + (st.hints < l.hints.length ? ", or take a hint." : "."), false); }
+        }, "lock"));
+        if (st.hints < l.hints.length) actions.appendChild(btn(st.hints ? "Another hint" : "Need a hint?", "nthview-ghost", function () { st.hints++; drawHints(); drawActions(); announce("Hint: " + l.hints[st.hints - 1]); }, "bulb"));
+        else actions.appendChild(btn("Set the code for me", "nthview-ghost", function () { l.answer.split("").forEach(function (ch, k) { setDial(k, alpha.indexOf(ch)); }); setNote(note, "The dials are set. Now try the code.", false); }));
+      }
+      function open() {
+        st.open = true; box.classList.add("nthview-open"); drawActions();
+        setNote(note, l.openText, true, clueTag(l.clue));
+        reveal(l.clue);
+      }
+      right.appendChild(actions); right.appendChild(hints);
+      box.appendChild(right);
+      body.appendChild(box); body.appendChild(note);
+      drawHints(); drawActions();
+      if (st.open) setNote(note, l.openText, true, clueTag(l.clue));
+    }
+
+    /* ---------- lab ---------- */
+    function labMatch(l, vals) {
+      for (var i = 0; i < l.outcomes.length; i++) {
+        var w = l.outcomes[i].when || {};
+        if (Object.keys(w).every(function (k) { return vals[k] === w[k]; })) return i;
+      }
+      return -1;
+    }
+    function labView(l, st, body) {
+      st.vals = st.vals || {}; st.runs = st.runs || [];
+      l.controls.forEach(function (c) { if (st.vals[c.id] === undefined) st.vals[c.id] = 0; });
+      body.appendChild(para("", "**" + l.prompt + "**"));
+      var wrap = el("div", { class: "nthview-lab" });
+      var left = el("div");
+      l.controls.forEach(function (c) {
+        var fs = el("fieldset", { class: "nthview-control" }, [el("legend", { text: c.label })]);
+        var seg = el("div", { class: "nthview-seg" });
+        c.options.forEach(function (o, k) {
+          var inp = el("input", { type: "radio", name: "nthview-" + l.id + "-" + c.id, value: String(k) });
+          if (st.vals[c.id] === k) inp.checked = true;
+          inp.addEventListener("change", function () { st.vals[c.id] = k; });
+          seg.appendChild(el("label", {}, [inp, el("span", { text: o })]));
+        });
+        fs.appendChild(seg); left.appendChild(fs);
+      });
+      var runB = btn("Run the test", "nthview-primary", run, "lab");
+      left.appendChild(el("div", { class: "nthview-actions" }, [runB]));
+      var note = noteBox(); left.appendChild(note);
+      var inst = el("div", { class: "nthview-paper nthview-instrument" });
+      inst.appendChild(el("p", { class: "nthview-label", text: l.meterLabel }));
+      var vis = instrument(l.visual);
+      inst.appendChild(vis.node);
+      var reading = el("p", { class: "nthview-reading", "aria-live": "polite" }); inst.appendChild(reading);
+      wrap.appendChild(left); wrap.appendChild(inst);
+      body.appendChild(wrap);
+      var tableWrap = el("div"); body.appendChild(tableWrap);
+      function drawRuns() {
+        tableWrap.textContent = "";
+        if (!st.runs.length) return;
+        tableWrap.appendChild(el("h3", { text: "Lab notebook" }));
+        var tb = el("tbody");
+        st.runs.forEach(function (r) {
+          var o = l.outcomes[r.o];
+          tb.appendChild(el("tr", {}, [el("td", { text: l.controls.map(function (c) { return c.options[r.v[c.id]]; }).join(", ") }), el("td", { text: o.reading })]));
+        });
+        tableWrap.appendChild(el("table", { class: "nthview-runs" }, [el("thead", {}, [el("tr", {}, [el("th", { text: "Conditions" }), el("th", { text: "Result" })])]), tb]));
+      }
+      function run() {
+        var vals = {}; Object.keys(st.vals).forEach(function (k) { vals[k] = st.vals[k]; });
+        var oi = labMatch(l, vals), o = l.outcomes[oi];
+        runB.disabled = true; reading.textContent = "Running…"; vis.set(0, true);
+        setTimeout(function () {
+          vis.set(o.level, false);
+          reading.textContent = o.reading;
+          var key = JSON.stringify(vals);
+          if (!st.runs.some(function (r) { return JSON.stringify(r.v) === key; })) st.runs.push({ v: vals, o: oi });
+          st.last = oi; drawRuns();
+          setNote(note, o.text, !!o.clue, o.clue ? clueTag(o.clue) : null);
+          runB.disabled = false;
+          if (o.clue) reveal(o.clue);
+        }, reduce ? 0 : 900);
+      }
+      if (st.last !== undefined) { vis.set(l.outcomes[st.last].level, false); reading.textContent = l.outcomes[st.last].reading; }
+      else vis.set(0, false);
+      drawRuns();
+    }
+    function instrument(kind) {
+      var node, set;
+      if (kind === "gauge") {
+        var needle = sv("g", { class: "nthview-needle" }, [sv("path", { d: "M100 100L100 30", stroke: "var(--accent-2)", "stroke-width": "4", "stroke-linecap": "round" })]);
+        var arcs = [];
+        for (var i = 0; i < 10; i++) { var a0 = Math.PI * (1 - i / 10), a1 = Math.PI * (1 - (i + 1) / 10); arcs.push(sv("path", { d: "M" + (100 + 80 * Math.cos(a0)).toFixed(1) + " " + (100 - 80 * Math.sin(a0)).toFixed(1) + "A80 80 0 0 1 " + (100 + 80 * Math.cos(a1)).toFixed(1) + " " + (100 - 80 * Math.sin(a1)).toFixed(1), stroke: i < 4 ? "var(--ok)" : i < 7 ? "var(--warn)" : "var(--no)", "stroke-width": "14", fill: "none", opacity: ".8" })); }
+        node = svgBox("0 0 200 120", arcs.concat([needle, sv("circle", { cx: "100", cy: "100", r: "8", fill: "var(--ink)" })]));
+        set = function (lv) { needle.style.transform = "rotate(" + (-90 + lv * 1.8) + "deg)"; };
+      } else if (kind === "beaker") {
+        var fill = sv("rect", { class: "nthview-fill", x: "52", y: "40", width: "96", height: "110", fill: "var(--accent)", opacity: ".55" });
+        node = svgBox("0 0 200 170", [sv("defs", {}, [sv("clipPath", { id: "nthview-beak" }, [sv("path", { d: "M54 20v110a20 20 0 0 0 20 20h52a20 20 0 0 0 20-20V20z" })])]), sv("g", { "clip-path": "url(#nthview-beak)" }, [fill]), sv("path", { d: "M48 18h104M54 20v110a20 20 0 0 0 20 20h52a20 20 0 0 0 20-20V20", fill: "none", stroke: "var(--obj-line)", "stroke-width": "4" }), sv("path", { d: "M60 60h14M60 90h14M60 120h14", stroke: "var(--obj-line)", "stroke-width": "2" })]);
+        set = function (lv) { fill.style.transform = "scaleY(" + Math.max(.02, lv / 100) + ")"; };
+      } else {
+        var r = rng("dish"), cols = [];
+        for (var c = 0; c < 90; c++) { var ang = r() * Math.PI * 2, rad = Math.sqrt(r()) * 62; cols.push(sv("circle", { class: "nthview-colony", cx: (100 + rad * Math.cos(ang)).toFixed(1), cy: (90 + rad * Math.sin(ang)).toFixed(1), r: (1.6 + r() * 3.6).toFixed(1), fill: c % 3 ? "var(--accent-2)" : "var(--warn)", style: "opacity:0;transition-delay:" + (c * 9) + "ms" })); }
+        node = svgBox("0 0 200 180", [sv("circle", { cx: "100", cy: "90", r: "78", fill: "var(--paper-2)", stroke: "var(--obj-line)", "stroke-width": "3" }), sv("circle", { cx: "100", cy: "90", r: "70", fill: "none", stroke: "var(--line)", "stroke-width": "2" })].concat(cols, [sv("path", { d: "M52 40a70 70 0 0 1 40-18", stroke: "#fff", "stroke-width": "4", opacity: ".35", fill: "none", "stroke-linecap": "round" })]));
+        set = function (lv) { var k = Math.round(lv * .9); cols.forEach(function (n, i) { n.style.opacity = i < k ? ".85" : "0"; }); };
+      }
+      return { node: node, set: set };
+    }
+
+    /* ---------- board ---------- */
+    var boardEl = null, stringsSvg = null, cardsById = {}, theoryById = {}, boardRO = null;
+    function linkClue(cid, hid) {
+      var c = M.clue[cid], h = M.hyp[hid], key = cid + ">" + hid;
+      var rule = ruleFor(c, hid);
+      var v = c.redHerring ? "herring" : rule ? "no" : supportsOf(c, hid) ? "ok" : "none";
+      var again = !!S.linkSet[key], newlyOut = false;
+      if (!S.pinned[cid]) S.pinned[cid] = true;
+      if ((v === "no" || v === "ok") && !again) { S.links.push({ clue: cid, hyp: hid, v: v }); S.linkSet[key] = v; S.freshLinks[key] = true; }
+      if (v === "no" && !S.eliminated[hid]) { S.eliminated[hid] = cid; newlyOut = true; }
+      if (v === "herring") S.herringSeen[cid] = true;
+      S.verdict = { v: v, c: cid, h: hid, rule: rule, newlyOut: newlyOut, again: again };
+      S.selected = null;
+      renderTop(); drawBoard("verdict");
+      announce(verdictTitle(S.verdict));
+    }
+    function verdictTitle(vd) {
+      var h = M.hyp[vd.h];
+      return vd.v === "no" ? "Contradicts “" + h.title + "”" + (vd.newlyOut ? ". Theory ruled out." : ".") :
+        vd.v === "ok" ? "Fits “" + h.title + "”, but fitting is not proof." :
+        vd.v === "herring" ? "Red herring: this clue doesn't bear on any theory." : "No bearing on “" + h.title + "”.";
+    }
+    function verdictPanel(vd) {
+      var c = M.clue[vd.c], h = M.hyp[vd.h];
+      var cls = vd.v === "no" ? "nthview-v-no" : vd.v === "ok" ? "nthview-v-ok" : vd.v === "herring" ? "nthview-v-warn" : "";
+      var box = el("div", { class: "nthview-verdict " + cls, tabindex: "-1" });
+      var h3 = el("h3", {}, [icon(vd.v === "no" ? "cross" : vd.v === "ok" ? "check" : vd.v === "herring" ? "herring" : "eye")]);
+      h3.appendChild(doc.createTextNode(vd.v === "no" ? "Contradicts the theory" : vd.v === "ok" ? "Fits the theory" : vd.v === "herring" ? "A red herring" : "No bearing"));
+      box.appendChild(h3);
+      box.appendChild(para("nthview-small nthview-muted", "“" + c.title + "” → “" + h.title + "”" + (vd.again ? " (already linked)" : "")));
+      if (vd.v === "no") { box.appendChild(para("", vd.rule.because)); if (vd.newlyOut) box.appendChild(para("", "**“" + h.title + "” is ruled out.** One solid contradiction is enough.")); }
+      else if (vd.v === "ok") box.appendChild(para("", c.proves + " That fits, but fitting is not proof: several theories can fit the same clue. Look for evidence that rules the others out."));
+      else if (vd.v === "herring") { box.appendChild(para("", c.proves)); box.appendChild(para("", c.why)); }
+      else { box.appendChild(para("", "This clue doesn't speak to that theory. What it does show: " + c.proves)); if ((c.rulesOut || []).length) box.appendChild(para("nthview-small nthview-muted", "Try it against another theory.")); }
+      return box;
+    }
+    function boardScreen() {
+      var s = el("section", { "aria-label": "Case board" });
+      s.appendChild(el("p", { class: "nthview-eyebrow", text: "Deduction" }));
+      var h = el("h2", { tabindex: "-1", text: (data.board && data.board.heading) || "The case board" }); s.appendChild(h);
+      s.appendChild(para("nthview-muted", (data.board && data.board.intro) || "Pin clues, then link each one to a theory it speaks to. Evidence that contradicts a theory rules it out; evidence that fits is not proof."));
+      s.appendChild(para("nthview-small nthview-muted", "Select a clue, then a theory. With a mouse you can also drag a clue onto a theory. Escape cancels."));
+      boardEl = el("div", { class: "nthview-boardwrap" });
+      s.appendChild(boardEl);
+      if (root.ResizeObserver && !boardRO) boardRO = new root.ResizeObserver(function () { drawStrings(); });
+      drawBoard();
+      return { node: s, focus: h };
+    }
+    function onBoardKey(e) {
+      if (e.key === "Escape" && S.selected) { var id = S.selected; S.selected = null; drawBoard("clue:" + id); announce("Selection cancelled."); e.preventDefault(); }
+    }
+    function drawBoard(focusKey) {
+      if (!boardEl) return;
+      boardEl.textContent = ""; cardsById = {}; theoryById = {};
+      var unpinned = S.found.filter(function (c) { return !S.pinned[c]; });
+      var board = el("div", { class: "nthview-board" });
+      board.addEventListener("keydown", onBoardKey);
+      var th = el("div", { class: "nthview-theories", role: "group", "aria-label": "Theories" });
+      data.hypotheses.forEach(function (hy, i) {
+        var out = !!S.eliminated[hy.id];
+        var card = el("button", { type: "button", class: "nthview-theory" + (out ? " nthview-out" : "") + (S.selected ? " nthview-target" : ""), "data-hyp": hy.id, "data-key": "hyp:" + hy.id });
+        card.style.setProperty("--r", ((rng(hy.id)() - .5) * 3).toFixed(2) + "deg");
+        card.appendChild(el("span", { class: "nthview-pin", "aria-hidden": "true" })); card.appendChild(el("span", { class: "nthview-tape", "aria-hidden": "true" }));
+        card.appendChild(el("span", { class: "nthview-label", text: "Theory " + (i + 1) }));
+        card.appendChild(el("span", { class: "nthview-tt", text: hy.title }));
+        if (hy.holder) card.appendChild(el("span", { class: "nthview-holder" }, [portrait(M.cast[hy.holder]), el("span", { text: M.cast[hy.holder].name })]));
+        var against = S.links.filter(function (x) { return x.hyp === hy.id && x.v === "no"; }).length, fits = S.links.filter(function (x) { return x.hyp === hy.id && x.v === "ok"; }).length;
+        var tally = el("span", { class: "nthview-tally" });
+        if (against) tally.appendChild(tag("nthview-tag-no", "✕ " + against));
+        if (fits) tally.appendChild(tag("nthview-tag-ok", "✓ " + fits));
+        card.appendChild(tally);
+        if (out) card.appendChild(el("span", { class: "nthview-outstamp" + (S.verdict && S.verdict.newlyOut && S.verdict.h === hy.id ? " nthview-stamp-anim" : ""), "aria-hidden": "true", text: "Ruled out" }));
+        card.appendChild(el("span", { class: "nthview-knot", "aria-hidden": "true" }));
+        card.setAttribute("aria-label", "Theory " + (i + 1) + ": " + hy.title + (hy.holder ? ", held by " + M.cast[hy.holder].name : "") + (out ? ". Ruled out." : ". Standing.") + (against ? " " + against + " contradicting clue(s)." : "") + (fits ? " " + fits + " fitting clue(s)." : "") + (S.selected ? " Link the selected clue here." : ""));
+        card.addEventListener("click", function () {
+          if (S.selected) linkClue(S.selected, hy.id);
+          else { S.verdict = { theory: hy.id }; drawBoard("hyp:" + hy.id); }
+        });
+        theoryById[hy.id] = card; th.appendChild(card);
+      });
+      board.appendChild(th);
+      var pinned = el("div", { class: "nthview-pinned", role: "group", "aria-label": "Pinned clues" });
+      var pinList = S.found.filter(function (c) { return S.pinned[c]; });
+      if (!pinList.length) pinned.appendChild(el("div", { class: "nthview-emptyboard" }, [el("span", { class: "nthview-boardhint", text: S.found.length ? "Pin your clues here" : "No clues yet. Go and search the locations." })]));
+      pinList.forEach(function (cid) {
+        var c = M.clue[cid], k = kindOf(c), sel = S.selected === cid;
+        var card = el("button", { type: "button", class: "nthview-cluecard" + (S.herringSeen[cid] ? " nthview-herring" : ""), "aria-pressed": sel ? "true" : "false", "data-clue": cid, "data-key": "clue:" + cid });
+        card.style.setProperty("--r", ((rng(cid)() - .5) * 6).toFixed(2) + "deg");
+        card.appendChild(el("span", { class: "nthview-pin", "aria-hidden": "true" })); card.appendChild(el("span", { class: "nthview-tape", "aria-hidden": "true" }));
+        card.appendChild(el("span", { class: "nthview-ck" }, [icon(k), doc.createTextNode(KIND_LABEL[k])]));
+        card.appendChild(el("span", { class: "nthview-ct", text: c.title }));
+        var nl = S.links.filter(function (x) { return x.clue === cid; }).length;
+        if (nl) card.appendChild(el("span", { class: "nthview-small nthview-muted", text: nl + " link" + (nl > 1 ? "s" : "") }));
+        card.setAttribute("aria-label", "Clue: " + c.title + ". " + KIND_LABEL[k] + "." + (nl ? " " + nl + " link(s)." : "") + (sel ? " Selected; now choose a theory." : " Select to link it to a theory."));
+        clickOrDrag(card, cid, function () {
+          S.selected = sel ? null : cid; S.verdict = sel ? null : { selected: cid };
+          drawBoard("clue:" + cid);
+          if (!sel) announce(c.title + " selected. Now choose a theory to link it to.");
+        });
+        cardsById[cid] = card; pinned.appendChild(card);
+      });
+      board.appendChild(pinned);
+      stringsSvg = sv("svg", { class: "nthview-strings", "aria-hidden": "true" });
+      board.appendChild(stringsSvg);
+      boardEl.appendChild(board);
+      /* tray of found but unpinned clues */
+      if (unpinned.length) {
+        var tray = el("div", { class: "nthview-tray", role: "group", "aria-label": "Clues to pin" }, [el("span", { class: "nthview-label", text: "Found, not pinned yet" })]);
+        unpinned.forEach(function (cid) {
+          var ch = el("button", { type: "button", class: "nthview-chip", "data-key": "tray:" + cid, "aria-label": "Pin " + M.clue[cid].title + " to the board" }, [icon("pin")]);
+          ch.appendChild(doc.createTextNode(M.clue[cid].title));
+          clickOrDrag(ch, cid, function () { pin(cid); drawBoard("clue:" + cid); });
+          tray.appendChild(ch);
+        });
+        if (unpinned.length > 1) tray.appendChild(btn("Pin all", "nthview-ghost", function () { unpinned.forEach(function (c) { S.pinned[c] = true; }); renderTop(); drawBoard(); announce(unpinned.length + " clues pinned."); }));
+        boardEl.appendChild(tray);
+      }
+      /* the panel under the board: selection, theory detail or link verdict */
+      var vd = S.verdict, panel = null;
+      if (vd && vd.v) panel = verdictPanel(vd);
+      else if (vd && vd.selected) {
+        var c = M.clue[vd.selected];
+        panel = el("div", { class: "nthview-verdict", tabindex: "-1" }, [el("h3", {}, [icon(kindOf(c)), doc.createTextNode(c.title)])]);
+        panel.appendChild(para("", c.text)); panel.appendChild(kv("What it proves:", c.proves));
+        panel.appendChild(para("nthview-small nthview-muted", "Now choose the theory this clue speaks to."));
+      } else if (vd && vd.theory) {
+        var hy = M.hyp[vd.theory];
+        panel = el("div", { class: "nthview-verdict", tabindex: "-1" }, [el("h3", {}, [icon("board"), doc.createTextNode(hy.title)])]);
+        panel.appendChild(para("", hy.statement));
+        var links = S.links.filter(function (x) { return x.hyp === hy.id; });
+        if (links.length) { var ul = el("ul", { class: "nthview-evlist" }); links.forEach(function (x) { var li = el("li", {}, [icon(x.v === "no" ? "cross" : "check", x.v === "no" ? "nthview-x" : "nthview-v")]); li.appendChild(el("span", { text: M.clue[x.clue].title + (x.v === "no" ? ": " + ruleFor(M.clue[x.clue], hy.id).because : " (fits)") })); ul.appendChild(li); }); panel.appendChild(ul); }
+        else panel.appendChild(para("nthview-small nthview-muted", "No evidence linked yet. Select a clue first, then this theory."));
+      }
+      if (panel) { panel.classList.add("nthview-dock"); boardEl.appendChild(panel); }
+      var standing = data.hypotheses.filter(function (x) { return !S.eliminated[x.id]; });
+      var banner = el("div", { class: "nthview-standing" });
+      banner.appendChild(para("", standing.length === 1 ? "Only one theory is left standing. Ready to name the explanation?" : standing.length + " theories still standing. Rule more out, or name the explanation when you are ready."));
+      banner.appendChild(btn(S.closed ? "Read the debrief" : "Name the explanation", "nthview-primary", function () { go(S.closed ? "debrief" : "accuse"); }, "gavel"));
+      boardEl.appendChild(banner);
+      setTimeout(drawStrings, 0);
+      if (boardRO) { boardRO.disconnect(); boardRO.observe(board); }
+      if (focusKey) {
+        var target = focusKey === "verdict" ? panel : boardEl.querySelector("[data-key=\"" + focusKey + "\"]");
+        if (target) target.focus({ preventScroll: true });
+      }
+    }
+    function anchor(node, where) {
+      var b = stringsSvg.getBoundingClientRect(), r = node.getBoundingClientRect();
+      return { x: r.left + r.width / 2 - b.left, y: (where === "top" ? r.top + 2 : r.bottom - 2) - b.top };
+    }
+    function stringPath(a, b) {
+      var mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2 + Math.min(60, 18 + Math.abs(a.x - b.x) * .12);
+      return "M" + a.x.toFixed(1) + " " + a.y.toFixed(1) + "Q" + mx.toFixed(1) + " " + my.toFixed(1) + " " + b.x.toFixed(1) + " " + b.y.toFixed(1);
+    }
+    function drawStrings() {
+      if (!stringsSvg || !stringsSvg.isConnected) return;
+      Array.prototype.slice.call(stringsSvg.querySelectorAll("path:not(.nthview-s-tmp)")).forEach(function (n) { n.remove(); });
+      S.links.forEach(function (lk) {
+        var cc = cardsById[lk.clue], tc = theoryById[lk.hyp];
+        if (!cc || !tc) return;
+        var key = lk.clue + ">" + lk.hyp;
+        var path = sv("path", { class: lk.v === "no" ? "nthview-s-no" : "nthview-s-ok", d: stringPath(anchor(cc, "top"), anchor(tc, "bottom")) });
+        stringsSvg.appendChild(path);
+        if (S.freshLinks[key] && !reduce) {
+          var len = path.getTotalLength ? path.getTotalLength() : 600;
+          if (lk.v === "no") path.setAttribute("stroke-dasharray", len.toFixed(0));
+          path.style.setProperty("--len", len.toFixed(0)); path.classList.add("nthview-s-new");
+        }
+        delete S.freshLinks[key];
+      });
+    }
+    /* tap selects; a mouse or pen drag drops the clue onto a theory (or onto the board to pin it) */
+    function clickOrDrag(node, cid, onTap) {
+      var start = null, dragging = false, ghost = null, tmp = null, hover = null, suppress = false;
+      node.addEventListener("pointerdown", function (e) {
+        if (e.pointerType === "touch" || e.button !== 0) return;
+        start = { x: e.clientX, y: e.clientY }; dragging = false;
+        doc.addEventListener("pointermove", onMove); doc.addEventListener("pointerup", onUp); doc.addEventListener("pointercancel", onCancel);
+      });
+      function onUp(e) { end(e, false); }
+      function onCancel(e) { end(e, true); }
+      function onMove(e) {
+        if (!start) return;
+        if (!dragging && Math.abs(e.clientX - start.x) + Math.abs(e.clientY - start.y) > 8) {
+          dragging = true;
+          ghost = el("div", { class: "nthview-ghostcard", text: M.clue[cid].title }); container.appendChild(ghost);
+          Object.keys(theoryById).forEach(function (k) { theoryById[k].classList.add("nthview-target"); });
+          if (stringsSvg && cardsById[cid]) { tmp = sv("path", { class: "nthview-s-tmp" }); stringsSvg.appendChild(tmp); stringsSvg.classList.add("nthview-dragging"); }
+        }
+        if (!dragging) return;
+        ghost.style.left = e.clientX + "px"; ghost.style.top = e.clientY + "px";
+        var under = doc.elementFromPoint(e.clientX, e.clientY);
+        var th = under && under.closest ? under.closest("[data-hyp]") : null;
+        if (hover && hover !== th) hover.classList.remove("nthview-hover");
+        hover = th; if (th) th.classList.add("nthview-hover");
+        var bd = under && under.closest ? under.closest(".nthview-board") : null;
+        Array.prototype.forEach.call(container.querySelectorAll(".nthview-board"), function (b) { b.classList.toggle("nthview-droppable", !!bd && !S.pinned[cid] && !th); });
+        if (tmp) { var b2 = stringsSvg.getBoundingClientRect(); tmp.setAttribute("d", stringPath(anchor(cardsById[cid], "top"), { x: e.clientX - b2.left, y: e.clientY - b2.top })); }
+      }
+      function end(e, cancelled) {
+        doc.removeEventListener("pointermove", onMove); doc.removeEventListener("pointerup", onUp); doc.removeEventListener("pointercancel", onCancel);
+        if (!start) return;
+        var wasDrag = dragging; start = null; dragging = false;
+        if (ghost) { ghost.remove(); ghost = null; }
+        if (tmp) { tmp.remove(); tmp = null; if (stringsSvg) stringsSvg.classList.remove("nthview-dragging"); }
+        Object.keys(theoryById).forEach(function (k) { theoryById[k].classList.remove("nthview-target", "nthview-hover"); });
+        Array.prototype.forEach.call(container.querySelectorAll(".nthview-board"), function (b) { b.classList.remove("nthview-droppable"); });
+        if (!wasDrag || cancelled) return;
+        suppress = true;
+        var under = doc.elementFromPoint(e.clientX, e.clientY);
+        var th = under && under.closest ? under.closest("[data-hyp]") : null;
+        if (th) linkClue(cid, th.getAttribute("data-hyp"));
+        else if (under && under.closest && under.closest(".nthview-board") && !S.pinned[cid]) { pin(cid); drawBoard("clue:" + cid); }
+      }
+      node.addEventListener("click", function () { if (suppress) { suppress = false; return; } onTap(); });
+    }
+    root.addEventListener("resize", function () { if (S.route === "board") drawStrings(); });
+
+    /* ---------- accusation ---------- */
+    function accuseScreen() {
+      var s = el("section", { "aria-label": "Name the explanation" });
+      s.appendChild(el("p", { class: "nthview-eyebrow", text: "The accusation" }));
+      var h = el("h2", { tabindex: "-1", text: (data.accusation && data.accusation.prompt) || "Name the explanation" }); s.appendChild(h);
+      s.appendChild(para("nthview-muted", (data.accusation && data.accusation.intro) || "Pick the theory the evidence leaves standing, and say how sure you are. Nothing is scored."));
+      s.appendChild(el("div", { class: "nthview-question" }, [para("", data.briefing.question)]));
+      var pick = S.accusation ? S.accusation.pick : null, conf = S.accusation ? S.accusation.conf : null;
+      var form = el("form");
+      var fs = el("fieldset", { class: "nthview-choices" }, [el("legend", { text: "Which explanation does the evidence support?" })]);
+      var warnBox = noteBox();
+      data.hypotheses.forEach(function (hy) {
+        var out = S.eliminated[hy.id];
+        var inp = el("input", { type: "radio", name: "nthview-accuse", value: hy.id });
+        if (pick === hy.id) inp.checked = true;
+        var bx = el("span", { class: "nthview-choicebox" });
+        if (hy.holder) bx.appendChild(portrait(M.cast[hy.holder]));
+        var tx = el("span"); tx.appendChild(el("b", { text: hy.title })); tx.appendChild(el("span", { class: "nthview-small nthview-muted", text: hy.statement }));
+        var tg = el("span", { class: "nthview-tags", style: "margin-top:.35rem" }); tg.appendChild(out ? tag("nthview-tag-no", "Ruled out on your board") : tag("", "Still standing")); tx.appendChild(tg);
+        bx.appendChild(tx);
+        inp.addEventListener("change", function () {
+          pick = hy.id; update();
+          if (out) setNote(warnBox, "Your board has evidence against this one (" + M.clue[out].title + "). You can still name it; the debrief will explain.", false); else { warnBox.textContent = ""; warnBox.className = "nthview-note"; }
+        });
+        fs.appendChild(el("label", { class: "nthview-choice" + (out ? " nthview-ruled" : "") }, [inp, bx]));
+      });
+      form.appendChild(fs); form.appendChild(warnBox);
+      var cf = el("fieldset", { class: "nthview-conf" }, [el("legend", { text: "How sure are you?" })]);
+      CONF.forEach(function (c, k) {
+        var inp = el("input", { type: "radio", name: "nthview-conf", value: String(k) });
+        if (conf === k) inp.checked = true;
+        var bars = el("span", { class: "nthview-meterbar", "aria-hidden": "true" }, [1, 2, 3].map(function (n) { return el("i", { class: n <= c[1] ? "nthview-on" : "" }); }));
+        inp.addEventListener("change", function () { conf = k; update(); });
+        cf.appendChild(el("label", { class: "nthview-choice" }, [inp, el("span", { class: "nthview-choicebox" }, [bars, el("b", { text: c[0] })])]));
+      });
+      form.appendChild(cf);
+      var submit = el("button", { type: "submit", class: "nthview-btn nthview-primary" }, [icon("gavel"), doc.createTextNode("Close the case")]);
+      function update() { submit.disabled = pick === null || conf === null; }
+      update();
+      form.addEventListener("submit", function (e) { e.preventDefault(); if (pick === null || conf === null) return; S.accusation = { pick: pick, conf: conf }; S.closed = true; go("debrief"); });
+      form.appendChild(el("div", { class: "nthview-actions" }, [submit, btn("Back to the board", "nthview-ghost", function () { go("board"); }, "back")]));
+      s.appendChild(form);
+      return { node: s, focus: h };
+    }
+
+    /* ---------- debrief ---------- */
+    function clueLine(cid, iconName, cls, text) {
+      var li = el("li", {}, [icon(iconName, cls)]);
+      var sp = el("span"); sp.appendChild(el("b", { text: M.clue[cid].title })); sp.appendChild(doc.createTextNode(text ? ": " + text : ""));
+      sp.appendChild(doc.createTextNode(S.foundSet[cid] ? "" : " (you didn't find this one)"));
+      li.appendChild(sp); return li;
+    }
+    function debriefScreen() {
+      var s = el("section", { "aria-label": "Debrief" });
+      var a = S.accusation, right = a && a.pick === M.correct.id, conf = a ? CONF[a.conf][1] : 0;
+      var top = el("div", { class: "nthview-closed" }, [el("span", { class: "nthview-stamp nthview-stamp-anim", text: "Case closed" })]);
+      s.appendChild(top);
+      if (!reduce && !S.flashed) { S.flashed = true; var fl = el("div", { class: "nthview-flashbulb", "aria-hidden": "true" }); container.appendChild(fl); setTimeout(function () { fl.remove(); }, 1000); }
+      s.appendChild(el("p", { class: "nthview-eyebrow", text: "Debrief" }));
+      var h = el("h2", { tabindex: "-1", text: right ? "You cracked it." : "The evidence points elsewhere." }); s.appendChild(h);
+      if (a) {
+        var yours = el("div", { class: "nthview-card" }, [el("p", { class: "nthview-label", text: "Your accusation" })]);
+        yours.appendChild(para("", "**" + M.hyp[a.pick].title + "** — " + CONF[a.conf][0].toLowerCase() + "."));
+        var reflect = right ? (conf === 3 ? "Right, and certain: your board backed you up." : conf === 2 ? "Right, and fairly sure. Look at the evidence below: there was enough to be certain." : "Right, on a hunch. The evidence was there; next time let it make you sure.")
+          : (conf === 3 ? "Certain and wrong is the most useful moment in learning: that confident belief is exactly what this case was built to shake. Read why it tempts, and what rules it out." : "Not this one. Read below why it tempts and which evidence rules it out.");
+        yours.appendChild(para("nthview-muted", reflect));
+        s.appendChild(yours);
+      }
+      var sol = el("div", { class: "nthview-card nthview-solution" }, [el("p", { class: "nthview-label", text: "The explanation" })]);
+      sol.appendChild(el("h3", { text: M.correct.title }));
+      sol.appendChild(para("", M.correct.statement));
+      sol.appendChild(kv("Why it's right:", M.correct.why));
+      var sup = data.clues.filter(function (c) { return supportsOf(c, M.correct.id); });
+      if (sup.length) { sol.appendChild(el("p", { class: "nthview-label", style: "margin-top:.8rem", text: "Evidence that fits" })); var ul = el("ul", { class: "nthview-evlist" }); sup.forEach(function (c) { ul.appendChild(clueLine(c.id, "check", "nthview-v", c.proves)); }); sol.appendChild(ul); }
+      s.appendChild(sol);
+      s.appendChild(el("h3", { text: "The theories that didn't hold" }));
+      data.hypotheses.filter(function (x) { return !x.correct; }).forEach(function (hy) {
+        var card = el("div", { class: "nthview-card" });
+        var gridw = el("div", { class: "nthview-wrongh" });
+        gridw.appendChild(hy.holder ? portrait(M.cast[hy.holder]) : silhouette());
+        var body = el("div");
+        var tg = el("div", { class: "nthview-tags" });
+        if (hy.popular) tg.appendChild(tag("nthview-tag-warn", "Popular theory"));
+        if (a && a.pick === hy.id) tg.appendChild(tag("nthview-tag-accent", "Your pick"));
+        tg.appendChild(S.eliminated[hy.id] ? tag("nthview-tag-no", "You ruled it out") : tag("", "Not ruled out on your board"));
+        body.appendChild(tg);
+        body.appendChild(el("h3", { text: hy.title, style: "margin-top:.4rem" }));
+        if (hy.holder) body.appendChild(para("nthview-small nthview-muted", "Believed by " + M.cast[hy.holder].name + " (" + M.cast[hy.holder].role + "): “" + hy.statement + "”"));
+        else body.appendChild(para("nthview-small nthview-muted", "“" + hy.statement + "”"));
+        gridw.appendChild(body); card.appendChild(gridw);
+        card.appendChild(kv("Why it tempts:", hy.tempting));
+        card.appendChild(kv("Why it's wrong:", hy.why));
+        var ul2 = el("ul", { class: "nthview-evlist" });
+        data.clues.forEach(function (c) { var r = ruleFor(c, hy.id); if (r) ul2.appendChild(clueLine(c.id, "cross", "nthview-x", r.because)); });
+        card.appendChild(el("p", { class: "nthview-label", style: "margin-top:.8rem", text: "Ruled out by" })); card.appendChild(ul2);
+        s.appendChild(card);
+      });
+      var herrings = data.clues.filter(function (c) { return c.redHerring; });
+      if (herrings.length || M.herringQs.length) {
+        var hc = el("div", { class: "nthview-card" }, [el("p", { class: "nthview-label", text: "Red herrings" })]);
+        hc.appendChild(para("nthview-small nthview-muted", "These looked like evidence and led nowhere. Learning to spot them is half of detective work."));
+        var ul3 = el("ul", { class: "nthview-evlist" });
+        herrings.forEach(function (c) { ul3.appendChild(clueLine(c.id, "herring", "nthview-h", c.proves + " " + c.why)); });
+        M.herringQs.forEach(function (x) {
+          var li = el("li", {}, [icon("herring", "nthview-h")]), sp = el("span");
+          sp.appendChild(el("b", { text: M.cast[x.loc.person].name + ": “" + x.q.ask + "”" }));
+          sp.appendChild(doc.createTextNode(" " + x.q.note + (S.heard[x.loc.id + "/" + x.q.id] ? "" : " (you didn't ask this)")));
+          li.appendChild(sp); ul3.appendChild(li);
+        });
+        hc.appendChild(ul3); s.appendChild(hc);
+      }
+      s.appendChild(el("div", { class: "nthview-actions" }, [btn("Read the epilogue", "nthview-primary", function () { go("epilogue"); }, "bulb"), btn("Case file", "", function () { go("file"); }, "file"), btn("Back to the board", "nthview-ghost", function () { go("board"); })]));
+      return { node: s, focus: h };
+    }
+
+    /* ---------- epilogue ---------- */
+    function epilogueScreen() {
+      var e = data.epilogue, s = el("section", { "aria-label": "Epilogue" }), k = 0;
+      s.appendChild(rise(el("p", { class: "nthview-eyebrow", text: e.heading || "Epilogue" }), k++));
+      var h = el("h2", { tabindex: "-1", text: "What the case was really about" }); s.appendChild(rise(h, k++));
+      s.appendChild(rise(el("p", { class: "nthview-concept", text: e.concept }), k++));
+      var rep = el("div", { class: "nthview-folder nthview-report" }, [el("span", { class: "nthview-foldertab", text: "Final report" + (data.caseNumber ? " " + data.caseNumber : "") })]);
+      e.paragraphs.forEach(function (t) { rep.appendChild(para("", t)); });
+      s.appendChild(rise(rep, k++));
+      if (e.takeaways && e.takeaways.length) {
+        s.appendChild(rise(el("h3", { text: "Remember" }), k++));
+        s.appendChild(rise(el("ol", { class: "nthview-takeaways" }, e.takeaways.map(function (t) { var li = el("li"); li.appendChild(rich(t)); return li; })), k++));
+      }
+      s.appendChild(el("div", { class: "nthview-actions" }, [btn("Review the case file", "nthview-primary", function () { go("file"); }, "file"),
+        btn("Reopen the case from scratch", "nthview-ghost", function () { fresh(); go("briefing"); }, "restart")]));
+      return { node: s, focus: h };
+    }
+
+    /* ---------- case file ---------- */
+    function fileScreen() {
+      var s = el("section", { "aria-label": "Case file" });
+      s.appendChild(el("p", { class: "nthview-eyebrow", text: "Review" }));
+      var h = el("h2", { tabindex: "-1", text: "Case file" }); s.appendChild(h);
+      s.appendChild(para("nthview-muted", S.closed ? "Every clue in the case, what it proves, and what it rules out." : "Every clue you have found so far. Clues you haven't found are listed by where to look; the full file opens when you close the case."));
+      var shown = {};
+      data.locations.forEach(function (l) {
+        var ids = M.locClues[l.id].filter(function (c) { return !shown[c]; });
+        if (!ids.length) return;
+        var g = el("div", { class: "nthview-filegroup" }, [el("h3", {}, [icon(l.type), doc.createTextNode(l.name)])]);
+        ids.forEach(function (cid) {
+          shown[cid] = true;
+          var c = M.clue[cid], got = S.foundSet[cid], full = got || S.closed;
+          var card = el("div", { class: "nthview-card nthview-fileclue" + (got ? "" : " nthview-missing") });
+          var t = el("h3", {}, [icon(kindOf(c))]); t.appendChild(doc.createTextNode(full ? c.title : "Not found yet"));
+          var tg = el("span", { class: "nthview-tags" });
+          if (!got) tg.appendChild(tag("", S.closed ? "You missed this" : "Search " + l.name));
+          else if (S.pinned[cid]) tg.appendChild(tag("nthview-tag-ok", "Pinned"));
+          if (c.redHerring && (S.closed || S.herringSeen[cid])) tg.appendChild(tag("nthview-tag-warn", "Red herring"));
+          t.appendChild(tg); card.appendChild(t);
+          if (full) {
+            card.appendChild(para("", c.text));
+            card.appendChild(kv("What it proves:", c.proves));
+            card.appendChild(kv("Why it matters:", c.why));
+            var ul = el("ul", { class: "nthview-evlist" });
+            (c.rulesOut || []).forEach(function (r) { var li = el("li", {}, [icon("cross", "nthview-x")]); var sp = el("span"); sp.appendChild(el("b", { text: "Rules out “" + M.hyp[r.hypothesis].title + "”: " })); sp.appendChild(doc.createTextNode(r.because)); li.appendChild(sp); ul.appendChild(li); });
+            (c.supports || []).forEach(function (hid) { var li = el("li", {}, [icon("check", "nthview-v")]); li.appendChild(el("span", { text: "Fits “" + M.hyp[hid].title + "”" })); ul.appendChild(li); });
+            if (ul.childNodes.length) card.appendChild(ul);
+            card.appendChild(para("nthview-small nthview-muted", "Found at: " + M.clueLocs[cid].map(function (x) { return M.loc[x].name; }).join(", ")));
+          }
+          g.appendChild(card);
+        });
+        s.appendChild(g);
+      });
+      s.appendChild(el("div", { class: "nthview-actions" }, [btn(S.closed ? "Back to the debrief" : "Back to the board", "nthview-primary", function () { go(S.closed ? "debrief" : "board"); }, "back"), btn("All locations", "nthview-ghost", function () { go("map"); })]));
+      return { node: s, focus: h };
+    }
+
+    go("briefing");
+  }
+
+  NthView.build = function (container, data) {
+    if (!container || typeof container.appendChild !== "function") {
+      throw new TypeError("NthView.build: container must be a DOM element");
+    }
+    container.innerHTML = "";
+    container.classList.add("nthview", "nthview-detective");
+    injectStyles();
+
+    if (typeof NthView.validate !== "function") {
+      renderErrorPanel(container, { errors: [{ path: "$", message: "validate.js must be inlined before view.js" }] });
+      return { valid: false, errors: [], warnings: [] };
+    }
+    var result = NthView.validate(data);
+    if (!result.valid) {
+      renderErrorPanel(container, result);
+      return result;
+    }
+    render(container, data);
+    return result;
+  };
+
+  NthView.libs = [
+    { kind: "style", href: "https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=IBM+Plex+Mono:wght@400;600&family=Inter:wght@400;600;700;800&family=Lora:wght@400;600;700&family=Playfair+Display:wght@700;800;900&family=Space+Grotesk:wght@500;700&family=Special+Elite&display=swap", name: "Google Fonts (Caveat, IBM Plex Mono, Inter, Lora, Playfair Display, Space Grotesk, Special Elite)" }
+  ];
+})(typeof globalThis !== "undefined" ? globalThis : window);

@@ -63,7 +63,10 @@ import, read or depend on another view folder.
 
 ### What exists today
 
-Only this file and the README. Views are added one at a time in later tasks.
+Five views live under `skills/` and are listed in `registry.js` and the
+gallery: `nthview-island-quest`, `nthview-scenario-quiz`,
+`nthview-explorable`, `nthview-detective`, `nthview-concept-map`. New views
+are added one at a time following §11.
 
 ---
 
@@ -287,9 +290,11 @@ Rules:
 
 ### 5.2 `scripts/validate.js`: fixed skeleton
 
-Copy this skeleton. Change only the view name in the header comment, the
-`SUPPORTED_VERSIONS` list, and the body of `checkRoot`. Everything else stays
-byte-for-byte identical across views so agents can trust it.
+Copy this skeleton. Keep the UMD wrapper, the Node CLI, the exit codes, the
+`validate` entry point and the `{ valid, errors, warnings }` shape identical.
+Fill in `checkRoot`, the view's constants and as many extra check helpers as
+the schema needs (`isObject`, `optionalString`, `requireNumber` and so on);
+the shared helpers shown below are the minimum, not the maximum.
 
 ```js
 /* NthView — <view> validator — schemaVersion 1
@@ -404,9 +409,12 @@ Behavioural rules the skeleton enforces and every view must keep:
 
 ### 5.3 `assets/view.js`: fixed skeleton
 
-Copy this skeleton. Change only the view name, `CSS`, and the body of
-`render`. The `build` function, the error panel and the style injection stay
-identical across views.
+Copy this skeleton. Keep `build` (including the §5.4 library check), the
+error panel and the style injection identical across views. Fill in `CSS`,
+`render`, and any helper functions the view needs outside `render`
+(scene builders, icons, layout). Theme-specific overrides of the base
+`.nthview` padding or width are fine when scoped to the view class, so the
+error panel keeps the base look.
 
 ```js
 /* NthView — <view> renderer — schemaVersion 1
@@ -826,12 +834,15 @@ against the allowed CDN hosts, and must print no errors.
 - Skill folders and `name`: `nthview-<view>`, lowercase, hyphens only, no
   consecutive hyphens. `<view>` is one word or hyphenated words
   (`quiz`, `concept-map`).
-- Global: `NthView`, with public `validate` and `build` only. Helpers stay in
-  the closure. `SUPPORTED_VERSIONS` is the one permitted extra property.
+- Global: `NthView`, with public `validate` and `build`. Helpers stay in the
+  closure. The only other permitted properties are `SUPPORTED_VERSIONS`,
+  `libs` (§5.4) and `THEMES` (when the view has themes).
 - CSS: `.nthview` on the container, every other class `nthview-<element>`,
   colours via `--nv-*` custom properties, style element id `nthview-style`.
 - HTML ids: `nthview-data` for the data, `app` for the mount point.
-- JSON keys `camelCase`; ids inside data are lowercase kebab-case strings.
+- JSON keys `camelCase`; ids inside data are lowercase kebab-case strings,
+  except identifiers used inside expressions (variables, formulas, controls),
+  which are `camelCase` without hyphens.
 - Output file: `<concept-slug>-<view>.html`.
 
 ### Dependencies

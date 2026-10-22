@@ -1,0 +1,1319 @@
+# Detective data schema — schemaVersion 1
+
+## Overview
+The data describes a case to crack. The learner is the detective: a briefing
+poses one question, a cast of people hold competing theories (the
+misconceptions and the right explanation), and locations yield clues through
+small interactions: examining a scene, interviewing a witness, reading a
+document, comparing exhibits, rebuilding a timeline, checking a ledger,
+opening a lock and running a lab test. Every clue says what it proves, which
+theories it rules out and why it matters. On a case board the learner pins
+clues and links them to theories; a contradicting link rules a theory out.
+Finally the learner names the explanation with a confidence level, and a
+debrief, an epilogue that restates the concept plainly and a case file review
+follow. Nothing is scored against the learner.
+
+Text fields accept one inline mark-up: `**bold**`. Nothing else is interpreted.
+Character limits count JavaScript string length, so one emoji counts as 2.
+
+## Root object
+
+| Field | Type | Required | Constraints | Description |
+| :- | :- | :- | :- | :- |
+| `schemaVersion` | integer | yes | must be `1` | Format version |
+| `title` | string | yes | 1–80 chars | Case title: page title, briefing heading, top bar |
+| `subtitle` | string | no | ≤200 chars | One line under the title |
+| `caseNumber` | string | no | ≤16 chars | Shown as a stamp, e.g. `"MK-0521"` |
+| `theme` | string | no | one of `noir`, `parchment`, `neon`, `newsroom`, `forensic` | Visual theme (see Themes). When omitted, one is derived from the title |
+| `briefing` | object | yes | see Briefing | The case set-up and the question |
+| `detective` | object | yes | see Detective | Who the learner is |
+| `cast` | array | yes | 1–10 Person objects | Witnesses, experts and suspects |
+| `hypotheses` | array | yes | 2–6 Hypothesis objects, exactly one `correct` | The theories on the board |
+| `clues` | array | yes | 2–40 Clue objects | All evidence in the case |
+| `locations` | array | yes | 2–14 Location objects | Where clues are found, in map order |
+| `board` | object | no | see Board | Wording for the case board |
+| `accusation` | object | no | see Accusation | Wording for the final step |
+| `epilogue` | object | yes | see Epilogue | The plain restatement of the concept |
+
+## Themes
+Every theme sets the animated backdrop, the board surface (cork, glass grid or
+felt), pins or tape, string colours, typography and corner radius, and has a
+light and a dark variant chosen by the reader's system setting. Each variant
+stays on one side of brightness: light variants put near-black ink on light
+surfaces, dark variants near-white ink on dark surfaces.
+
+| Theme | Native mood | Board | Backdrop | Type | Suits |
+| :- | :- | :- | :- | :- | :- |
+| `noir` | Dark: smoky charcoal, amber lamp, red string | Cork with red pins | Venetian-blind light, rain, smoke; a torch beam in scenes | Special Elite / Inter | Classic whodunnits, workplace incidents, ethics |
+| `parchment` | Light: aged paper, sepia ink, wax red | Cork with pins | Drifting dust | Playfair Display / Lora | History, law, literature, slow-burn reasoning |
+| `neon` | Dark: cyber black, cyan and magenta glow | Glass grid wall | Moving grid floor, rain; torch beam | Space Grotesk / IBM Plex Mono | Technology, security, data incidents, younger audiences |
+| `newsroom` | Light: newsprint, black ink, red marker | Grey felt with tape | Faint blinds and dust | Playfair Display / Inter | Media literacy, public policy, current affairs |
+| `forensic` | Light: clinical white and teal | Whiteboard grid with tape | Grid floor | Space Grotesk / Inter | Science, medicine, food safety, lab-based topics |
+
+## Briefing object
+
+| Field | Type | Required | Constraints | Description |
+| :- | :- | :- | :- | :- |
+| `heading` | string | no | ≤60 chars, default "Case briefing" | Label above the paragraphs |
+| `paragraphs` | string[] | yes | 1–5 items, each 1–600 chars | What happened and why it matters |
+| `question` | string | yes | 1–200 chars | The one question the case answers; repeated on the map and the accusation |
+| `stakes` | string | no | ≤200 chars | One line on how to crack it |
+
+## Detective object
+
+| Field | Type | Required | Constraints | Description |
+| :- | :- | :- | :- | :- |
+| `title` | string | yes | 1–120 chars | E.g. "You are the detective Dana has called in" |
+| `description` | string | no | ≤400 chars | What the learner needs (and doesn't need) to know |
+
+## Person object
+
+| Field | Type | Required | Constraints | Description |
+| :- | :- | :- | :- | :- |
+| `id` | string | yes | kebab-case, 1–40 chars, unique in `cast` | Referenced by hypotheses and locations |
+| `name` | string | yes | 1–40 chars | |
+| `role` | string | yes | 1–60 chars | Job or relation to the case |
+| `kind` | string | yes | one of `witness`, `expert`, `suspect` | How they relate to the case |
+| `bio` | string | no | ≤240 chars | One line shown in interviews and on hover |
+| `portrait` | object | no | see Portrait | Avatar parts; omitted parts are chosen from the id |
+
+### Portrait object
+All fields optional. The avatar is inline SVG assembled from these parts.
+
+| Field | Type | Required | Constraints | Description |
+| :- | :- | :- | :- | :- |
+| `skin` | string | no | `porcelain`, `fair`, `tan`, `olive`, `brown`, `deep` | Skin tone |
+| `hair` | string | no | `short`, `long`, `bob`, `bun`, `curly`, `buzz`, `bald`, `ponytail` | Hair style |
+| `hairColor` | string | no | `black`, `brown`, `auburn`, `blonde`, `red`, `grey`, `white` | Also used for brows and facial hair |
+| `outfit` | string | no | `suit`, `shirt`, `apron`, `chef`, `labcoat`, `hoodie`, `uniform`, `cardigan` | Clothing |
+| `outfitColor` | string | no | `#rrggbb` | Overrides the outfit's default colour (also colours a cap or headscarf) |
+| `accessory` | string | no | `none`, `glasses`, `fedora`, `cap`, `headscarf`, `earrings`, `headset`; default `none` | |
+| `facialHair` | string | no | `none`, `beard`, `moustache`, `stubble`; default `none` | |
+| `expression` | string | no | `neutral`, `smile`, `worried`, `stern`; default `neutral` | Brows and mouth |
+
+## Hypothesis object
+
+| Field | Type | Required | Constraints | Description |
+| :- | :- | :- | :- | :- |
+| `id` | string | yes | kebab-case, 1–40 chars, unique | Referenced by clues |
+| `title` | string | yes | 1–80 chars | Short theory name on the board |
+| `statement` | string | yes | 1–300 chars | The theory in full, as its holder would say it |
+| `correct` | boolean | no | exactly one hypothesis is `true` | The right explanation |
+| `popular` | boolean | no | never on the correct one | Marks the wrong theories most people believe |
+| `holder` | string | no | a `cast` id | Who believes it; their portrait appears on the card |
+| `tempting` | string | conditional | ≤400 chars; required on every wrong hypothesis | Why people believe it, said fairly |
+| `why` | string | yes | 1–600 chars | For the correct one, why it is right; for a wrong one, why it is wrong |
+
+## Clue object
+
+| Field | Type | Required | Constraints | Description |
+| :- | :- | :- | :- | :- |
+| `id` | string | yes | kebab-case, 1–40 chars, unique | Referenced by locations |
+| `title` | string | yes | 1–60 chars | Handwritten on the board card |
+| `kind` | string | no | `physical`, `testimony`, `document`, `record`, `test` | Icon and label; default follows the first location that reveals it |
+| `text` | string | yes | 1–300 chars | What the learner found |
+| `proves` | string | yes | 1–300 chars | What the clue shows, in plain words |
+| `why` | string | yes | 1–400 chars | Why it matters for the concept (shown after "Why does this matter?") |
+| `rulesOut` | array | no | 0–5 RuleOut objects | The theories this clue contradicts |
+| `supports` | string[] | no | 0–6 hypothesis ids | Theories the clue fits (fitting is not proof) |
+| `redHerring` | boolean | no | default `false` | Looks like evidence and isn't; rules out and supports nothing |
+
+RuleOut: `hypothesis` (a hypothesis id, never the correct one) and `because`
+(string, 1–300: why this clue contradicts that theory; shown when the learner
+links the two and in the debrief).
+
+## Location object
+
+Every location has these fields, plus the fields of its `type` below.
+
+| Field | Type | Required | Constraints | Description |
+| :- | :- | :- | :- | :- |
+| `id` | string | yes | kebab-case, 1–40 chars, unique | |
+| `name` | string | yes | 1–50 chars | Card and page heading |
+| `type` | string | yes | `examine`, `interview`, `document`, `compare`, `timeline`, `ledger`, `lock`, `lab` | The interaction |
+| `summary` | string | yes | 1–200 chars | One line on the map card |
+| `intro` | string | no | ≤600 chars | Paragraph at the top of the location |
+| `host` | string | no | a `cast` id | Person shown at a non-interview location (e.g. the scientist at the lab) |
+| `requires` | string[] | no | 0–5 clue ids | The location stays locked until all of these are found |
+| `lockedNote` | string | no | ≤200 chars | Shown on a locked card: what to look for first |
+
+### `examine` — tap hotspots in an illustrated scene
+
+| Field | Type | Required | Constraints |
+| :- | :- | :- | :- |
+| `scene` | string | yes | `kitchen`, `office`, `storeroom`, `lab`, `street`, `room`: the drawn backdrop |
+| `hotspots` | array | yes | 2–8 Hotspot objects, at least one with a `clue` |
+
+Hotspot: `id` (kebab-case, unique in the scene), `label` (1–30, shown on the
+chip below the scene), `object` (one of `fridge`, `dial`, `alarm`,
+`certificate`, `drawer`, `bin`, `sink`, `shelf`, `box`, `laptop`, `phone`,
+`note`, `door`, `jar`, `clipboard`, `camera`, `cabinet`, `plant`), `x`
+(number 5–95, percent from the left), `y` (number 10–90, percent from the
+top), `note` (1–400, what the learner sees), `clue` (optional clue id). A
+hotspot without a clue is a dead end; its note says so.
+
+### `interview` — choose questions; answers reveal clues
+
+| Field | Type | Required | Constraints |
+| :- | :- | :- | :- |
+| `person` | string | yes | a `cast` id |
+| `opening` | string | yes | 1–400; what they say first |
+| `questions` | array | yes | 1–10 Question objects |
+
+Question: `id` (kebab-case, unique in the interview), `ask` (1–160), `answer`
+(1–500), `clue` (optional clue id), `redHerring` (optional boolean; the answer
+misleads, and is listed in the debrief), `note` (≤300; required when
+`redHerring` is true: why it leads nowhere), `requires` (optional 0–5 clue ids:
+the question appears only once these are found), `unlocks` (optional 0–5
+question ids in the same interview that appear after this one is asked).
+
+### `document` — read and highlight the lines that matter
+
+| Field | Type | Required | Constraints |
+| :- | :- | :- | :- |
+| `docType` | string | yes | `memo`, `email`, `policy`, `log`, `letter`, `label`, `report` (styling and stamp) |
+| `docTitle` | string | yes | 1–80 |
+| `meta` | array | no | 0–6 `{ label (1–20), value (1–80) }` header rows (From, Date, Version…) |
+| `prompt` | string | no | ≤200, default "Highlight the line that matters." |
+| `lines` | array | yes | 2–16 Line objects, at least one with a `clue` |
+
+Line: `text` (1–300), `clue` (optional clue id), `note` (≤300, shown when the
+line is highlighted).
+
+### `compare` — two exhibits side by side, spot the difference
+
+| Field | Type | Required | Constraints |
+| :- | :- | :- | :- |
+| `prompt` | string | no | ≤200 |
+| `rowLabels` | string[] | yes | 2–10 items, each 1–40 |
+| `left`, `right` | object | yes | `label` (1–60), `caption` (≤200), `rows` (string[], one per row label, each 1–80) |
+| `spots` | array | yes | 1–5 `{ row, note (1–300), clue? }`, at least one with a `clue` |
+| `sameNote` | string | no | ≤200, default "These match." (shown on rows that are not spots) |
+
+### `timeline` — put events in order
+
+| Field | Type | Required | Constraints |
+| :- | :- | :- | :- |
+| `prompt` | string | no | ≤200 |
+| `events` | array | yes | 3–8 `{ id, time (1–30), text (1–160) }` **in the true order**; the renderer shuffles them and hides `time` until solved |
+| `clue` | string | yes | clue id revealed when the order is rebuilt |
+| `solvedNote` | string | yes | 1–400; what the order shows |
+
+### `ledger` — check the numbers against a rule, spot the mismatch
+
+| Field | Type | Required | Constraints |
+| :- | :- | :- | :- |
+| `prompt` | string | no | ≤200 |
+| `rule` | string | no | ≤200; the rule to check against, shown above the table |
+| `columns` | string[] | yes | 2–6 items, each 1–30 |
+| `rows` | array | yes | 2–12 rows, each an array of exactly `columns.length` strings (1–40) |
+| `mismatches` | array | yes | 1–3 `{ row, cell?, note (1–300), clue? }`, at least one with a `clue`; `cell` circles one cell |
+| `okNote` | string | no | ≤200, default "This row checks out." |
+
+### `lock` — a small combination lock
+
+| Field | Type | Required | Constraints |
+| :- | :- | :- | :- |
+| `prompt` | string | yes | 1–300 |
+| `alphabet` | string | no | 2–36 unique non-space symbols, default `"0123456789"` (the dial symbols) |
+| `answer` | string | yes | 2–8 symbols, each in `alphabet`; one dial per symbol |
+| `hints` | string[] | yes | 1–4 items, each 1–200; revealed one at a time, the last should give the code away |
+| `openText` | string | yes | 1–400; shown when it opens |
+| `clue` | string | yes | clue id behind the lock |
+
+The code should be derivable from evidence elsewhere (a date on a label, a
+number in a document); use `requires` so the lock opens on the map only after
+that evidence is found. After every hint is shown, the learner may have the
+dials set for them.
+
+### `lab` — set conditions, run a test, observe
+
+| Field | Type | Required | Constraints |
+| :- | :- | :- | :- |
+| `prompt` | string | yes | 1–300 |
+| `visual` | string | yes | `gauge` (needle), `dish` (colonies in a petri dish), `beaker` (fill level) |
+| `meterLabel` | string | yes | 1–40; what the instrument measures |
+| `controls` | array | yes | 1–3 `{ id, label (1–40), options (2–4 strings, each 1–30) }` |
+| `outcomes` | array | yes | 1–64 Outcome objects; first match wins |
+
+Outcome: `when` (optional object mapping control ids to option indexes; omit
+for a catch-all), `level` (number 0–100, the instrument reading), `reading`
+(1–40, the result in words), `text` (1–300, what it means), `clue` (optional
+clue id).
+
+## Board object
+
+| Field | Type | Required | Constraints | Description |
+| :- | :- | :- | :- | :- |
+| `heading` | string | no | ≤60, default "The case board" | |
+| `intro` | string | no | ≤300 | Instructions above the board |
+
+## Accusation object
+
+| Field | Type | Required | Constraints | Description |
+| :- | :- | :- | :- | :- |
+| `prompt` | string | no | ≤200, default "Name the explanation" | Heading of the final step |
+| `intro` | string | no | ≤400 | Line under the heading |
+
+## Epilogue object
+
+| Field | Type | Required | Constraints | Description |
+| :- | :- | :- | :- | :- |
+| `heading` | string | no | ≤60, default "Epilogue" | |
+| `concept` | string | yes | 1–60 | The concept's name, shown large |
+| `paragraphs` | string[] | yes | 1–5 items, each 1–600 | The concept restated plainly |
+| `takeaways` | string[] | no | 0–10 items, each 1–200 | Numbered list to remember |
+
+## Cross-field rules
+- Ids are unique within `cast`, `hypotheses`, `clues` and `locations`;
+  hotspot, question, event and lab-control ids are unique within their
+  location.
+- Exactly one hypothesis has `correct: true`. `popular` is never on the
+  correct one. Every wrong hypothesis has `tempting`.
+- `hypotheses[i].holder`, `locations[i].host` and `interview.person` must be
+  `cast` ids.
+- `clues[i].rulesOut[j].hypothesis` and `clues[i].supports[j]` must be
+  hypothesis ids. No clue rules out the correct hypothesis, lists the same
+  hypothesis twice in `rulesOut`, or both supports and rules out one
+  hypothesis.
+- A red-herring clue has no `rulesOut` and no `supports`.
+- Every wrong hypothesis is ruled out by at least one clue.
+- Every clue id referenced by a location (hotspot, question, line, spot,
+  timeline, mismatch, lock, outcome, `requires`) must exist, and every clue
+  must be revealed by at least one location.
+- Interview: `unlocks` name question ids of the same interview (never the
+  question itself); at least one question has no `requires` and is not
+  unlocked by another; a red-herring answer has a `note` and no `clue`.
+- Document, examine, compare, ledger and lab: at least one line, hotspot,
+  spot, mismatch or outcome reveals a clue.
+- Compare: `left.rows` and `right.rows` have exactly `rowLabels.length`
+  entries; `spots[i].row` is an index into `rowLabels`, listed once.
+- Ledger: every row has `columns.length` cells; `mismatches[i].row` is an
+  index into `rows`, listed once; `cell` is an index into `columns`.
+- Timeline: event ids and texts are unique (the listed order is the answer).
+- Lock: `alphabet` symbols are unique; every `answer` symbol is in it.
+- Lab: `when` keys are control ids of that lab and values are option indexes;
+  every combination of control options matches some outcome; an outcome that
+  can never be shown (an earlier one always matches first) must not carry a
+  clue.
+- Reachability: starting from the locations without `requires`, every
+  location must eventually open, every interview question must eventually be
+  askable and every clue must eventually be findable.
+
+## Warnings (non-blocking)
+- Fewer than 3 hypotheses.
+- No wrong hypothesis marked `popular`.
+- No clue marked `redHerring`.
+- A clue that is not a red herring but neither rules out nor supports any
+  hypothesis (it does nothing on the board).
+- Fewer than 4 interaction types across the locations.
+- A location with `requires` but no `lockedNote`.
+- A lab outcome that is never shown.
+
+## Complete example
+The example explains compliance to a layperson: fourteen office workers fall
+ill after a lunch from a small catering kitchen, and the detective learns what
+compliance means, why its rules exist and how it works day to day by cracking
+the case. It uses all eight location types. Build the demo with:
+
+    node scripts/build-html.js skills/nthview-detective --example skills/nthview-detective/examples/example.html
+
+```json
+{
+  "schemaVersion": 1,
+  "title": "The Marigold Kitchen Case",
+  "subtitle": "Fourteen people fell ill after Tuesday's lunch. Crack the case, and learn what compliance really means.",
+  "caseNumber": "MK-0521",
+  "theme": "noir",
+  "briefing": {
+    "heading": "Case briefing",
+    "paragraphs": [
+      "Marigold Kitchen is a small catering company: eight staff, one walk-in fridge, and lunches for offices around town. On Tuesday 21 May it delivered forty chicken wraps to Fernway Accountants. By evening, fourteen of the people who ate them had food poisoning.",
+      "Kitchens like Marigold work under rules: food-safety **laws**, the **regulations** inspectors enforce, and the kitchen's own written **policies**. Following those rules, and being able to show honestly that you did, is called **compliance**. Everyone at Marigold says they were compliant. Someone is wrong.",
+      "The food-safety inspector arrives on Friday. Dana, the owner, has asked you to find out what really happened before then."
+    ],
+    "question": "Why did fourteen people fall ill after Tuesday's chicken wraps?",
+    "stakes": "Search the locations, pin what you find to the board, rule theories out with evidence, then name the explanation."
+  },
+  "detective": {
+    "title": "You are the detective Dana has called in",
+    "description": "You don't need to know food law. You need to notice things, ask good questions, and keep asking why each clue matters."
+  },
+  "cast": [
+    {
+      "id": "dana",
+      "name": "Dana Okafor",
+      "role": "Owner of Marigold Kitchen",
+      "kind": "witness",
+      "bio": "Opened Marigold six years ago. Proud of the five-star hygiene rating by the door.",
+      "portrait": {
+        "skin": "deep",
+        "hair": "bun",
+        "hairColor": "black",
+        "outfit": "cardigan",
+        "outfitColor": "#b45309",
+        "accessory": "earrings",
+        "expression": "worried"
+      }
+    },
+    {
+      "id": "marcus",
+      "name": "Marcus Bell",
+      "role": "Kitchen manager",
+      "kind": "suspect",
+      "bio": "Fifteen years in kitchens. Runs the fridge, the rota and the logs.",
+      "portrait": {
+        "skin": "fair",
+        "hair": "short",
+        "hairColor": "grey",
+        "outfit": "chef",
+        "facialHair": "stubble",
+        "expression": "stern"
+      }
+    },
+    {
+      "id": "ray",
+      "name": "Ray Duarte",
+      "role": "New cook, second week",
+      "kind": "witness",
+      "bio": "Made Tuesday's wraps. Has barely slept since.",
+      "portrait": {
+        "skin": "tan",
+        "hair": "curly",
+        "hairColor": "brown",
+        "outfit": "apron",
+        "outfitColor": "#2563eb",
+        "expression": "worried"
+      }
+    },
+    {
+      "id": "jo",
+      "name": "Jo Park",
+      "role": "Office manager, Fernway Accountants",
+      "kind": "witness",
+      "bio": "Fourteen of her team were off sick on Wednesday.",
+      "portrait": {
+        "skin": "porcelain",
+        "hair": "bob",
+        "hairColor": "auburn",
+        "outfit": "suit",
+        "outfitColor": "#334155",
+        "accessory": "glasses",
+        "expression": "neutral"
+      }
+    },
+    {
+      "id": "bo",
+      "name": "Bo Lindqvist",
+      "role": "Delivery driver",
+      "kind": "witness",
+      "bio": "Drives Marigold's chilled van. Keeps a van log to the minute.",
+      "portrait": {
+        "skin": "fair",
+        "hair": "buzz",
+        "hairColor": "blonde",
+        "outfit": "uniform",
+        "outfitColor": "#15803d",
+        "accessory": "cap",
+        "facialHair": "beard",
+        "expression": "smile"
+      }
+    },
+    {
+      "id": "priya",
+      "name": "Dr Priya Nair",
+      "role": "Food scientist, council lab",
+      "kind": "expert",
+      "bio": "Tests food samples for the council. Explains bacteria without the jargon.",
+      "portrait": {
+        "skin": "brown",
+        "hair": "ponytail",
+        "hairColor": "black",
+        "outfit": "labcoat",
+        "accessory": "glasses",
+        "expression": "smile"
+      }
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "bad-supplier",
+      "title": "A bad batch from the supplier",
+      "statement": "The chicken was bad when it arrived. Marigold's certificates and records are all in order, so the fault can't be in its own kitchen.",
+      "holder": "dana",
+      "popular": true,
+      "tempting": "The paperwork really does look perfect, and blaming an outside supplier is comfortable: it means nobody inside has to change anything.",
+      "why": "The chicken arrived at 3 °C and in date, and the same batch was fine in thirty other kitchens. And \"our records are in order\" turned out to mean \"our records were filled in\", not \"our records are true\". Having documents is not the same as following the rules."
+    },
+    {
+      "id": "new-cook",
+      "title": "One careless new cook",
+      "statement": "Ray, barely a week into the job, broke the rules. Replace him and the problem is solved.",
+      "holder": "marcus",
+      "popular": true,
+      "tempting": "Ray made the wraps, he is new, and one person is a tidy answer: it means the rest of the kitchen is fine.",
+      "why": "Ray was never trained as the handbook requires, the alarm was taped over before he started, the log was being faked by his manager, and he was the one person who noticed the chicken felt warm and said so. Compliance failures are usually a system failing, not one bad apple."
+    },
+    {
+      "id": "red-tape",
+      "title": "The rules are just red tape",
+      "statement": "Food-safety limits are box-ticking. A fridge at 9 °C instead of 5 °C makes no real difference; this was a fluke.",
+      "holder": "bo",
+      "tempting": "Most days nothing bad happens when a rule is bent, so rules start to feel like paperwork for its own sake.",
+      "why": "Dr Nair's test shows the limit sits where bacteria almost stop growing. After four days at 9 °C, chicken that looks and smells fine carries enough bacteria to make people ill. Rules exist because of real harms; \"a few degrees\" was the whole difference."
+    },
+    {
+      "id": "customer-side",
+      "title": "It went bad at the customer's office",
+      "statement": "The food was fine when it left Marigold. Fernway Accountants must have stored it badly.",
+      "tempting": "The last place food was seen is the easiest place to blame, and it moves the problem out of Marigold's hands.",
+      "why": "The wraps travelled half an hour in a chilled van and were eaten at once; they never went near Fernway's fridge. There was no time and no place for things to go wrong there."
+    },
+    {
+      "id": "paper-checks",
+      "title": "The checks happened on paper, not in the kitchen",
+      "statement": "Marigold had the right rules, but its daily fridge checks were written up without being done, so a fridge running at 9 °C went unnoticed for weeks and spoiled good chicken.",
+      "correct": true,
+      "why": "Every piece of evidence points here. The thermostat was set to 9 °C, the alarm was taped over, the probe was never used, the log was filled in on Fridays (even for a closed Sunday), and the data logger shows the real temperature. The rules were fine. Compliance broke in the everyday routine and in the honesty of the records."
+    }
+  ],
+  "clues": [
+    {
+      "id": "thermostat-9",
+      "title": "Thermostat set to 9 °C",
+      "kind": "physical",
+      "text": "The walk-in fridge's dial is set to 9 °C, with a sticky note: \"Leave at 9, saves the compressor. M.\"",
+      "proves": "The fridge was run above the 5 °C limit on purpose, not by accident.",
+      "supports": [
+        "paper-checks"
+      ],
+      "why": "A rule only protects people when it is actually followed. Here the rule existed, but the setting on the wall broke it every hour of every day."
+    },
+    {
+      "id": "alarm-taped",
+      "title": "Alarm taped over",
+      "kind": "physical",
+      "text": "The fridge alarm's speaker is covered in tape, marked \"MUTED 02/05 - M.B.\"",
+      "proves": "The warning that would have caught a warm fridge was silenced on 2 May by Marcus, eleven days before Ray started.",
+      "rulesOut": [
+        {
+          "hypothesis": "new-cook",
+          "because": "The alarm was silenced before Ray's first day. The kitchen was already set up to miss a warm fridge, whoever was cooking."
+        }
+      ],
+      "supports": [
+        "paper-checks"
+      ],
+      "why": "Safety rules usually come with a check that catches mistakes. Switching the check off turns a small fault into a hidden one."
+    },
+    {
+      "id": "hygiene-certificate",
+      "title": "Five-star certificate",
+      "kind": "document",
+      "redHerring": true,
+      "text": "A framed five-star food hygiene rating by the door, dated June last year.",
+      "proves": "Nothing about this week. It shows the kitchen passed an inspection on one day last year.",
+      "why": "The classic red herring of compliance: proof that you were compliant once is not proof that you are now. Compliance is a daily habit, not a frame on the wall."
+    },
+    {
+      "id": "probe-unused",
+      "title": "Probe never used",
+      "kind": "physical",
+      "text": "The probe thermometer the handbook requires is still in its packaging, battery tab never pulled.",
+      "proves": "Nobody has taken a real reading with it, so the numbers in the log did not come from a measurement.",
+      "supports": [
+        "paper-checks"
+      ],
+      "why": "A check needs a tool and a habit. Buying the tool looked compliant; the habit never started."
+    },
+    {
+      "id": "rule-limit",
+      "title": "The 5 °C rule",
+      "kind": "document",
+      "text": "Handbook 4.1: chilled food is stored at 5 °C or below, the legal limit for this kind of kitchen.",
+      "proves": "The law sets a limit and Marigold's own policy repeats it. The rule was known and written down.",
+      "supports": [
+        "paper-checks"
+      ],
+      "why": "Most compliance works like this: a law sets the floor, and the company writes a policy so staff know what to do on an ordinary Tuesday."
+    },
+    {
+      "id": "rule-checks",
+      "title": "Checks twice a day",
+      "kind": "document",
+      "text": "Handbook 4.2: the person on shift probes the fridge at opening and at 2 pm, and logs the reading at the time.",
+      "proves": "The rule is not just \"keep it cold\" but \"check, and write down what you actually saw\".",
+      "supports": [
+        "paper-checks"
+      ],
+      "why": "Records exist so a problem shows up early, and so anyone (an owner, an inspector) can see what really happened."
+    },
+    {
+      "id": "rule-training",
+      "title": "Training before the first shift",
+      "kind": "document",
+      "text": "Handbook 4.4: new staff complete food-hygiene training before their first shift.",
+      "proves": "Training new people is Marigold's own duty, by its own rules.",
+      "supports": [
+        "paper-checks"
+      ],
+      "why": "A policy is a promise the company makes to its staff and customers. Worth asking: was this one kept for Ray?"
+    },
+    {
+      "id": "delivery-cold",
+      "title": "Arrived at 3 °C",
+      "kind": "document",
+      "text": "The supplier's driver probed the chicken at 3 °C on arrival on Friday 17 May; use-by Friday 24 May.",
+      "proves": "The chicken was cold and in date when it reached Marigold.",
+      "rulesOut": [
+        {
+          "hypothesis": "bad-supplier",
+          "because": "The chicken arrived safe. Whatever went wrong happened after it went into Marigold's fridge."
+        }
+      ],
+      "why": "Good suppliers keep their own records. Here it is the supplier's honest paperwork that clears them."
+    },
+    {
+      "id": "batch-fine",
+      "title": "Same batch, no complaints",
+      "kind": "testimony",
+      "text": "The same batch of chicken went to about thirty kitchens. None reported a problem.",
+      "proves": "If the chicken itself had been bad, other kitchens would have seen illness too.",
+      "rulesOut": [
+        {
+          "hypothesis": "bad-supplier",
+          "because": "Thirty kitchens used the same batch without a single complaint, so the batch itself was fine."
+        }
+      ],
+      "why": "Comparing with others who handled the same thing is one of the fastest ways to find where the rules broke."
+    },
+    {
+      "id": "log-sunday",
+      "title": "Readings on a closed Sunday",
+      "kind": "record",
+      "text": "The fridge log shows two readings of 4 °C signed \"M.B.\" on Sunday 19 May, when the kitchen was closed.",
+      "proves": "The log was filled in without the checks being done. It looked perfect and it wasn't true.",
+      "rulesOut": [
+        {
+          "hypothesis": "bad-supplier",
+          "because": "\"Our records are in order\" falls apart here: the records were in order and false. A record only proves compliance if it records what really happened."
+        }
+      ],
+      "supports": [
+        "paper-checks"
+      ],
+      "why": "This is why compliance has two halves: following the rule, and being able to show it honestly. A faked record hides the very problem it was meant to catch."
+    },
+    {
+      "id": "logger-readings",
+      "title": "The real temperatures",
+      "kind": "record",
+      "text": "The data logger shows the walk-in fridge at 8 to 10 °C every hour since 2 May.",
+      "proves": "The fridge was too warm for almost three weeks while the log said 4 °C twice a day.",
+      "rulesOut": [
+        {
+          "hypothesis": "bad-supplier",
+          "because": "Good chicken then spent four days at around 9 °C in Marigold's own fridge. That alone explains it, wherever the chicken came from."
+        }
+      ],
+      "supports": [
+        "paper-checks"
+      ],
+      "why": "An automatic record is hard to argue with. It is also only useful if someone looks at it."
+    },
+    {
+      "id": "lab-growth",
+      "title": "What 9 °C does",
+      "kind": "test",
+      "text": "In Dr Nair's test, cooked chicken kept four days at 9 °C grew enough bacteria to make people ill. At 4 °C it stayed safe.",
+      "proves": "A few degrees over the limit, for a few days, turns safe food into a hazard, with no change in look or smell.",
+      "rulesOut": [
+        {
+          "hypothesis": "red-tape",
+          "because": "The 5 °C limit is not arbitrary: it is roughly where bacteria almost stop growing. \"A few degrees\" is the whole difference."
+        }
+      ],
+      "supports": [
+        "paper-checks"
+      ],
+      "why": "Behind almost every rule is a harm someone has measured. Knowing the reason makes a rule much easier to keep when it is inconvenient."
+    },
+    {
+      "id": "timeline-fast",
+      "title": "Under an hour, van to desk",
+      "kind": "record",
+      "text": "The wraps left Marigold at 11:20 in a chilled van and were eaten by 12:30.",
+      "proves": "The food had no time to spoil after it left the kitchen.",
+      "rulesOut": [
+        {
+          "hypothesis": "customer-side",
+          "because": "Half an hour in a chilled van and straight onto desks leaves no room for the food to go bad at Fernway."
+        }
+      ],
+      "why": "Rebuilding the order of events stops you blaming the last place something was seen."
+    },
+    {
+      "id": "eaten-at-once",
+      "title": "Eaten straight away",
+      "kind": "testimony",
+      "text": "Jo says the lunch arrived just before twelve and was eaten at once. It never went in Fernway's fridge.",
+      "proves": "There was no storage step at the customer's end where things could go wrong.",
+      "rulesOut": [
+        {
+          "hypothesis": "customer-side",
+          "because": "The wraps were never stored at Fernway, so Fernway's fridge played no part."
+        }
+      ],
+      "why": "Asking the people at the other end is part of an investigation too: it closes off whole explanations quickly."
+    },
+    {
+      "id": "only-chicken",
+      "title": "Only the chicken wraps",
+      "kind": "testimony",
+      "text": "Everyone who fell ill ate the chicken wraps. Nobody who had the falafel wraps was sick.",
+      "proves": "The problem was the chicken, not the bread, the van or the office.",
+      "supports": [
+        "bad-supplier",
+        "paper-checks"
+      ],
+      "why": "A clue can fit more than one theory. This one narrows the search to the chicken, but on its own it can't say whether the chicken arrived bad or went bad. Only contradictions eliminate."
+    },
+    {
+      "id": "log-backfilled",
+      "title": "Filled in on Fridays",
+      "kind": "testimony",
+      "text": "Marcus admits he writes up the whole week's fridge log on Friday afternoons, without taking readings.",
+      "proves": "The checks the handbook requires were not being done at all; only the paperwork was.",
+      "rulesOut": [
+        {
+          "hypothesis": "new-cook",
+          "because": "The system that should have caught a warm fridge was broken by the manager's routine, long before Ray made a single wrap."
+        }
+      ],
+      "supports": [
+        "paper-checks"
+      ],
+      "why": "When records are written to look right instead of to tell the truth, compliance becomes theatre. The paperwork passes; the customers get ill."
+    },
+    {
+      "id": "ray-untrained",
+      "title": "Never trained",
+      "kind": "testimony",
+      "text": "Ray never had the food-hygiene training the handbook requires before a first shift. He was told to \"tick the log\" if Marcus wasn't in.",
+      "proves": "Marigold broke its own training rule, and taught its newest cook to fake the checks.",
+      "rulesOut": [
+        {
+          "hypothesis": "new-cook",
+          "because": "Ray did what he was shown. It isn't one person's carelessness when the company never trained him and taught him to tick the box."
+        }
+      ],
+      "supports": [
+        "paper-checks"
+      ],
+      "why": "Compliance is a system. Rules, training, checks and records hold each other up; skip the training and the newest person is set up to fail."
+    },
+    {
+      "id": "ray-spoke-up",
+      "title": "Ray raised it",
+      "kind": "testimony",
+      "text": "On Tuesday morning Ray told Marcus the chicken felt warm. Marcus pointed at the log and told him to carry on.",
+      "proves": "A warning came in time, and was dismissed because the false record said all was well.",
+      "rulesOut": [
+        {
+          "hypothesis": "new-cook",
+          "because": "The \"careless\" cook was the only person who noticed. The failure was what happened when he spoke up."
+        }
+      ],
+      "supports": [
+        "paper-checks"
+      ],
+      "why": "Handbook 4.5 says anyone can stop food going out. A rule like that only works if people feel safe using it, and if the record they are checked against is true."
+    }
+  ],
+  "locations": [
+    {
+      "id": "kitchen",
+      "name": "The kitchen",
+      "type": "examine",
+      "summary": "Where Tuesday's wraps were made. Look closely at everything.",
+      "intro": "Stainless steel, a humming walk-in fridge, a radio playing to nobody. Tap or select anything that catches your eye.",
+      "scene": "kitchen",
+      "hotspots": [
+        {
+          "id": "fridge",
+          "label": "Walk-in fridge",
+          "object": "fridge",
+          "x": 16,
+          "y": 56,
+          "note": "Cool inside, but not cold. Your breath doesn't fog. Raw vegetables, sauces and a half-used tray of cooked chicken."
+        },
+        {
+          "id": "dial",
+          "label": "Fridge thermostat",
+          "object": "dial",
+          "x": 33,
+          "y": 40,
+          "note": "The dial points at 9 °C. A sticky note reads: \"Leave at 9, saves the compressor. M.\"",
+          "clue": "thermostat-9"
+        },
+        {
+          "id": "alarm",
+          "label": "Fridge alarm",
+          "object": "alarm",
+          "x": 33,
+          "y": 18,
+          "note": "The alarm's speaker is wrapped in grey tape. Written on it in marker: \"MUTED 02/05 - M.B.\"",
+          "clue": "alarm-taped"
+        },
+        {
+          "id": "certificate",
+          "label": "Hygiene certificate",
+          "object": "certificate",
+          "x": 60,
+          "y": 22,
+          "note": "A framed five-star food hygiene rating, dated June last year. Dana straightens it every morning.",
+          "clue": "hygiene-certificate"
+        },
+        {
+          "id": "sink",
+          "label": "Hand-wash sink",
+          "object": "sink",
+          "x": 52,
+          "y": 62,
+          "note": "Soap, hot water, paper towels. Exactly as it should be."
+        },
+        {
+          "id": "drawer",
+          "label": "Utensil drawer",
+          "object": "drawer",
+          "x": 72,
+          "y": 64,
+          "note": "Under the ladles: the probe thermometer the handbook mentions, still sealed in its packaging.",
+          "clue": "probe-unused"
+        },
+        {
+          "id": "bin",
+          "label": "Waste bin",
+          "object": "bin",
+          "x": 89,
+          "y": 74,
+          "note": "Eggshells and vegetable peelings. Eggs weren't in Tuesday's wraps. Nothing to see here."
+        }
+      ]
+    },
+    {
+      "id": "handbook",
+      "name": "The staff handbook",
+      "type": "document",
+      "summary": "Marigold's own written rules on food safety, signed off by Dana.",
+      "intro": "Every member of staff signs to say they have read this. Read it as a detective: which lines matter to what happened?",
+      "docType": "policy",
+      "docTitle": "Staff Handbook, Section 4: Food safety",
+      "meta": [
+        {
+          "label": "Version",
+          "value": "3.1"
+        },
+        {
+          "label": "Approved by",
+          "value": "Dana Okafor, Owner"
+        },
+        {
+          "label": "Last reviewed",
+          "value": "January"
+        }
+      ],
+      "prompt": "Highlight the lines that matter to this case.",
+      "lines": [
+        {
+          "text": "4.1 Chilled food is stored at 5 °C or below. This is the legal limit for a kitchen like ours.",
+          "clue": "rule-limit"
+        },
+        {
+          "text": "4.2 The person on shift probes the walk-in fridge at opening and at 2 pm, and writes the reading in the fridge log at the time.",
+          "clue": "rule-checks"
+        },
+        {
+          "text": "4.3 Fridge alarms are never switched off. A fault is reported to Dana the same day.",
+          "note": "Hold on to this one. Have you looked at the alarm in the kitchen?"
+        },
+        {
+          "text": "4.4 New staff complete food-hygiene training before their first shift.",
+          "clue": "rule-training"
+        },
+        {
+          "text": "4.5 Anyone who spots a food-safety problem can stop food going out. Nobody is blamed for raising a concern.",
+          "note": "A good rule. Whether people feel safe using it is another question."
+        },
+        {
+          "text": "4.6 Staff wear clean aprons and tie back long hair.",
+          "note": "True, and followed. Not part of this case."
+        },
+        {
+          "text": "4.7 Allergen information is kept with every product label.",
+          "note": "Important, but nobody here has an allergic reaction."
+        }
+      ]
+    },
+    {
+      "id": "goods-in",
+      "name": "Goods-in records",
+      "type": "compare",
+      "summary": "The supplier's delivery note next to Marigold's own goods-in sheet.",
+      "intro": "Two records of the same delivery: Friday's chicken. They should agree.",
+      "prompt": "Compare the two exhibits row by row. Select any row that matters.",
+      "rowLabels": [
+        "Date",
+        "Product",
+        "Temperature on arrival",
+        "Use-by",
+        "Checked by",
+        "Stored in"
+      ],
+      "left": {
+        "label": "Exhibit A: supplier's delivery note",
+        "caption": "Fresh Fields Poultry, signed by their driver",
+        "rows": [
+          "Fri 17 May, 07:10",
+          "Cooked chicken thigh, 6 kg",
+          "3 °C (probe)",
+          "Fri 24 May",
+          "D. Yusuf, driver",
+          "Handed to kitchen"
+        ]
+      },
+      "right": {
+        "label": "Exhibit B: Marigold goods-in sheet",
+        "caption": "Filled in by whoever receives the delivery",
+        "rows": [
+          "Fri 17 May",
+          "Chicken, 6 kg",
+          "(left blank)",
+          "Fri 24 May",
+          "(left blank)",
+          "Walk-in fridge"
+        ]
+      },
+      "spots": [
+        {
+          "row": 2,
+          "note": "The supplier probed the chicken at 3 °C, inside the 5 °C limit. Marigold's own sheet leaves the box empty.",
+          "clue": "delivery-cold"
+        },
+        {
+          "row": 4,
+          "note": "Nobody at Marigold signed for the delivery. Their own goods-in check was skipped, though the supplier's reading still covers the chicken."
+        }
+      ],
+      "sameNote": "These two agree. Nothing hiding in this row."
+    },
+    {
+      "id": "fridge-log",
+      "name": "The fridge log",
+      "type": "ledger",
+      "summary": "The clipboard hanging on the fridge door. Dana reads it every Friday.",
+      "intro": "Dana calls this log \"perfect\". Check it against the rule and against what you know about the week.",
+      "prompt": "Find the row that cannot be true.",
+      "rule": "Handbook 4.2: probe at opening and at 2 pm, logged at the time by the person on shift. Limit 5 °C. The kitchen is closed on Sundays.",
+      "columns": [
+        "Day",
+        "Kitchen",
+        "Opening",
+        "2 pm",
+        "Signed"
+      ],
+      "rows": [
+        [
+          "Wed 15 May",
+          "Open",
+          "4 °C",
+          "4 °C",
+          "M.B."
+        ],
+        [
+          "Thu 16 May",
+          "Open",
+          "4 °C",
+          "4 °C",
+          "M.B."
+        ],
+        [
+          "Fri 17 May",
+          "Open",
+          "4 °C",
+          "4 °C",
+          "M.B."
+        ],
+        [
+          "Sat 18 May",
+          "Open",
+          "4 °C",
+          "4 °C",
+          "M.B."
+        ],
+        [
+          "Sun 19 May",
+          "Closed",
+          "4 °C",
+          "4 °C",
+          "M.B."
+        ],
+        [
+          "Mon 20 May",
+          "Open",
+          "4 °C",
+          "4 °C",
+          "M.B."
+        ],
+        [
+          "Tue 21 May",
+          "Open",
+          "4 °C",
+          "4 °C",
+          "M.B."
+        ]
+      ],
+      "mismatches": [
+        {
+          "row": 4,
+          "cell": 1,
+          "note": "The kitchen was closed on Sunday, yet two readings are signed. Nobody was there to take them.",
+          "clue": "log-sunday"
+        }
+      ],
+      "okNote": "On its own this row looks fine. That is the trouble with a log: it only shows what someone wrote."
+    },
+    {
+      "id": "logger",
+      "name": "Fridge data logger",
+      "type": "lock",
+      "summary": "A small locked box on the fridge wall that records the real temperature every hour.",
+      "intro": "Dana had forgotten it existed. Marcus set its code the day he \"sorted out the alarm\".",
+      "requires": [
+        "alarm-taped"
+      ],
+      "lockedNote": "You have no reason to look at the fridge wall yet. Search the kitchen first.",
+      "prompt": "The box has a four-digit combination lock. Turn the dials and try the code.",
+      "answer": "0205",
+      "hints": [
+        "Marcus set the code on the day he dealt with the alarm.",
+        "The tape on the fridge alarm has a date on it, written day then month.",
+        "The code is 0 2 0 5."
+      ],
+      "openText": "The lid clicks open. The logger's little screen scrolls through three weeks of hourly readings.",
+      "clue": "logger-readings"
+    },
+    {
+      "id": "lab",
+      "name": "Council food lab",
+      "type": "lab",
+      "host": "priya",
+      "summary": "Dr Priya Nair can show you what temperature does to cooked chicken.",
+      "intro": "\"Pick a temperature and a time, and I'll run it on a sample of cooked chicken. The numbers are rounded, but the pattern is real.\"",
+      "prompt": "Set the storage conditions, then run the test.",
+      "visual": "dish",
+      "meterLabel": "Bacteria in the sample",
+      "controls": [
+        {
+          "id": "temp",
+          "label": "Storage temperature",
+          "options": [
+            "4 °C, the limit",
+            "9 °C, Marigold's fridge"
+          ]
+        },
+        {
+          "id": "time",
+          "label": "Time in storage",
+          "options": [
+            "6 hours",
+            "1 day",
+            "4 days"
+          ]
+        }
+      ],
+      "outcomes": [
+        {
+          "when": {
+            "temp": 0,
+            "time": 0
+          },
+          "level": 4,
+          "reading": "Hardly any growth",
+          "text": "At 4 °C bacteria barely grow. That is exactly why the limit sits where it does."
+        },
+        {
+          "when": {
+            "temp": 0,
+            "time": 1
+          },
+          "level": 7,
+          "reading": "Very slow growth",
+          "text": "A day in a properly cold fridge changes almost nothing."
+        },
+        {
+          "when": {
+            "temp": 0,
+            "time": 2
+          },
+          "level": 14,
+          "reading": "Slow growth, still safe",
+          "text": "Even after four days at 4 °C the chicken is safe, and well inside its use-by date."
+        },
+        {
+          "when": {
+            "temp": 1,
+            "time": 0
+          },
+          "level": 20,
+          "reading": "Growth has started",
+          "text": "A few degrees too warm and the bacteria wake up. After six hours you couldn't see or smell any difference."
+        },
+        {
+          "when": {
+            "temp": 1,
+            "time": 1
+          },
+          "level": 55,
+          "reading": "About 100 times more",
+          "text": "After a day at 9 °C the count has climbed about a hundredfold. It still looks and smells fine."
+        },
+        {
+          "when": {
+            "temp": 1,
+            "time": 2
+          },
+          "level": 96,
+          "reading": "Enough to make people ill",
+          "text": "Four days at 9 °C, as long as Tuesday's chicken sat in Marigold's fridge. It looks normal, and it would make people ill.",
+          "clue": "lab-growth"
+        }
+      ]
+    },
+    {
+      "id": "route",
+      "name": "Tuesday's timeline",
+      "type": "timeline",
+      "host": "bo",
+      "summary": "Bo's van log and the delivery paperwork. Put the events in order.",
+      "intro": "\"Half these food rules are just forms, if you ask me. But my van log is spot on, and the van's chilled. Here's everything I've got.\"",
+      "prompt": "Put the events in the order they happened. The times are hidden until you get it.",
+      "events": [
+        {
+          "id": "delivered",
+          "time": "Fri 17 May, 07:10",
+          "text": "The chicken arrives from the supplier and goes into the walk-in fridge."
+        },
+        {
+          "id": "prep",
+          "time": "Tue 21 May, 09:30",
+          "text": "Ray makes forty chicken wraps from it."
+        },
+        {
+          "id": "loaded",
+          "time": "Tue, 11:20",
+          "text": "Bo loads the wraps into the chilled van."
+        },
+        {
+          "id": "arrived",
+          "time": "Tue, 11:50",
+          "text": "The wraps arrive at Fernway Accountants."
+        },
+        {
+          "id": "eaten",
+          "time": "Tue, 12:00 to 12:30",
+          "text": "Fernway staff eat lunch at their desks."
+        },
+        {
+          "id": "ill",
+          "time": "Tue, 19:00",
+          "text": "The first people report stomach cramps."
+        }
+      ],
+      "solvedNote": "From the van to the first bite was well under an hour, all of it chilled. But the chicken sat in Marigold's fridge for four days. Whatever happened, happened in the kitchen.",
+      "clue": "timeline-fast"
+    },
+    {
+      "id": "dana",
+      "name": "Interview: Dana",
+      "type": "interview",
+      "person": "dana",
+      "summary": "The owner. Worried, proud, and sure the problem came from outside.",
+      "opening": "\"Thank you for coming. The inspector is here on Friday and I need to know what happened. We're a good kitchen. We've got the certificates to prove it.\"",
+      "questions": [
+        {
+          "id": "compliant",
+          "ask": "Would you say Marigold is compliant?",
+          "answer": "\"Completely. Five-star hygiene rating, every certificate on the wall, the handbook signed by everyone. If an inspector asks for paperwork, we have it.\"",
+          "unlocks": [
+            "who-checks"
+          ]
+        },
+        {
+          "id": "who-checks",
+          "ask": "Who makes sure the rules are actually followed day to day?",
+          "answer": "\"Marcus runs the kitchen. I read the fridge log every Friday and it's always perfect. Always 4 degrees.\""
+        },
+        {
+          "id": "supplier",
+          "ask": "Where does the chicken come from?",
+          "answer": "\"Fresh Fields Poultry. They supply half the cafés in town. I'd put money on a bad batch.\"",
+          "unlocks": [
+            "batch"
+          ]
+        },
+        {
+          "id": "batch",
+          "ask": "Have other Fresh Fields customers had problems?",
+          "answer": "\"I rang round this morning. The same batch went to about thirty kitchens and... no. Not a single complaint.\"",
+          "clue": "batch-fine"
+        },
+        {
+          "id": "online",
+          "ask": "Have you seen what people are saying online?",
+          "answer": "\"Someone posted that \"the new kid poisoned everyone\". Ray's been in pieces since.\"",
+          "redHerring": true,
+          "note": "An online rumour is not evidence. It names a person, which feels like an explanation, but it is a guess repeated loudly."
+        }
+      ]
+    },
+    {
+      "id": "marcus",
+      "name": "Interview: Marcus",
+      "type": "interview",
+      "person": "marcus",
+      "summary": "The kitchen manager. Defensive, experienced, and quick to name the new cook.",
+      "opening": "\"Look, I've run kitchens for fifteen years. Nobody got sick on my watch until the new lad started.\"",
+      "questions": [
+        {
+          "id": "why-ray",
+          "ask": "Why do you think it was Ray?",
+          "answer": "\"He made the wraps, didn't he? Someone careless did something careless.\"",
+          "redHerring": true,
+          "note": "Ray did make the wraps, but who touched the food last is not the same as what made it unsafe. Blaming the newest person stops an investigation too early."
+        },
+        {
+          "id": "fridge-setting",
+          "ask": "Why is the fridge set to 9 °C?",
+          "answer": "\"The compressor kept icing up and the power bill was through the roof. Five degrees is over the top anyway. Those limits are written by people who've never worked a kitchen.\""
+        },
+        {
+          "id": "alarm",
+          "ask": "Who taped over the fridge alarm?",
+          "requires": [
+            "alarm-taped"
+          ],
+          "answer": "\"It kept beeping, all day, every day. I taped it at the start of May. It was driving everyone mad.\""
+        },
+        {
+          "id": "sunday",
+          "ask": "Who signed the fridge log on Sunday, when the kitchen was closed?",
+          "requires": [
+            "log-sunday"
+          ],
+          "answer": "\"...Fine. I write the log up on Friday afternoons for the whole week. The fridge is always fine, so what's the difference?\"",
+          "clue": "log-backfilled"
+        },
+        {
+          "id": "training",
+          "ask": "Did Ray get his food-hygiene training before his first shift?",
+          "requires": [
+            "rule-training"
+          ],
+          "answer": "\"We were short-staffed. I showed him where things are. His training is booked for next month.\"",
+          "clue": "ray-untrained"
+        }
+      ]
+    },
+    {
+      "id": "ray",
+      "name": "Interview: Ray",
+      "type": "interview",
+      "person": "ray",
+      "summary": "The new cook who made the wraps. Everyone is looking at him.",
+      "opening": "\"I made the wraps. I keep going over it. I did everything Marcus showed me.\"",
+      "questions": [
+        {
+          "id": "odd",
+          "ask": "Did anything seem wrong on Tuesday morning?",
+          "answer": "\"The chicken didn't feel fridge-cold. More like... cool. I said so to Marcus.\"",
+          "unlocks": [
+            "what-said"
+          ]
+        },
+        {
+          "id": "what-said",
+          "ask": "What did Marcus say?",
+          "answer": "\"He said the log says 4 degrees, so it's fine, and to get the wraps out. It was my second week. I didn't want to make trouble.\"",
+          "clue": "ray-spoke-up"
+        },
+        {
+          "id": "trained",
+          "ask": "Did anyone train you in food safety?",
+          "answer": "\"Not really. I was told to tick the log if Marcus wasn't in. Nobody showed me the probe thermometer.\"",
+          "clue": "ray-untrained"
+        },
+        {
+          "id": "handbook",
+          "ask": "Have you read the staff handbook?",
+          "answer": "\"I signed to say I had. It was in a pile of about forty forms on my first day.\""
+        }
+      ]
+    },
+    {
+      "id": "jo",
+      "name": "Interview: Jo",
+      "type": "interview",
+      "person": "jo",
+      "summary": "The customer. She wants to know it won't happen again.",
+      "opening": "\"Fourteen of my team were off sick on Wednesday. I'm not after anyone's head. I just want to know it won't happen again.\"",
+      "questions": [
+        {
+          "id": "when",
+          "ask": "When did the lunch arrive, and when was it eaten?",
+          "answer": "\"Just before twelve. We ate at our desks straight away. It never went near our office fridge.\"",
+          "clue": "eaten-at-once"
+        },
+        {
+          "id": "who",
+          "ask": "Who fell ill?",
+          "answer": "\"Only people who had the chicken wraps. Everyone who had the falafel ones was fine.\"",
+          "clue": "only-chicken"
+        },
+        {
+          "id": "heard",
+          "ask": "Have you heard anything about the cause?",
+          "answer": "\"Someone in the office said Marigold's van has no fridge in it. I don't know if that's true.\"",
+          "redHerring": true,
+          "note": "Bo's van is chilled, and the delivery took half an hour. A rumour about the van is easy to repeat and easy to check, and it doesn't survive the timeline."
+        }
+      ]
+    }
+  ],
+  "board": {
+    "heading": "The case board",
+    "intro": "Pin clues, then link each one to a theory it speaks to. Evidence that contradicts a theory rules it out. Evidence that fits is not proof."
+  },
+  "accusation": {
+    "prompt": "Name the explanation",
+    "intro": "Pick the theory the evidence leaves standing, and say how sure you are. Nothing is scored: the debrief explains every theory either way."
+  },
+  "epilogue": {
+    "heading": "Epilogue",
+    "concept": "Compliance",
+    "paragraphs": [
+      "**Compliance** means following the rules that apply to your work (laws, regulations, standards and your organisation's own policies) and being able to show, honestly, that you did.",
+      "Rules exist because of real harms. The 5 °C limit is where bacteria nearly stop growing. The alarm, the probe and the log are there so a warm fridge is noticed on day one, not in week three.",
+      "Day to day, compliance looks small: a reading taken and written down truthfully, a new starter trained before their first shift, an alarm left on, a concern raised and acted on. A certificate on the wall shows you passed once. Compliance is the habit that keeps you passing."
+    ],
+    "takeaways": [
+      "Compliance is following the rules that apply to you, and being able to show it honestly.",
+      "Paperwork is not compliance. A record only counts if it records what really happened.",
+      "Every rule protects someone from a real harm; knowing the reason makes it easier to keep.",
+      "It's a system: rules, training, checks and records hold each other up.",
+      "When something goes wrong, look at the system before blaming the newest person.",
+      "Anyone should be able to raise a concern, and it should be acted on."
+    ]
+  }
+}
+```

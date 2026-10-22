@@ -3,6 +3,36 @@
 window.NthViewRegistry = {
   "skills": [
     {
+      "name": "nthview-concept-map",
+      "title": "Concept Map",
+      "kind": "view",
+      "description": "Turns a topic, text or document into an interactive concept map the learner first tours and then rebuilds from memory: concepts as nodes in coloured clusters, labelled relationships as arrows, a guided tour that lights up one region at a time, six kinds of rebuild task (place nodes in clusters, name a link, draw a missing link, spot a wrong link, order a process, name a blank concept) with an explanation for every slip, and a \"three links that matter most\" reflection. Use when the user asks for a concept map, mind map, knowledge graph or \"how it all fits together\", wants to see the structure or big picture of an idea, or to understand causes, parts and relationships; not for memorising isolated facts, a single linear story, or step-by-step procedures with no structure.",
+      "path": "skills/nthview-concept-map",
+      "skill": "skills/nthview-concept-map/SKILL.md",
+      "schema": "skills/nthview-concept-map/references/schema.md",
+      "demo": "skills/nthview-concept-map/examples/example.html"
+    },
+    {
+      "name": "nthview-detective",
+      "title": "Detective",
+      "kind": "view",
+      "description": "Turns a concept into a detective case the learner cracks: they search locations (examine a scene, interview witnesses, read documents, compare exhibits, rebuild a timeline, check a ledger, open a lock, run a lab test), pin clues to an evidence board, rule out competing theories with evidence, then name the explanation and get a debrief on why each wrong theory was tempting; five visual themes. Use when the user asks for a mystery, a detective story, a whodunnit, \"a case to solve\", learning by deduction, or wants to confront the common misconceptions about a topic; not for memorising facts, step-by-step procedures or a quick reference.",
+      "path": "skills/nthview-detective",
+      "skill": "skills/nthview-detective/SKILL.md",
+      "schema": "skills/nthview-detective/references/schema.md",
+      "demo": "skills/nthview-detective/examples/example.html"
+    },
+    {
+      "name": "nthview-explorable",
+      "title": "Explorable",
+      "kind": "view",
+      "description": "Builds an explorable explanation: a short guided story in 4–12 steps where the learner predicts what a change will do, then tinkers with a live model (sliders, switches, draggable numbers) driving charts, gauges, flows, replays, side-by-side scenarios and agent or cellular simulations. Use when the user asks for an \"explorable explanation\", an \"interactive simulation\", \"let me play with it\" or \"what happens if I change X\"; not for facts to memorise or text without a model behind it.",
+      "path": "skills/nthview-explorable",
+      "skill": "skills/nthview-explorable/SKILL.md",
+      "schema": "skills/nthview-explorable/references/schema.md",
+      "demo": "skills/nthview-explorable/examples/example.html"
+    },
+    {
       "name": "nthview-island-quest",
       "title": "Island Quest",
       "kind": "view",
