@@ -82,7 +82,7 @@ thinner than it should be.
 Produce one standalone file using the template in AGENTS.md §6. The
 repository tool does this exactly:
 
-    node scripts/build-html.js skills/nthview-scenario-quiz <path-to-json> examples/<concept-slug>-scenario-quiz.html
+    node scripts/build-html.js skills/nthview-scenario-quiz <path-to-json> docs/<concept-slug>-scenario-quiz.html
 
 If building by hand: the JSON in `<script type="application/json"
 id="nthview-data">` with every `<` replaced by the six characters `\u003c`,
@@ -91,7 +91,7 @@ three-line bootstrap that calls
 `NthView.build(document.getElementById("app"), data)`, with the one Google
 Fonts tag from `NthView.libs` before the scripts.
 
-Generated quizzes go in the repo-root `examples/` folder (or wherever the user
+Generated quizzes go in the repo-root `docs/` folder (or `lessons/<lesson>/chapters/` when it is a lesson chapter built by `scripts/build-lesson.js`) (or wherever the user
 asks); never inside `skills/`.
 
 ### 5. Deliver

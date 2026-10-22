@@ -65,8 +65,8 @@ import, read or depend on another view folder.
 
 Five views live under `skills/` and are listed in `registry.js` and the
 gallery: `nthview-island-quest`, `nthview-scenario-quiz`,
-`nthview-explorable`, `nthview-detective`, `nthview-concept-map`. New views
-are added one at a time following §11.
+`nthview-explorable`, `nthview-detective`, `nthview-concept-map`, plus the
+parent skill `nthview` (§10). New views are added one at a time following §11.
 
 ---
 
@@ -83,9 +83,11 @@ NthView/
 ├── index.html                     # gallery page: lists every skill (§7)
 ├── registry.js                    # GENERATED list the gallery reads — never edit
 ├── scripts/
-│   ├── build-registry.js          # scans skills/, checks §3, writes registry.js
-│   └── build-html.js              # assembles a standalone output file exactly as §6
-├── examples/                      # generated games/docs built WITH the skills (outputs, not skills)
+│   ├── build-registry.js          # scans skills/, docs/, lessons/; checks §3; writes registry.js
+│   ├── build-html.js              # assembles a standalone output file exactly as §6
+│   └── build-lesson.js            # builds a lesson: chapters + lesson bar + contents page (§8)
+├── docs/                          # single documents built WITH a view (outputs, not skills)
+├── lessons/                       # multi-chapter lessons, one view per chapter (§8)
 ├── skills/
 │   ├── nthview-<view>/            # one folder per view (see §3)
 │   │   ├── SKILL.md
@@ -97,8 +99,9 @@ NthView/
 │   │   │   └── schema.md
 │   │   └── examples/
 │   │       └── example.html
-│   └── nthview/                   # router skill, later (§10)
-│       └── SKILL.md
+│   └── nthview/                   # the parent skill: chooses views, assembles lessons (§10)
+│       ├── SKILL.md
+│       └── references/lesson-format.md
 └── .claude-plugin/                # later (§9) — do not create yet
     ├── plugin.json
     └── marketplace.json
@@ -109,11 +112,12 @@ housekeeping (`.gitignore`, `CONTRIBUTING.md` if added). No `package.json`,
 no `node_modules`, no bundler. The root `scripts/` folder holds repo tooling
 only, never view code; the plugin layout permits it.
 
-The root `examples/` folder is for outputs produced *with* a view, such as a
-game about some topic built from `nthview-island-quest`: the JSON next to the
-HTML it produced, named `<concept-slug>-<view>.json` and `.html`. It is not
-scanned by the registry and nothing in `skills/` may depend on it. A view's
-own demo stays in `skills/<view>/examples/example.html`.
+The root `docs/` folder is for single documents produced *with* a view, such
+as a game about some topic built from `nthview-island-quest`: the JSON next to
+the HTML it produced, named `<concept-slug>-<view>.json` and `.html`. The
+root `lessons/` folder holds multi-chapter lessons (§8). Both are scanned by
+the registry so the gallery can list them; nothing in `skills/` may depend on
+them. A view's own demo stays in `skills/<view>/examples/example.html`.
 
 ---
 
@@ -611,6 +615,10 @@ Rules:
    only file on the machine.
 6. Output file name: `<concept-slug>-<view>.html`, lowercase kebab-case.
 7. One file, one view.
+8. A lesson chapter may carry one extra block after the bootstrap script:
+   the lesson bar that `scripts/build-lesson.js` appends (previous, contents,
+   next). It is self-contained, prefixed `nthview-lesson-`, and never touches
+   the view. No other additions are allowed.
 
 The repo tool assembles this template exactly, including the library tags
 and the `\u003c` escaping, and is the recommended way to build any output:
@@ -659,6 +667,11 @@ skills/<name>/SKILL.md  ──(frontmatter name + description)──▶  scripts
    else (the router). `demo` and `schema` are `null` for non-views.
 3. `index.html` loads `registry.js` with a plain `<script src>` (allowed from
    `file://`, unlike `fetch`) and renders one card per entry, views first.
+4. The registry also embeds each skill's `SKILL.md` (frontmatter stripped)
+   and `references/schema.md` as `skillMd` and `schemaMd`, so the gallery can
+   show them rendered in a dialog without fetching files. It renders them
+   with `marked` (pinned, from cdnjs) and falls back to plain text if that
+   library does not load.
 
 ### 7.2 Rules
 
@@ -676,7 +689,7 @@ skills/<name>/SKILL.md  ──(frontmatter name + description)──▶  scripts
 - Every view must have `examples/example.html`, because the gallery's
   "Open demo" link points at it; the script refuses a view without one.
 - `index.html` follows the same standards as a view: only the Google Fonts
-  link as an external resource, light and dark mode, responsive, keyboard accessible, content rendered with
+  link and the pinned `marked` script as external resources, light and dark mode, responsive, keyboard accessible, content rendered with
   `textContent` so a description can never inject markup.
 
 ---
@@ -745,12 +758,23 @@ Notes:
 
 ---
 
-## 10. The router skill (later)
+## 10. The parent skill and lessons
 
-A skill named `nthview` at `skills/nthview/SKILL.md` will help a user pick a
-view when they have not chosen one: it asks about the content and the goal,
-recommends one view, and hands off to that view's skill. It builds nothing
-itself and is added only after at least two views exist.
+`skills/nthview/SKILL.md` is the front door. It decides document versus
+lesson, recommends a view per use case from a minimal table, asks at most two
+questions, and hands each piece of content to the matching view skill. It
+holds no view detail of its own; that stays in each view's `SKILL.md`. The
+registry records it with `hidden: true`, so it never appears as a gallery
+card.
+
+A **lesson** is `lessons/<lesson-slug>/lesson.json` plus `chapters/NN-<slug>.json`
+files, one view per chapter (two angles on an idea are two chapters).
+`node scripts/build-lesson.js lessons/<lesson-slug>` validates the manifest
+and every chapter with its view, assembles the chapter pages with the lesson
+bar, writes the lesson's `index.html` contents page, and regenerates the
+registry. The gallery lists docs and lessons behind one "N docs · M lessons
+available" button that opens a dialog. The format is documented in
+`skills/nthview/references/lesson-format.md`.
 
 ---
 

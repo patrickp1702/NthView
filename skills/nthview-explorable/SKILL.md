@@ -99,7 +99,7 @@ Produce one standalone file using the template in AGENTS.md §6. The
 repository tool does this exactly, including the Google Fonts tag declared
 in `NthView.libs`:
 
-    node scripts/build-html.js skills/nthview-explorable <path-to-json> examples/<concept-slug>-explorable.html
+    node scripts/build-html.js skills/nthview-explorable <path-to-json> docs/<concept-slug>-explorable.html
 
 If building by hand: the JSON in `<script type="application/json"
 id="nthview-data">` with every `<` replaced by the six characters `<`,
@@ -107,7 +107,7 @@ the one Google Fonts `<link>` from `NthView.libs`, then `scripts/validate.js`
 and `assets/view.js` inlined verbatim, then the three-line bootstrap that
 calls `NthView.build(document.getElementById("app"), data)`.
 
-Generated labs go in the repo-root `examples/` folder (or wherever the user
+Generated labs go in the repo-root `docs/` folder (or `lessons/<lesson>/chapters/` when it is a lesson chapter built by `scripts/build-lesson.js`) (or wherever the user
 asks); never inside `skills/`.
 
 ### 5. Deliver

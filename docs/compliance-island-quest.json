@@ -1,0 +1,461 @@
+{
+  "schemaVersion": 1,
+  "title": "Compliance Cove",
+  "subtitle": "A beginner's game about following the rules at work, and why they matter",
+  "companion": {
+    "name": "Pip"
+  },
+  "coins": 10,
+  "intro": {
+    "paragraphs": [
+      "Pip just started work at Sunny Bakes, a small chain of bakeries. In one week the food inspector visits. Pip has heard the word **compliance** a dozen times already and still isn't sure what it means.",
+      "You're Pip's guide. Pip tags along behind you. Visit 7 islands, one short lesson each, and by the end Pip will know what the rules are, where they come from, and how to live with them day to day."
+    ],
+    "steps": [
+      "Press **Walk me there** at the bottom of the screen, or follow the arrow yourself. Pick up the coins on the bridges on your way.",
+      "Read the short lesson and try the activity. On some islands you'll walk around to collect answers or stand on a pad to choose.",
+      "Answer one easy question. Each guess costs a coin. First try earns 3 stars."
+    ],
+    "note": "Sunny Bakes, Pip and every number in this game are made up to teach the idea. The ideas apply to any organisation, from a bakery to a bank."
+  },
+  "islands": [
+    {
+      "id": "rulebook-grove",
+      "name": "Rulebook Grove",
+      "theme": "grove",
+      "lead": "Everyone at Sunny Bakes keeps saying \"compliance\". Pip asked seven coworkers what it means and got a mix of answers. The honest answer is simple: compliance means **following the rules that apply to you**. The laws of the country, the regulations for your industry, the standards you've signed up to, and your own organisation's policies.",
+      "body": [
+        "The coworkers' answers were: **A** following the rules that apply to us, **B** paperwork that nobody reads, **C** something only lawyers do, **D** saying yes to the boss."
+      ],
+      "activity": {
+        "type": "collect",
+        "prompt": "The seven answers are the glowing letters scattered around the grove. Walk into all 7 to collect them. Each one is a vote.",
+        "items": ["A", "B", "A", "A", "C", "A", "D"],
+        "resultTitle": "The vote",
+        "resultText": "Most popular answer: {top} ({count} of {total} coworkers)",
+        "resultNote": "Three coworkers had other ideas. That's normal: the word sounds grander than it is."
+      },
+      "quiz": {
+        "question": "In plain words, what is compliance?",
+        "options": [
+          {
+            "text": "Following the rules that apply to your organisation",
+            "correct": true
+          },
+          {
+            "text": "Paperwork that nobody reads",
+            "why": "Paperwork is sometimes how you prove you followed a rule, but it isn't the point. The rule is the point."
+          },
+          {
+            "text": "Something only lawyers do",
+            "why": "Lawyers help explain the rules, but it's the people doing the work, like Pip, who follow them every day."
+          }
+        ]
+      },
+      "remember": "Compliance means following the rules that apply to you: laws, regulations, standards and your own policies."
+    },
+    {
+      "id": "rule-makers-hall",
+      "name": "Rule-Makers Hall",
+      "theme": "hall",
+      "lead": "Where do the rules come from? Not from one place. Four kinds of rule-maker stand in this hall. The taller the figure, the more people its rules reach.",
+      "body": [
+        "**Laws** are made by parliaments and governments and apply to everyone in the country. **Regulations** are detailed rules from a regulator, such as a food safety agency, for one industry. **Standards** are agreed good practice that organisations sign up to, often to earn a certificate. **Policies** are the rules an organisation writes for itself, like Sunny Bakes' rule \"check every fridge twice a day\"."
+      ],
+      "activity": {
+        "type": "pads",
+        "prompt": "Pip's manager says: \"Our own rule is that every fridge is checked twice a day.\" Which kind of rule is that? Walk to its pad and press **Choose this one**.",
+        "options": [
+          {
+            "id": "law",
+            "label": "Law",
+            "size": 3,
+            "hint": "Laws come from the government and apply to everyone. A rule the bakery wrote for itself is something smaller."
+          },
+          {
+            "id": "regulation",
+            "label": "Regulation",
+            "size": 2.3,
+            "hint": "A regulator might say \"keep food cold\". \"Check twice a day\" is how Sunny Bakes chose to do that: a rule of its own."
+          },
+          {
+            "id": "standard",
+            "label": "Standard",
+            "size": 1.6,
+            "hint": "Standards are shared good practice that many organisations sign up to. This rule belongs to Sunny Bakes alone."
+          },
+          {
+            "id": "policy",
+            "label": "Policy",
+            "size": 1
+          }
+        ],
+        "answer": "policy"
+      },
+      "aside": {
+        "title": "Why so many layers?",
+        "text": "The outer rules say **what** must be true: food must be safe. The inner ones say **how** your organisation makes sure of it: check the fridge twice a day. Policies are how a big, vague law becomes a small, doable habit."
+      },
+      "remember": "Laws, regulations and standards come from outside. Policies are the rules your organisation writes for itself to meet them."
+    },
+    {
+      "id": "training-workshop",
+      "name": "Training Workshop",
+      "theme": "workshop",
+      "lead": "A policy that nobody knows about protects nobody. So organisations **train** people when they start and remind them along the way. Pip's first week has a food-safety course, a short quiz, and a poster by every fridge.",
+      "activity": {
+        "type": "tune",
+        "title": "Try it: spread the fridge rule",
+        "controls": [
+          {
+            "id": "t",
+            "label": "Training minutes per month",
+            "min": 0,
+            "max": 60,
+            "value": 10
+          },
+          {
+            "id": "r",
+            "label": "Reminder posters in the kitchen",
+            "min": 0,
+            "max": 5,
+            "value": 1
+          }
+        ],
+        "readout": [
+          {
+            "when": "t == 0 && r == 0",
+            "text": "No training, no reminders. The policy is a document in a drawer. Roughly {30 + t + r*2} of 100 staff would remember the fridge rule, and only by luck."
+          },
+          {
+            "text": "Rough idea: about {30 + t + r*2} of 100 staff remember the fridge rule on a busy Saturday."
+          }
+        ],
+        "tally": {
+          "count": "(30 + t + r*2)/10",
+          "icon": "🙂",
+          "max": 10
+        },
+        "visual": {
+          "kind": "circle",
+          "count": "(30 + t + r*2)/10",
+          "extra": "r"
+        },
+        "outcomes": {
+          "buttonLabel": "Ask the team",
+          "cases": [
+            {
+              "when": "t >= 30 && r >= 2",
+              "text": "Nearly everyone knows the rule and why it exists. This is what good training looks like: regular, short, and backed up by reminders where the work happens.",
+              "tone": "ok"
+            },
+            {
+              "when": "t >= 30",
+              "text": "Good training, but on a busy Saturday people forget. Put a reminder where the work happens: right by the fridge.",
+              "tone": "note"
+            },
+            {
+              "when": "r >= 2",
+              "text": "Posters help people remember, but nobody has been taught what the numbers on the thermometer mean. Add some training.",
+              "tone": "note"
+            }
+          ],
+          "fallback": {
+            "text": "Most of the team can't say what the fridge rule is. The policy exists only on paper. Try more training and a reminder or two.",
+            "tone": "no"
+          }
+        },
+        "caption": "The numbers are made up to show one idea: knowing a rule takes both teaching and reminding. Watch the ring of staff grow outside."
+      },
+      "quiz": {
+        "question": "Sunny Bakes writes a great fridge policy and files it in the office. Is the job done?",
+        "options": [
+          {
+            "text": "Yes, the rule exists now",
+            "why": "A rule nobody knows about protects nobody. Try the sliders above with zero training."
+          },
+          {
+            "text": "No, people need to be trained and reminded",
+            "correct": true
+          }
+        ]
+      },
+      "remember": "Policies only work when people know them. Training and reminders turn a document into a habit."
+    },
+    {
+      "id": "check-up-canyon",
+      "name": "Check-Up Canyon",
+      "theme": "canyon",
+      "lead": "How does anyone know the rules are really being followed? Two ways. **Monitoring** is the everyday checking you do yourself: the fridge log, the weekly walk-round. An **audit** is when someone from outside the team, or outside the organisation, comes to check the checks.",
+      "body": [
+        "Three Sunny Bakes shops. Grey columns: problems the inspector found last spring. Coloured columns: problems found this autumn, after every shop started a weekly self-check. The numbers are made up to show the pattern."
+      ],
+      "activity": {
+        "type": "pads",
+        "prompt": "Find the shop that improved the most. Stand on its pad, then press **Choose this one**. A wrong pad costs a coin, like a wrong guess.",
+        "options": [
+          {
+            "id": "oak-street",
+            "label": "Oak Street",
+            "bars": [30, 24],
+            "hint": "Oak Street improved a little, from 30 to 24. One shop improved far more."
+          },
+          {
+            "id": "harbour",
+            "label": "Harbour",
+            "bars": [42, 9]
+          },
+          {
+            "id": "hilltop",
+            "label": "Hilltop",
+            "bars": [18, 15],
+            "hint": "Hilltop was already in decent shape and only moved from 18 to 15. Look for the pair that shrank the most."
+          }
+        ],
+        "answer": "harbour"
+      },
+      "findings": {
+        "caption": "Problems found by the inspector (made-up numbers). Grey: last spring. Colour: this autumn, after weekly self-checks began.",
+        "rows": [
+          { "label": "Oak Street, last spring", "value": 30, "show": "30", "style": "grey" },
+          { "label": "Oak Street, this autumn", "value": 24, "show": "24" },
+          { "label": "Harbour, last spring", "value": 42, "show": "42", "style": "grey" },
+          { "label": "Harbour, this autumn", "value": 9, "show": "9" },
+          { "label": "Hilltop, last spring", "value": 18, "show": "18", "style": "grey" },
+          { "label": "Hilltop, this autumn", "value": 15, "show": "15" }
+        ],
+        "text": "Harbour went from 42 problems to 9, the biggest drop by far. Its manager did the self-check every Monday and fixed what it found the same day. Monitoring catches slips early; the audit then confirms that the monitoring works.",
+        "after": true
+      },
+      "remember": "Monitoring is checking your own work every day. An audit is someone else checking that your checks work."
+    },
+    {
+      "id": "slip-up-tower",
+      "name": "Slip-Up Tower",
+      "theme": "tower",
+      "lead": "What actually happens when a rule is broken? Pip imagines a quiet Tuesday at the Harbour shop, back before the self-checks started.",
+      "activity": {
+        "type": "story",
+        "buttonLabel": "What happens next?",
+        "resetLabel": "Start over",
+        "frames": [
+          "Tuesday morning. The fridge is making a strange noise, but it's busy, and nobody writes the temperature in the log.",
+          "By Thursday the cream has been too warm for two days. It smells fine. Nobody notices.",
+          "Friday. Six customers who ate the cream cakes fall ill. One of them is a child.",
+          "The food safety regulator investigates. The log has gaps. The shop closes for a week, pays a fine, and the story is in the local paper.",
+          "Now rewind. On a different Tuesday, a baker notices the noise, logs it, tells the manager, and the cream is thrown out. Cost: one tub of cream and five minutes."
+        ],
+        "caption": "A made-up story. Real incidents follow the same shape: a small skipped step, then a big consequence."
+      },
+      "aside": {
+        "title": "When something does go wrong",
+        "text": "Good organisations don't hide it. They **report** it, fix the harm, tell the regulator if the rules say so, and change the process so it can't happen the same way again. Many places protect people who speak up, so fear of blame doesn't keep a slip secret."
+      },
+      "quiz": {
+        "question": "Pip notices the fridge is making a strange noise on a busy day. What's the right move?",
+        "options": [
+          {
+            "text": "Keep serving; it's probably nothing",
+            "correct": false,
+            "why": "That's exactly how the story began. A noisy fridge is a small sign worth two minutes."
+          },
+          {
+            "text": "Log it and tell the manager straight away",
+            "correct": true
+          },
+          {
+            "text": "Quietly fix it later and tell no one",
+            "why": "Fixing is good, but hiding it means nobody can check the food, learn from it, or spot a pattern."
+          }
+        ]
+      },
+      "remember": "Breaking a rule rarely hurts only the rule-breaker. Spot it, report it, fix it, learn from it."
+    },
+    {
+      "id": "cost-clock",
+      "name": "Cost Clock",
+      "theme": "clock",
+      "lead": "People often see compliance as a cost: time spent on logs and training instead of baking. So let's actually compare the time.",
+      "activity": {
+        "type": "race",
+        "buttonLabel": "Start the clock",
+        "bars": [
+          {
+            "label": "Checking the fridge and writing it down",
+            "value": 3,
+            "show": "5 min/day",
+            "tag": "check"
+          },
+          {
+            "label": "Dealing with one food-safety incident",
+            "value": 100,
+            "show": "weeks",
+            "tag": "incident"
+          }
+        ],
+        "caption": "Rough, made-up figures. A twice-daily check takes a few minutes. One incident means closure, investigation, lost customers and sleepless nights. On the island, the glowing gear is the slow one."
+      },
+      "findings": {
+        "caption": "Hours in a year (illustrative)",
+        "rows": [
+          { "label": "Fridge checks for a whole year", "value": 10, "show": "~30 h" },
+          { "label": "One incident: closure, investigation, repairs", "value": 100, "show": "300+ h", "style": "dashed" }
+        ],
+        "text": "The daily checks for a whole year add up to about 30 hours. A single incident can swallow hundreds of hours, plus the fine and the lost trust. That's why organisations think of compliance as **insurance**, not red tape."
+      },
+      "quiz": {
+        "question": "Over a year, which costs Sunny Bakes more time?",
+        "options": [
+          {
+            "text": "Doing all the daily checks",
+            "why": "They add up to about 30 hours a year. Press the button above and watch the other bar."
+          },
+          {
+            "text": "One serious incident",
+            "correct": true
+          }
+        ]
+      },
+      "remember": "Prevention costs minutes. Cleaning up costs weeks. Compliance is insurance."
+    },
+    {
+      "id": "culture-meadow",
+      "name": "Culture Meadow",
+      "theme": "plain",
+      "lead": "Last island. Two bakeries can have the same rulebook and be completely different places. In one, people tick the box and look away. In the other, people follow the rule because they understand who it protects, and they speak up when something looks wrong.",
+      "body": [
+        "This is what people mean by **compliance culture**. It shows in small things: whether the manager thanks the baker who throws out the cream, whether questions are welcome, whether the log is filled in honestly when nobody is watching.",
+        "Rules set the floor. Culture decides whether people actually stand on it."
+      ],
+      "findings": {
+        "caption": "Staff who say they would report a problem (illustrative survey, out of 100)",
+        "rows": [
+          { "label": "Shops where reporters are thanked", "value": 88, "show": "88" },
+          { "label": "Shops where reporters are blamed", "value": 31, "show": "31", "style": "grey" }
+        ],
+        "text": "Made-up numbers, real pattern: where speaking up is welcomed, problems surface and get fixed. Where it's punished, problems go quiet, and quiet problems grow."
+      },
+      "quiz": {
+        "question": "Which bakery is more compliant: one with perfect paperwork where staff hide problems, or one where staff report problems and the paperwork shows them?",
+        "options": [
+          {
+            "text": "The one with perfect paperwork",
+            "why": "Perfect paperwork that hides problems is box-ticking. Real compliance is about what happens, not what is written down."
+          },
+          {
+            "text": "The one where problems are reported and fixed",
+            "correct": true
+          }
+        ]
+      },
+      "remember": "Box-ticking follows the letter of the rule. Culture follows its purpose. Aim for the second."
+    }
+  ],
+  "finale": {
+    "name": "Inspection Day",
+    "lead": "The inspector is here. Help Pip handle each situation the way a well-run bakery would.",
+    "questions": [
+      {
+        "question": "A new rule from the food safety regulator arrives. What should Sunny Bakes do first?",
+        "options": [
+          {
+            "text": "Ignore it until the inspector mentions it",
+            "why": "Regulations apply whether or not anyone has checked yet."
+          },
+          {
+            "text": "Turn it into a clear policy and train everyone on it",
+            "correct": true
+          },
+          {
+            "text": "Ask the lawyers to argue it doesn't apply",
+            "why": "Sometimes a rule genuinely doesn't apply, but the normal job is to understand it and build it into daily work."
+          }
+        ],
+        "okText": "Correct! Outside rules become inside policies, and policies become habits through training."
+      },
+      {
+        "question": "The weekly self-check finds the freezer at Oak Street is too warm. Nobody got ill. Is it worth writing down?",
+        "options": [
+          {
+            "text": "No, nothing happened",
+            "why": "Nothing happened **because** the check caught it. Writing it down shows the monitoring works and helps spot a pattern."
+          },
+          {
+            "text": "Yes, record it and fix it",
+            "correct": true
+          }
+        ],
+        "okText": "Correct! A near miss written down is a lesson learned."
+      },
+      {
+        "question": "Pip's manager says: \"Just sign the log for yesterday, nobody will know.\" What should Pip do?",
+        "options": [
+          {
+            "text": "Sign it; it's only a form",
+            "why": "A false record is worse than a gap. It hides the truth from the people the rule protects."
+          },
+          {
+            "text": "Leave the gap and tell the manager why",
+            "correct": true
+          },
+          {
+            "text": "Sign it but feel bad about it",
+            "why": "Feeling bad doesn't make the record true."
+          }
+        ],
+        "okText": "Correct! An honest gap can be fixed. A false record can't."
+      },
+      {
+        "question": "Which of these best describes a bakery with a strong compliance culture?",
+        "options": [
+          {
+            "text": "Nobody ever reports a problem",
+            "why": "Silence usually means problems are hidden, not absent."
+          },
+          {
+            "text": "Problems get reported, fixed and talked about",
+            "correct": true
+          },
+          {
+            "text": "The rulebook is the longest in town",
+            "why": "Length isn't the point. Knowing and following the rules is."
+          }
+        ],
+        "okText": "Correct! Culture is what people do when the inspector isn't there."
+      }
+    ]
+  },
+  "report": {
+    "heading": "Pip passed the inspection!",
+    "tiers": {
+      "perfect": "Every answer right on the first try. Pip could not have asked for a better guide.",
+      "great": "Almost perfect. Pip is very proud of you.",
+      "pass": "You got Pip through the inspection! Play again to see if you can earn more stars."
+    },
+    "lessons": [
+      "Compliance means following the rules that apply to you: laws, regulations, standards and your own policies.",
+      "Laws, regulations and standards come from outside; policies are the rules your organisation writes for itself.",
+      "Policies only work when people know them: train and remind.",
+      "Monitoring is checking your own work; an audit checks the checks.",
+      "When a rule is broken, spot it, report it, fix it and learn from it.",
+      "Prevention costs minutes; cleaning up costs weeks.",
+      "Box-ticking follows the letter of the rule; culture follows its purpose."
+    ],
+    "glossaryIntro": "When you hear these words at work, this is what they mean:",
+    "glossaryColumns": ["In this game", "At work"],
+    "glossary": [
+      { "term": "The rules that apply to you", "meaning": "Compliance requirements (or obligations)" },
+      { "term": "Rule-makers outside the bakery", "meaning": "Laws, regulations and standards" },
+      { "term": "Rules the bakery writes for itself", "meaning": "Internal policies and procedures" },
+      { "term": "The fridge course and the posters", "meaning": "Compliance training and awareness" },
+      { "term": "The weekly self-check", "meaning": "Monitoring, also called internal controls" },
+      { "term": "The inspector's visit", "meaning": "Audit (internal or external)" },
+      { "term": "Telling the manager about the noisy fridge", "meaning": "Incident reporting; whistleblowing when it is serious" },
+      { "term": "Doing it right when nobody's watching", "meaning": "Compliance culture" }
+    ],
+    "source": {
+      "label": "Written as general teaching material about organisational compliance.",
+      "note": "Every number in this game is illustrative and Sunny Bakes is invented. The ideas apply to any organisation, from a bakery to a bank."
+    }
+  }
+}
