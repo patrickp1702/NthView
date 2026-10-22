@@ -1,0 +1,433 @@
+# Scenario Quiz data schema — schemaVersion 1
+
+## Overview
+The data describes a teaching quiz wrapped in a story. The learner is first
+shown a scenario (an organisation, a codebase, a situation) and given a role
+in it. Then come questions, one at a time: a situation they must decide, or a
+plain question about the concept. Each has several options, exactly one
+right; every option carries its own explanation, so a wrong pick teaches as
+much as a right one. After the first pick the right answer is named and the
+options stay live, so the learner can tap any other option and read why it is
+right or wrong before moving on. Only "Next" advances; "Skip" is allowed. At
+the end the learner gets a full review of every question and every option,
+with their first pick remembered. Nothing is scored against them.
+
+Text fields accept one inline mark-up: `**bold**`. Nothing else is interpreted.
+Character limits count JavaScript string length, so one emoji counts as 2.
+
+## Root object
+
+| Field | Type | Required | Constraints | Description |
+| :- | :- | :- | :- | :- |
+| `schemaVersion` | integer | yes | must be `1` | Format version |
+| `title` | string | yes | 1–80 chars | Shown on the intro and in the page title |
+| `subtitle` | string | no | ≤200 chars | One line under the title |
+| `theme` | string | no | one of `midnight`, `sunrise`, `forest`, `paper`, `neon`, `ocean`, `ember`, `lavender` | Visual theme (see Themes). When omitted, one is derived from the title so different documents look different |
+| `scenario` | object | yes | see Scenario | The world and the learner's role in it |
+| `questions` | array | yes | 1–40 Question objects | Asked in order |
+| `summary` | object | yes | see Summary | The end screen |
+
+## Themes
+Every theme sets the backdrop gradient and drifting colour fields, glass card
+surfaces, accent pair, typography and corner radius, and has both a light and a
+dark variant chosen by the reader's system setting.
+
+| Theme | Mood | Type | Suits |
+| :- | :- | :- | :- |
+| `midnight` | Deep indigo with violet and cyan light | Space Grotesk / Inter | Technology, security, systems |
+| `sunrise` | Warm cream with coral and amber | Fraunces / Inter | Workplaces, people, everyday life |
+| `forest` | Deep green with moss and gold | Lora / Inter | Health, environment, calm topics |
+| `paper` | Editorial off-white, ink and red | Fraunces / Lora | Law, policy, history, reading-heavy |
+| `neon` | Black with cyan and magenta glow | Space Grotesk | Games, youth audiences, high energy |
+| `ocean` | Airy blue and aqua | Inter | Finance, data, clarity |
+| `ember` | Charcoal with orange and gold | Space Grotesk / Inter | Risk, safety, incidents, urgency |
+| `lavender` | Soft purple and pink pastels | Nunito | Children, wellbeing, playful topics |
+
+## Scenario object
+
+| Field | Type | Required | Constraints | Description |
+| :- | :- | :- | :- | :- |
+| `heading` | string | no | ≤60 chars, default "The scenario" | Label above the setting |
+| `setting` | string[] | yes | 1–6 items, each 1–600 chars | Paragraphs that paint the organisation, code or situation |
+| `role` | object | yes | see below | Who the learner is |
+| `goal` | string | no | ≤300 chars | One line on what the learner is trying to achieve |
+
+Role: `title` (string, 1–120, e.g. "You are Sam, the new centre coordinator"),
+`description` (string, ≤600, optional detail on duties, pressures, who is
+around).
+
+## Question object
+
+| Field | Type | Required | Constraints | Description |
+| :- | :- | :- | :- | :- |
+| `id` | string | yes | kebab-case, 1–40 chars, unique | Stable key |
+| `situation` | string | no | ≤900 chars | The concrete moment the learner faces. Omit for a general question |
+| `prompt` | string | yes | 1–400 chars | The question itself, e.g. "What do you do?" |
+| `options` | array | yes | 2–8 Option objects, exactly one `correct`, at most one `trap` | |
+| `takeaway` | string | yes | 1–300 chars | The one line to remember, shown after answering and in the review |
+
+## Option object
+
+| Field | Type | Required | Constraints | Description |
+| :- | :- | :- | :- | :- |
+| `text` | string | yes | 1–240 chars | The choice as the learner reads it |
+| `correct` | boolean | no | default `false` | Exactly one option per question is `true` |
+| `why` | string | yes | 1–600 chars | Why this is right (if correct) or why it is not (if wrong) |
+| `tempting` | string | no | ≤400 chars | What makes people choose it; acknowledges the learner's reasoning before `why`. Recommended on every wrong option, required on the trap |
+| `trap` | boolean | no | default `false` | Marks the famous wrong answer most people pick. At most one per question; never on the correct option |
+
+## Summary object
+
+| Field | Type | Required | Constraints | Description |
+| :- | :- | :- | :- | :- |
+| `heading` | string | no | ≤80 chars, default "What you've learned" | |
+| `closing` | string[] | yes | 1–5 items, each 1–600 chars | Paragraphs that tie the scenario together |
+| `takeaways` | string[] | no | 0–20 items, each 1–200 chars | Overrides the automatic list built from each question's `takeaway` |
+
+## Cross-field rules
+- `questions[i].id` must be unique.
+- Every question has exactly one option with `correct: true`.
+- At most one option per question has `trap: true`; it must not be the
+  correct option, and it must have `tempting`.
+
+## Warnings (non-blocking)
+- Fewer than 4 questions.
+- A question with only 2 options (hard to make the wrong one instructive).
+- A wrong option without `tempting`.
+- No question marks a `trap` (the "famous wrong answer" is the most
+  instructive part).
+- Options whose `text` is identical.
+
+## Complete example
+The example explains compliance to a layperson: the learner is a new centre
+coordinator at a small tutoring company. Build the demo with:
+
+    node scripts/build-html.js skills/nthview-scenario-quiz --example skills/nthview-scenario-quiz/examples/example.html
+
+```json
+{
+  "schemaVersion": 1,
+  "title": "A Week at BrightPath",
+  "subtitle": "What compliance really means, learned one decision at a time",
+  "theme": "sunrise",
+  "scenario": {
+    "heading": "The scenario",
+    "setting": [
+      "BrightPath Tutoring runs after-school classes for children in three small centres. About 40 staff look after 600 kids. The company holds children's personal details, takes payments from parents, keeps medicines for a few pupils, and promises families that their children are safe and their information is private.",
+      "Lots of rules apply to a place like this: laws passed by parliament, regulations from inspectors and data-protection authorities, safety standards the company signed up to, and BrightPath's own written policies. **Compliance** is the everyday work of actually following those rules, and being able to show that you did.",
+      "Nobody will quiz you on legal text here. Every question is a moment you could face in your first weeks. Pick what you would really do."
+    ],
+    "role": {
+      "title": "You are Sam, the new coordinator of the Riverside centre",
+      "description": "Parents hand their children, and their details, to you every afternoon. Tutors look to you when something is unclear. Your manager, Priya, is away for the week, so the small decisions are yours."
+    },
+    "goal": "Get through the week keeping children, parents and colleagues safe, and understand why each rule exists."
+  },
+  "questions": [
+    {
+      "id": "what-is-compliance",
+      "prompt": "On your first afternoon a parent asks, half joking: \"What does compliance even mean?\" Which answer is right?",
+      "options": [
+        {
+          "text": "Following every rule exactly, no matter what",
+          "tempting": "It sounds thorough and safe, and it is what the word seems to say.",
+          "why": "Compliance is not blind obedience. It means knowing which rules apply to your work, following them sensibly, and raising it when two rules seem to clash. A rule followed without understanding is the first thing to go wrong under pressure."
+        },
+        {
+          "text": "Making sure the company follows the laws, regulations, standards and its own policies that apply to it, and can show that it did",
+          "correct": true,
+          "why": "That is the whole idea in one sentence. Two halves matter: actually following the rules that apply, and keeping honest records so an inspector, a parent or a court can see that you did."
+        },
+        {
+          "text": "The paperwork the legal team does so the rest of us don't have to",
+          "trap": true,
+          "tempting": "In many companies it genuinely feels like that: a department somewhere sends policies and the rest of us sign them.",
+          "why": "Compliance happens where the work happens: at the front desk, in the classroom, in the email you send. A legal team can write a rule; only you can follow it when a parent is standing in front of you."
+        },
+        {
+          "text": "Avoiding fines",
+          "tempting": "Fines are what makes the news, so they feel like the point.",
+          "why": "Fines are one consequence of getting it wrong. The reason the rules exist is to protect people: children, parents, staff, and the trust they place in BrightPath. Avoiding fines follows from that, not the other way round."
+        }
+      ],
+      "takeaway": "Compliance means following the rules that apply to your work and being able to show it. It is everyone's job, not a department."
+    },
+    {
+      "id": "pickup-list",
+      "situation": "Home time. A man you have not met arrives to collect six-year-old Lily. He is not on her approved pickup list. Lily runs straight to him, clearly knows him, and he says he is in a hurry.",
+      "prompt": "What do you do?",
+      "options": [
+        {
+          "text": "Let her go. She obviously knows him and he is clearly family.",
+          "trap": true,
+          "tempting": "The human signal is strong. A child running happily to an adult feels like all the proof you need.",
+          "why": "The pickup list exists for exactly this moment. Children often know the people they must not leave with, for example a parent who has lost custody. The list is not there to insult him; it protects Lily and it protects you."
+        },
+        {
+          "text": "Phone a parent who is on the list, let Lily go if they confirm, and write down what happened.",
+          "correct": true,
+          "why": "The rule gives you a way to verify, so use it. Confirming with an approved adult, then recording it, keeps Lily safe, keeps the record true, and usually takes two minutes."
+        },
+        {
+          "text": "Refuse and tell him to come back with paperwork.",
+          "tempting": "It feels like the strictly safe option, and it is what a rule-follower might do.",
+          "why": "Refusing without trying to verify is the box-ticking version of the rule. It leaves a child upset, an adult angry, and the problem unsolved, when a phone call would have settled it. Safe does not have to mean unhelpful."
+        },
+        {
+          "text": "Ask Lily if it is okay to go with him.",
+          "tempting": "She is the one who knows him, after all.",
+          "why": "A six-year-old cannot authorise her own release. Safeguarding rules put that decision with approved adults precisely because children cannot judge the risk."
+        }
+      ],
+      "takeaway": "Rules protect people in the exact moments they feel inconvenient. Follow the verification step rather than skipping it or stonewalling."
+    },
+    {
+      "id": "who-sets-the-rules",
+      "prompt": "Over coffee a tutor asks who actually makes the rules BrightPath follows. What is the accurate answer?",
+      "options": [
+        {
+          "text": "Only the government",
+          "tempting": "Laws are the most visible rules, so it is easy to think they are the only ones.",
+          "why": "Laws are one layer. Regulators add detailed regulations, industry bodies set standards, and the company adds its own policies, which are often stricter than the law."
+        },
+        {
+          "text": "Only the company's owners",
+          "why": "Owners write policies, but they do so inside a frame of laws, regulations and standards they did not choose. A policy cannot overrule the law.",
+          "tempting": "They sign the policies, so it looks as if the rules start with them."
+        },
+        {
+          "text": "Several layers: laws from parliament, regulations from agencies, standards the company signed up to, and BrightPath's own policies",
+          "correct": true,
+          "why": "Think of it as layers. Laws set the floor. Regulations spell out how to meet them. Standards are promises the company chose to make. Policies are how BrightPath turns all of that into daily practice, and they are often stricter than the law requires."
+        },
+        {
+          "text": "Whoever the manager is that day",
+          "trap": true,
+          "tempting": "In a small company it can feel exactly like this: the rules are whatever the person in charge says.",
+          "why": "Policies are written down so that they do not change with moods or managers. If a manager asks you to do something a policy forbids, the policy wins, and the right move is to raise it."
+        }
+      ],
+      "takeaway": "Laws, then regulations, then standards, then the company's own policies. Written policies are promises that do not change with the manager on duty."
+    },
+    {
+      "id": "playdate-email",
+      "situation": "A mother emails you. She would like her son Theo's attendance record and progress notes, and the phone numbers of two children he has made friends with so she can arrange a playdate.",
+      "prompt": "How do you reply?",
+      "options": [
+        {
+          "text": "Send everything. She is a parent and it is a friendly request.",
+          "trap": true,
+          "tempting": "It is a kind request from a parent you trust, and saying no feels petty.",
+          "why": "Theo's records are hers to ask for. The other children's numbers are not. Their families have not agreed to share them, and \"friendly\" is not the same as \"permitted\". Personal data belongs to the person it is about."
+        },
+        {
+          "text": "Send Theo's records. Explain you cannot share other children's details, but offer to pass her number to those families so they can get in touch.",
+          "correct": true,
+          "why": "This respects both sides. She gets her own child's data promptly, the other families keep control of theirs, and the playdate can still happen if they choose. Compliance that still helps people is the goal."
+        },
+        {
+          "text": "Refuse everything. Privacy law means you cannot share records.",
+          "tempting": "\"Privacy\" is often used as a blanket reason to say no to anything.",
+          "why": "She has a right to her own child's information. Hiding behind privacy to refuse that is as wrong as oversharing; it just fails in the other direction."
+        },
+        {
+          "text": "Send the numbers but ask her to keep them private.",
+          "tempting": "It feels like a reasonable middle path.",
+          "why": "It is still sharing other people's personal data without their say. Asking the recipient to be careful does not make the disclosure right."
+        },
+        {
+          "text": "Do nothing until Priya is back next week.",
+          "tempting": "Waiting for the boss feels cautious.",
+          "why": "The part about Theo's own records is simple and she is entitled to it. Delaying a legitimate request for a week is a failure too, just a quieter one."
+        }
+      ],
+      "takeaway": "Personal data belongs to the person. Share someone's own information when they ask; never share other people's without their agreement."
+    },
+    {
+      "id": "fire-drill-log",
+      "situation": "The monthly fire drill is due. Everyone is busy, the last drill went fine, and a colleague suggests you just sign the drill log so the record looks complete.",
+      "prompt": "What do you do?",
+      "options": [
+        {
+          "text": "Sign the log. The drill is a formality and the last one was fine.",
+          "trap": true,
+          "tempting": "Everyone is stretched, nothing has changed since last month, and the log is just a tick box.",
+          "why": "A false record is worse than a missed drill. Inspectors and auditors treat invented records as the most serious failure there is, because once records cannot be trusted, nothing can. And the drill you skipped is the one that would have found the blocked exit."
+        },
+        {
+          "text": "Skip it quietly and do two next month.",
+          "tempting": "It feels like you are still getting the same amount done.",
+          "why": "The drill exists so that people know what to do before the real thing. Two drills next month do not make the building ready this month."
+        },
+        {
+          "text": "Run the drill, even a short one, and record what actually happened, including anything that went wrong.",
+          "correct": true,
+          "why": "Doing the thing and writing down the truth is the entire point. Recording a problem is not a failure; it is how the problem gets fixed before it hurts someone."
+        },
+        {
+          "text": "Email Priya and wait for her to decide.",
+          "tempting": "Deferring to the boss feels like the responsible move when you are new.",
+          "why": "A scheduled safety task does not need permission to be done. Waiting a week to be told to do what the schedule already says is avoidance dressed up as caution."
+        }
+      ],
+      "takeaway": "Records must be true. \"We can show we did it\" only has value if you actually did it."
+    },
+    {
+      "id": "medicine-cabinet",
+      "situation": "You notice that Jordan, a popular senior tutor, has been leaving the medicine cabinet unlocked between sessions. Children walk past it all afternoon.",
+      "prompt": "What do you do?",
+      "options": [
+        {
+          "text": "Say nothing. Jordan is senior and it is not your area.",
+          "tempting": "Challenging a senior colleague in your first weeks feels risky.",
+          "why": "Speaking up is part of every role, not a privilege of seniority. An unlocked medicine cabinet near children is a serious hazard, and staying quiet makes you part of the problem."
+        },
+        {
+          "text": "Lock it yourself each time you walk past and leave it at that.",
+          "trap": true,
+          "tempting": "It fixes the danger quietly, with no awkward conversation.",
+          "why": "It fixes the symptom only while you are there. The habit continues on your day off, nobody learns anything, and there is no record that the risk was ever spotted."
+        },
+        {
+          "text": "Lock it now, tell Jordan plainly, and report it to Priya or the safety contact today, because medicines and children are a safety matter.",
+          "correct": true,
+          "why": "Deal with the immediate danger, then make sure it gets fixed for good. For a safety issue, a direct word plus a report is proportionate: it respects Jordan, protects the children, and leaves a record so it does not fade."
+        },
+        {
+          "text": "Mention it to Jordan privately and leave it there.",
+          "tempting": "It avoids embarrassing a colleague and most people would respond well.",
+          "why": "For a low-stakes habit, a quiet word is often enough. For medicines near children it is not: there is no check that it stuck, and no record if it happens again. Match the response to the risk."
+        },
+        {
+          "text": "Put a reminder sign on the cabinet.",
+          "tempting": "Signs feel like a gentle, non-personal fix.",
+          "why": "The problem is a habit, not a lack of knowledge. Jordan knows the cabinet should be locked. A sign is not a conversation and not a report."
+        }
+      ],
+      "takeaway": "Speaking up is part of the job. Remove the immediate danger, then report it so it is fixed for good and on record."
+    },
+    {
+      "id": "supplier-gift",
+      "situation": "The company that supplies the centre's snacks sends you a gift voucher worth about a week's groceries, \"as thanks for a great first month\".",
+      "prompt": "What do you do with it?",
+      "options": [
+        {
+          "text": "Keep it. It is a gift, not a bribe, and nobody asked for anything.",
+          "trap": true,
+          "tempting": "It feels innocent, and refusing a kind gesture seems rude.",
+          "why": "Gifts from suppliers create a sense of obligation whether anyone intends it or not. That is why most companies set a small limit and ask you to declare anything above it. The issue is not your honesty; it is how the relationship looks and what others can rely on."
+        },
+        {
+          "text": "Check the gifts policy, declare it to Priya, and return it or share it with the team as the policy says.",
+          "correct": true,
+          "why": "Declaring is how conflicts of interest are handled. It takes the decision out of your head and into the open, where it protects you as much as the company."
+        },
+        {
+          "text": "Return it with a sharp note about bribery.",
+          "tempting": "Strong rejection feels like the most principled move.",
+          "why": "The supplier may simply not know your policy. A polite return, or a declaration, achieves the same protection without damaging a working relationship."
+        },
+        {
+          "text": "Keep it, but promise yourself it will not affect any decisions.",
+          "tempting": "You know you are honest, so it feels harmless.",
+          "why": "Conflicts of interest are judged by how things look and what others can trust, not by private intentions. A promise to yourself cannot be checked by anyone else."
+        }
+      ],
+      "takeaway": "Conflicts of interest are handled by declaring them, not by trusting yourself."
+    },
+    {
+      "id": "what-audits-are-for",
+      "prompt": "Riverside is due its first inspection next term. A nervous tutor asks what an audit is actually for. What is the honest answer?",
+      "options": [
+        {
+          "text": "To catch people out and punish them",
+          "trap": true,
+          "tempting": "That is how audits feel from the inside, especially the first time.",
+          "why": "An audit checks whether the system works in practice, finds the gaps, and gets them fixed. Blame makes people hide problems, which is the opposite of what an audit needs. Good auditors want to find issues while they are small."
+        },
+        {
+          "text": "To check that the rules are being followed in practice, find the gaps, and fix them before anyone gets hurt",
+          "correct": true,
+          "why": "Daily monitoring catches the everyday slips. A periodic audit steps back and asks whether the whole approach actually works. Both exist to find problems while they are still cheap to fix."
+        },
+        {
+          "text": "To produce a certificate for the wall",
+          "tempting": "The certificate is the visible result, so it looks like the purpose.",
+          "why": "The certificate is a by-product. If the only goal is the paper, people start managing the paper instead of the risks, and that is how real failures begin."
+        },
+        {
+          "text": "To replace the day-to-day checks",
+          "why": "Audits happen now and then; monitoring happens every day. One cannot replace the other, and an audit of a place with no daily checks will simply find a long list of problems.",
+          "tempting": "If someone checks everything periodically, the daily checks can feel redundant."
+        }
+      ],
+      "takeaway": "Monitoring is daily, audits are periodic. Both exist to find problems while they are small, not to assign blame."
+    },
+    {
+      "id": "online-training",
+      "situation": "A new policy arrives: all staff must finish a twenty-minute online data-protection course by Friday. The tutors grumble. One says, \"I'll just click through it tonight.\"",
+      "prompt": "How do you handle it?",
+      "options": [
+        {
+          "text": "Fine. Completion is what matters, and the deadline is Friday.",
+          "trap": true,
+          "tempting": "You have a deadline and a tick box, and clicking through meets both.",
+          "why": "Training that is clicked through changes nothing, and a record of completion that reflects no learning is a hollow record. The playdate email earlier this week is exactly the kind of mistake this course exists to prevent."
+        },
+        {
+          "text": "Explain why it matters with a real example from this centre, and make time in the week for people to do it properly.",
+          "correct": true,
+          "why": "Rules that are understood get followed; rules that are merely assigned get gamed. Connecting the course to a real moment, and giving people the time, is what turns a policy into behaviour."
+        },
+        {
+          "text": "Tell them it is mandatory and leave it at that.",
+          "tempting": "It is mandatory, and you are not their teacher.",
+          "why": "Mandatory gets you completion. It does not get you understanding, and understanding is the only thing that will be there when a parent sends the next tricky email."
+        },
+        {
+          "text": "Do the course under their logins to save everyone time.",
+          "tempting": "It would get the deadline met with the least fuss.",
+          "why": "That is a false record again, and this time with other people's names on it. It is the fire-drill log in a different costume."
+        }
+      ],
+      "takeaway": "Training works when people see the point. Compliance is a culture of understanding, not a set of completed checkboxes."
+    },
+    {
+      "id": "how-do-we-know",
+      "situation": "Six months later. Riverside is running well, the inspection went fine, and nothing has gone wrong. Priya asks you over coffee: \"How do we actually know we are compliant?\"",
+      "prompt": "Which answer shows you have understood?",
+      "options": [
+        {
+          "text": "No fines, no complaints, so we must be.",
+          "trap": true,
+          "tempting": "The absence of trouble feels like proof, and it is how most people judge it.",
+          "why": "Lucky and compliant look identical from the outside, right up to the day they do not. Quiet months tell you nothing about whether the medicine cabinet is locked today."
+        },
+        {
+          "text": "We know which rules apply to us, we follow them every day, we keep true records, people speak up when something is off, and we check ourselves regularly.",
+          "correct": true,
+          "why": "That is compliance as a running practice rather than a state you reach: know the rules, live them, record honestly, speak up, and check. Each piece covers a way the others can quietly fail."
+        },
+        {
+          "text": "Everyone did the training and signed the policies.",
+          "tempting": "Those are the things that get measured, so they feel like the answer.",
+          "why": "Training and signatures are inputs. Compliance is what people actually do at four o'clock when a stranger asks to take a child home."
+        },
+        {
+          "text": "Head office handles all of that.",
+          "why": "Head office can set policy and run audits. It cannot lock the cabinet, verify the pickup, or decline to share a phone number. Those happen at Riverside, with you.",
+          "tempting": "There is a compliance team somewhere, so it is natural to assume it is theirs."
+        }
+      ],
+      "takeaway": "Compliance is a practice you keep up, not a status you achieve: know the rules, follow them, record truthfully, speak up, and check."
+    }
+  ],
+  "summary": {
+    "heading": "What you've learned",
+    "closing": [
+      "Every decision this week was about the same few ideas. Rules come in layers, and the company's own policies are promises on top of the law. The rules protect people in the moments they feel inconvenient. Records are only worth keeping if they are true. Speaking up and declaring are how problems get fixed before they hurt anyone. And none of it works as a checkbox; it works as a habit.",
+      "That is compliance for a layperson: not a department, not paperwork, not fear of fines. It is the everyday work of doing what you said you would do, and being able to show it."
+    ]
+  }
+}
+```

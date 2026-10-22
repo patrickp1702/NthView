@@ -59,10 +59,13 @@ Produce one standalone file using the template in AGENTS.md §6. The
 repository tool does this exactly, including the CDN tags for three.js and
 the fonts declared in `assets/view.js`:
 
-    node scripts/build-html.js skills/nthview-island-quest <path-to-json> <concept-slug>-island-quest.html
+    node scripts/build-html.js skills/nthview-island-quest <path-to-json> examples/<concept-slug>-island-quest.html
+
+Generated games go in the repo-root `examples/` folder (or wherever the user
+asks); never inside `skills/`.
 
 If building by hand: the JSON in `<script type="application/json"
-id="nthview-data">` with every `<` replaced by `<`, the two library tags
+id="nthview-data">` with every `<` replaced by the six characters `\u003c`, the two library tags
 from `NthView.libs`, then `scripts/validate.js` and `assets/view.js` inlined
 verbatim, then the three-line bootstrap that calls
 `NthView.build(document.getElementById("app"), data)`.
@@ -73,7 +76,9 @@ it opens (for three.js and the fonts). Build no other view unless asked.
 
 ## Content guidance
 - **Island count**: 5–7 is the sweet spot. The ring supports 3–9.
-- **Pick the activity from the shape of the idea**:
+- **Pick the activity from the shape of the idea**. The theme pairings below
+  are recommendations for a coherent look, not rules; the validator accepts
+  any theme with any activity:
   - `collect` when the idea is "many samples, take the majority" (theme `grove`)
   - `story` when a process goes wrong step by step (theme `tower`)
   - `tune` with `visual.kind: "circle"` for "more members, more rounds" trade-offs (theme `arena`)
@@ -83,7 +88,14 @@ it opens (for three.js and the fonts). Build no other view unless asked.
   - `race` when two costs or speeds should be compared (theme `clock`)
   - no activity plus `plain` for a short read-only lesson, sparingly
 - **Numbers**: keep `findings.rows` to the two to four numbers that make the
-  point; use `grey` for baselines and `dashed` for estimates or ceilings.
+  point; use `grey` for baselines and `dashed` for estimates or ceilings. If
+  the numbers are illustrative rather than cited, say so in `caption` or
+  `text`; there is no separate field for that.
+- **`collect.items`** are short tokens (letters work best). Explain what each
+  letter stands for in `lead`, `body` or `prompt`, because the orbs show only
+  the token.
+- **`race.bars`**: a larger `value` means a longer or slower thing; the gear
+  for the largest value glows and spins fastest, so word the caption that way.
 - **Quiz questions** test the takeaway, not trivia. Make the wrong options
   tempting beliefs, and give each a `why` that points back to the box above.
 - **The finale** asks the learner to apply the lessons to situations, one

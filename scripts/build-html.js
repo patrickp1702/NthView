@@ -2,7 +2,7 @@
 /* NthView — standalone HTML assembler
  *
  * Builds the one-file output exactly as AGENTS.md §6 prescribes: the view's
- * CDN library tags (from NthView.libs), the JSON with "<" escaped as <,
+ * CDN library tags (from NthView.libs), the JSON with "<" escaped as \u003c,
  * validate.js and view.js inlined verbatim, and the bootstrap call.
  *
  * Usage:

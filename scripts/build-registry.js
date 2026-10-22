@@ -36,7 +36,7 @@ var CDN_HOSTS = ["cdnjs.cloudflare.com", "cdn.jsdelivr.net", "unpkg.com", "fonts
 var URL_RE = /https?:\/\/[a-z0-9.-]+\.[a-z]{2,}[^\s"'`)<>]*/gi;
 var ATTR_RE = /(?:src|href)=["']([^"']+)["']|url\(["']?([^"')]+)["']?\)/g;
 function allowedUrl(u) {
-  if (/^(data:|#|mailto:)/.test(u)) return true;
+  if (/^(data:|#|%23|mailto:)/.test(u)) return true; // %23 is an encoded # fragment inside a data URI
   if (/^http:\/\/www\.w3\.org\//.test(u)) return true; // XML namespace identifiers, never fetched
   var m = u.match(/^https:\/\/([^\/]+)\//);
   return !!m && CDN_HOSTS.indexOf(m[1]) !== -1;
