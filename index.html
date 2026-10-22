@@ -6,6 +6,7 @@
   <meta name="color-scheme" content="light dark">
   <title>NthView — Gallery</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Inter:wght@400;500;700&display=swap">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
   <style>
     :root {
       --bg1: #f7f3ec; --bg2: #ece6f6; --ink: #111318; --muted: #5b5a66; --line: rgba(20, 20, 40, .12);
@@ -46,7 +47,6 @@
     .nv-kal .nv-kal-pointer { transform: translate(100px, 100px) rotate(var(--turn)); transition: transform .9s cubic-bezier(.2, .8, .2, 1); transform-origin: 0 0; }
     .nv-kal .nv-piece { filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .25)); }
     .nv-kal .nv-kal-rim { fill: none; stroke: color-mix(in srgb, var(--ink) 25%, transparent); stroke-width: 2.5; }
-    .nv-kal-wrap .nv-tip { position: absolute; left: 50%; bottom: -1.6rem; transform: translateX(-50%); font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); white-space: nowrap; opacity: .8; }
 
     .nv-toolbar { display: flex; gap: .8rem; align-items: center; flex-wrap: wrap; margin: 0 0 1.2rem; }
     .nv-search { flex: 1; min-width: 14rem; display: flex; align-items: center; gap: .6rem; background: var(--surface); backdrop-filter: blur(14px); border: 1px solid var(--line); border-radius: 999px; padding: .55rem .9rem .55rem 1rem; }
@@ -71,7 +71,42 @@
     .nv-card:hover .nv-cover .nv-num { transform: translateY(-4px) scale(1.08); }
     .nv-body h2 { background: linear-gradient(currentColor, currentColor) no-repeat 0 100% / 0 2px; transition: background-size .35s; }
     .nv-card:hover .nv-body h2 { background-size: 100% 2px; }
-    .nv-section { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin: 2.2rem 0 1rem; }
+    .nv-section { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin: 2.2rem 0 1rem; flex-wrap: wrap; }
+    .nv-library { border: 1.5px solid var(--line); background: var(--surface); backdrop-filter: blur(12px); color: var(--ink); border-radius: 999px; padding: .55rem 1rem; font: 600 .9rem/1 var(--body); cursor: pointer; transition: transform .15s, border-color .15s; }
+    .nv-library:hover { transform: translateY(-1px); border-color: var(--accent); }
+    .nv-dialog { border: 1px solid var(--line); border-radius: 1.4rem; padding: 0; width: min(44rem, calc(100vw - 2rem)); max-height: calc(100vh - 3rem); background: var(--surface-2); color: var(--ink); box-shadow: 0 40px 90px -30px rgba(0,0,0,.6); }
+    .nv-dialog::backdrop { background: rgba(10, 10, 20, .55); backdrop-filter: blur(6px); }
+    .nv-dialog-head { display: flex; align-items: center; justify-content: space-between; padding: 1.1rem 1.3rem .6rem; }
+    .nv-dialog-head h2 { font-family: var(--display); font-weight: 800; font-size: 1.5rem; margin: 0; letter-spacing: -.02em; }
+    .nv-close { width: 2.2rem; height: 2.2rem; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-size: 1.3rem; line-height: 1; cursor: pointer; }
+    #nv-dialog-body { padding: 0 1.3rem 1.3rem; overflow: auto; max-height: calc(100vh - 9rem); }
+    .nv-dlabel { font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; font-weight: 700; color: var(--accent); margin: 1rem 0 .5rem; }
+    .nv-dlist { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; }
+    .nv-dlist a { display: flex; gap: .8rem; align-items: center; text-decoration: none; color: inherit; border: 1px solid var(--line); border-radius: 1rem; padding: .75rem .9rem; background: var(--surface); transition: transform .15s, border-color .15s; }
+    .nv-dlist a:hover { transform: translateX(3px); border-color: var(--accent); }
+    .nv-dlist b { display: block; font-family: var(--display); font-size: 1.05rem; line-height: 1.2; }
+    .nv-dlist p { margin: .15rem 0 0; color: var(--muted); font-size: .9rem; }
+    .nv-dtag { flex: none; font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; border-radius: 999px; padding: .2rem .55rem; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; }
+    .nv-dmeta { flex: none; font-size: .78rem; color: var(--muted); white-space: nowrap; }
+    .nv-reader { width: min(60rem, calc(100vw - 2rem)); }
+    .nv-reader-tools { display: flex; align-items: center; gap: .8rem; }
+    .nv-reader-tools a { font-size: .85rem; color: var(--muted); text-decoration: none; border-bottom: 1px solid transparent; }
+    .nv-reader-tools a:hover { color: var(--ink); border-color: currentColor; }
+    .nv-md { padding: 0 1.3rem 1.5rem; overflow: auto; max-height: calc(100vh - 9rem); line-height: 1.6; }
+    .nv-md h1 { font-family: var(--display); font-size: 1.9rem; letter-spacing: -.02em; margin: .4rem 0 .8rem; }
+    .nv-md h2 { font-family: var(--display); font-size: 1.4rem; letter-spacing: -.01em; margin: 1.6rem 0 .5rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+    .nv-md h3 { font-family: var(--display); font-size: 1.1rem; margin: 1.2rem 0 .4rem; }
+    .nv-md p, .nv-md li { color: var(--ink); }
+    .nv-md a { color: var(--accent); }
+    .nv-md code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .88em; background: var(--surface); border: 1px solid var(--line); padding: .05rem .35rem; border-radius: .35rem; }
+    .nv-md pre { background: var(--surface); border: 1px solid var(--line); border-radius: .8rem; padding: .9rem 1rem; overflow: auto; font-size: .85rem; line-height: 1.5; }
+    .nv-md pre code { background: none; border: 0; padding: 0; font-size: inherit; }
+    .nv-md table { border-collapse: collapse; width: 100%; font-size: .9rem; margin: .8rem 0 1.2rem; display: block; overflow-x: auto; }
+    .nv-md th, .nv-md td { text-align: left; vertical-align: top; padding: .5rem .6rem; border-bottom: 1px solid var(--line); }
+    .nv-md th { font-weight: 700; color: var(--muted); font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; }
+    .nv-md blockquote { margin: .8rem 0; padding: .4rem 1rem; border-left: 3px solid var(--accent); color: var(--muted); }
+    .nv-md hr { border: 0; border-top: 1px solid var(--line); margin: 1.4rem 0; }
+    .nv-md pre.nv-raw { white-space: pre-wrap; }
     .nv-section h2 { font-family: var(--display); font-weight: 800; font-size: 1.6rem; letter-spacing: -.02em; margin: 0; }
     .nv-section span { color: var(--muted); font-size: .9rem; }
     .nv-cover .nv-kind { position: absolute; left: .9rem; top: .8rem; font-size: .7rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #fff; background: rgba(0, 0, 0, .35); backdrop-filter: blur(8px); border-radius: 999px; padding: .25rem .65rem; }
@@ -115,23 +150,29 @@
       </div>
       <div class="nv-kal-wrap" id="nv-kal-wrap" role="img" aria-label="Kaleidoscope" tabindex="0">
         <svg class="nv-kal" viewBox="0 0 200 200" id="nv-kal" aria-hidden="true"></svg>
-        <span class="nv-tip" aria-hidden="true">Move or click to turn</span>
       </div>
     </header>
 
-    <div class="nv-section"><h2>The views</h2><span>Same content, turned</span></div>
+    <div class="nv-section"><h2>The views</h2><button type="button" class="nv-library" id="nv-library" hidden></button></div>
     <ul id="nv-grid" class="nv-grid" aria-live="polite"></ul>
     <div id="nv-status"></div>
 
     <section class="nv-steps" aria-label="How it works">
-      <div class="nv-step"><span class="nv-k">1</span><b>Pick a view</b><p>Each card is a skill an AI agent can load. Choose the dimension that fits how you learn.</p></div>
+      <div class="nv-step"><span class="nv-k">1</span><b>Pick a view</b><p>Choose the dimension that fits how you learn, or open a ready-made doc or lesson.</p></div>
       <div class="nv-step"><span class="nv-k">2</span><b>Hand over the content</b><p>A topic, a paper, pasted notes or code. The agent turns it into that view's data and checks it.</p></div>
       <div class="nv-step"><span class="nv-k">3</span><b>Open one file</b><p>You get a single HTML file that runs on its own. Want another angle? Ask for another view.</p></div>
     </section>
 
-    <footer>
-      Each card is a skill in <code>skills/</code>. Add a view, then run <code>node scripts/build-registry.js</code> to register it here. See <code>AGENTS.md</code> for the rules.
-    </footer>
+    <footer>See <code>AGENTS.md</code> for how views are built.</footer>
+
+    <dialog id="nv-reader" class="nv-dialog nv-reader" aria-labelledby="nv-reader-title">
+      <div class="nv-dialog-head"><div><p class="nv-dlabel" id="nv-reader-kind" style="margin:0 0 .2rem"></p><h2 id="nv-reader-title"></h2></div><div class="nv-reader-tools"><a id="nv-reader-raw" href="#" target="_blank" rel="noopener">Raw file</a><button type="button" class="nv-close" id="nv-reader-close" aria-label="Close">×</button></div></div>
+      <div id="nv-reader-body" class="nv-md" tabindex="0"></div>
+    </dialog>
+    <dialog id="nv-dialog" class="nv-dialog" aria-labelledby="nv-dialog-title">
+      <div class="nv-dialog-head"><h2 id="nv-dialog-title">Docs and lessons</h2><button type="button" class="nv-close" id="nv-close" aria-label="Close">×</button></div>
+      <div id="nv-dialog-body"></div>
+    </dialog>
   </main>
 
   <script src="registry.js"></script>
@@ -287,9 +328,63 @@
         status.appendChild(el("div", { class: "nv-error", role: "alert", text: "registry.js could not be loaded. Run: node scripts/build-registry.js" }));
         return;
       }
-      var skills = registry.skills.slice().sort(function (a, b) { if (a.kind !== b.kind) return a.kind === "view" ? -1 : 1; return a.name < b.name ? -1 : 1; });
+      var skills = registry.skills.filter(function (s) { return !s.hidden; }).sort(function (a, b) { if (a.kind !== b.kind) return a.kind === "view" ? -1 : 1; return a.name < b.name ? -1 : 1; });
+      /* docs and lessons live behind one button and a dialog */
+      (function () {
+        var docs = registry.docs || [], lessons = registry.lessons || [];
+        var btn = document.getElementById("nv-library"), dlg = document.getElementById("nv-dialog"), body = document.getElementById("nv-dialog-body");
+        if (!docs.length && !lessons.length) return;
+        var parts = []; if (docs.length) parts.push(docs.length + (docs.length === 1 ? " doc" : " docs")); if (lessons.length) parts.push(lessons.length + (lessons.length === 1 ? " lesson" : " lessons"));
+        btn.textContent = parts.join(" · ") + " available"; btn.hidden = false;
+        var viewTitle = function (v) { return v ? v.replace(/^nthview-/, "").split("-").map(function (w) { return w[0].toUpperCase() + w.slice(1); }).join(" ") : "View"; };
+        if (lessons.length) {
+          body.appendChild(el("p", { class: "nv-dlabel", text: "Lessons" }));
+          body.appendChild(el("ul", { class: "nv-dlist" }, lessons.map(function (l) {
+            return el("li", {}, [el("a", { href: l.path }, [el("span", { class: "nv-dtag", text: l.chapters + (l.chapters === 1 ? " chapter" : " chapters") }), el("span", {}, [el("b", { text: l.title }), el("p", { text: l.description })]), el("span", { class: "nv-dmeta", text: l.views.map(viewTitle).join(", ") })])]);
+          })));
+        }
+        if (docs.length) {
+          body.appendChild(el("p", { class: "nv-dlabel", text: "Docs" }));
+          body.appendChild(el("ul", { class: "nv-dlist" }, docs.map(function (d) {
+            return el("li", {}, [el("a", { href: d.file }, [el("span", { class: "nv-dtag", text: viewTitle(d.view) }), el("span", {}, [el("b", { text: d.title })])])]);
+          })));
+        }
+        btn.addEventListener("click", function () { if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", ""); });
+        document.getElementById("nv-close").addEventListener("click", function () { dlg.close ? dlg.close() : dlg.removeAttribute("open"); });
+        dlg.addEventListener("click", function (e) { if (e.target === dlg) dlg.close(); });
+      })();
       var views = skills.filter(function (s) { return s.kind === "view"; }).length;
       count.textContent = views ? views + (views === 1 ? " view" : " views") + " so far" : "";
+
+      /* render a markdown document from the registry in the reader dialog */
+      function openReader(kind, title, md, rawHref, baseDir) {
+        var dlg = document.getElementById("nv-reader"), body = document.getElementById("nv-reader-body");
+        document.getElementById("nv-reader-kind").textContent = kind;
+        document.getElementById("nv-reader-title").textContent = title;
+        document.getElementById("nv-reader-raw").setAttribute("href", rawHref);
+        body.textContent = "";
+        if (typeof md !== "string") { body.appendChild(el("p", { text: "This document is not in the registry. Run node scripts/build-registry.js." })); }
+        else if (window.marked && typeof window.marked.parse === "function") {
+          var wrap = document.createElement("div");
+          wrap.innerHTML = window.marked.parse(md, { gfm: true, breaks: false });
+          /* relative links point into the skill folder; open other documents in a new tab */
+          Array.prototype.forEach.call(wrap.querySelectorAll("a[href]"), function (a) {
+            var h = a.getAttribute("href");
+            if (/^(https?:|mailto:|#)/.test(h)) { if (/^https?:/.test(h)) { a.setAttribute("target", "_blank"); a.setAttribute("rel", "noopener"); } return; }
+            var parts = (baseDir + "/" + h).split("/"), out = [];
+            parts.forEach(function (seg) { if (seg === "..") out.pop(); else if (seg && seg !== ".") out.push(seg); });
+            a.setAttribute("href", out.join("/")); a.setAttribute("target", "_blank"); a.setAttribute("rel", "noopener");
+          });
+          Array.prototype.forEach.call(wrap.querySelectorAll("script, iframe, object, embed"), function (n) { n.remove(); });
+          while (wrap.firstChild) body.appendChild(wrap.firstChild);
+        } else {
+          body.appendChild(el("pre", { class: "nv-raw", text: md }));
+        }
+        if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
+        body.scrollTop = 0; body.focus();
+      }
+      document.getElementById("nv-reader-close").addEventListener("click", function () { var d = document.getElementById("nv-reader"); d.close ? d.close() : d.removeAttribute("open"); });
+      document.getElementById("nv-reader").addEventListener("click", function (e) { if (e.target === e.currentTarget) e.currentTarget.close(); });
 
       function card(s, i) {
         var pal = PALETTES[i % PALETTES.length];
@@ -301,8 +396,9 @@
         link.appendChild(cover(s, i));
         link.appendChild(el("div", { class: "nv-body" }, [el("h2", { text: s.title }), el("span", { class: "nv-name", text: s.name }), el("p", { text: s.description })]));
         li.appendChild(link);
-        var actions = [el("a", { href: s.skill, text: "Skill file" })];
-        if (s.schema) actions.push(el("a", { href: s.schema, text: "Schema" }));
+        var skillBtn = el("a", { href: s.skill, text: "Skill file" }); skillBtn.addEventListener("click", function (e) { e.preventDefault(); openReader("Skill file", s.title, s.skillMd, s.skill, s.path); });
+        var actions = [skillBtn];
+        if (s.schema) { var schemaBtn = el("a", { href: s.schema, text: "Schema" }); schemaBtn.addEventListener("click", function (e) { e.preventDefault(); openReader("Schema", s.title, s.schemaMd, s.schema, s.path + "/references"); }); actions.push(schemaBtn); }
         li.appendChild(el("div", { class: "nv-actions" }, actions));
         li.addEventListener("click", function (e) { if (e.target.closest("a")) return; window.location.href = target; });
         return li;

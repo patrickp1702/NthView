@@ -1,0 +1,550 @@
+{
+  "schemaVersion": 1,
+  "title": "How Herd Immunity Works",
+  "subtitle": "Play with a live outbreak model and discover why vaccinating most people can protect everyone",
+  "theme": "sunlit",
+  "seed": 7,
+  "intro": {
+    "kicker": "Explorable · public health",
+    "question": "Why can vaccinating **most** people protect **everyone**, and why does “most” mean such different numbers for different diseases?",
+    "body": [
+      "You will not be asked to memorise anything. Each step hands you a live model of an outbreak: sliders, switches, a crowd of simulated people, a town of households.",
+      "Before each experiment you predict what will happen, then watch. Guessing wrong is the point: surprises are where understanding starts. The numbers come from simple textbook models and typical estimates, so treat them as illustrations, not forecasts."
+    ]
+  },
+  "model": {
+    "variables": [
+      { "id": "rZero", "label": "R₀ (spread per case)", "min": 0.5, "max": 18, "step": 0.1, "default": 2, "format": "dp1" },
+      { "id": "coverage", "label": "Vaccinated share", "min": 0, "max": 1, "step": 0.01, "default": 0, "format": "pct" },
+      { "id": "efficacy", "label": "Vaccine effectiveness", "min": 0.5, "max": 1, "step": 0.01, "default": 1, "format": "pct" },
+      { "id": "contacts", "label": "Close contacts per case", "min": 2, "max": 30, "step": 1, "default": 10, "format": "int" },
+      { "id": "stayHome", "label": "Share staying home", "min": 0, "max": 0.5, "step": 0.05, "default": 0, "format": "pct" },
+      { "id": "clustered", "label": "Unvaccinated live together", "min": 0, "max": 1, "step": 1, "default": 0, "format": "int" },
+      { "id": "spread", "label": "How much towns differ", "min": 0, "max": 0.25, "step": 0.01, "default": 0.08, "format": "pct" },
+      { "id": "population", "label": "Town size", "min": 1000, "max": 100000, "step": 1000, "default": 10000, "format": "int", "unit": "people" }
+    ],
+    "formulas": [
+      { "id": "protectedShare", "label": "Protected share", "expr": "coverage * efficacy", "format": "pct" },
+      { "id": "reff", "label": "Effective R", "expr": "rZero * (1 - protectedShare)", "format": "dp2" },
+      { "id": "threshold", "label": "Herd immunity threshold", "expr": "max(0, 1 - 1 / rZero)", "format": "pct" },
+      { "id": "critical", "label": "Coverage needed", "expr": "threshold / efficacy", "format": "pct" },
+      { "id": "exposed", "label": "Unprotected contacts", "expr": "contacts * (1 - protectedShare)", "format": "dp1" },
+      { "id": "genSix", "label": "Cases in generation 6", "expr": "pow(rZero, 6)", "format": "int" },
+      { "id": "firstSix", "label": "Cases in generations 0–6", "expr": "if(abs(rZero - 1) < 0.001, 7, (pow(rZero, 7) - 1) / (rZero - 1))", "format": "int" },
+      { "id": "z1", "expr": "1 - exp(-reff) / (1 - reff * exp(-reff))" },
+      { "id": "z2", "expr": "z1 - (z1 - 1 + exp(-reff * z1)) / (1 - reff * exp(-reff * z1))" },
+      { "id": "z3", "expr": "z2 - (z2 - 1 + exp(-reff * z2)) / (1 - reff * exp(-reff * z2))" },
+      { "id": "z4", "expr": "z3 - (z3 - 1 + exp(-reff * z3)) / (1 - reff * exp(-reff * z3))" },
+      { "id": "z5", "expr": "z4 - (z4 - 1 + exp(-reff * z4)) / (1 - reff * exp(-reff * z4))" },
+      { "id": "attack", "label": "Share of the unprotected infected", "expr": "if(reff > 1, clamp(z5, 0, 1), 0)", "format": "pct" },
+      { "id": "infectedShare", "label": "Share of town infected", "expr": "attack * (1 - protectedShare)", "format": "pct1" },
+      { "id": "infectedPeople", "label": "People infected", "expr": "infectedShare * population", "format": "int", "prefix": "≈", "unit": "people" },
+      { "id": "simChance", "label": "Infection chance per tick", "expr": "clamp(rZero * 0.05, 0, 1)", "format": "pct1" }
+    ]
+  },
+  "steps": [
+    {
+      "id": "one-becomes-many",
+      "title": "One case becomes many",
+      "kicker": "Chains of infection",
+      "body": [
+        "An infectious disease spreads in **generations**. One sick person passes it on, those people pass it on, and so on. The number that matters most is how many people each case infects when nobody is immune: the ((basic reproduction number|R₀)), written R₀.",
+        "Suppose each case infects [[rZero]] others. Drag that number. Generation 6 then has {genSix} new cases, and the first seven generations add up to {firstSix} people."
+      ],
+      "start": { "rZero": 2 },
+      "visuals": [
+        {
+          "kind": "timeline",
+          "title": "Generation by generation",
+          "frames": "7",
+          "value": "pow(rZero, k)",
+          "label": "Generation {k}: **{value|int}** new cases",
+          "display": "dots",
+          "frameMs": 750,
+          "autoplay": true,
+          "color": "orange",
+          "format": "int",
+          "caption": "Each dot is one new case. Replay the chain with the play button or scrub through it."
+        },
+        {
+          "kind": "number",
+          "title": "The count",
+          "items": [
+            { "label": "New cases in generation 6", "value": "genSix", "format": "int", "color": "orange" },
+            { "label": "Everyone infected so far", "value": "firstSix", "format": "int", "unit": "people" }
+          ]
+        }
+      ],
+      "controls": [
+        { "kind": "slider", "var": "rZero" }
+      ],
+      "predict": {
+        "prompt": "Each case infects 2 people. What if each case infected 4 instead: how many times more cases would generation 6 have?",
+        "options": [
+          { "text": "Twice as many, because 4 is twice 2", "why": "That is the straight-line intuition, but the doubling happens at every generation, not once. Six generations of “twice as many” compound into 2 × 2 × 2 × 2 × 2 × 2." },
+          { "text": "About 12 times as many", "why": "Close to what you get by adding the extra cases up generation by generation, but chains multiply rather than add." },
+          { "text": "64 times as many", "correct": true, "why": "4⁶ ÷ 2⁶ = (4 ÷ 2)⁶ = 2⁶ = 64. A difference in R₀ is multiplied in once per generation." }
+        ],
+        "set": { "rZero": "rZero * 2" },
+        "expect": "genSix == 4096",
+        "notice": "Generation 6 now has **{genSix}** cases instead of 64. The chain multiplies by R₀ at every step, so a small difference in R₀ becomes an enormous difference a few generations later. That is ((exponential growth))."
+      },
+      "takeaway": "Cases multiply by R₀ every generation, so outbreaks grow exponentially."
+    },
+    {
+      "id": "shrink-or-grow",
+      "title": "Above one it grows, below one it dies",
+      "kicker": "The magic number 1",
+      "body": [
+        "What if each case infects fewer than one person on average? Some do infect others, but more of them infect no one, and the chain gets shorter each generation.",
+        "The curve shows cases per generation for R₀ = [[rZero]]. The dashed line is R₀ = 1, where every case exactly replaces itself. The vertical axis is a ((log scale)): each gridline is ten times the one below, so steady multiplication draws a straight line."
+      ],
+      "start": { "rZero": 1.5 },
+      "visuals": [
+        {
+          "kind": "line",
+          "title": "Cases per generation",
+          "x": { "id": "g", "from": "0", "to": "12", "label": "Generation", "format": "int" },
+          "series": [
+            { "label": "Your R₀", "y": "pow(rZero, g)", "color": "accent" },
+            { "label": "R₀ = 1", "y": "1", "color": "grey", "dashed": true }
+          ],
+          "logY": true,
+          "marker": "12",
+          "markerLabel": "Gen",
+          "samples": 120,
+          "yLabel": "Cases",
+          "format": "auto"
+        },
+        {
+          "kind": "gauge",
+          "title": "Growth per generation",
+          "value": "rZero",
+          "min": "0",
+          "max": "4",
+          "label": "R₀ (needle stops at 4)",
+          "format": "dp1",
+          "zones": [
+            { "to": 0.99, "color": "green", "label": "Shrinks" },
+            { "to": 1.01, "color": "amber", "label": "Holds steady" },
+            { "to": 100, "color": "red", "label": "Grows" }
+          ]
+        }
+      ],
+      "controls": [
+        { "kind": "slider", "var": "rZero", "label": "R₀" }
+      ],
+      "predict": {
+        "prompt": "Set R₀ to 0.8. What happens to the outbreak over the generations?",
+        "options": [
+          { "text": "It keeps growing, just slowly", "why": "Growth needs each case to be replaced by more than one new case. At 0.8, every generation is 20% smaller than the one before." },
+          { "text": "It levels off at a steady number of cases", "why": "Levelling off happens only at exactly 1, when each case replaces itself. That is the dashed line." },
+          { "text": "It shrinks every generation and dies out", "correct": true, "why": "Multiplying by 0.8 again and again heads towards zero: after 12 generations only about 7% of the starting cases are left." }
+        ],
+        "set": { "rZero": "0.8" },
+        "expect": "pow(rZero, 12) < 0.1",
+        "notice": "With R₀ = {rZero}, generation 12 has only {pow(rZero, 12)|dp2} cases for every case you started with: the chain fizzles. On the log scale the line now slopes **down**. Everything hinges on whether each case is replaced by more or fewer than one new case.",
+        "lock": false
+      },
+      "challenge": {
+        "prompt": "Find the R₀ where the curve goes perfectly flat.",
+        "when": "abs(rZero - 1) < 0.05",
+        "success": "At R₀ = {rZero} every case replaces itself exactly once, so the line stays flat. This is the knife edge between growth and decline.",
+        "hint": "Watch the gauge needle and the dashed line."
+      },
+      "takeaway": "If each case causes fewer than one new case, the outbreak shrinks and dies out."
+    },
+    {
+      "id": "breaking-the-chain",
+      "title": "Immunity breaks the chain",
+      "kicker": "Effective R",
+      "body": [
+        "Vaccination doesn't make a disease less contagious. It takes people out of the chain. Picture one case meeting {contacts} close contacts: the vaccinated ones are protected, and only the unprotected ones can catch it.",
+        "So what drives the outbreak is the ((effective R)): R₀ times the share of people still unprotected. Right now [[coverage]] of people are vaccinated, so effective R is {reff}."
+      ],
+      "start": { "rZero": 3, "coverage": 0 },
+      "visuals": [
+        {
+          "kind": "flow",
+          "title": "One case, one round of contacts",
+          "stages": [
+            { "label": "Case", "value": "1", "color": "orange" },
+            { "label": "Contacts", "value": "contacts", "color": "blue" },
+            { "label": "Unprotected", "value": "exposed", "color": "amber" },
+            { "label": "New cases", "value": "reff", "color": "red" }
+          ],
+          "links": [
+            { "rate": "contacts", "label": "meets" },
+            { "rate": "exposed", "label": "open" },
+            { "rate": "reff", "label": "infects" }
+          ],
+          "maxRate": "contacts",
+          "format": "dp1",
+          "caption": "Thicker, faster dots mean more people passing through that stage."
+        },
+        {
+          "kind": "stack",
+          "title": "The town",
+          "parts": [
+            { "label": "Protected", "value": "protectedShare", "color": "teal" },
+            { "label": "Unprotected", "value": "1 - protectedShare", "color": "amber" }
+          ],
+          "shape": "donut",
+          "format": "pct"
+        }
+      ],
+      "controls": [
+        { "kind": "slider", "var": "coverage" },
+        { "kind": "stepper", "var": "contacts" }
+      ],
+      "predict": {
+        "prompt": "R₀ is 3. Half the town gets a vaccine that always works. How many people does each case infect now, on average?",
+        "options": [
+          { "text": "Still 3: the disease is just as contagious", "why": "Each contact is just as risky as before, but half of those contacts can no longer be infected. Contagiousness hasn't changed; the supply of people to infect has." },
+          { "text": "1.5", "correct": true, "why": "Half the would-be infections land on protected people, so 3 becomes 3 × (1 − 0.5) = 1.5." },
+          { "text": "0: the vaccinated half stops it completely", "why": "Vaccines protect the people who get them. The unvaccinated half is still open, and a case still meets plenty of them." }
+        ],
+        "set": { "coverage": "0.5" },
+        "expect": "reff == 1.5",
+        "notice": "Each case still meets {contacts} people, but only {exposed} of them are unprotected, so the chain now multiplies by **{reff}** instead of {rZero}. Vaccination lowers effective R, and effective R is the number that actually drives the outbreak."
+      },
+      "takeaway": "Effective R = R₀ × the share of people still unprotected."
+    },
+    {
+      "id": "tipping-point",
+      "title": "The tipping point",
+      "kicker": "Herd immunity threshold",
+      "body": [
+        "Push coverage up and effective R falls in a straight line. At some coverage it crosses 1, and from then on every outbreak shrinks, even though not everyone is immune. That crossing is the ((herd immunity threshold)): 1 − 1/R₀.",
+        "For a disease with R₀ = [[rZero]], the threshold is {threshold}. Press play on coverage and watch the needle cross into the green."
+      ],
+      "start": { "rZero": 3, "coverage": 0.2 },
+      "visuals": [
+        {
+          "kind": "gauge",
+          "title": "Effective R",
+          "value": "reff",
+          "min": "0",
+          "max": "max(4, rZero)",
+          "label": "At the current coverage",
+          "format": "dp2",
+          "zones": [
+            { "to": 1, "color": "green", "label": "Outbreaks shrink" },
+            { "to": 1000, "color": "red", "label": "Outbreaks grow" }
+          ]
+        },
+        {
+          "kind": "line",
+          "title": "Effective R as coverage rises",
+          "x": { "id": "c", "from": "0", "to": "1", "label": "Vaccinated share", "format": "pct" },
+          "series": [
+            { "label": "Effective R", "y": "rZero * (1 - c * efficacy)", "color": "accent" },
+            { "label": "R = 1", "y": "1", "color": "grey", "dashed": true }
+          ],
+          "yMin": "0",
+          "yMax": "max(4, rZero)",
+          "marker": "coverage",
+          "markerLabel": "Now",
+          "yLabel": "Effective R",
+          "format": "dp1"
+        }
+      ],
+      "controls": [
+        { "kind": "play", "var": "coverage", "duration": 8, "loop": true },
+        { "kind": "slider", "var": "rZero" }
+      ],
+      "predict": {
+        "prompt": "Measles is one of the most contagious diseases known, with R₀ around 15. What share of people must be immune to stop it spreading?",
+        "options": [
+          { "text": "About half", "why": "Half is enough only for diseases with R₀ around 2. Each measles case would still infect about 7.5 others." },
+          { "text": "About three quarters", "why": "That works for R₀ = 4. With R₀ = 15, a case surrounded by 25% unprotected people still infects nearly 4." },
+          { "text": "More than 90%", "correct": true, "why": "1 − 1/15 ≈ 93%. The more contagious the disease, the closer to everyone you need." }
+        ],
+        "set": { "rZero": "15" },
+        "expect": "threshold > 0.9 && threshold < 0.95",
+        "notice": "With R₀ = {rZero}, effective R only drops below 1 once **{threshold}** of people are immune. Look at the line: it starts much higher and has much further to fall before it crosses 1."
+      },
+      "challenge": {
+        "prompt": "Keep measles at R₀ 15 and raise coverage until outbreaks shrink.",
+        "when": "rZero >= 14.9 && reff < 1",
+        "success": "Effective R is {reff}: below 1. At {coverage} coverage measles cannot sustain itself in this model town.",
+        "hint": "Use the coverage slider or press play, and watch for the needle to enter the green."
+      },
+      "takeaway": "Herd immunity starts when 1 − 1/R₀ of people are immune; for measles that is about 93%."
+    },
+    {
+      "id": "watch-it-spread",
+      "title": "Watch it spread",
+      "kicker": "Agent simulation",
+      "body": [
+        "Formulas describe averages. Here are 220 people wandering a town square. Three arrive infected. Anyone who comes close to a case may catch it, and recovers after a while. Vaccinated people never catch it.",
+        "With R₀ = {rZero} and [[coverage]] vaccinated, effective R is {reff}. Each run is random, but a run always replays the same way; press the dice for a new one."
+      ],
+      "start": { "rZero": 3, "coverage": 0.3, "stayHome": 0 },
+      "visuals": [
+        {
+          "kind": "agents",
+          "title": "A town square of 220 people",
+          "states": [
+            { "id": "susceptible", "label": "Never infected", "color": "blue" },
+            { "id": "infected", "label": "Infected", "color": "red" },
+            { "id": "recovered", "label": "Recovered", "color": "grey" },
+            { "id": "vaccinated", "label": "Vaccinated", "color": "teal" }
+          ],
+          "initial": {
+            "susceptible": "217 - round(217 * coverage)",
+            "infected": "3",
+            "vaccinated": "round(217 * coverage)"
+          },
+          "rules": [
+            { "kind": "contact", "from": "susceptible", "to": "infected", "with": "infected", "chance": "simChance" },
+            { "kind": "timer", "from": "infected", "to": "recovered", "chance": "1 / 90" }
+          ],
+          "speed": "1.2",
+          "radius": "9",
+          "still": "stayHome",
+          "ticks": 1500,
+          "max": 400,
+          "history": true,
+          "caption": "The strip underneath shows how the mix changes over time. Ringed dots are staying home."
+        },
+        {
+          "kind": "number",
+          "items": [
+            { "label": "Effective R", "value": "reff", "format": "dp2", "color": "red" },
+            { "label": "Herd immunity threshold", "value": "threshold", "format": "pct", "color": "teal" }
+          ]
+        }
+      ],
+      "controls": [
+        { "kind": "slider", "var": "coverage" },
+        { "kind": "toggle", "var": "stayHome", "label": "Half the town stays home" },
+        { "kind": "button", "label": "Vaccinate 10% more", "set": { "coverage": "min(1, coverage + 0.1)" } }
+      ],
+      "predict": {
+        "prompt": "At 30% coverage plenty of people get infected. If coverage rose to 80%, what would you expect?",
+        "options": [
+          { "text": "About half as many infections", "why": "That would be true if a vaccine only protected the person who got it. But at 80% coverage effective R is below 1, so chains die out early." },
+          { "text": "Almost no one beyond the first few, including the unvaccinated", "correct": true, "why": "Effective R falls below 1: each case meets too few unprotected people to keep the chain going, so the unvaccinated are shielded too." },
+          { "text": "No real change: the unvaccinated still mix with cases", "why": "They still mix, but a case rarely reaches them, because most of the people it meets are protected." }
+        ],
+        "set": { "coverage": "0.8" },
+        "expect": "reff < 1",
+        "notice": "At {coverage} coverage effective R is {reff}. The few cases rarely meet anyone they can infect, so chains break before they start. Look at the blue dots: most **unvaccinated** people never get sick. They are protected by the people around them. That is ((herd immunity))."
+      },
+      "takeaway": "Above the threshold even the unvaccinated are protected, because chains of infection can't find a path."
+    },
+    {
+      "id": "pockets",
+      "title": "Averages hide pockets",
+      "kicker": "Clusters",
+      "body": [
+        "Real towns aren't evenly mixed. People who skip vaccines often live near each other or share a school. Each cell below is a household, and infection jumps to neighbouring households.",
+        "Both versions have the same average coverage of [[coverage]]. The only difference is whether the unvaccinated are scattered or clustered in one district."
+      ],
+      "start": { "rZero": 3, "coverage": 0.7, "clustered": 0, "spread": 0.08 },
+      "visuals": [
+        {
+          "kind": "grid",
+          "title": "A town of 1,296 households",
+          "rows": 36,
+          "cols": 36,
+          "states": [
+            { "id": "open", "label": "Not immune", "color": "blue" },
+            { "id": "sick", "label": "Infected", "color": "red" },
+            { "id": "over", "label": "Recovered", "color": "grey" },
+            { "id": "immune", "label": "Vaccinated", "color": "teal" }
+          ],
+          "cell": "if(row == 18 && col == 6, 1, if(u < if(clustered, if(col < 12, coverage - 0.3, coverage + 0.15), coverage), 3, 0))",
+          "rules": [
+            { "kind": "contact", "from": "open", "to": "sick", "with": "sick", "chance": "clamp(rZero / 6, 0, 1)" },
+            { "kind": "timer", "from": "sick", "to": "over", "chance": "0.3" }
+          ],
+          "neighbors": 8,
+          "ticks": 300,
+          "speed": 12,
+          "caption": "The first case appears in the west district, the left third of the town."
+        },
+        {
+          "kind": "scatter",
+          "title": "100 towns, one national average",
+          "count": "100",
+          "x": "clamp(coverage + spread * n, 0, 1)",
+          "y": "2 + 48 * v * v",
+          "xMin": "0.4",
+          "xMax": "1",
+          "yMin": "0",
+          "yMax": "50",
+          "xLabel": "Town vaccination coverage",
+          "yLabel": "Town size (thousands)",
+          "xFormat": "pct",
+          "yFormat": "int",
+          "color": "teal",
+          "highlight": "rZero * (1 - clamp(coverage + spread * n, 0, 1) * efficacy) > 1",
+          "highlightColor": "red",
+          "highlightLabel": "towns where outbreaks can grow",
+          "caption": "Each dot is a town. Towns vary around the national average by about {spread}."
+        }
+      ],
+      "controls": [
+        { "kind": "toggle", "var": "clustered" },
+        { "kind": "slider", "var": "coverage" },
+        { "kind": "slider", "var": "spread" }
+      ],
+      "predict": {
+        "prompt": "Coverage averages 70% either way, just above the 67% threshold for R₀ = 3. Now the unvaccinated cluster together in the west district. What happens?",
+        "options": [
+          { "text": "Nothing changes: the average is above the threshold", "why": "The threshold applies to the people who actually meet each other. Inside the cluster, coverage is far lower than the town average." },
+          { "text": "The outbreak takes hold inside the cluster, even though the average looks safe", "correct": true, "why": "In the west district only 40% are vaccinated, well below the 67% threshold, so the infection has a connected path through it." },
+          { "text": "Clustering protects the town by keeping the unvaccinated apart", "why": "It keeps them apart from the vaccinated, which is exactly the problem: it packs the unprotected people next to each other." }
+        ],
+        "set": { "clustered": "1" },
+        "expect": "coverage - 0.3 < threshold",
+        "notice": "Same average, very different outcome. Inside the cluster coverage is only {coverage - 0.3|pct}, far below the {threshold} threshold, so the infection burns through the district. Herd immunity is **local**: what counts is coverage among the people who actually meet. The scatter makes the same point for whole towns."
+      },
+      "takeaway": "Herd immunity is local: clusters of unvaccinated people can sustain outbreaks even when the average looks safe."
+    },
+    {
+      "id": "imperfect-vaccines",
+      "title": "No vaccine is perfect",
+      "kicker": "Effectiveness",
+      "body": [
+        "So far every shot has worked. Real vaccines protect most, not all, of the people who get them. If the ((vaccine|vaccine effectiveness)) is [[efficacy]] effective, you need more coverage to reach the same protected share: threshold ÷ effectiveness.",
+        "Pick a disease and slide the effectiveness to see the coverage each one needs."
+      ],
+      "start": { "rZero": 15, "efficacy": 1 },
+      "visuals": [
+        {
+          "kind": "bars",
+          "title": "Coverage needed to stop spread",
+          "bars": [
+            { "label": "Seasonal flu", "value": "(1 - 1 / 1.3) / efficacy", "color": "blue", "alert": "(1 - 1 / 1.3) / efficacy > 1" },
+            { "label": "COVID-19 (2020)", "value": "(1 - 1 / 2.5) / efficacy", "color": "violet", "alert": "(1 - 1 / 2.5) / efficacy > 1" },
+            { "label": "Polio", "value": "(1 - 1 / 6) / efficacy", "color": "amber", "alert": "(1 - 1 / 6) / efficacy > 1" },
+            { "label": "Measles", "value": "(1 - 1 / 15) / efficacy", "color": "orange", "alert": "(1 - 1 / 15) / efficacy > 1" }
+          ],
+          "max": "1.2",
+          "horizontal": true,
+          "format": "pct",
+          "caption": "Typical R₀ estimates: flu about 1.3, the original COVID-19 strain about 2.5, polio about 6, measles about 15. A red bar would need more than everyone."
+        },
+        {
+          "kind": "number",
+          "title": "Your chosen disease",
+          "items": [
+            { "label": "Herd immunity threshold", "value": "threshold", "format": "pct" },
+            { "label": "Coverage needed", "value": "critical", "format": "pct", "prefix": "≈", "color": "orange" }
+          ]
+        }
+      ],
+      "controls": [
+        { "kind": "slider", "var": "efficacy" },
+        { "kind": "choice", "var": "rZero", "label": "Disease", "options": [
+          { "label": "Flu 1.3", "value": 1.3 },
+          { "label": "COVID 2.5", "value": 2.5 },
+          { "label": "Polio 6", "value": 6 },
+          { "label": "Measles 15", "value": 15 }
+        ] }
+      ],
+      "predict": {
+        "prompt": "Measles needs about 93% of people immune. Suppose the vaccine works for 90% of the people who get it. What coverage would you need?",
+        "options": [
+          { "text": "93%, the same as before", "why": "93% must be **immune**, not just vaccinated. With a 90% vaccine, vaccinating 93% leaves only about 84% immune." },
+          { "text": "About 96%", "why": "That is roughly the answer for the real two-dose measles vaccine, which is about 97% effective. At 90% it is worse." },
+          { "text": "More than 100%, which is impossible", "correct": true, "why": "93% ÷ 0.9 ≈ 104%. Even vaccinating everyone would leave too many people unprotected." }
+        ],
+        "set": { "efficacy": "0.9" },
+        "expect": "critical > 1",
+        "notice": "Coverage needed = {threshold} ÷ {efficacy} = **{critical}**. Even vaccinating everyone would leave measles room to spread. That is why measles vaccination uses two doses, about 97% effective together, and why measles is the first disease to return when coverage slips."
+      },
+      "takeaway": "Coverage needed = threshold ÷ vaccine effectiveness, so for very contagious diseases every gap counts."
+    },
+    {
+      "id": "two-towns",
+      "title": "Two towns, one virus",
+      "kicker": "Side by side",
+      "body": [
+        "Put it all together. Two towns of [[population]] face measles (R₀ {rZero}) with a vaccine that is {efficacy} effective. Town A vaccinates 70% of people. Town B vaccinates 95%.",
+        "The model solves the ((final size equation)) to estimate how many people an outbreak eventually reaches."
+      ],
+      "start": { "rZero": 15, "efficacy": 0.97, "coverage": 0.7, "population": 10000 },
+      "visuals": [
+        {
+          "kind": "compare",
+          "title": "Town A against Town B",
+          "scenarios": [
+            { "label": "Town A · 70%", "set": { "coverage": "0.7" }, "color": "orange" },
+            { "label": "Town B · 95%", "set": { "coverage": "0.95" }, "color": "teal" }
+          ],
+          "metrics": [
+            { "label": "Effective R", "value": "reff", "format": "dp2", "better": "lower" },
+            { "label": "Share of town infected", "value": "infectedShare", "format": "pct1", "better": "lower" },
+            { "label": "People infected", "value": "infectedPeople", "format": "int", "prefix": "≈", "unit": "people", "better": "lower" }
+          ]
+        },
+        {
+          "kind": "stack",
+          "title": "Your town at the current coverage",
+          "parts": [
+            { "label": "Protected by vaccine", "value": "protectedShare", "color": "teal" },
+            { "label": "Infected", "value": "infectedShare", "color": "red" },
+            { "label": "Unprotected but spared", "value": "max(0, 1 - protectedShare - infectedShare)", "color": "blue" }
+          ],
+          "shape": "bar",
+          "format": "pct1"
+        }
+      ],
+      "controls": [
+        { "kind": "slider", "var": "coverage", "label": "Your town's coverage" }
+      ],
+      "predict": {
+        "prompt": "Your town starts like Town A. If it vaccinated 95% instead of 70%, how many people would catch measles?",
+        "options": [
+          { "text": "About a quarter fewer, since coverage rose by 25 points", "why": "Proportional thinking again. Near the threshold, each extra percent of coverage breaks chains for everyone, so the effect is far bigger than the change." },
+          { "text": "About half as many", "why": "Halving would already be a big win, but the real drop is much larger, because effective R falls from about 4.8 to about 1.2." },
+          { "text": "More than ten times fewer", "correct": true, "why": "In this model the outbreak reaches about 32% of Town A but only about 2% of Town B: more than ten times fewer people." }
+        ],
+        "set": { "coverage": "0.95" },
+        "expect": "infectedShare < 0.03",
+        "notice": "At 70% coverage measles reaches about a third of the town; at {coverage} it reaches about **{infectedShare}**, roughly {infectedPeople} out of {population}. A 25-point rise in coverage cut infections more than tenfold, because it pushed effective R down to {reff}, right next to the tipping point."
+      },
+      "challenge": {
+        "prompt": "Find the lowest coverage at which measles cannot take off in your town at all.",
+        "when": "reff < 1 && coverage < 0.975",
+        "success": "At {coverage} coverage effective R is {reff}: outbreaks fizzle. One percentage point lower and measles can spread again.",
+        "hint": "Divide the 93% threshold by the vaccine's 97% effectiveness."
+      },
+      "takeaway": "Near the threshold, each extra percent of coverage prevents far more than a percent of cases."
+    }
+  ],
+  "glossary": [
+    { "term": "R₀", "definition": "The basic reproduction number: how many people one case infects, on average, when nobody around them is immune." },
+    { "term": "Exponential growth", "definition": "Growth by the same factor at every step, such as doubling each generation. It starts slowly and then explodes." },
+    { "term": "Log scale", "definition": "An axis on which each step multiplies by the same factor (here 10), so exponential growth or decline draws a straight line." },
+    { "term": "Effective R", "definition": "How many people one case infects right now, given the immunity already in the population. Above 1 an outbreak grows; below 1 it shrinks." },
+    { "term": "Herd immunity threshold", "definition": "The share of people who must be immune for effective R to fall below 1. In the simplest model it is 1 − 1/R₀." },
+    { "term": "Herd immunity", "definition": "The protection that people who are not immune get when enough people around them are immune that chains of infection break." },
+    { "term": "Vaccine effectiveness", "definition": "The share of vaccinated people who are actually protected. A 90% effective vaccine leaves 1 in 10 vaccinated people unprotected." },
+    { "term": "Final size equation", "definition": "z = 1 − e^(−R·z): in the simplest outbreak model, the share z of unprotected people that an outbreak with effective R eventually infects. The model solves it numerically." }
+  ],
+  "wrapUp": {
+    "heading": "What you discovered",
+    "body": [
+      "An outbreak is a chain, and every link multiplies by effective R. Above 1 the chain grows exponentially; below 1 it fizzles. Vaccination doesn't change how contagious a disease is. It removes links from the chain, and once enough links are gone, even people who could not be vaccinated are protected.",
+      "How many is “enough” depends on the disease: about a quarter of people for seasonal flu, over 93% for measles, and more again when vaccines are imperfect or the unvaccinated cluster together."
+    ],
+    "takeaways": [
+      "Cases multiply by **R₀** every generation; small changes in R₀ make huge differences.",
+      "Outbreaks grow when **effective R** is above 1 and shrink when it is below 1.",
+      "Effective R = R₀ × the share of people still unprotected.",
+      "The **herd immunity threshold** is 1 − 1/R₀: about 93% for measles.",
+      "Coverage needed = threshold ÷ vaccine effectiveness.",
+      "Herd immunity is local: clusters of unvaccinated people can sustain outbreaks."
+    ],
+    "next": [
+      "Go back to the town square at 30% coverage and switch on “Half the town stays home”. How does staying home compare with vaccinating?",
+      "In “Averages hide pockets”, raise “How much towns differ” and watch more towns turn red with the same national average.",
+      "In “No vaccine is perfect”, find the lowest effectiveness at which polio can still be stopped."
+    ]
+  }
+}

@@ -77,9 +77,9 @@ Produce one standalone file using the template in AGENTS.md §6. The
 repository tool does this exactly, including the CDN tags for three.js and
 the fonts declared in `assets/view.js`:
 
-    node scripts/build-html.js skills/nthview-island-quest <path-to-json> examples/<concept-slug>-island-quest.html
+    node scripts/build-html.js skills/nthview-island-quest <path-to-json> docs/<concept-slug>-island-quest.html
 
-Generated games go in the repo-root `examples/` folder (or wherever the user
+Generated games go in the repo-root `docs/` folder (or `lessons/<lesson>/chapters/` when it is a lesson chapter built by `scripts/build-lesson.js`) (or wherever the user
 asks); never inside `skills/`.
 
 If building by hand: the JSON in `<script type="application/json"

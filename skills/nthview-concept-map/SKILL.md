@@ -92,7 +92,7 @@ Produce one standalone file using the template in AGENTS.md §6. The
 repository tool does this exactly, including the Google Fonts tag declared in
 `NthView.libs`:
 
-    node scripts/build-html.js skills/nthview-concept-map <path-to-json> examples/<concept-slug>-concept-map.html
+    node scripts/build-html.js skills/nthview-concept-map <path-to-json> docs/<concept-slug>-concept-map.html
 
 If building by hand:
 - the JSON in `<script type="application/json" id="nthview-data">`, with
@@ -101,7 +101,7 @@ If building by hand:
 - the full contents of `scripts/validate.js`, then `assets/view.js`, inlined,
 - the bootstrap script that calls `NthView.build(document.getElementById("app"), data)`.
 Name the file `<concept-slug>-concept-map.html`. Generated maps go in the
-repo-root `examples/` folder (or wherever the user asks), never inside `skills/`.
+repo-root `docs/` folder (or `lessons/<lesson>/chapters/` when it is a lesson chapter built by `scripts/build-lesson.js`) (or wherever the user asks), never inside `skills/`.
 
 ### 5. Deliver
 Hand the user the single file and mention that it loads its fonts from Google

@@ -1,0 +1,645 @@
+{
+  "schemaVersion": 1,
+  "title": "Packet Quest",
+  "subtitle": "How the internet works, one island at a time",
+  "theme": "aurora",
+  "companion": {
+    "name": "Byte"
+  },
+  "coins": 12,
+  "intro": {
+    "paragraphs": [
+      "Byte is a tiny packet of data with one job: get from your laptop to a server on the other side of the world and bring a web page back. Byte has no idea how.",
+      "You're Byte's guide. Visit 25 islands, each a short lesson with a different kind of challenge, and by the end you'll both know how a click becomes a page."
+    ],
+    "steps": [
+      "Press **Walk me there** at the bottom of the screen, or walk yourself with WASD or the arrow keys. Grab the coins on the causeways.",
+      "Every island has a different challenge: sort things, light beacons, step on pads in order, guess a number, match pairs and more.",
+      "Each wrong try costs a coin. Getting it right first time earns 3 stars. Finish every island to unlock the final exam in the middle."
+    ],
+    "note": "Numbers are typical, rounded values meant for beginners, not precise measurements."
+  },
+  "islands": [
+    {
+      "id": "many-roads-grove",
+      "name": "Many Roads Grove",
+      "theme": "grove",
+      "lead": "When a web page travels to you, it is chopped into small packets. Each packet can take a different road through the network, and they are put back together at the end.",
+      "body": [
+        "Byte sent seven packets to the same server. Each glowing letter is the road one packet took: **N** for the north cable, **S** for the south cable, **E** for the east cable."
+      ],
+      "activity": {
+        "type": "collect",
+        "prompt": "Walk into all 7 glowing letters to see which road most packets took.",
+        "items": ["N", "S", "N", "N", "E", "N", "S"],
+        "resultTitle": "Roads taken",
+        "resultText": "Most packets went {top} ({count} of {total})",
+        "resultNote": "The others went a different way and still arrived. No single road has to work for the page to load."
+      },
+      "quiz": {
+        "question": "Why can packets from one page take different roads?",
+        "options": [
+          { "text": "Because every packet is routed on its own and reassembled at the end", "correct": true },
+          { "text": "Because the page is sent several times by mistake", "why": "Nothing is sent by mistake. One page, many packets, many roads." }
+        ]
+      },
+      "remember": "A page is split into packets. Each packet finds its own way and they are reassembled at the end."
+    },
+    {
+      "id": "cable-canyon",
+      "name": "Cable Canyon",
+      "theme": "canyon",
+      "lead": "Data travels over three kinds of link: glass fibre, copper wire, and radio to a satellite. Each has a different delay.",
+      "body": [
+        "The pairs of columns show how long a round trip takes. Grey is a short hop in the same city; colour is a long hop across an ocean."
+      ],
+      "activity": {
+        "type": "pads",
+        "prompt": "Find the slowest link for a long trip and stand on its pad, then press **Choose this one**.",
+        "options": [
+          { "id": "fibre", "label": "Fibre", "bars": [5, 14], "hint": "Fibre is the fast one: light in glass crosses an ocean in a few hundredths of a second." },
+          { "id": "copper", "label": "Copper", "bars": [8, 22], "hint": "Copper is slower than fibre, but a satellite round trip is far longer." },
+          { "id": "satellite", "label": "Satellite", "bars": [60, 100] }
+        ],
+        "answer": "satellite"
+      },
+      "findings": {
+        "caption": "Round-trip delay, scaled so the longest is 100",
+        "rows": [
+          { "label": "Fibre, across an ocean", "value": 14, "show": "~70 ms" },
+          { "label": "Copper, across an ocean", "value": 22, "show": "~110 ms" },
+          { "label": "Satellite high above Earth", "value": 100, "show": "~600 ms" }
+        ],
+        "text": "A satellite in high orbit is about 36,000 km up, so even light takes a long time to get there and back.",
+        "after": true
+      },
+      "remember": "Fibre is fastest. A high satellite is slowest because the signal has to climb 36,000 km and come back."
+    },
+    {
+      "id": "page-load-tower",
+      "name": "Page Load Tower",
+      "theme": "tower",
+      "lead": "What happens between pressing Enter and seeing a page? Climb the tower one step at a time.",
+      "activity": {
+        "type": "story",
+        "buttonLabel": "Next step",
+        "frames": [
+          "You type **example.com** and press Enter.",
+          "Your computer asks a **DNS** server: what number is example.com? It answers with an **IP address**, like a phone number.",
+          "Your computer opens a connection to that address with a quick handshake, so both sides know the other is listening.",
+          "It sends an **HTTP request**: \"please send me the page\".",
+          "The server replies with the page in packets. Your browser reassembles them and draws the page."
+        ],
+        "caption": "Five steps, usually in well under a second."
+      },
+      "quiz": {
+        "question": "What does the DNS step give your computer?",
+        "options": [
+          { "text": "The page itself", "why": "The page comes later, in the HTTP reply. DNS only answers with a number." },
+          { "text": "The IP address of the server", "correct": true },
+          { "text": "A faster cable", "why": "DNS does not change the cables. It translates a name into an address." }
+        ]
+      },
+      "remember": "Name lookup, connect, request, reply, draw. That's a page load."
+    },
+    {
+      "id": "hop-arena",
+      "name": "Hop Arena",
+      "theme": "arena",
+      "lead": "Byte does not fly straight to the server. It hops from router to router, and every hop adds a little delay.",
+      "activity": {
+        "type": "tune",
+        "title": "Try it: hops and delay",
+        "controls": [
+          { "id": "h", "label": "Hops", "min": 2, "max": 8, "value": 4 },
+          { "id": "d", "label": "Delay per hop (ms)", "min": 5, "max": 30, "value": 10 }
+        ],
+        "readout": [
+          { "text": "Total delay: {h*d} ms for {h} hops" }
+        ],
+        "tally": { "count": "h", "icon": "📦", "max": 10 },
+        "visual": { "kind": "grid", "count": "h", "extra": "1" },
+        "caption": "The cubes in the ring outside are the routers Byte passes. More hops, or slower hops, mean a longer wait."
+      },
+      "quiz": {
+        "question": "Which journey is slower: 4 hops at 10 ms each, or 8 hops at 5 ms each?",
+        "options": [
+          { "text": "4 hops at 10 ms", "why": "4 × 10 = 40 ms, and 8 × 5 is also 40 ms. Try the controls again." },
+          { "text": "They take the same time", "correct": true },
+          { "text": "8 hops at 5 ms", "why": "8 × 5 = 40 ms, the same as 4 × 10." }
+        ]
+      },
+      "remember": "Delay adds up hop by hop: hops × delay per hop."
+    },
+    {
+      "id": "light-speed-clock",
+      "name": "Light Speed Clock",
+      "theme": "clock",
+      "lead": "Nothing beats the speed of light, and yet a request still takes noticeable time. Watch the race.",
+      "activity": {
+        "type": "race",
+        "buttonLabel": "Start the race",
+        "bars": [
+          { "label": "Light in fibre, London to New York, one way", "value": 5, "show": "28 ms", "tag": "light" },
+          { "label": "A real request there and back", "value": 12, "show": "~70 ms", "tag": "request" },
+          { "label": "The same request via a high satellite", "value": 100, "show": "~600 ms", "tag": "satellite" }
+        ],
+        "caption": "Light in glass travels at about two-thirds of its speed in a vacuum. The real request is slower still because it has to go there and back and pass through routers."
+      },
+      "quiz": {
+        "question": "Why is a real request slower than light itself?",
+        "options": [
+          { "text": "It has to travel there and back, and pass through routers on the way", "correct": true },
+          { "text": "Because the internet uses sound instead of light", "why": "Fibre carries light pulses. The extra time is the round trip and the routers." }
+        ]
+      },
+      "remember": "Even at light speed, a round trip across an ocean takes tens of milliseconds."
+    },
+    {
+      "id": "web-or-net-hall",
+      "name": "Web or Net Hall",
+      "theme": "hall",
+      "lead": "People say \"the internet\" and \"the web\" as if they were the same. They are not. The internet is the network of networks; the web is one service that runs on top of it, alongside email, video calls and games.",
+      "activity": {
+        "type": "truefalse",
+        "statement": "The internet and the World Wide Web are the same thing.",
+        "answer": false,
+        "why": "The internet is the global network. The web is one of many things that run on it, next to email, video calls and online games."
+      },
+      "remember": "The internet carries everything. The web is just one passenger."
+    },
+    {
+      "id": "protocol-workshop",
+      "name": "Protocol Workshop",
+      "theme": "workshop",
+      "lead": "A protocol is a set of rules two computers agree on so they understand each other, like both speaking the same language with the same manners.",
+      "activity": {
+        "type": "multi",
+        "question": "Which of these are protocols?",
+        "options": [
+          { "text": "TCP", "correct": true },
+          { "text": "HTTP", "correct": true },
+          { "text": "Chrome", "why": "Chrome is a browser, a program that uses protocols." },
+          { "text": "IP", "correct": true },
+          { "text": "A fibre cable", "why": "A cable is hardware. Protocols are rules, not things." }
+        ]
+      },
+      "remember": "TCP, IP and HTTP are protocols: agreed rules. Browsers and cables are not."
+    },
+    {
+      "id": "sequence-shore",
+      "name": "Sequence Shore",
+      "theme": "plain",
+      "lead": "Byte keeps forgetting what happens first. Help by putting the steps of a page load in the right order.",
+      "activity": {
+        "type": "order",
+        "prompt": "Arrange the steps from first to last.",
+        "items": [
+          { "text": "You type the address and press Enter", "note": "Everything starts with you." },
+          { "text": "DNS turns the name into an IP address", "note": "Like looking up a phone number." },
+          { "text": "A connection is opened with a handshake", "note": "Both sides agree to talk." },
+          { "text": "The browser sends an HTTP request", "note": "\"Please send me this page.\"" },
+          { "text": "The page arrives in packets and is drawn", "note": "The last step is on your screen." }
+        ]
+      },
+      "remember": "Type, look up, connect, request, receive. Always in that order."
+    },
+    {
+      "id": "layer-lagoon",
+      "name": "Layer Lagoon",
+      "theme": "arena",
+      "lead": "The internet is built in layers. Each layer has one job and trusts the layers below it to do theirs.",
+      "activity": {
+        "type": "match",
+        "prompt": "Match each name to its job.",
+        "pairs": [
+          { "left": "IP", "right": "Addresses and routes packets" },
+          { "left": "TCP", "right": "Delivers packets reliably, in order" },
+          { "left": "DNS", "right": "Turns names into numbers" },
+          { "left": "HTTP", "right": "Asks for and sends web pages" },
+          { "left": "TLS", "right": "Encrypts the conversation" }
+        ]
+      },
+      "remember": "IP addresses, TCP delivers, DNS names, HTTP asks, TLS locks."
+    },
+    {
+      "id": "sorting-sands",
+      "name": "Sorting Sands",
+      "theme": "canyon",
+      "lead": "Everything in networking is either a physical thing, a program, or a set of rules. Sorting them helps the words stop blurring together.",
+      "activity": {
+        "type": "sort",
+        "prompt": "Put each item in the right bucket.",
+        "buckets": [
+          { "id": "hardware", "label": "Hardware" },
+          { "id": "software", "label": "Software" },
+          { "id": "protocol", "label": "Protocol" }
+        ],
+        "items": [
+          { "text": "Router", "bucket": "hardware" },
+          { "text": "Web browser", "bucket": "software" },
+          { "text": "TCP", "bucket": "protocol" },
+          { "text": "Fibre cable", "bucket": "hardware" },
+          { "text": "DNS", "bucket": "protocol" },
+          { "text": "Operating system", "bucket": "software" }
+        ]
+      },
+      "remember": "Hardware you can touch, software you can run, protocols you agree on."
+    },
+    {
+      "id": "latency-ladder",
+      "name": "Latency Ladder",
+      "theme": "tower",
+      "lead": "Latency is the waiting time before an answer starts to arrive. Distance is the biggest reason it grows.",
+      "activity": {
+        "type": "rank",
+        "prompt": "Rank these round trips from fastest (top) to slowest (bottom).",
+        "items": [
+          { "text": "Server in the same city", "value": 2, "show": "~10 ms" },
+          { "text": "Server across the continent", "value": 7, "show": "~40 ms" },
+          { "text": "Server across an ocean", "value": 14, "show": "~80 ms" },
+          { "text": "Via a high satellite", "value": 100, "show": "~600 ms" }
+        ],
+        "caption": "Typical values. The bars are scaled so the satellite is 100."
+      },
+      "remember": "Closer servers answer sooner. That's why big sites keep copies near you."
+    },
+    {
+      "id": "gap-grotto",
+      "name": "Gap Grotto",
+      "theme": "plain",
+      "lead": "Say it in one sentence: how does a name become a connection?",
+      "activity": {
+        "type": "cloze",
+        "text": "A ___ server translates a name like example.com into an ___ address, and then your computer opens a ___ connection to it.",
+        "gaps": [
+          { "options": ["DNS", "mail", "game"], "answer": 0 },
+          { "options": ["email", "IP", "street"], "answer": 1 },
+          { "options": ["TCP", "USB", "radio"], "answer": 0 }
+        ]
+      },
+      "remember": "DNS gives the IP address; TCP opens the connection."
+    },
+    {
+      "id": "estimate-isle",
+      "name": "Estimate Isle",
+      "theme": "clock",
+      "lead": "Light is slower in glass than in empty space, because it keeps bouncing off the atoms of the fibre.",
+      "activity": {
+        "type": "estimate",
+        "question": "Light in a fibre cable travels at roughly what percentage of its speed in a vacuum?",
+        "min": 10,
+        "max": 100,
+        "answer": 67,
+        "tolerance": 8,
+        "unit": "%",
+        "reveal": "About two-thirds. That is why a signal across the Atlantic takes around 28 ms rather than 19."
+      },
+      "remember": "Light in fibre runs at about two-thirds of its top speed."
+    },
+    {
+      "id": "odd-one-outcrop",
+      "name": "Odd One Outcrop",
+      "theme": "hall",
+      "lead": "Routers, switches and modems are boxes that move data. One of these four is not a box at all.",
+      "activity": {
+        "type": "odd",
+        "prompt": "Which one does not belong with the others?",
+        "items": ["Router", "Switch", "Modem", "Browser"],
+        "answer": 3,
+        "why": "A browser is software on your computer. The other three are pieces of network hardware."
+      },
+      "remember": "Routers, switches and modems are hardware. A browser is a program."
+    },
+    {
+      "id": "home-network-hub",
+      "name": "Home Network Hub",
+      "theme": "workshop",
+      "lead": "At home, one small box does a lot: it hands out local addresses to every device, and passes traffic between your home and the wider internet.",
+      "activity": {
+        "type": "hotspot",
+        "prompt": "Click the part of a home network that gives your devices their local addresses.",
+        "parts": [
+          { "id": "modem", "label": "Modem", "hint": "The modem talks to your provider's line. It does not hand out addresses in your home." },
+          { "id": "router", "label": "Router" },
+          { "id": "laptop", "label": "Laptop", "hint": "The laptop receives an address; it does not give them out." },
+          { "id": "phone", "label": "Phone", "hint": "The phone asks for an address like any other device." },
+          { "id": "line", "label": "Fibre line", "hint": "The line just carries signals." }
+        ],
+        "answer": "router"
+      },
+      "remember": "The home router hands out local addresses and connects your home to the internet."
+    },
+    {
+      "id": "fork-in-the-fibre",
+      "name": "Fork in the Fibre",
+      "theme": "plain",
+      "lead": "A router receives Byte and sees that the direct link ahead is jammed with traffic. Routers are allowed to choose another way.",
+      "activity": {
+        "type": "fork",
+        "prompt": "The direct road is congested. Which way should Byte go?",
+        "paths": [
+          { "id": "wait", "label": "Wait in line", "hint": "Waiting adds delay and the queue may overflow. Routers prefer another route." },
+          { "id": "detour", "label": "Take a detour" },
+          { "id": "drop", "label": "Give up", "hint": "A dropped packet has to be re-sent, which is the slowest option of all." }
+        ],
+        "answer": "detour"
+      },
+      "remember": "When a link is congested, routers send packets around it. The internet routes around trouble."
+    },
+    {
+      "id": "beacon-bay",
+      "name": "Beacon Bay",
+      "theme": "grove",
+      "lead": "An IP address is a number that identifies a device on a network. The old kind has four numbers from 0 to 255 separated by dots; the new kind is longer and uses letters and colons.",
+      "activity": {
+        "type": "beacons",
+        "prompt": "Light every beacon that shows a real IP address. Leave the others dark.",
+        "items": [
+          { "id": "a", "label": "192.168.0.1", "lit": true },
+          { "id": "b", "label": "example.com", "lit": false },
+          { "id": "c", "label": "10.0.0.42", "lit": true },
+          { "id": "d", "label": "2001:db8::1", "lit": true },
+          { "id": "e", "label": "http://", "lit": false },
+          { "id": "f", "label": "300.1.1.1", "lit": false }
+        ]
+      },
+      "remember": "IPv4 looks like 192.168.0.1 with numbers up to 255. IPv6 looks like 2001:db8::1. Names and http:// are not addresses."
+    },
+    {
+      "id": "handshake-steps",
+      "name": "Handshake Steps",
+      "theme": "arena",
+      "lead": "Before two computers talk over TCP, they shake hands in three quick messages, then the data flows.",
+      "activity": {
+        "type": "steps",
+        "prompt": "Step on the pads in the order of a TCP connection: the three handshake messages, then the data.",
+        "items": [
+          { "id": "syn", "label": "SYN" },
+          { "id": "synack", "label": "SYN-ACK" },
+          { "id": "ack", "label": "ACK" },
+          { "id": "data", "label": "Data" }
+        ]
+      },
+      "remember": "SYN, SYN-ACK, ACK, then data. Three steps to say hello."
+    },
+    {
+      "id": "address-atoll",
+      "name": "Address Atoll",
+      "theme": "canyon",
+      "lead": "Some IP addresses are **private**: they only work inside a home or office and are reused by millions of networks. Others are **public** and unique on the whole internet.",
+      "body": [
+        "Private ranges start with 10., 172.16. to 172.31., or 192.168."
+      ],
+      "activity": {
+        "type": "gather",
+        "prompt": "Pick up each address orb and drop it in the right bin.",
+        "bins": [
+          { "id": "public", "label": "Public" },
+          { "id": "private", "label": "Private" }
+        ],
+        "items": [
+          { "label": "8.8.8.8", "bin": "public" },
+          { "label": "192.168.1.5", "bin": "private" },
+          { "label": "10.0.0.7", "bin": "private" },
+          { "label": "1.1.1.1", "bin": "public" },
+          { "label": "172.16.0.9", "bin": "private" }
+        ]
+      },
+      "remember": "10., 172.16–31. and 192.168. are private. Everything else is public and unique."
+    },
+    {
+      "id": "then-and-now-point",
+      "name": "Then and Now Point",
+      "theme": "hall",
+      "lead": "Web pages have grown enormously. A page from the 1990s was a few words and a picture; a page today pulls in scripts, fonts, videos and trackers from dozens of places.",
+      "activity": {
+        "type": "compare",
+        "before": {
+          "label": "1996",
+          "text": "A typical page: some text, a small picture, loaded over a dial-up modem.",
+          "rows": [
+            { "label": "Page size", "value": 2, "show": "~50 KB" },
+            { "label": "Separate requests", "value": 4, "show": "~3" }
+          ]
+        },
+        "after": {
+          "label": "Today",
+          "text": "A typical page: scripts, fonts, images and video, often from many servers.",
+          "rows": [
+            { "label": "Page size", "value": 100, "show": "~2.5 MB" },
+            { "label": "Separate requests", "value": 100, "show": "~70" }
+          ]
+        },
+        "caption": "Rough typical values. Today's page is about fifty times bigger."
+      },
+      "quiz": {
+        "question": "Why can a modern page feel slow even on a fast connection?",
+        "options": [
+          { "text": "It makes dozens of separate requests, each with its own waiting time", "correct": true },
+          { "text": "Modern text is heavier than old text", "why": "Text is tiny. The weight is in scripts, images, fonts and video, and in the number of requests." }
+        ]
+      },
+      "remember": "Many requests mean many waits. Fewer, smaller requests make a faster page."
+    },
+    {
+      "id": "time-budget-beach",
+      "name": "Time Budget Beach",
+      "theme": "clock",
+      "lead": "Where does the time go when a page loads? Guess first, then see a typical split.",
+      "activity": {
+        "type": "bars",
+        "prompt": "Set each bar to your guess of how much of the wait each step takes, then reveal the typical split.",
+        "items": [
+          { "label": "Looking up the name (DNS)", "value": 10, "show": "~10%" },
+          { "label": "Connecting and handshaking", "value": 20, "show": "~20%" },
+          { "label": "Waiting for the server to answer", "value": 30, "show": "~30%" },
+          { "label": "Downloading and drawing", "value": 40, "show": "~40%" }
+        ],
+        "revealText": "Typical split for a simple page. Downloading and drawing take the biggest share, but the three waits before it add up to more than half.",
+        "buttonLabel": "Reveal the typical split"
+      },
+      "quiz": {
+        "question": "Before any of the page arrives, roughly how much of the total time has already passed?",
+        "options": [
+          { "text": "Almost none", "why": "Look at the bars: DNS, connecting and waiting for the server happen before the first byte arrives." },
+          { "text": "More than half", "correct": true }
+        ]
+      },
+      "remember": "More than half of a page load can be waiting before the first byte arrives."
+    },
+    {
+      "id": "lock-switch-station",
+      "name": "Lock Switch Station",
+      "theme": "workshop",
+      "lead": "Who can read what you send? It depends on which protections are switched on. Flip the switches and watch the status lamp.",
+      "activity": {
+        "type": "switches",
+        "prompt": "Try different combinations.",
+        "switches": [
+          { "id": "https", "label": "HTTPS (the padlock)", "on": true },
+          { "id": "vpn", "label": "VPN", "on": false },
+          { "id": "pub", "label": "On public Wi-Fi", "on": true }
+        ],
+        "readout": [
+          { "when": "!https && pub", "text": "Anyone on this Wi-Fi can read what you send.", "tone": "no" },
+          { "when": "!https", "text": "Your network provider can read what you send.", "tone": "no" },
+          { "when": "https && !vpn", "text": "Your content is private. The network still sees which sites you visit.", "tone": "note" },
+          { "text": "Content is private, and the network only sees your VPN.", "tone": "ok" }
+        ],
+        "caption": "HTTPS protects the content. A VPN also hides which sites you visit from the local network."
+      },
+      "quiz": {
+        "question": "With HTTPS on and no VPN, what can the coffee-shop Wi-Fi still see?",
+        "options": [
+          { "text": "Your passwords", "why": "HTTPS encrypts the content, passwords included." },
+          { "text": "Which sites you connect to", "correct": true },
+          { "text": "Nothing at all", "why": "The addresses you connect to are still visible without a VPN." }
+        ]
+      },
+      "remember": "HTTPS hides the content. A VPN also hides which sites you visit from the local network."
+    },
+    {
+      "id": "cable-cut-crystal",
+      "name": "Cable Cut Crystal",
+      "theme": "tower",
+      "lead": "Ships' anchors cut undersea cables many times a year. What happens to your video call when one is cut?",
+      "activity": {
+        "type": "predict",
+        "question": "Predict: a major undersea cable is cut. What happens?",
+        "options": [
+          { "text": "The internet stops for everyone nearby", "why": "The internet was designed with many paths so that no single cable is essential." },
+          { "text": "Traffic re-routes with a small delay", "correct": true },
+          { "text": "Only email stops working", "why": "Email is not special; every service shares the same cables." }
+        ],
+        "runLabel": "Cut the cable and watch",
+        "frames": [
+          "An anchor drags across the sea floor and snaps the cable.",
+          "Routers on both ends notice that the link is dead within seconds.",
+          "They tell their neighbours, and traffic shifts to the remaining cables.",
+          "Your video stutters for a moment, then continues along a longer road."
+        ],
+        "result": "Traffic re-routed within seconds, with slightly more delay until the cable is repaired."
+      },
+      "remember": "The internet was built to route around damage. Lose a cable and traffic finds another road."
+    },
+    {
+      "id": "padlock-pier",
+      "name": "Padlock Pier",
+      "theme": "hall",
+      "lead": "That little padlock in the address bar, and the extra letter in https, mean one thing. How sure are you what it is?",
+      "activity": {
+        "type": "confidence",
+        "question": "What does the \"s\" in https stand for?",
+        "options": [
+          { "text": "Speed", "why": "HTTPS can actually be a touch slower to set up, because of the extra encryption handshake." },
+          { "text": "Secure", "correct": true },
+          { "text": "Server", "why": "Every website has a server; the s is about protection, not the machine." }
+        ],
+        "okText": "Secure: the connection is encrypted with TLS."
+      },
+      "remember": "https = HTTP + Secure. The padlock means the conversation is encrypted."
+    },
+    {
+      "id": "word-deck-dunes",
+      "name": "Word Deck Dunes",
+      "theme": "plain",
+      "lead": "The last island is a deck of cards with the words from the whole journey. Flip through them, then answer one question.",
+      "activity": {
+        "type": "flashcards",
+        "prompt": "Flip each card to see what the word means.",
+        "cards": [
+          { "front": "Packet", "back": "A small chunk of data with an address on it. Pages are sent as many packets." },
+          { "front": "IP address", "back": "The number that identifies a device on a network, like a phone number." },
+          { "front": "DNS", "back": "The service that turns names like example.com into IP addresses." },
+          { "front": "TCP", "back": "The rules that deliver packets reliably and in order." },
+          { "front": "HTTP", "back": "The rules browsers and servers use to ask for and send pages." },
+          { "front": "Router", "back": "A box that reads each packet's address and sends it one hop closer." }
+        ]
+      },
+      "quiz": {
+        "question": "Which word means a small chunk of data with an address on it?",
+        "options": [
+          { "text": "Router", "why": "A router is the box that forwards the chunks." },
+          { "text": "Packet", "correct": true },
+          { "text": "DNS", "why": "DNS turns names into addresses; it is a service, not a chunk of data." }
+        ]
+      },
+      "remember": "Packet, IP address, DNS, TCP, HTTP, router: six words that explain most of the internet."
+    }
+  ],
+  "finale": {
+    "name": "The Great Upload",
+    "lead": "Byte is ready for the trip. For each situation, pick what really happens on the internet.",
+    "questions": [
+      {
+        "question": "You type a web address. What is the very first thing your computer needs to find out?",
+        "options": [
+          { "text": "The server's IP address, using DNS", "correct": true },
+          { "text": "The page's pictures", "why": "Pictures come last. First the name has to become a number." },
+          { "text": "Your own password", "why": "No password is needed just to find a server." }
+        ],
+        "okText": "Correct! Name first, then number, then connection."
+      },
+      {
+        "question": "A cable between two cities is cut. What happens to packets that used it?",
+        "options": [
+          { "text": "They are lost forever", "why": "Routers re-route traffic; lost packets are re-sent." },
+          { "text": "They are routed around the break", "correct": true }
+        ],
+        "okText": "Correct! The internet routes around damage."
+      },
+      {
+        "question": "You are on café Wi-Fi with HTTPS but no VPN. What is protected?",
+        "options": [
+          { "text": "The content of what you send and receive", "correct": true },
+          { "text": "Nothing", "why": "HTTPS encrypts the content." },
+          { "text": "Which sites you visit", "why": "Without a VPN the addresses are still visible." }
+        ],
+        "okText": "Correct! HTTPS locks the content; a VPN would also hide the addresses."
+      },
+      {
+        "question": "Which server will usually answer fastest?",
+        "options": [
+          { "text": "The one on the other side of the world", "why": "Distance adds delay at every hop." },
+          { "text": "The one in your own city", "correct": true },
+          { "text": "The one via satellite", "why": "A high satellite is the slowest road of all." }
+        ],
+        "okText": "Correct! Nearer servers mean lower latency."
+      }
+    ]
+  },
+  "report": {
+    "heading": "Byte made it!",
+    "tiers": {
+      "perfect": "Every challenge right on the first try. Byte could not have asked for a better guide.",
+      "great": "Almost perfect. Byte is proud to have travelled with you.",
+      "pass": "You got Byte home! Play again to earn more stars."
+    },
+    "lessons": [
+      "Pages travel as packets that each find their own road.",
+      "DNS turns names into IP addresses; TCP opens a reliable connection; HTTP asks for the page.",
+      "Delay adds up hop by hop, and distance is the biggest cause.",
+      "Fibre is fastest; a high satellite is slowest.",
+      "The internet is the network; the web is one service on it.",
+      "Private addresses (10., 172.16–31., 192.168.) are reused everywhere; public ones are unique.",
+      "HTTPS protects content; a VPN also hides which sites you visit.",
+      "The internet routes around damage, cut cables included.",
+      "Modern pages are slow mostly because they make many requests."
+    ],
+    "glossaryIntro": "The words in this game and what network engineers call them:",
+    "glossaryColumns": ["In this game", "Real term"],
+    "glossary": [
+      { "term": "Byte, the little packet", "meaning": "IP packet (datagram)" },
+      { "term": "Road / causeway", "meaning": "Network link or route" },
+      { "term": "Name lookup", "meaning": "DNS resolution" },
+      { "term": "Handshake", "meaning": "TCP three-way handshake" },
+      { "term": "The padlock", "meaning": "TLS (HTTPS)" },
+      { "term": "Hop", "meaning": "One router-to-router step; see traceroute" }
+    ],
+    "source": {
+      "label": "Based on introductory networking material",
+      "note": "Timings are rounded typical values for teaching: fibre round trips of tens of milliseconds, geostationary satellite round trips of about 600 ms."
+    }
+  }
+}

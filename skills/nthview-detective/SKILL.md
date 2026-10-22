@@ -102,7 +102,7 @@ that bears on no theory, or no red herring, usually means thinner teaching.
 Produce one standalone file using the template in AGENTS.md §6. The
 repository tool does this exactly:
 
-    node scripts/build-html.js skills/nthview-detective <path-to-json> examples/<concept-slug>-detective.html
+    node scripts/build-html.js skills/nthview-detective <path-to-json> docs/<concept-slug>-detective.html
 
 If building by hand: the JSON in `<script type="application/json"
 id="nthview-data">` with every `<` replaced by the six characters `<`,
@@ -111,7 +111,7 @@ the one Google Fonts tag from `NthView.libs` before the scripts, then
 three-line bootstrap that calls
 `NthView.build(document.getElementById("app"), data)`.
 
-Generated cases go in the repo-root `examples/` folder (or wherever the user
+Generated cases go in the repo-root `docs/` folder (or `lessons/<lesson>/chapters/` when it is a lesson chapter built by `scripts/build-lesson.js`) (or wherever the user
 asks); never inside `skills/`.
 
 ### 5. Deliver

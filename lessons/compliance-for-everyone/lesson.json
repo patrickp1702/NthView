@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "title": "Compliance for Everyone",
+  "description": "What compliance really means, why the rules exist, and how they are used day to day, told three ways: crack a case, make the calls yourself, then play it through.",
+  "audience": "Anyone starting a job where rules matter, no legal background needed.",
+  "chapters": [
+    {
+      "file": "01-the-marigold-kitchen-case",
+      "title": "The Marigold Kitchen Case",
+      "view": "nthview-detective",
+      "summary": "Fourteen people fell ill after a catered lunch. Investigate the kitchen, question the staff and discover what compliance is by finding out what went wrong."
+    },
+    {
+      "file": "02-a-week-at-brightpath",
+      "title": "A Week at BrightPath",
+      "view": "nthview-scenario-quiz",
+      "summary": "You are the new coordinator at a tutoring company. Ten real decisions about data, safety, gifts and records, each explained whichever way you choose."
+    },
+    {
+      "file": "03-compliance-cove",
+      "title": "Compliance Cove",
+      "view": "nthview-island-quest",
+      "summary": "A playable island tour that consolidates the ideas: rules, training, audits, speaking up and culture, ending with inspection day."
+    }
+  ]
+}
