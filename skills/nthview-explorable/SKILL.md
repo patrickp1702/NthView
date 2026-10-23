@@ -85,7 +85,7 @@ Follow `references/schema.md` exactly. Set `"schemaVersion": 1`.
 ### 3. Validate
 Write the JSON to a file and run:
 
-    node skills/nthview-explorable/scripts/validate.js <path-to-json>
+    node ${CLAUDE_SKILL_DIR}/scripts/validate.js <path-to-json>
 
 Fix every error and re-run until it prints `valid`. The validator parses
 every expression, rejects unknown identifiers by name, and evaluates each
@@ -94,21 +94,32 @@ Address warnings: a step without a prediction or without anything to
 tinker with, a challenge that is already solved, or a value that is not a
 finite number.
 
+If `node` is not installed, try `bun` or `deno run -A` with the same
+script; both run it unchanged. If no JavaScript runtime exists, do the
+validator's job yourself: check the JSON against every table, cross-field
+rule and warning in `references/schema.md`, which is exactly what
+`scripts/validate.js` implements, and fix what you find. Say that the check
+was done by hand; the file also validates itself when opened and shows an
+error panel if anything was missed.
+
 ### 4. Build the HTML file
 Produce one standalone file using the template in AGENTS.md §6. The
 repository tool does this exactly, including the Google Fonts tag declared
 in `NthView.libs`:
 
-    node scripts/build-html.js skills/nthview-explorable <path-to-json> docs/<concept-slug>-explorable.html
+    node ${CLAUDE_SKILL_DIR}/../../scripts/build-html.js ${CLAUDE_SKILL_DIR} <path-to-json> docs/<concept-slug>-explorable.html
 
 If building by hand: the JSON in `<script type="application/json"
-id="nthview-data">` with every `<` replaced by the six characters `<`,
+id="nthview-data">` with every `<` replaced by the six characters `\u003c`,
 the one Google Fonts `<link>` from `NthView.libs`, then `scripts/validate.js`
 and `assets/view.js` inlined verbatim, then the three-line bootstrap that
 calls `NthView.build(document.getElementById("app"), data)`.
 
-Generated labs go in the repo-root `docs/` folder (or `lessons/<lesson>/chapters/` when it is a lesson chapter built by `scripts/build-lesson.js`) (or wherever the user
-asks); never inside `skills/`.
+Generated labs go in the repo-root `docs/` folder, in `lessons/<lesson>/chapters/` for a lesson chapter built by
+`scripts/build-lesson.js`, or wherever the user asks; never inside `skills/`.
+
+The hand build is the fallback when no JavaScript runtime is available; the
+tool does nothing beyond that template, so the result is identical.
 
 ### 5. Deliver
 Hand the user the single file. It needs internet access once to load the

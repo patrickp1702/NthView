@@ -184,6 +184,9 @@ if (require.main === module) {
   var allOk = targets.length > 0;
   targets.forEach(function (t) { if (!buildLesson(t)) allOk = false; });
   if (!allOk) { console.error("lesson build failed"); process.exit(1); }
+  /* the gallery registry exists only inside the NthView repository; a lesson built elsewhere (plugin use) is just files */
+  var inRepo = targets.every(function (t) { return path.resolve(t).indexOf(path.join(ROOT, "lessons") + path.sep) === 0; });
+  if (!inRepo) { console.log("lesson built outside the NthView repository; gallery registry not updated"); process.exit(0); }
   try { cp.execFileSync(process.execPath, [path.join(__dirname, "build-registry.js")], { stdio: "inherit" }); }
   catch (e) { process.exit(1); }
 }
