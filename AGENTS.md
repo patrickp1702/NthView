@@ -33,8 +33,8 @@ commit, and then update every existing view to match.
 10. Every skill registers in the root gallery by running
     `node scripts/build-registry.js`. Never hand-edit `registry.js` or add
     cards to `index.html`. The script also rejects any folder that breaks §3.
-11. Do not create views, plugin files or the router unless the current task
-    asks for it.
+11. Do not create views or change the plugin manifests unless the current
+    task asks for it.
 
 ---
 
@@ -63,10 +63,10 @@ import, read or depend on another view folder.
 
 ### What exists today
 
-Five views live under `skills/` and are listed in `registry.js` and the
+Seven views live under `skills/` and are listed in `registry.js` and the
 gallery: `nthview-island-quest`, `nthview-scenario-quiz`,
-`nthview-explorable`, `nthview-detective`, `nthview-concept-map`, plus the
-parent skill `nthview` (§10). New views are added one at a time following §11.
+`nthview-explorable`, `nthview-detective`, `nthview-concept-map`,
+`nthview-zoom-map`, `nthview-courier`, plus the parent skill `nthview` (§10). New views are added one at a time following §11.
 
 ---
 
@@ -102,7 +102,7 @@ NthView/
 │   └── nthview/                   # the parent skill: chooses views, assembles lessons (§10)
 │       ├── SKILL.md
 │       └── references/lesson-format.md
-└── .claude-plugin/                # later (§9) — do not create yet
+└── .claude-plugin/                # plugin manifest + one-plugin marketplace (§9)
     ├── plugin.json
     └── marketplace.json
 ```
@@ -137,9 +137,10 @@ them. A view's own demo stays in `skills/<view>/examples/example.html`.
 
 Only these, and nothing else:
 
-- Extra documentation files in `references/` (for example
-  `references/content-guidance.md`) when `SKILL.md` would otherwise exceed
-  500 lines. Each must be linked from `SKILL.md`.
+- Extra documentation files in `references/` (for example a choosing guide
+  or `references/content-guidance.md`) for guidance that would bloat
+  `SKILL.md` past 500 lines or that agents load only on demand. Each must be
+  linked from `SKILL.md`.
 - Extra samples in `examples/` named `example-<topic>.html`, each built with
   the §6 template.
 
@@ -204,10 +205,18 @@ Follow `references/schema.md` exactly. Set `"schemaVersion": <n>`.
 ### 3. Validate
 Write the JSON to a file and run:
 
-    node scripts/validate.js <path-to-json>
+    node ${CLAUDE_SKILL_DIR}/scripts/validate.js <path-to-json>
 
 Fix every error and re-run until it prints `valid`. Address warnings where
 reasonable.
+
+If `node` is not installed, try `bun` or `deno run -A` with the same
+script; both run it unchanged. If no JavaScript runtime exists, do the
+validator's job yourself: check the JSON against every table, cross-field
+rule and warning in `references/schema.md`, which is exactly what
+`scripts/validate.js` implements, and fix what you find. Say that the check
+was done by hand; the file also validates itself when opened and shows an
+error panel if anything was missed.
 
 ### 4. Build the HTML file
 Produce one standalone file using the template in AGENTS.md §6:
@@ -216,6 +225,9 @@ Produce one standalone file using the template in AGENTS.md §6:
 - the full contents of `scripts/validate.js`, then `assets/view.js`, inlined,
 - the bootstrap script that calls `NthView.build(document.getElementById("app"), data)`.
 Name the file `<concept-slug>-<view>.html`.
+
+The hand build is the fallback when no JavaScript runtime is available; the
+tool does nothing beyond that template, so the result is identical.
 
 ### 5. Deliver
 Hand the user the single file. Build no other view unless asked.
@@ -234,6 +246,21 @@ difficulty mix, ordering, what to avoid.>
 - `assets/view.js` — `NthView.build(container, data)`
 - `examples/example.html` — a working standalone sample
 ```
+
+Paths in commands use `${CLAUDE_SKILL_DIR}` (the folder holding the
+`SKILL.md` being followed) so the same text works inside this repository and
+inside an installed plugin, where the files live in Claude's plugin cache
+while the user works in another project. Claude Code substitutes it; other
+agents replace it with the skill folder path. The repo tools are reached as
+`${CLAUDE_SKILL_DIR}/../../scripts/<tool>.js`.
+
+The scripts are conveniences, not dependencies. Every rule a validator
+checks is written in `references/schema.md`, and every byte a build tool
+writes is specified in this file (§6 for a document, `scripts/build-lesson.js`
+itself for the lesson bar). So a machine without Node, Bun or Deno is not
+a blocker: the skill instructs the agent to do the script's work by hand,
+and to say so, because a hand check can miss what a script would not. The
+output still validates itself when opened (§5.3).
 
 Rules for the frontmatter `description`:
 
@@ -664,7 +691,8 @@ skills/<name>/SKILL.md  ──(frontmatter name + description)──▶  scripts
 
    `title` is derived from the folder name (`nthview-concept-map` → "Concept
    Map"). `kind` is `view` for `nthview-*` folders and `skill` for anything
-   else (the router). `demo` and `schema` are `null` for non-views.
+   else; non-views also carry `hidden: true` so the gallery skips them.
+   `demo` and `schema` are `null` for non-views.
 3. `index.html` loads `registry.js` with a plain `<script src>` (allowed from
    `file://`, unlike `fetch`) and renders one card per entry, views first.
 4. The registry also embeds each skill's `SKILL.md` (frontmatter stripped)
@@ -700,16 +728,18 @@ The five numbered steps in §4 are mandatory and ordered. In short:
 
 1. **Understand** the content the user wants to learn.
 2. **Transform** it into the view's JSON exactly as `schema.md` defines.
-3. **Validate** with `node scripts/validate.js` and fix every error.
+3. **Validate** with `node scripts/validate.js` and fix every error (by
+   hand against `schema.md` when no JavaScript runtime exists, §4).
 4. **Build** one standalone HTML file with the §6 template.
 5. **Deliver** that one file. Build nothing else unless asked.
 
 ---
 
-## 9. Packaging as a Claude Code plugin (later)
+## 9. Packaging as a Claude Code plugin
 
-The repo already has the plugin's standard layout. Add exactly these two files
-when the time comes; touch nothing else.
+The repo is the plugin root. `.claude-plugin/plugin.json` and
+`.claude-plugin/marketplace.json` exist; `claude plugin validate .` passes.
+Keep them to this shape (fields may grow, the layout may not):
 
 `.claude-plugin/plugin.json`:
 
@@ -746,7 +776,16 @@ when the time comes; touch nothing else.
 Notes:
 
 - `skills/` is scanned by default; no `skills` key is needed. `index.html`,
-  `registry.js` and `scripts/` at the root are ignored by the plugin loader.
+  `registry.js`, `scripts/`, `docs/` and `lessons/` at the root are ignored
+  by the plugin loader but travel with the plugin, which is how the skills
+  reach the repo tools via `${CLAUDE_SKILL_DIR}/../../scripts/`.
+- Install from GitHub: `/plugin marketplace add patrickp1702/NthView`, then
+  `/plugin install nthview@nthview-marketplace`. Try it unpublished with
+  `claude --plugin-dir /path/to/NthView`.
+- Node (or Bun or Deno) on the user's machine lets the skills run the
+  validators and build tools. Without any JavaScript runtime they do the
+  same work by hand (§4), slower and less reliably, but nothing else is
+  needed and the output never depends on it.
 - Validate with `claude plugin validate .` before committing.
 - Plugin names starting with `claude-` or `anthropic-` are refused, and a
   `CLAUDE.md` at the plugin root triggers a validator warning. That is why
@@ -801,7 +840,8 @@ Copy into the task; every box must be ticked.
 - [ ] Complete example passes the validator with zero errors.
 
 **validate.js (§5.2)**
-- [ ] Built from the skeleton; only header, versions and `checkRoot` changed.
+- [ ] Built from the skeleton; wrapper, CLI, exit codes and result shape
+      unchanged; rules and helpers added as the schema needs.
 - [ ] Implements every schema rule and no others.
 - [ ] Tested: schema example → `valid`; at least three broken variants → the
       expected `path: message` each; non-object input → one error at `$`;
@@ -809,7 +849,8 @@ Copy into the task; every box must be ticked.
 - [ ] Runs in Node as a CLI with the exit codes in §5.2.
 
 **view.js (§5.3)**
-- [ ] Built from the skeleton; only header, `CSS` and `render` changed.
+- [ ] Built from the skeleton; `build`, error panel and style injection
+      unchanged; `CSS`, `render` and helpers filled in.
 - [ ] Error panel verified by feeding invalid data.
 - [ ] No `fetch(`, `XMLHttpRequest` or `import`; every URL is an allowed
       CDN host declared in `NthView.libs` (§5.4), version pinned.

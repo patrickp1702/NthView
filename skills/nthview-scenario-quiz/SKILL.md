@@ -72,17 +72,25 @@ Follow `references/schema.md` exactly. Set `"schemaVersion": 1`.
 ### 3. Validate
 Write the JSON to a file and run:
 
-    node skills/nthview-scenario-quiz/scripts/validate.js <path-to-json>
+    node ${CLAUDE_SKILL_DIR}/scripts/validate.js <path-to-json>
 
 Fix every error and re-run until it prints `valid`. Act on warnings: a wrong
 option without `tempting`, or no `trap` marked, usually means the teaching is
 thinner than it should be.
 
+If `node` is not installed, try `bun` or `deno run -A` with the same
+script; both run it unchanged. If no JavaScript runtime exists, do the
+validator's job yourself: check the JSON against every table, cross-field
+rule and warning in `references/schema.md`, which is exactly what
+`scripts/validate.js` implements, and fix what you find. Say that the check
+was done by hand; the file also validates itself when opened and shows an
+error panel if anything was missed.
+
 ### 4. Build the HTML file
 Produce one standalone file using the template in AGENTS.md §6. The
 repository tool does this exactly:
 
-    node scripts/build-html.js skills/nthview-scenario-quiz <path-to-json> docs/<concept-slug>-scenario-quiz.html
+    node ${CLAUDE_SKILL_DIR}/../../scripts/build-html.js ${CLAUDE_SKILL_DIR} <path-to-json> docs/<concept-slug>-scenario-quiz.html
 
 If building by hand: the JSON in `<script type="application/json"
 id="nthview-data">` with every `<` replaced by the six characters `\u003c`,
@@ -91,8 +99,11 @@ three-line bootstrap that calls
 `NthView.build(document.getElementById("app"), data)`, with the one Google
 Fonts tag from `NthView.libs` before the scripts.
 
-Generated quizzes go in the repo-root `docs/` folder (or `lessons/<lesson>/chapters/` when it is a lesson chapter built by `scripts/build-lesson.js`) (or wherever the user
-asks); never inside `skills/`.
+Generated quizzes go in the repo-root `docs/` folder, in `lessons/<lesson>/chapters/` for a lesson chapter built by
+`scripts/build-lesson.js`, or wherever the user asks; never inside `skills/`.
+
+The hand build is the fallback when no JavaScript runtime is available; the
+tool does nothing beyond that template, so the result is identical.
 
 ### 5. Deliver
 Hand the user the single file. It needs internet access once to load the

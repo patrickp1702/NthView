@@ -1,0 +1,966 @@
+{
+  "schemaVersion": 1,
+  "title": "FloBoard — How It Works",
+  "subtitle": "A field guide to the working principle",
+  "theme": "blueprint",
+  "levels": [
+    {
+      "label": "L0",
+      "name": "The big idea",
+      "meaning": "The plain-English picture: what FloBoard is and what you write."
+    },
+    {
+      "label": "L1",
+      "name": "Five pillars",
+      "heading": "The five things that make it work",
+      "meaning": "Everything in FloBoard is one of five ideas. Learn these names and the rest of the guide is just detail."
+    },
+    {
+      "label": "L2",
+      "name": "Board lifecycle",
+      "meaning": "The fixed pipeline a board travels through when someone opens it in Preview."
+    },
+    {
+      "label": "L3",
+      "name": "Concepts",
+      "meaning": "One section per concept, with the snippets, tables and mechanisms behind it."
+    },
+    {
+      "label": "L4",
+      "name": "Under the hood",
+      "heading": "Under the hood — how the pieces fit",
+      "meaning": "FloBoard is layered: the editor you touch, the engine beneath it, and the general-purpose machinery it reuses.",
+      "summary": "FloBoard is layered. The top layer is the editor you touch; below it sits the FloBoard engine; below that, general-purpose data and layout machinery it reuses. Each layer only depends on the ones beneath it.",
+      "stack": [
+        {
+          "name": "Editor surface",
+          "caption": "what the author uses",
+          "items": [
+            "FloBoard.vue (host)",
+            "FloboardEditor.vue",
+            "MarkdownEditor (Milkdown)",
+            "dataNode / widget / grid plugins"
+          ]
+        },
+        {
+          "name": "FloBoard engine",
+          "caption": "the working principle",
+          "items": [
+            "parseBoard",
+            "liquidEngine",
+            "DagRunner + graph",
+            "DataNodeRegistry",
+            "engines",
+            "bindConfig",
+            "renderBoard",
+            "lint",
+            "boardStore"
+          ]
+        },
+        {
+          "name": "Execution engines",
+          "caption": "producing the data",
+          "items": [
+            "inflo_pipeline (StageRunner)",
+            "FloQlPipeline",
+            "LocalRestClient / HttpRestClient",
+            "request (GET)"
+          ]
+        },
+        {
+          "name": "Shared foundation",
+          "caption": "reused, not FloBoard-specific",
+          "items": [
+            "FloLayout",
+            "StorageHandler",
+            "LiquidJS",
+            "ProseMirror"
+          ]
+        }
+      ],
+      "facts": [
+        {
+          "label": "The producing engines, briefly",
+          "text": "A `data_fetch` node calls the request library's GET and extracts an array from the response. A `data_pipeline` node runs the general-purpose pipeline engine (StageRunner) in a headless \"data\" mode — start → transform stages → collect — fed the input dataset and returning the transformed rows. A `floql` widget compiles its configuration through the FloQL system into a client that supplies rows to the display. All three are just different ways to end up with an array in the ((registry))."
+        },
+        {
+          "label": "Why it stays consistent",
+          "text": "Every path — prose, widget settings, and node chaining — goes through the same Liquid grammar and reads from the same registry. There's no second way to express \"use this data.\" That single-grammar, single-store discipline is what keeps a board predictable as it grows."
+        }
+      ]
+    },
+    {
+      "label": "L5",
+      "name": "File map",
+      "heading": "The complete file map",
+      "meaning": "Every file involved in FloBoard, grouped by the layer it belongs to. The engine (packages/floboard) is pure logic; the editor package wires it into Milkdown; the rest is reused machinery.",
+      "fileMap": true
+    }
+  ],
+  "root": {
+    "id": "floboard",
+    "title": "FloBoard",
+    "kind": "system",
+    "oneLiner": "A dashboard you write, not one you configure.",
+    "summary": "FloBoard turns a single Markdown document into a live, interactive dashboard. You write plain text for the narrative, drop in small fenced blocks that fetch or shape data, and reference that data anywhere with `{{ ... }}`. The document is the whole thing — there is no hidden JSON model behind it.\n\nThis guide is built as a ladder. Start at the top for the plain-English picture; each level goes one step deeper. Every concept — and every file that implements it — is covered by the time you reach the bottom. Stop wherever it clicks.",
+    "facts": [
+      "Markdown = source of truth",
+      "data flows through a graph",
+      "one grammar everywhere",
+      "edit ⇄ preview"
+    ],
+    "snippet": {
+      "label": "what you write · sales.floboard.md",
+      "lang": "md",
+      "code": "# Sales Dashboard\n\n```data_fetch:sales\n{ \"url\": \"api/v1/sales\" }\n```\n\nRevenue: {{ sales | sum_by: 'amount' }} across {{ sales | uniq: 'region' | size }} regions.",
+      "resultLabel": "what a viewer sees",
+      "result": "# Sales Dashboard\n\nRevenue: **20,400** across **3** regions.",
+      "caption": "The block that fetches the data isn't visible to the viewer — only the value it produced is."
+    },
+    "children": [
+      {
+        "id": "source-of-truth",
+        "title": "One Markdown document",
+        "kind": "pillar",
+        "tag": "Source of truth",
+        "color": "teal",
+        "oneLiner": "The board is its markdown string: headings, prose, tables, plus a few special fenced blocks.",
+        "summary": "The board *is* its markdown string. Headings, prose, tables — plus a few special fenced blocks. Computed results are never written back into it, so the document stays clean, diff-able, and portable.",
+        "children": [
+          {
+            "id": "validation",
+            "title": "Validation",
+            "kind": "concept",
+            "heading": "Validation — catching mistakes early",
+            "level": 3,
+            "oneLiner": "A board is checked continuously; every finding carries a code, a plain-English message and a hint.",
+            "summary": "A board is checked continuously. Every finding carries a machine-readable code, a plain-English message, and a hint — shown in a small panel while authoring, so problems surface before they become confusing behaviour.",
+            "table": {
+              "columns": [
+                "Family",
+                "Examples",
+                "What it catches"
+              ],
+              "rows": [
+                [
+                  "Fence & names",
+                  "`FENCE_MALFORMED`, `DUPLICATE_NODE_NAME`, `RESERVED_NAME`",
+                  "a block that looks like a dataNode but is written wrong; two nodes sharing a name"
+                ],
+                [
+                  "Body schema",
+                  "`JSON_PARSE`, `FETCH_SCHEMA`, `UNKNOWN_STAGE`",
+                  "invalid JSON; a fetch missing its url; a pipeline stage that doesn't exist"
+                ],
+                [
+                  "References",
+                  "`UNKNOWN_REF`, `CYCLE`",
+                  "pointing at a dataset that doesn't exist; circular dependencies"
+                ],
+                [
+                  "Expressions",
+                  "`QUOTE_STYLE_IN_FENCE`, `NON_SCALAR_INTERPOLATION`, `TAG_IN_FENCE_VALUE`",
+                  "double-quoted filter args breaking JSON; printing a whole dataset where text was expected"
+                ],
+                [
+                  "Prose & layout",
+                  "`PIPE_IN_TABLE_CELL`, `TAG_SPANS_BLOCK`, `GRID_COLS_RANGE`",
+                  "a filter pipe colliding with a table cell; a loop that can't span a block; too many grid columns"
+                ]
+              ],
+              "caption": "Findings are warnings or errors — a warning degrades gracefully, an error points at something that won't work."
+            },
+            "files": [
+              {
+                "path": "lint/index.ts",
+                "role": "the full validation pass",
+                "group": "packages/floboard/js · the engine"
+              },
+              {
+                "path": "lint/codes.ts",
+                "role": "the code table every finding is drawn from",
+                "group": "packages/floboard/js · the engine"
+              }
+            ]
+          },
+          {
+            "id": "saving",
+            "title": "Saving & loading",
+            "kind": "concept",
+            "level": 3,
+            "oneLiner": "A board is just a markdown string, so each one is stored under an id with a revision number.",
+            "summary": "Because a board is just a markdown string, saving is simple: each board is stored under an id, with a small index listing all boards. Every save carries a revision number.",
+            "facts": [
+              {
+                "label": "What's stored",
+                "text": "An index of boards (id, title, last-updated) and, per board, an envelope of `{ version, revision, markdown }`. The title is taken from the board's first heading."
+              },
+              {
+                "label": "Two-tab safety",
+                "text": "Saves are guarded by the revision: if the same board changed in another tab since you loaded it, the save is refused rather than silently overwriting the other copy — you're offered reload-or-overwrite."
+              }
+            ],
+            "note": "**A board can also live as a file.** Importing a `.floboard.md` file yields a ready-to-render dashboard component.",
+            "files": [
+              {
+                "path": "boardStore.ts",
+                "role": "save / load / list boards with revision-guarded writes",
+                "group": "packages/floboard/js · the engine"
+              },
+              {
+                "path": "vite-plugin-floboard.js",
+                "role": "imports a `.floboard.md` file as a ready-to-render dashboard component",
+                "group": "execution & shared foundation"
+              },
+              {
+                "path": "lib/handlers/storageHandler/StorageHandler.ts",
+                "role": "the namespaced local-storage wrapper behind board saving",
+                "group": "execution & shared foundation"
+              }
+            ]
+          }
+        ],
+        "files": [
+          {
+            "path": "types.ts",
+            "role": "shared type vocabulary — dataNode kinds, registry entry, diagnostic, board context",
+            "group": "packages/floboard/js · the engine"
+          },
+          {
+            "path": "fixtures/*.floboard.md",
+            "role": "example boards (sales dashboard, layout showcase, error cases)",
+            "group": "packages/floboard/js · the engine"
+          }
+        ]
+      },
+      {
+        "id": "datanodes",
+        "title": "Blocks that produce data",
+        "kind": "pillar",
+        "tag": "dataNodes",
+        "color": "violet",
+        "oneLiner": "Fenced blocks named data:sales that generate, fetch or transform a dataset and publish it under that name.",
+        "summary": "Fenced blocks named `data:sales` that generate, fetch, or transform a dataset and publish it under that name. Invisible when viewing; editable when authoring.",
+        "children": [
+          {
+            "id": "data-kinds",
+            "title": "The three kinds",
+            "kind": "concept",
+            "heading": "dataNodes — the three kinds",
+            "level": 3,
+            "oneLiner": "A dataNode's info string carries its kind and export name: ```kind:name. Three kinds produce data.",
+            "summary": "A ((dataNode)) is a fenced block whose info string carries its kind and its export name: ```` ```kind:name ````. There are three data-producing kinds — each produces one named dataset. (A fourth, interactive kind — `input` — collects data from the viewer instead; see [[Inputs|inputs]].)",
+            "note": "**The name lives in the fence.** `data_fetch:sales` means kind = `data_fetch`, exported name = `sales`. A block with no name (just ```` ```data ````) is treated as an ordinary code block, not a dataNode.",
+            "deeper": {
+              "title": "how a fence becomes a live block",
+              "text": "The editor is built on Milkdown (a Markdown editor on top of ProseMirror). A single factory, `createCodeBlockPlugin`, turns any fenced language into an interactive block backed by a Vue component. Each dataNode kind is one registration of that factory sharing one editor component, `DataNodeView.vue`.\n\nThe scanning that finds dataNodes doesn't need the editor at all — `parseBoard.ts` reads the raw markdown string with a small fence scanner, so the same recognition logic works both live in the editor and headlessly (for validation or file imports).\n\nFiles: `parseBoard.ts`, `data_node_plugin/`, `createCodeBlockPlugin.ts`."
+            },
+            "children": [
+              {
+                "id": "data-inline",
+                "title": "data",
+                "kind": "mechanism",
+                "heading": "data — an inline or derived dataset",
+                "oneLiner": "The block body is a JSON value; it can reference other datasets, so it doubles as a cheap transform step.",
+                "summary": "The block body is a JSON value. It can also reference other datasets, so it doubles as a cheap transform step.",
+                "snippet": {
+                  "lang": "md",
+                  "label": "data:regions",
+                  "code": "```data:regions\n[\n  { \"region\": \"North America\", \"amount\": 4200 },\n  { \"region\": \"Europe\",        \"amount\": 3100 }\n]\n```\n\n# derived from another dataset:\n```data:top\n\"{{ regions | where: 'active', true }}\"\n```",
+                  "caption": "**Best for:** sample data, small lookups, or reshaping another dataset without a full pipeline."
+                }
+              },
+              {
+                "id": "data-fetch",
+                "title": "data_fetch",
+                "kind": "mechanism",
+                "heading": "data_fetch — load data over the network",
+                "oneLiner": "The body is a request description — url, optional params, a path to the array — fetched with a read-only GET.",
+                "summary": "The body is a request description: a `url`, optional `params`, and an optional `path` that points at the array inside the response. It performs a read-only GET.",
+                "snippet": {
+                  "lang": "md",
+                  "label": "data_fetch:sales",
+                  "code": "```data_fetch:sales\n{\n  \"url\": \"api/v1/sales\",\n  \"params\": { \"period\": \"quarter\" },\n  \"path\": \"data.rows\"\n}\n```",
+                  "caption": "**Best for:** live data. Values can themselves use `{{ }}` (e.g. a param driven by another dataset), which links the two together."
+                },
+                "files": [
+                  {
+                    "path": "lib/request/index.ts",
+                    "role": "the request library — the GET used by data_fetch",
+                    "group": "execution & shared foundation"
+                  }
+                ]
+              },
+              {
+                "id": "data-pipeline",
+                "title": "data_pipeline",
+                "kind": "mechanism",
+                "heading": "data_pipeline — transform an existing dataset",
+                "oneLiner": "Takes an input dataset and runs it through a list of stages — group, aggregate, filter, tweak.",
+                "summary": "Takes an input dataset and runs it through a list of stages — group, aggregate, filter, tweak. The result is the transformed rows.",
+                "snippet": {
+                  "lang": "md",
+                  "label": "data_pipeline:by_region",
+                  "code": "```data_pipeline:by_region\n{\n  \"input\": \"{{ sales }}\",\n  \"stages\": [\n    { \"value\": \"GroupBy\", \"groupFields\": [\n        { \"type\": \"groupBy\",   \"field\": \"region\" },\n        { \"type\": \"aggregate\", \"field\": \"amount\",\n          \"aggregateFunction\": \"sum\" } ] }\n  ]\n}\n```",
+                  "caption": "**Best for:** rollups. Here `sales` becomes one row per region with a summed amount, published as `by_region`."
+                },
+                "files": [
+                  {
+                    "path": "inflo_pipeline/pipeline/runner/Pipeline.ts, StageRunner.ts",
+                    "role": "the general pipeline engine that runs data_pipeline stages and returns the final rows",
+                    "group": "execution & shared foundation"
+                  },
+                  {
+                    "path": "inflo_pipeline/pipeline/runner/NodeRunContext.ts",
+                    "role": "the per-stage context (args, events, results)",
+                    "group": "execution & shared foundation"
+                  },
+                  {
+                    "path": "inflo_pipeline/pipeline-node/{core.ts, index.ts}",
+                    "role": "the headless node registry; the \"data\" mode used by dataNodes",
+                    "group": "execution & shared foundation"
+                  },
+                  {
+                    "path": "inflo_pipeline/pipeline-node/start/plain_start_end_node.ts",
+                    "role": "the start/collect nodes that feed input in and gather output",
+                    "group": "execution & shared foundation"
+                  }
+                ]
+              }
+            ],
+            "files": [
+              {
+                "path": "parseBoard.ts",
+                "role": "Milkdown-independent scanner: finds fenced blocks and classifies dataNodes from raw markdown",
+                "group": "packages/floboard/js · the engine"
+              },
+              {
+                "path": "data_node_plugin/{index.js, DataNodeView.vue}",
+                "role": "the three dataNode fences and their shared editor card",
+                "group": "packages/milkdown_editor · the editor wiring"
+              },
+              {
+                "path": "shared/codeblock_type_plugin/createCodeBlockPlugin.ts",
+                "role": "the factory that turns a fenced language into a Vue-backed editor block",
+                "group": "packages/milkdown_editor · the editor wiring"
+              },
+              {
+                "path": "…/CodeBlockView.vue, …/CodeEditorBlock.vue",
+                "role": "the block's mount point and the code/preview editing shell",
+                "group": "packages/milkdown_editor · the editor wiring"
+              }
+            ]
+          },
+          {
+            "id": "inputs",
+            "title": "Inputs",
+            "kind": "concept",
+            "heading": "Inputs — filtering from the view",
+            "level": 3,
+            "oneLiner": "The only dataNode a viewer can see and touch: a row of filter controls whose selection the board reads.",
+            "summary": "The three kinds above produce data and stay invisible. One more kind works the other way around: `input` is the only dataNode a viewer can see and touch. It renders a row of filter controls — dropdowns, date ranges, sliders — and publishes the viewer's selection as data the rest of the board reads. Change a control and the board recomputes itself, live.",
+            "snippet": {
+              "lang": "md",
+              "label": "what you write · input:filters",
+              "code": "```input:filters\n[\n  { \"key\": \"region\", \"filterType\": \"select\",     \"field\": \"region\", \"op\": \"in\" },\n  { \"key\": \"period\", \"filterType\": \"date_range\", \"asField\": true }\n]\n```",
+              "resultLabel": "what a viewer operates",
+              "result": "Region: **North America ▾**\n\nPeriod: **Jan–Jun ▾**",
+              "caption": "Every chart and table on the board redraws for the chosen region and period."
+            },
+            "note": "**Cleared means “show all”, not “show nothing”.** An empty selection resolves to a null condition and its filter stage is skipped — so an untouched board shows everything. And the viewer's choice lives only in the ((registry)): it is never written back into the markdown, so the document a viewer filters stays byte-for-byte the one the author saved.",
+            "deeper": {
+              "title": "how a selection re-runs the board",
+              "text": "A control publishes its value with `setInputValue`; the host re-runs the graph in stale mode seeded with that node, so only the dataNodes downstream of the filter recompute and the widgets bound to them re-bind — the rest of the board is left alone. Prose that mentions `{{ inputs.… }}` is re-rendered too; a board with no such prose never re-renders, so the control never loses focus mid-interaction.\n\nBecause `inputs` is invisible to the ordinary reference scanner, the ((dependency graph)) recovers the real edges with a dedicated `inputs.<node>` scan — so a filter change knows exactly which blocks to refresh.\n\nFiles: `input_node_plugin/InputNodeView.vue`, `inputValue.ts`, `engines.ts` (runInput), `DagRunner.ts` (dirty seed)."
+            },
+            "children": [
+              {
+                "id": "inputs-namespace",
+                "title": "The inputs namespace",
+                "kind": "mechanism",
+                "heading": "Read through the inputs namespace",
+                "oneLiner": "An input's live value is read through the reserved inputs namespace, so it is always clearly viewer-driven.",
+                "summary": "A normal dataNode is referenced by its bare name. An input node's live value is read through a reserved ((inputs namespace)) instead — so it's always clear the value is viewer-driven. The same control can drive two very different strategies, chosen purely by where you reference it:",
+                "snippet": [
+                  {
+                    "lang": "json",
+                    "label": "filter loaded data · a pipeline stage",
+                    "code": "{ \"value\": \"Filter\",\n  \"condition\": \"{{ inputs.filters._all }}\" }"
+                  },
+                  {
+                    "lang": "json",
+                    "label": "re-query the server · a fetch param",
+                    "code": "{ \"url\": \"api/v1/sales\",\n  \"params\": { \"region\": \"{{ inputs.filters.region }}\" } }",
+                    "caption": "Client-side (filter data already in the browser) or server-side (re-fetch) — same input, different reference. `{{ inputs.filters._all }}` is a convenience: every active filter AND-joined into one condition."
+                  }
+                ]
+              }
+            ],
+            "files": [
+              {
+                "path": "inputValue.ts",
+                "role": "helpers for the interactive input node — filter-key derivation, the combined `_all` condition, empty-selection (\"show all\") handling",
+                "group": "packages/floboard/js · the engine"
+              },
+              {
+                "path": "input_node_plugin/{index.js, InputNodeView.vue}",
+                "role": "the interactive input fence — a live filter bar in view mode, a def-authoring card in edit mode",
+                "group": "packages/milkdown_editor · the editor wiring"
+              }
+            ]
+          },
+          {
+            "id": "dependency-graph",
+            "title": "Dependency graph",
+            "kind": "concept",
+            "heading": "The dependency graph",
+            "level": 3,
+            "oneLiner": "Blocks reference each other by name, so FloBoard works out what depends on what and runs it in order.",
+            "summary": "Because blocks reference each other by name, FloBoard can read the whole board and figure out what depends on what — then run everything in the right order, on its own.\n\n**A three-step chain:** `data_fetch` **sales** loads raw rows → `data_pipeline` **by_region** groups & sums sales → `widget` **chart** shows by_region.",
+            "facts": [
+              {
+                "label": "Order-free",
+                "text": "You can define `by_region` before `sales` in the document. The graph sorts it out; document order never matters."
+              },
+              {
+                "label": "Parallel",
+                "text": "Independent dataNodes run at the same time. A node waits only for the specific inputs it references."
+              },
+              {
+                "label": "Fail-forward",
+                "text": "If `sales` errors, `by_region` is marked **blocked** — with the root cause named — instead of failing mysteriously."
+              },
+              {
+                "label": "Safe",
+                "text": "Circular references are rejected up front. A whole run is time-capped and can be cancelled; nothing hangs."
+              }
+            ],
+            "deeper": {
+              "title": "how the order is computed",
+              "text": "Each dataNode body is scanned for the names it mentions; a name that matches another dataNode becomes a dependency edge. The graph is sorted topologically (Kahn's algorithm), which also surfaces cycles — any node left over after the sort is part of, or downstream of, a loop and is reported.\n\nExecution is a set of promises keyed by node name: asking for a node runs its dependencies first, then the node, memoizing the result so shared inputs run once. An abort signal threads through so a cancel or a timeout stops in-flight fetches. A \"stale\" mode re-runs only the nodes whose text changed since last time — which is what makes switching between Edit and Preview instant.\n\nFiles: `DagRunner.ts`, `graph.ts`, `engines.ts`."
+            },
+            "files": [
+              {
+                "path": "graph.ts",
+                "role": "dependency-graph helper — cycle detection (shared by runner and linter)",
+                "group": "packages/floboard/js · the engine"
+              },
+              {
+                "path": "DagRunner.ts",
+                "role": "orchestrates a run: extract edges, order, execute, block/cycle/cancel/timeout, stale re-runs",
+                "group": "packages/floboard/js · the engine"
+              },
+              {
+                "path": "engines.ts",
+                "role": "the producers: inline, fetch (GET), pipeline (StageRunner), and the input publisher",
+                "group": "packages/floboard/js · the engine"
+              }
+            ]
+          },
+          {
+            "id": "registry",
+            "title": "Reactive registry",
+            "kind": "concept",
+            "heading": "The reactive registry",
+            "level": 3,
+            "oneLiner": "The in-memory table holding every dataNode's result while a board is open — where producers meet consumers.",
+            "summary": "The ((registry)) is the in-memory table where every dataNode's result lives while a board is open. It is the meeting point between the blocks that produce data and everything that consumes it.\n\nEach entry tracks a status and, once ready, a value. Consumers watch their entry and re-render the instant it becomes ready — with no change to the document and no page reload.",
+            "facts": [
+              "`idle`",
+              "`running`",
+              "`ready`",
+              "`blocked`",
+              "`error`"
+            ],
+            "snippet": {
+              "lang": "text",
+              "label": "registry snapshot",
+              "code": "sales       ready    [ 42 rows ]\nby_region   ready    [ 3 rows ]\norders      running  …\nforecast    blocked  (needs orders)"
+            },
+            "note": "**Results never touch the markdown.** Keeping computed data out of the document is what lets the source stay clean and version-controlled — and it's why a board re-runs fresh each time it opens, always showing current data.",
+            "deeper": {
+              "title": "generations and reconciliation",
+              "text": "Each entry carries a generation counter. If you edit or delete a node while its previous run is still in flight, the counter advances and the late result is dropped — so a stale fetch can never overwrite fresh state. When the set of dataNodes changes, the registry reconciles: new names get fresh entries, removed names are cleared, changed bodies reset to idle for a re-run.\n\nFile: `DataNodeRegistry.ts`."
+            },
+            "files": [
+              {
+                "path": "DataNodeRegistry.ts",
+                "role": "the reactive store of results — statuses, generations, reconciliation",
+                "group": "packages/floboard/js · the engine"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "templating",
+        "title": "One expression grammar",
+        "kind": "pillar",
+        "tag": "Templating",
+        "color": "gold",
+        "oneLiner": "{{ ... }} (LiquidJS) works everywhere: in prose, in widget settings, and to pass one block's data to another.",
+        "summary": "`{{ ... }}` (LiquidJS) is used everywhere — in prose, inside widget settings, and to pass one block's data to another. Filters like `| sum_by` reshape values inline.",
+        "children": [
+          {
+            "id": "liquid",
+            "title": "One grammar everywhere",
+            "kind": "concept",
+            "heading": "Templating — one grammar everywhere",
+            "level": 3,
+            "oneLiner": "The {{ ... }} you write in a sentence also works inside widget settings and inside a dataNode feeding another.",
+            "summary": "FloBoard uses LiquidJS for every expression. The same `{{ ... }}` you write in a sentence also works inside a widget's settings and inside a dataNode that feeds another. One thing to learn, used in three places.",
+            "deeper": {
+              "title": "safe by design",
+              "text": "Liquid was chosen because it evaluates templates without running arbitrary code, and it has built-in guards against runaway work (render-time and memory limits). Rendering fails soft in Preview — an undefined reference becomes empty rather than crashing the page — while an authoring profile is strict and reports every mistake.\n\nTwo engine profiles run side by side: a display profile that produces raw typed values for settings, and a prose profile that escapes every interpolated value before it lands in the page (so a data value can never inject markup or break the layout).\n\nFile: `liquidEngine.ts`."
+            },
+            "children": [
+              {
+                "id": "liquid-prose",
+                "title": "In prose",
+                "kind": "mechanism",
+                "heading": "In prose — outputs and logic",
+                "oneLiner": "Outputs and logic tags render straight into the narrative.",
+                "snippet": {
+                  "lang": "md",
+                  "label": "markdown",
+                  "code": "Total: **{{ sales | sum_by: 'amount' | format_number }}**\n\n{% for r in by_region %}\n- {{ r.region }}: {{ r.sum_amount }}\n{% endfor %}",
+                  "resultLabel": "rendered",
+                  "result": "Total: **20,400**\n\n- North America: 12,900\n- Europe: 7,500"
+                },
+                "summary": "Outputs and logic tags render straight into the narrative. Every interpolated value is escaped before it lands in the page, so a data value can never break the layout."
+              },
+              {
+                "id": "whole-value-rule",
+                "title": "The whole-value rule",
+                "kind": "mechanism",
+                "heading": "The whole-value rule — how typed data flows into settings",
+                "oneLiner": "A JSON string that is exactly one {{ expr }} is replaced with the real typed value; any other mix is text.",
+                "summary": "Widget and dataNode bodies are JSON. A string value that is exactly one `{{ expr }}` is replaced with the real typed value — an array stays an array, not text. Any other mix is treated as text interpolation. This is the ((whole-value rule)).",
+                "snippet": [
+                  {
+                    "lang": "json",
+                    "label": "whole value → typed",
+                    "code": "{ \"rows\": \"{{ by_region }}\" }\n// rows becomes the array itself"
+                  },
+                  {
+                    "lang": "json",
+                    "label": "embedded → text",
+                    "code": "{ \"title\": \"Sales — {{ period }}\" }\n// title becomes a string"
+                  }
+                ]
+              },
+              {
+                "id": "filters",
+                "title": "Filters",
+                "kind": "mechanism",
+                "heading": "Filters do the reshaping",
+                "oneLiner": "Beyond Liquid's built-ins, FloBoard adds data-shaped filters so small jobs need no pipeline.",
+                "summary": "Beyond Liquid's built-ins (`where`, `map`, `sort`, `size`, `sum`…), FloBoard adds data-shaped filters so you rarely need a full pipeline for small jobs:",
+                "table": {
+                  "columns": [
+                    "Filter",
+                    "Does"
+                  ],
+                  "rows": [
+                    [
+                      "`sum_by` / `avg_by` / `min_by` / `max_by`",
+                      "reduce a field across rows to one number"
+                    ],
+                    [
+                      "`count_by`",
+                      "group rows by a field → `{ name, value }` counts"
+                    ],
+                    [
+                      "`top: n, 'field'`",
+                      "the n rows with the highest value of a field"
+                    ],
+                    [
+                      "`chart_data: 'name', 'value'`",
+                      "reshape rows into chart-ready `{ name, value }`"
+                    ],
+                    [
+                      "`format_number` / `format_bytes` / `format_time`",
+                      "human-friendly display of a value"
+                    ]
+                  ]
+                }
+              }
+            ],
+            "files": [
+              {
+                "path": "liquidEngine.ts",
+                "role": "the templating engine — display / prose / lint profiles, custom filters, the whole-value resolver, reference extraction",
+                "group": "packages/floboard/js · the engine"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "widgets",
+        "title": "Blocks that show data",
+        "kind": "pillar",
+        "tag": "Widgets",
+        "color": "red",
+        "oneLiner": "Charts and query tables (chart, floql) that render a dataset by naming a dataNode — nothing is copy-pasted.",
+        "summary": "Charts and query tables (`chart`, `floql`) that render a dataset. They receive data by referencing a dataNode by name — nothing is copy-pasted.",
+        "children": [
+          {
+            "id": "widget-blocks",
+            "title": "Showing the data",
+            "kind": "concept",
+            "heading": "Widgets — showing the data",
+            "level": 3,
+            "oneLiner": "Widgets get data the same way prose does: by referencing a dataNode with {{ name }}. Nothing is duplicated.",
+            "summary": "((Widgets|widget)) are fenced blocks that display a dataset. They get their data the same way prose does: by referencing a dataNode with `{{ name }}`. Nothing is duplicated — the widget always shows whatever that node currently holds.",
+            "snippet": [
+              {
+                "lang": "md",
+                "label": "chart — a lightweight chart",
+                "code": "```chart\n{\n  \"type\": \"pie\",\n  \"data\": \"{{ by_region | chart_data: 'region', 'sum_amount' }}\"\n}\n```"
+              },
+              {
+                "lang": "md",
+                "label": "floql — a query widget",
+                "code": "```floql\n{\n  \"display\": \"JsonTable\",\n  \"type\": \"LocalRestClient\",\n  \"rows\": \"{{ sales }}\"\n}\n```"
+              }
+            ],
+            "facts": [
+              {
+                "label": "Two ways to feed a widget",
+                "text": "**From a dataNode** (shown above): the widget reads a dataset already computed by the graph — best when several things share that data. **On its own:** a `floql` widget can also fetch directly from a URL when exactly one widget owns that query."
+              },
+              {
+                "label": "Honest states, always",
+                "text": "A widget never shows misleading data. While its source is still running it shows a loading state; if the source failed it shows an error naming the culprit; if it points at a name that doesn't exist it says so. Only real, ready data ever renders."
+              }
+            ],
+            "deeper": {
+              "title": "binding without rewriting the document",
+              "text": "When a widget renders, its JSON settings are resolved through Liquid against the registry: `\"rows\": \"{{ sales }}\"` becomes the actual array via the ((whole-value rule)). This happens in a reactive computation, so when the underlying dataNode's value lands, the widget re-binds automatically — the document is never edited to inject data. A dedicated helper distinguishes \"still loading\" from \"failed\" from \"unknown reference\" so the widget can show the right state.\n\n`floql` widgets are powered by the FloQL query system; `chart` widgets wrap the chart component. Both are just render targets for a resolved dataset.\n\nFiles: `bindConfig.ts`, `floql_plugin2/FloqlView.vue`, `charts_plugin/FloChartLiquidWrapper.vue`."
+            },
+            "files": [
+              {
+                "path": "bindConfig.ts",
+                "role": "resolves a widget's JSON settings against the registry; classifies loading / failed / unknown states",
+                "group": "packages/floboard/js · the engine"
+              },
+              {
+                "path": "floql_plugin2/{index.js, FloqlView.vue}",
+                "role": "the floql widget fence and its bound preview",
+                "group": "packages/milkdown_editor · the editor wiring"
+              },
+              {
+                "path": "charts_plugin/{index.js, FloChartLiquidWrapper.vue}",
+                "role": "the chart fence and its Liquid-bound data",
+                "group": "packages/milkdown_editor · the editor wiring"
+              },
+              {
+                "path": "flo_ql/components/FloQl.vue, js/FloQlPipeline.ts",
+                "role": "the query-widget system a floql block compiles into",
+                "group": "execution & shared foundation"
+              },
+              {
+                "path": "lib/rest/{LocalRestClient.ts, HttpRestClient.ts}",
+                "role": "in-memory and HTTP data clients used by widgets and pipelines",
+                "group": "execution & shared foundation"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "layout-modes",
+        "title": "Structure + two ways to look",
+        "kind": "pillar",
+        "tag": "Layout & modes",
+        "color": "blue",
+        "oneLiner": "Grids, cards, tabs and accordions arrange the page; Edit and Preview are two views of the same document.",
+        "summary": "Grids, cards, tabs and accordions arrange the page. An Edit mode for authoring and a Preview mode for the finished dashboard — two separate views of the same document.",
+        "children": [
+          {
+            "id": "layout",
+            "title": "Layout",
+            "kind": "concept",
+            "heading": "Layout — arranging the page",
+            "level": 3,
+            "oneLiner": "Structure comes from Markdown directives: colon-fenced lines that wrap content into responsive containers.",
+            "summary": "Structure comes from Markdown ((directives|directive)) — lines that start with colons. They wrap content into responsive containers without any JSON layout model.",
+            "snippet": {
+              "lang": "md",
+              "label": "a two-column grid of cards",
+              "code": "::::grid{cols=\"1 2\"}\n:::card{title=\"Share by Region\"}\n```chart … ```\n:::\n:::card{title=\"Recent Orders\"}\n```floql … ```\n:::\n::::"
+            },
+            "facts": [
+              {
+                "label": "grid + card",
+                "text": "`cols=\"1 2 3\"` sets columns per screen size (small → large). Cards can span columns, and can be made transparent to blend into the page."
+              },
+              {
+                "label": "tabs / accordion",
+                "text": "Group content into switchable panels or collapsible sections — useful for chunking a dense dashboard."
+              },
+              {
+                "label": "splitter",
+                "text": "Side-by-side resizable panes for direct comparison."
+              }
+            ],
+            "note": "**Layout adapts to the mode.** In Preview, a grid packs its cards into a responsive layout. In Edit, that same grid stacks its cards vertically with a small settings strip — so authoring stays comfortable and you can reorder and re-title without fighting the grid.",
+            "deeper": {
+              "title": "one packing engine, two behaviours",
+              "text": "The `:::` grid and `:::` card directives are backed by a shared layout component (FloLayout) running in an \"embedded\" mode tuned for flowing inside a document — content-driven row heights, no viewport-height assumptions, no scroll paging. Cards become real CSS-grid items and carry a durable column/row span so the arrangement survives re-renders. In Edit mode the grid drops the packed layout entirely and renders a simple vertical stack plus per-card controls.\n\nDirective parsing is handled by a small factory that maps the colon-fence syntax to editor nodes, plus a repair pass that fixes common nesting slips so a slightly-off document still renders.\n\nFiles: `grid_card_plugin/`, `directiveNodeFactory.ts`, `FloLayout.vue`, `markdownUtils.js`."
+            },
+            "files": [
+              {
+                "path": "grid_card_plugin/{index.js, gridCardPlugin.ts, gridCard.css}",
+                "role": "the grid + card directives and their edit/view behaviours",
+                "group": "packages/milkdown_editor · the editor wiring"
+              },
+              {
+                "path": "tabs_plugin / accordion_plugin / splitter_plugin",
+                "role": "the other layout directives",
+                "group": "packages/milkdown_editor · the editor wiring"
+              },
+              {
+                "path": "shared/directiveNodeFactory.ts",
+                "role": "maps colon-fence directives to editor container/item nodes (with attributes)",
+                "group": "packages/milkdown_editor · the editor wiring"
+              },
+              {
+                "path": "shared/directivePastePlugin.ts, shared/appContextSlice.ts",
+                "role": "safe pasting of directive content; bridging app context into blocks",
+                "group": "packages/milkdown_editor · the editor wiring"
+              },
+              {
+                "path": "utils/markdownUtils.js",
+                "role": "directive-nesting repair & unclosed-fence fixups (fence-aware)",
+                "group": "packages/milkdown_editor · the editor wiring"
+              },
+              {
+                "path": "flo_layout/components/{FloLayout.vue, FloLayoutItem.vue}",
+                "role": "the responsive grid engine (with an embedded/document mode)",
+                "group": "execution & shared foundation"
+              }
+            ]
+          },
+          {
+            "id": "edit-preview",
+            "title": "Edit and Preview",
+            "kind": "concept",
+            "heading": "Edit and Preview — two views of one document",
+            "level": 3,
+            "oneLiner": "A board is authored in Edit and consumed in Preview: two separate editor instances over the same markdown.",
+            "summary": "A board is authored in Edit and consumed in Preview. These are two separate editor instances over the same markdown — only one is active at a time. See ((Preview / Edit)).",
+            "facts": [
+              {
+                "label": "Edit mode · Author the source",
+                "text": "You see the raw markdown, the dataNode editor cards (with Run buttons and result previews), and layout controls. Expressions appear as `{{ ... }}` — you're looking at the source."
+              },
+              {
+                "label": "Preview mode · See the dashboard",
+                "text": "dataNodes are hidden, prose expressions are filled in, and widgets show live data. This is exactly what a viewer would see."
+              }
+            ],
+            "note": "**Why two instances, not a toggle:** the editor decides its behaviour (which controls exist, whether content is editable) when it's created. Giving each mode its own instance guarantees Preview always shows freshly rendered content and Edit always shows the clean source — with no stale state leaking across the switch.",
+            "deeper": {
+              "title": "the Preview render pipeline",
+              "text": "Entering Preview: the markdown is split into runs of prose, fenced blocks, and directive lines. Only prose runs are passed through Liquid (with values escaped for safety); fenced blocks and directives are left untouched so widgets bind their own settings and layout survives verbatim. The dependency graph is settled first, then the rendered markdown is handed to the read-only editor instance. Widgets continue to update reactively from the registry after that first paint.\n\nA host component owns the shared registry, the templating engines, and the graph runner, and hoists them above both editor instances — so switching modes reuses already-computed results instead of refetching.\n\nFiles: `FloBoard.vue`, `renderBoard.ts`."
+            },
+            "files": [
+              {
+                "path": "renderBoard.ts",
+                "role": "the Preview pipeline — segment markdown, render prose Liquid, leave fences & directives verbatim",
+                "group": "packages/floboard/js · the engine"
+              },
+              {
+                "path": "components/FloBoard.vue",
+                "role": "the host: owns the registry + engines + runner, the Edit/Preview switch, and the lint panel",
+                "group": "packages/floboard/js · the engine"
+              },
+              {
+                "path": "components/MarkdownEditor.vue",
+                "role": "the base Milkdown editor (content in/out, edit vs read, menus)",
+                "group": "packages/milkdown_editor · the editor wiring"
+              },
+              {
+                "path": "components/FloboardEditor.vue",
+                "role": "MarkdownEditor + the FloBoard menu set (dataNodes, floql, chart, grid, layout)",
+                "group": "packages/milkdown_editor · the editor wiring"
+              },
+              {
+                "path": "components/FloMarkdownEditor.vue",
+                "role": "the lighter markdown editor (prose + charts + layout, no data blocks)",
+                "group": "packages/milkdown_editor · the editor wiring"
+              },
+              {
+                "path": "menuConf/floMarkdownMenuConf.js",
+                "role": "the toolbar / slash-menu configuration",
+                "group": "packages/milkdown_editor · the editor wiring"
+              },
+              {
+                "path": "demo/FloboardDemo.vue",
+                "role": "the board-list demo host (create / select / delete, persistence)",
+                "group": "packages/milkdown_editor · the editor wiring"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "pipelines": [
+    {
+      "id": "lifecycle",
+      "title": "How a board comes alive",
+      "level": 2,
+      "summary": "When someone opens a board in Preview, the markdown travels through a short, fixed pipeline. Understanding this order explains almost every behaviour later on.",
+      "steps": [
+        {
+          "label": "Read",
+          "node": "source-of-truth",
+          "text": "the raw markdown string is loaded"
+        },
+        {
+          "label": "Scan",
+          "node": "data-kinds",
+          "text": "find every fenced block & dataNode"
+        },
+        {
+          "label": "Check",
+          "node": "validation",
+          "text": "lint the grammar & references"
+        },
+        {
+          "label": "Plan",
+          "node": "dependency-graph",
+          "text": "build the dependency graph"
+        },
+        {
+          "label": "Run",
+          "node": "registry",
+          "text": "execute dataNodes in order"
+        },
+        {
+          "label": "Render",
+          "node": "widget-blocks",
+          "text": "fill prose & bind widgets"
+        }
+      ],
+      "rule": "Steps 5 and 6 read data from a shared, in-memory ((registry)) — never from the document. So when a value arrives, only the parts that use it update. The markdown never changes.",
+      "facts": [
+        {
+          "label": "The two directions data moves",
+          "text": "**Producing:** a dataNode runs and drops its result into the registry under its name. **Consuming:** any `{{ name }}` — in prose or a widget — reads that value out of the registry."
+        },
+        {
+          "label": "Why this design",
+          "text": "Because references are by name, the order you write blocks doesn't matter, results can be shared by many consumers, and the same value stays consistent everywhere it appears."
+        }
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "from": "data-kinds",
+      "to": "registry",
+      "label": "publishes into",
+      "text": "Every dataNode drops its result into the registry under its export name."
+    },
+    {
+      "from": "registry",
+      "to": "widget-blocks",
+      "label": "feeds",
+      "text": "A widget watches its registry entry and re-binds the instant it becomes ready."
+    },
+    {
+      "from": "dependency-graph",
+      "to": "data-kinds",
+      "label": "orders",
+      "text": "The graph decides which dataNode runs when; document order never matters."
+    },
+    {
+      "from": "inputs",
+      "to": "dependency-graph",
+      "label": "re-runs",
+      "text": "A changed filter seeds a stale run so only the downstream nodes recompute."
+    },
+    {
+      "from": "liquid",
+      "to": "widget-blocks",
+      "label": "binds settings of",
+      "text": "A widget's JSON settings are resolved through Liquid against the registry."
+    },
+    {
+      "from": "liquid",
+      "to": "data-kinds",
+      "label": "chains",
+      "text": "A dataNode body can reference another dataset with the same grammar."
+    },
+    {
+      "from": "validation",
+      "to": "data-kinds",
+      "label": "checks",
+      "text": "Lint catches malformed fences, duplicate names and unknown references before they run."
+    },
+    {
+      "from": "edit-preview",
+      "to": "liquid",
+      "label": "renders prose with",
+      "text": "Entering Preview passes prose runs through Liquid, leaving fences and directives untouched."
+    },
+    {
+      "from": "layout",
+      "to": "edit-preview",
+      "label": "adapts to",
+      "text": "A grid packs its cards in Preview and stacks them in Edit."
+    },
+    {
+      "from": "edit-preview",
+      "to": "registry",
+      "label": "reuses",
+      "text": "The host hoists the registry above both editor instances, so switching modes reuses computed results."
+    }
+  ],
+  "glossary": [
+    {
+      "term": "dataNode",
+      "meaning": "A named fenced block — `data`, `data_fetch`, and `data_pipeline` produce a dataset; `input` collects one from the viewer."
+    },
+    {
+      "term": "Input node",
+      "meaning": "The one dataNode a viewer can see and operate — a bar of filter controls whose selection filters the board, live."
+    },
+    {
+      "term": "inputs namespace",
+      "meaning": "How a viewer's live selections are read: `{{ inputs.<node>.<key> }}`, or `{{ inputs.<node>._all }}` for every active filter combined."
+    },
+    {
+      "term": "Registry",
+      "meaning": "The in-memory table of dataNode results (name → status + value) that widgets and prose read from."
+    },
+    {
+      "term": "Dependency graph",
+      "meaning": "The order-free map of which dataNodes feed which, derived from name references and run topologically."
+    },
+    {
+      "term": "Whole-value rule",
+      "meaning": "A JSON string that is exactly one `{{ expr }}` is replaced with the real typed value, not text."
+    },
+    {
+      "term": "Widget",
+      "meaning": "A fenced block that displays data — `chart` or `floql`."
+    },
+    {
+      "term": "Directive",
+      "meaning": "A colon-fence layout container — `::: grid`, `::: card`, tabs, accordion, splitter."
+    },
+    {
+      "term": "Preview / Edit",
+      "meaning": "The two modes: a rendered dashboard vs. the editable source, as separate editor instances."
+    },
+    {
+      "term": "Lint",
+      "meaning": "The always-on validation pass that reports coded, human-readable findings."
+    }
+  ],
+  "footer": "FloBoard — a working-principle field guide. Read top to bottom for the full picture, or jump to any level."
+}
