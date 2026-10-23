@@ -1,0 +1,1980 @@
+/* NthView — courier renderer — schemaVersion 1
+ * Requires scripts/validate.js to be loaded first, and three.js r128 (see NthView.libs).
+ */
+(function (root) {
+  "use strict";
+  var NthView = root.NthView = root.NthView || {};
+  var STYLE_ID = "nthview-style";
+
+  var CSS = [
+    ".nthview{--nv-bg:#fff;--nv-fg:#111;--nv-muted:#555;--nv-accent:#2563eb;--nv-border:#ddd;--nv-error:#b91c1c;",
+    "  color-scheme:light dark;background:var(--nv-bg);color:var(--nv-fg);",
+    "  font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:60rem;margin:0 auto;padding:1rem;box-sizing:border-box}",
+    "@media (prefers-color-scheme:dark){.nthview{--nv-bg:#111;--nv-fg:#eee;--nv-muted:#aaa;--nv-accent:#60a5fa;--nv-border:#333;--nv-error:#f87171}}",
+    ".nthview *{box-sizing:border-box}",
+    ".nthview :focus-visible{outline:3px solid var(--nv-accent);outline-offset:2px}",
+    ".nthview-error-panel{border:2px solid var(--nv-error);border-radius:.5rem;padding:1rem}",
+    ".nthview-error-panel h2{margin:0 0 .5rem;color:var(--nv-error)}",
+    ".nthview-error-panel code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}",
+    /* ---- view-specific styles below, every class prefixed nthview- ---- */
+    ".nthview.nthview-courier{max-width:none;margin:0;padding:0;position:relative;width:100%;height:100vh;height:100dvh;min-height:480px;overflow:hidden;",
+    "  --display:\"Fredoka\",\"Avenir Next Rounded\",\"Segoe UI\",system-ui,sans-serif;--body:\"Nunito\",\"Segoe UI\",system-ui,sans-serif;",
+    "  --ease:cubic-bezier(.2,.8,.2,1);background:var(--sky);color:var(--ink);font-family:var(--body);-webkit-tap-highlight-color:transparent;",
+    /* morning (default), light */
+    "  --sky:#9fd3ee;--sky2:#e9f6f4;--grass:#86c06a;--grass2:#79b35e;--path:#ead9ae;--sand:#efe0b4;--water:#3aa6c4;--plaza:#e4dccb;--roof:#d9644a;--wall:#f6efe2;--wood:#9b6a43;",
+    "  --glass:rgba(255,253,248,.78);--glass-solid:#fffdf8;--ink:#1d2733;--muted:#586273;--line:rgba(29,39,51,.14);--chip:rgba(29,39,51,.06);--accent:#d9573b;--accent-ink:#fff;--ok:#2b8a57;--no:#b5483b;--paper:#fbf6ea;--paper-ink:#2d2620;--shadow:rgba(30,40,60,.22)}",
+    "@media (prefers-color-scheme:dark){.nthview.nthview-courier{--sky:#1c2f52;--sky2:#3d4f78;--grass:#3f6e4b;--grass2:#386545;--path:#8f8466;--sand:#9c8f6c;--water:#1f5476;--plaza:#6b6a6e;--roof:#a2503d;--wall:#c9c0b0;--wood:#6b4a33;",
+    "  --glass:rgba(20,26,40,.8);--glass-solid:#151b29;--ink:#eef2f8;--muted:#a7b0c2;--line:rgba(238,242,248,.15);--chip:rgba(238,242,248,.07);--accent:#ff8a66;--accent-ink:#1a1410;--ok:#63d39a;--no:#ff8f80;--paper:#2a2620;--paper-ink:#f1e9d8;--shadow:rgba(0,0,0,.45)}}",
+    ".nthview.nthview-courier.nthview-theme-dusk{--sky:#f3a98a;--sky2:#fbd9b0;--grass:#a8b866;--grass2:#9aab5b;--path:#edcf9c;--sand:#f0d3a2;--water:#5e86b8;--plaza:#e7cdb4;--roof:#b4475a;--wall:#f7e6d4;--wood:#8d5a3e;",
+    "  --glass:rgba(255,248,242,.8);--glass-solid:#fff8f2;--ink:#2e1f2b;--muted:#6f5566;--line:rgba(46,31,43,.14);--chip:rgba(46,31,43,.06);--accent:#c24d6e;--accent-ink:#fff;--ok:#3a8a5c;--no:#b7413e;--paper:#fdf1e4;--paper-ink:#2e1f2b}",
+    "@media (prefers-color-scheme:dark){.nthview.nthview-courier.nthview-theme-dusk{--sky:#3a2346;--sky2:#8a4a5c;--grass:#4f5a36;--grass2:#485331;--path:#8c7356;--sand:#8f7558;--water:#2c3f6b;--plaza:#5f4c55;--roof:#8a3446;--wall:#c4ab98;--wood:#5b3a2b;",
+    "  --glass:rgba(34,22,36,.82);--glass-solid:#22162a;--ink:#f8ecf1;--muted:#c7aebb;--line:rgba(248,236,241,.15);--chip:rgba(248,236,241,.07);--accent:#ff86a8;--accent-ink:#2a1020;--ok:#6fd69f;--no:#ff9086;--paper:#2d2129;--paper-ink:#f6e6ec}}",
+    ".nthview.nthview-courier.nthview-theme-lantern{--sky:#1b2550;--sky2:#33427a;--grass:#355d4c;--grass2:#305545;--path:#a58b62;--sand:#8f7f61;--water:#1b3e66;--plaza:#5b5f6e;--roof:#7c3b3b;--wall:#d8cdb8;--wood:#5a3f2c;",
+    "  --glass:rgba(250,246,236,.86);--glass-solid:#fbf7ee;--ink:#1e2233;--muted:#5a5f73;--line:rgba(30,34,51,.15);--chip:rgba(30,34,51,.06);--accent:#c4721f;--accent-ink:#fff;--ok:#2f7d55;--no:#b24a3c;--paper:#fbf4e2;--paper-ink:#2a2418}",
+    "@media (prefers-color-scheme:dark){.nthview.nthview-courier.nthview-theme-lantern{--sky:#0c1230;--sky2:#1f2a55;--grass:#2a4b3e;--grass2:#26453a;--path:#8a7552;--sand:#776a52;--water:#142f52;--plaza:#4a4e5c;--roof:#6a3232;--wall:#c9bea8;--wood:#4c3526;",
+    "  --glass:rgba(14,18,38,.84);--glass-solid:#0e1226;--ink:#f3eee2;--muted:#b3ad9e;--line:rgba(243,238,226,.15);--chip:rgba(243,238,226,.07);--accent:#ffb44d;--accent-ink:#1d1406;--ok:#6fd6a0;--no:#ff8f80;--paper:#1d2032;--paper-ink:#f3eee2}}",
+    ".nthview.nthview-courier.nthview-theme-snow{--sky:#cfe0ee;--sky2:#f2f6fa;--grass:#f4f7fa;--grass2:#e6edf3;--path:#cdbb9e;--sand:#dfe6ec;--water:#6b9fc0;--plaza:#d6d9de;--roof:#b8504a;--wall:#f3ede4;--wood:#7d5b43;",
+    "  --glass:rgba(255,255,255,.8);--glass-solid:#fff;--ink:#162433;--muted:#4e6378;--line:rgba(22,36,51,.14);--chip:rgba(22,36,51,.05);--accent:#2f72c4;--accent-ink:#fff;--ok:#1f7a6c;--no:#b3405a;--paper:#fbfaf6;--paper-ink:#1f2833}",
+    "@media (prefers-color-scheme:dark){.nthview.nthview-courier.nthview-theme-snow{--sky:#101c33;--sky2:#2a3d5e;--grass:#b9c6d4;--grass2:#adbbca;--path:#7f7466;--sand:#8d99a6;--water:#1f4565;--plaza:#6e7685;--roof:#8a3a38;--wall:#bfb7ac;--wood:#5d4434;",
+    "  --glass:rgba(14,22,38,.84);--glass-solid:#0f1828;--ink:#eef4fb;--muted:#a5b6c8;--line:rgba(238,244,251,.15);--chip:rgba(238,244,251,.06);--accent:#7fb4ff;--accent-ink:#0c1a30;--ok:#67d4c4;--no:#ff8aa0;--paper:#18222f;--paper-ink:#eef4fb}}",
+    "body:has(> .nthview-courier){margin:0;overflow:hidden}",
+    ".nthview.nthview-courier:has(> .nthview-error-panel){height:auto;min-height:0;max-width:60rem;margin:0 auto;padding:1rem;overflow:visible;background:var(--nv-bg);color:var(--nv-fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}",
+    "body:has(> .nthview-courier > .nthview-error-panel){overflow:auto}",
+    ".nthview-courier .nthview-hidden{display:none!important}",
+    ".nthview-courier button{font:inherit;color:inherit;cursor:pointer}",
+    ".nthview-courier button:disabled{cursor:default}",
+    ".nthview-courier .nthview-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;outline:none}",
+    ".nthview-courier .nthview-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}",
+    ".nthview-courier .nthview-glass{background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(14px) saturate(1.25);-webkit-backdrop-filter:blur(14px) saturate(1.25);box-shadow:0 8px 30px var(--shadow)}",
+    /* HUD */
+    ".nthview-courier .nthview-hud{position:absolute;top:0;left:0;right:0;padding:12px 14px 0;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;pointer-events:none;z-index:5}",
+    ".nthview-courier .nthview-brand{font-family:var(--display);font-weight:600;font-size:1.1rem;padding:7px 14px;border-radius:16px;pointer-events:auto;line-height:1.2;max-width:42vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}",
+    ".nthview-courier .nthview-tray{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap;max-width:270px}",
+    ".nthview-courier .nthview-tstamp{width:18px;height:22px;border-radius:3px;border:1.5px dashed var(--line);background:var(--glass);transition:transform .4s var(--ease),background .4s}",
+    ".nthview-courier .nthview-tstamp.nthview-on{border-style:solid;border-color:rgba(255,255,255,.7);background:var(--sc,var(--accent));transform:rotate(-6deg)}",
+    ".nthview-courier .nthview-tstamp.nthview-optional{opacity:.7}",
+    ".nthview-courier .nthview-hud-right{display:flex;gap:8px;pointer-events:auto;flex-wrap:wrap;justify-content:flex-end}",
+    ".nthview-courier .nthview-hbtn{display:inline-flex;align-items:center;gap:7px;border-radius:16px;padding:8px 13px;font-weight:700;font-size:.92rem;position:relative;line-height:1}",
+    ".nthview-courier .nthview-hbtn svg{width:19px;height:19px;flex:none}",
+    ".nthview-courier .nthview-hbtn.nthview-main{background:var(--accent);color:var(--accent-ink);border-color:transparent}",
+    ".nthview-courier .nthview-badge{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;border-radius:10px;padding:0 5px;background:var(--ink);color:var(--glass-solid);font-size:.75rem;display:grid;place-items:center;font-family:var(--display)}",
+    "@media (max-width:620px){.nthview-courier .nthview-hbtn .nthview-hl{display:none}.nthview-courier .nthview-hbtn{padding:9px}.nthview-courier .nthview-brand{font-size:.95rem;max-width:44vw}.nthview-courier .nthview-tray{display:none}}",
+    /* compass */
+    ".nthview-courier .nthview-compass{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:clamp(200px,34vw,440px);height:38px;border-radius:19px;overflow:hidden;z-index:4;pointer-events:none;",
+    "  background-image:repeating-linear-gradient(90deg,transparent 0 23px,var(--line) 23px 24px);background-color:var(--glass)}",
+    ".nthview-courier .nthview-compass::before,.nthview-courier .nthview-compass::after{content:\"\";position:absolute;top:0;bottom:0;width:40px;z-index:2}",
+    ".nthview-courier .nthview-compass::before{left:0;background:linear-gradient(90deg,var(--glass-solid),transparent)}",
+    ".nthview-courier .nthview-compass::after{right:0;background:linear-gradient(270deg,var(--glass-solid),transparent)}",
+    ".nthview-courier .nthview-cmid{position:absolute;left:50%;top:3px;width:2px;height:8px;margin-left:-1px;background:var(--ink);opacity:.5;border-radius:1px}",
+    ".nthview-courier .nthview-cmark{position:absolute;top:7px;width:24px;height:24px;margin-left:-12px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:600;font-size:.72rem;color:#fff;border:2px solid rgba(255,255,255,.85);box-shadow:0 1px 4px rgba(0,0,0,.25);transition:opacity .2s}",
+    ".nthview-courier .nthview-cmark.nthview-target{box-shadow:0 0 0 3px var(--accent),0 0 12px var(--accent)}",
+    ".nthview-courier .nthview-cmark svg{width:14px;height:14px}",
+    "@media (max-width:620px){.nthview-courier .nthview-compass{top:62px;width:calc(100% - 28px)}}",
+    /* prompt card */
+    ".nthview-courier .nthview-prompt{position:absolute;left:50%;bottom:22px;transform:translate(-50%,0);display:flex;align-items:center;gap:12px;border-radius:22px;padding:10px 12px 10px 10px;z-index:6;max-width:calc(100% - 24px);transition:opacity .25s,transform .35s var(--ease)}",
+    ".nthview-courier .nthview-prompt.nthview-off{opacity:0;transform:translate(-50%,14px);pointer-events:none}",
+    ".nthview-courier .nthview-pface{width:46px;height:46px;border-radius:50%;flex:none;overflow:hidden;background:var(--chip);display:grid;place-items:center}",
+    ".nthview-courier .nthview-pface svg{width:100%;height:100%}",
+    ".nthview-courier .nthview-ptext{min-width:0}",
+    ".nthview-courier .nthview-psmall{font-size:.84rem;color:var(--muted);line-height:1.2}",
+    ".nthview-courier .nthview-pbig{font-family:var(--display);font-weight:600;font-size:1.12rem;line-height:1.2;overflow-wrap:anywhere}",
+    ".nthview-courier .nthview-pacts{display:flex;gap:8px;flex-wrap:wrap}",
+    ".nthview-courier .nthview-kbd{display:inline-block;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:0 5px;font-size:.75rem;margin-left:6px;opacity:.75;font-family:var(--body)}",
+    "@media (hover:none) and (pointer:coarse){.nthview-courier .nthview-prompt{left:auto;right:12px;transform:none;bottom:14px;max-width:calc(100% - 160px);flex-wrap:wrap;gap:8px}.nthview-courier .nthview-prompt.nthview-off{transform:translateY(14px)}.nthview-courier .nthview-kbd{display:none}}",
+    ".nthview-courier .nthview-toast{position:absolute;left:50%;top:112px;transform:translate(-50%,-10px);opacity:0;border-radius:16px;padding:10px 18px;z-index:9;transition:opacity .3s,transform .3s var(--ease);pointer-events:none;max-width:calc(100% - 32px);text-align:center;font-weight:700}",
+    ".nthview-courier .nthview-toast.nthview-show{opacity:1;transform:translate(-50%,0)}",
+    ".nthview-courier .nthview-joy{position:absolute;left:18px;bottom:18px;width:124px;height:124px;border-radius:50%;z-index:6;touch-action:none;display:none}",
+    ".nthview-courier .nthview-knob{position:absolute;left:50%;top:50%;width:52px;height:52px;margin:-26px 0 0 -26px;border-radius:50%;background:var(--ink);opacity:.5}",
+    "@media (hover:none) and (pointer:coarse){.nthview-courier .nthview-joy{display:block}}",
+    /* buttons */
+    ".nthview-courier .nthview-btn{background:var(--glass-solid);border:1.5px solid var(--line);border-radius:14px;padding:9px 16px;font-weight:700;line-height:1.2;transition:transform .15s,border-color .2s,background .2s}",
+    ".nthview-courier .nthview-btn:hover:not(:disabled){border-color:var(--accent)}",
+    ".nthview-courier .nthview-btn:active:not(:disabled){transform:scale(.97)}",
+    ".nthview-courier .nthview-btn.nthview-primary{background:var(--accent);color:var(--accent-ink);border-color:transparent}",
+    ".nthview-courier .nthview-btn:disabled{opacity:.45}",
+    ".nthview-courier .nthview-btn.nthview-small{padding:6px 11px;font-size:.88rem;border-radius:11px}",
+    /* side panel */
+    ".nthview-courier .nthview-panel{position:absolute;top:0;right:0;bottom:0;width:min(450px,100%);border-left:1px solid var(--line);z-index:8;overflow-y:auto;overflow-x:hidden;padding:18px 22px 30px;transform:translateX(105%);transition:transform .4s var(--ease);border-radius:0;box-shadow:-10px 0 40px var(--shadow)}",
+    ".nthview-courier .nthview-panel.nthview-open{transform:none}",
+    "@media (max-width:640px){.nthview-courier .nthview-panel{top:auto;width:100%;max-height:80%;border-left:0;border-top:1px solid var(--line);border-radius:22px 22px 0 0;transform:translateY(105%);padding:14px 16px 26px}}",
+    ".nthview-courier .nthview-close{position:sticky;top:0;float:right;border-radius:12px;padding:6px 12px;font-size:.9rem;z-index:2;background:var(--glass-solid);border:1px solid var(--line)}",
+    ".nthview-courier .nthview-panel h2{font-family:var(--display);font-weight:600;font-size:1.7rem;line-height:1.08;margin:2px 0 4px;overflow-wrap:anywhere}",
+    ".nthview-courier .nthview-panel h3{font-family:var(--display);font-weight:600;font-size:1.12rem;margin:18px 0 8px}",
+    ".nthview-courier .nthview-panel p{line-height:1.55;overflow-wrap:anywhere}",
+    ".nthview-courier .nthview-kicker{color:var(--muted);margin:0;font-size:.9rem}",
+    ".nthview-courier .nthview-who{display:flex;gap:14px;align-items:center;margin:4px 0 10px;clear:both}",
+    ".nthview-courier .nthview-portrait{width:84px;height:84px;border-radius:50%;flex:none;overflow:hidden;box-shadow:0 0 0 3px var(--glass-solid),0 0 0 5px var(--dc,var(--line))}",
+    ".nthview-courier .nthview-portrait svg{width:100%;height:100%;display:block}",
+    ".nthview-courier .nthview-bubble{position:relative;background:var(--glass-solid);border:1px solid var(--line);border-radius:18px;padding:12px 15px;margin:12px 0;line-height:1.5;animation:nthview-pop .35s var(--ease)}",
+    ".nthview-courier .nthview-bubble::before{content:\"\";position:absolute;left:30px;top:-8px;width:14px;height:14px;background:inherit;border-left:1px solid var(--line);border-top:1px solid var(--line);transform:rotate(45deg)}",
+    ".nthview-courier .nthview-bubble p{margin:0}",
+    ".nthview-courier .nthview-bubble .nthview-said{font-size:.8rem;color:var(--muted);margin-bottom:2px;font-weight:700}",
+    ".nthview-courier .nthview-box{background:var(--chip);border:1px solid var(--line);border-radius:16px;padding:12px 15px;margin:14px 0}",
+    ".nthview-courier .nthview-box-title{font-family:var(--display);font-weight:600;font-size:1rem;margin:0 0 6px}",
+    ".nthview-courier .nthview-box p{margin:6px 0}",
+    ".nthview-courier .nthview-acts{display:grid;gap:8px;margin:10px 0}",
+    ".nthview-courier .nthview-act{display:flex;align-items:center;gap:10px;text-align:left;background:var(--glass-solid);border:1.5px solid var(--line);border-radius:14px;padding:11px 13px;font-weight:700;line-height:1.3;transition:border-color .2s,transform .15s}",
+    ".nthview-courier .nthview-act:hover{border-color:var(--accent)}",
+    ".nthview-courier .nthview-act.nthview-hot{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}",
+    ".nthview-courier .nthview-act svg,.nthview-courier .nthview-ico svg{width:22px;height:22px;flex:none;color:var(--accent)}",
+    ".nthview-courier .nthview-act small{display:block;font-weight:400;color:var(--muted);font-size:.84rem}",
+    /* options with explanations */
+    ".nthview-courier .nthview-q{font-weight:700;font-size:1.04rem;margin:14px 0 8px}",
+    ".nthview-courier .nthview-opts{display:grid;gap:8px}",
+    ".nthview-courier .nthview-opt{text-align:left;background:var(--glass-solid);border:1.5px solid var(--line);border-radius:14px;padding:11px 14px;line-height:1.38;width:100%}",
+    ".nthview-courier .nthview-opt:hover{border-color:var(--accent)}",
+    ".nthview-courier .nthview-opt.nthview-right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 13%,var(--glass-solid))}",
+    ".nthview-courier .nthview-opt.nthview-wrong{border-color:var(--no);background:color-mix(in srgb,var(--no) 9%,var(--glass-solid))}",
+    ".nthview-courier .nthview-why{margin:6px 2px 4px 14px;padding-left:12px;border-left:3px solid var(--line);font-size:.95rem;line-height:1.5;animation:nthview-fade .3s}",
+    ".nthview-courier .nthview-why.nthview-ok{border-color:var(--ok)}",
+    ".nthview-courier .nthview-why.nthview-no{border-color:var(--no)}",
+    ".nthview-courier .nthview-why b{color:var(--ink)}",
+    ".nthview-courier .nthview-fb{margin-top:12px;line-height:1.5}",
+    ".nthview-courier .nthview-fb.nthview-ok{color:var(--ok);font-weight:700}",
+    ".nthview-courier .nthview-fb.nthview-no{color:var(--no)}",
+    ".nthview-courier .nthview-done{border:2px solid var(--ok);border-radius:18px;padding:14px 16px;margin-top:16px;display:flex;gap:14px;align-items:center;animation:nthview-pop .45s var(--ease)}",
+    ".nthview-courier .nthview-done p{margin:0}",
+    /* stamps */
+    ".nthview-courier .nthview-stamp{width:54px;height:64px;flex:none;border-radius:5px;background:var(--sc,var(--accent));display:grid;place-items:center;color:#fff;position:relative;",
+    "  box-shadow:0 0 0 3px var(--glass-solid),0 0 0 4.5px var(--line),0 4px 10px var(--shadow);transform:rotate(-5deg)}",
+    ".nthview-courier .nthview-stamp::after{content:\"\";position:absolute;inset:4px;border:1.5px dashed rgba(255,255,255,.7);border-radius:3px}",
+    ".nthview-courier .nthview-stamp svg{width:26px;height:26px}",
+    ".nthview-courier .nthview-stamp.nthview-blank{background:transparent;color:var(--muted);box-shadow:0 0 0 1.5px var(--line);transform:none}",
+    ".nthview-courier .nthview-stamp.nthview-blank::after{border-color:var(--line)}",
+    ".nthview-courier .nthview-stamp.nthview-new{animation:nthview-stamp .6s var(--ease)}",
+    ".nthview-courier .nthview-stamps{display:flex;flex-wrap:wrap;gap:14px;margin:10px 4px}",
+    /* checklist */
+    ".nthview-courier .nthview-list{display:grid;gap:8px;margin:8px 0;padding:0;list-style:none}",
+    ".nthview-courier .nthview-li{display:flex;gap:11px;align-items:flex-start;background:var(--glass-solid);border:1px solid var(--line);border-radius:14px;padding:10px 12px}",
+    ".nthview-courier .nthview-li.nthview-isdone{opacity:.72}",
+    ".nthview-courier .nthview-li.nthview-later{opacity:.55}",
+    ".nthview-courier .nthview-li b{display:block;line-height:1.25}",
+    ".nthview-courier .nthview-li small{display:block;color:var(--muted);line-height:1.4;margin-top:2px}",
+    ".nthview-courier .nthview-ico{width:34px;height:34px;border-radius:11px;background:var(--chip);display:grid;place-items:center;flex:none}",
+    ".nthview-courier .nthview-status{display:inline-block;font-size:.74rem;font-weight:800;letter-spacing:.02em;text-transform:uppercase;border-radius:8px;padding:2px 7px;margin-top:6px;background:var(--chip);color:var(--muted)}",
+    ".nthview-courier .nthview-status.nthview-ok{background:color-mix(in srgb,var(--ok) 18%,transparent);color:var(--ok)}",
+    ".nthview-courier .nthview-status.nthview-hot{background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent)}",
+    ".nthview-courier .nthview-switch{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:14px;background:var(--chip);border:1px solid var(--line);margin:10px 0}",
+    ".nthview-courier .nthview-toggle{width:52px;height:30px;border-radius:15px;border:0;background:#9aa3b8;position:relative;flex:none;padding:0}",
+    ".nthview-courier .nthview-toggle::after{content:\"\";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:transform .2s}",
+    ".nthview-courier .nthview-toggle[aria-checked=true]{background:var(--accent)}",
+    ".nthview-courier .nthview-toggle[aria-checked=true]::after{transform:translateX(22px)}",
+    /* paper (letters, notices, telegrams) */
+    ".nthview-courier .nthview-paper{background:var(--paper);color:var(--paper-ink);border-radius:6px;padding:26px 26px 22px;position:relative;box-shadow:0 14px 40px var(--shadow);",
+    "  background-image:radial-gradient(120% 90% at 50% 0%,transparent 60%,color-mix(in srgb,var(--paper-ink) 6%,transparent));border:1px solid color-mix(in srgb,var(--paper-ink) 10%,transparent);line-height:1.65}",
+    ".nthview-courier .nthview-paper h2,.nthview-courier .nthview-paper h1{font-family:var(--display);font-weight:600;color:var(--paper-ink);margin:0 0 12px;line-height:1.1}",
+    ".nthview-courier .nthview-paper p{margin:0 0 12px}",
+    ".nthview-courier .nthview-paper .nthview-sign{font-family:var(--display);font-weight:500;text-align:right;margin-top:6px;font-size:1.08rem}",
+    ".nthview-courier .nthview-postmark{position:absolute;top:14px;right:16px;width:64px;height:64px;border-radius:50%;border:2px dashed color-mix(in srgb,var(--accent) 70%,transparent);color:var(--accent);display:grid;place-items:center;transform:rotate(12deg);font-family:var(--display);font-size:.62rem;font-weight:600;text-align:center;line-height:1.1;opacity:.85;padding:6px}",
+    ".nthview-courier .nthview-paper.nthview-hasmark{padding-right:92px}",
+    ".nthview-courier .nthview-panel .nthview-paper{margin:12px 0;padding:18px 18px 14px}",
+    ".nthview-courier .nthview-panel .nthview-paper.nthview-hasmark{padding-right:84px}",
+    ".nthview-courier .nthview-tele{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.02em;line-height:2.3;font-size:.95rem;background-image:none}",
+    ".nthview-courier .nthview-select{font:inherit;border:1.5px solid var(--accent);border-radius:8px;padding:2px 6px;background:var(--glass-solid);color:var(--ink);margin:0 2px;max-width:100%}",
+    ".nthview-courier .nthview-select.nthview-wrong{border-color:var(--no);box-shadow:0 0 0 2px color-mix(in srgb,var(--no) 25%,transparent)}",
+    ".nthview-courier .nthview-select.nthview-right{border-color:var(--ok)}",
+    ".nthview-courier .nthview-clue{margin:6px 0;padding-left:20px;position:relative}",
+    ".nthview-courier .nthview-clue::before{content:\"\";position:absolute;left:4px;top:.62em;width:8px;height:8px;border-radius:2px;background:var(--accent);transform:rotate(45deg)}",
+    /* sort table */
+    ".nthview-courier .nthview-envs{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}",
+    ".nthview-courier .nthview-env{background:var(--paper);color:var(--paper-ink);border:1.5px solid var(--line);border-radius:6px;padding:9px 12px;text-align:left;font-size:.92rem;line-height:1.3;box-shadow:0 2px 6px var(--shadow);transition:transform .2s var(--ease),box-shadow .2s}",
+    ".nthview-courier .nthview-env[aria-pressed=true]{transform:translateY(-3px) rotate(-1.5deg);box-shadow:0 0 0 3px var(--accent),0 6px 14px var(--shadow)}",
+    ".nthview-courier .nthview-bins{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:10px}",
+    ".nthview-courier .nthview-bin{border:2px dashed var(--dc,var(--line));border-radius:14px;padding:9px;min-height:64px;text-align:left;background:color-mix(in srgb,var(--dc,var(--chip)) 10%,var(--glass-solid))}",
+    ".nthview-courier .nthview-bin b{display:block;font-family:var(--display);font-weight:600}",
+    ".nthview-courier .nthview-bin small{display:block;font-size:.78rem;color:var(--muted);margin-top:3px;line-height:1.3}",
+    /* weigh */
+    ".nthview-courier .nthview-range{width:100%;accent-color:var(--accent);margin-top:12px;height:28px}",
+    ".nthview-courier .nthview-readout{font-family:var(--display);font-weight:600;font-size:2rem;text-align:center;margin:4px 0}",
+    /* overlays */
+    ".nthview-courier .nthview-overlay{position:absolute;inset:0;z-index:20;display:grid;place-items:center;padding:20px 16px;background:color-mix(in srgb,var(--sky) 45%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);overflow-y:auto;transition:opacity .35s}",
+    ".nthview-courier .nthview-overlay.nthview-fading{opacity:0}",
+    ".nthview-courier .nthview-card{border-radius:26px;padding:28px;max-width:620px;width:100%;animation:nthview-rise .5s var(--ease)}",
+    ".nthview-courier .nthview-card.nthview-wide{max-width:760px}",
+    ".nthview-courier .nthview-card h1{font-family:var(--display);font-weight:600;font-size:clamp(2.3rem,7vw,3.6rem);line-height:.98;letter-spacing:-.02em;margin:0 0 10px;overflow-wrap:anywhere}",
+    ".nthview-courier .nthview-card p{line-height:1.6}",
+    ".nthview-courier .nthview-lede{font-size:1.12rem}",
+    ".nthview-courier .nthview-small{font-size:.9rem;color:var(--muted)}",
+    ".nthview-courier .nthview-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;align-items:center}",
+    ".nthview-courier .nthview-card .nthview-btn.nthview-primary,.nthview-courier .nthview-paper .nthview-btn.nthview-primary{font-size:1.05rem;padding:12px 22px}",
+    ".nthview-courier .nthview-letterwrap{max-width:640px;width:100%;animation:nthview-rise .55s var(--ease)}",
+    ".nthview-courier .nthview-keys{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.95rem;margin:10px 0}",
+    ".nthview-courier .nthview-keys span:nth-child(odd){font-weight:800;white-space:nowrap}",
+    ".nthview-courier .nthview-recap{padding-left:1.3rem;margin:8px 0 14px}",
+    ".nthview-courier .nthview-recap li{margin:6px 0}",
+    ".nthview-courier .nthview-rev{list-style:none;padding:0;margin:14px 0;display:grid;gap:10px}",
+    ".nthview-courier .nthview-rev li{border:1px solid var(--line);border-radius:16px;padding:12px 14px;background:var(--glass-solid)}",
+    ".nthview-courier .nthview-rev .nthview-revhead{display:flex;gap:10px;align-items:center}",
+    ".nthview-courier .nthview-rev p{margin:6px 0}",
+    ".nthview-courier .nthview-mix{margin:8px 0 0;padding:8px 12px;border-radius:12px;background:color-mix(in srgb,var(--no) 8%,transparent);font-size:.93rem}",
+    ".nthview-courier .nthview-mix p{margin:4px 0}",
+    ".nthview-courier table.nthview-t{border-collapse:collapse;width:100%;font-size:.94rem;margin-top:8px}",
+    ".nthview-courier table.nthview-t th,.nthview-courier table.nthview-t td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}",
+    ".nthview-courier a{color:var(--accent)}",
+    /* popovers */
+    ".nthview-courier .nthview-pop{position:absolute;top:60px;right:14px;z-index:7;border-radius:20px;padding:14px 16px;width:min(320px,calc(100% - 28px));transform-origin:top right;animation:nthview-pop .3s var(--ease)}",
+    "@media (max-width:620px){.nthview-courier .nthview-pop{top:108px}}",
+    ".nthview-courier .nthview-pop h3{font-family:var(--display);font-weight:600;margin:0 0 8px;font-size:1.1rem}",
+    ".nthview-courier .nthview-swrow{margin:8px 0}",
+    ".nthview-courier .nthview-swrow b{display:block;font-size:.85rem;margin-bottom:5px}",
+    ".nthview-courier .nthview-sws{display:flex;gap:6px;flex-wrap:wrap}",
+    ".nthview-courier .nthview-sw{width:30px;height:30px;border-radius:50%;border:2px solid var(--line);padding:0;background:var(--c)}",
+    ".nthview-courier .nthview-sw[aria-pressed=true]{box-shadow:0 0 0 3px var(--glass-solid),0 0 0 5px var(--accent)}",
+    ".nthview-courier .nthview-emos{display:flex;gap:8px;flex-wrap:wrap}",
+    ".nthview-courier .nthview-emo{font-size:1.55rem;width:50px;height:50px;border-radius:16px;border:1.5px solid var(--line);background:var(--glass-solid);line-height:1}",
+    ".nthview-courier .nthview-emo:hover{border-color:var(--accent);transform:translateY(-2px)}",
+    "@keyframes nthview-pop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}",
+    "@keyframes nthview-fade{from{opacity:0}to{opacity:1}}",
+    "@keyframes nthview-rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}",
+    "@keyframes nthview-stamp{0%{transform:scale(2.2) rotate(-20deg);opacity:0}60%{transform:scale(.92) rotate(-3deg);opacity:1}100%{transform:rotate(-5deg)}}",
+    "@media (prefers-reduced-motion:reduce){.nthview-courier *,.nthview-courier *::before,.nthview-courier *::after{animation:none!important;transition:none!important}}"
+  ].join("\n");
+
+  function injectStyles() {
+    if (root.document.getElementById(STYLE_ID)) return;
+    var style = root.document.createElement("style");
+    style.id = STYLE_ID;
+    style.textContent = CSS;
+    root.document.head.appendChild(style);
+  }
+
+  function el(tag, attrs, children) {
+    var node = root.document.createElement(tag);
+    Object.keys(attrs || {}).forEach(function (k) {
+      if (k === "text") node.textContent = attrs[k];
+      else node.setAttribute(k, attrs[k]);
+    });
+    (children || []).forEach(function (c) { node.appendChild(c); });
+    return node;
+  }
+
+  function renderErrorPanel(container, result) {
+    var items = result.errors.map(function (e) {
+      return el("li", {}, [el("code", { text: e.path }), root.document.createTextNode(": " + e.message)]);
+    });
+    container.appendChild(el("div", { class: "nthview-error-panel", role: "alert" }, [
+      el("h2", { text: "This view could not be built" }),
+      el("p", { text: "The data has " + result.errors.length + " problem(s). Fix them and rebuild the file." }),
+      el("ul", {}, items)
+    ]));
+  }
+
+  // ---- view-specific rendering: data is already valid here ---------------
+  /* district tints used when a district has no colour, per world theme */
+  var PALETTES = {
+    morning: ["#7a6fd0", "#d98b2b", "#2f8fb3", "#c4473a", "#3f9b5a", "#c25b9c"],
+    dusk: ["#b35a8c", "#d88a3a", "#5a78b8", "#c24d4d", "#6c9a52", "#8a62c4"],
+    lantern: ["#e0a83a", "#5fb3d9", "#d9604f", "#7ac46a", "#b98ae0", "#e07aa8"],
+    snow: ["#2f72c4", "#c4473a", "#2f9b8a", "#8a5ac4", "#d98b2b", "#3f7f4a"]
+  };
+  /* lighting and sky extras per world theme: [light mode, dark mode] */
+  var THEME3D = {
+    morning: { hemi: [0xffffff, 0x5a6b4a], hemiI: [.72, .6], sun: 0xfff1d6, sunI: [.72, .42], stars: "dark", extra: "clouds", cloud: 0xffffff, night: "dark", disc: 0xfff4c2 },
+    dusk: { hemi: [0xffd9c2, 0x4a3550], hemiI: [.72, .6], sun: 0xffb88a, sunI: [.75, .45], stars: "dark", extra: "clouds", cloud: 0xffd3d8, night: "dark", disc: 0xffc58a },
+    lantern: { hemi: [0x9fb0f0, 0x1a1f30], hemiI: [.72, .62], sun: 0xc8d6ff, sunI: [.5, .45], stars: "always", extra: "fireflies", cloud: 0x8090c0, night: "always", disc: 0xeef2ff },
+    snow: { hemi: [0xffffff, 0x8090a8], hemiI: [.78, .62], sun: 0xf0f6ff, sunI: [.6, .4], stars: "dark", extra: "snow", cloud: 0xffffff, night: "dark", disc: 0xffffff }
+  };
+  var KIND_LABEL = { letter: "Letter", parcel: "Mystery parcel", reply: "Reply", sort: "Sorting", chain: "Chain message", telegram: "Telegram", weigh: "Weighing", notice: "Notice" };
+  var WARDROBE = {
+    hair: { label: "Hair", colors: ["#2b1d14", "#6b3e26", "#b5562c", "#e2b84c", "#d9d4cc", "#2a5fa8", "#a33b62"] },
+    top: { label: "Top", colors: ["#d9573b", "#2f8fb3", "#3f9b5a", "#e0b23a", "#7a6fd0", "#f2efe6", "#2b2f3a"] },
+    bottom: { label: "Bottom", colors: ["#2f3b5c", "#5a4636", "#3c5a40", "#8a8f99", "#a33b3b", "#d8c7a0", "#1f2128"] },
+    shoes: { label: "Shoes", colors: ["#3a2a20", "#1f2128", "#c4473a", "#f2efe6", "#2f72c4", "#e0b23a", "#3f9b5a"] }
+  };
+  var EMOTES = [["👋", "Wave"], ["😊", "Smile"], ["❤️", "Heart"], ["❓", "Puzzled"], ["🎉", "Hooray"], ["💤", "Sleepy"]];
+
+  /* text with **bold** -> fragment of text and <b> nodes; never innerHTML */
+  function rich(text) {
+    var frag = root.document.createDocumentFragment();
+    String(text).split(/(\*\*[^*]+\*\*)/).forEach(function (part) {
+      if (!part) return;
+      if (/^\*\*[^*]+\*\*$/.test(part)) frag.appendChild(el("b", { text: part.slice(2, -2) }));
+      else frag.appendChild(root.document.createTextNode(part));
+    });
+    return frag;
+  }
+  function plain(text) { return String(text).replace(/\*\*([^*]+)\*\*/g, "$1"); }
+  function p(cls, text) { var n = el("p", cls ? { class: cls } : {}); n.appendChild(rich(text)); return n; }
+  function btn(label, cls, onClick) {
+    var b = el("button", { type: "button", class: "nthview-btn" + (cls ? " " + cls : "") }); b.appendChild(rich(label));
+    if (onClick) b.addEventListener("click", onClick); return b;
+  }
+  function seeded(str) { var h = 2166136261; for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return function () { h += 0x6D2B79F5; var t = Math.imul(h ^ (h >>> 15), 1 | h); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+  function shuffled(arr, seed) {
+    var rnd = seeded(seed), a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(rnd() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
+    return a;
+  }
+  function fmtNum(v, step) {
+    var dec = 0, s = String(step); if (s.indexOf(".") !== -1) dec = Math.min(4, s.split(".")[1].length);
+    return Number(v).toFixed(dec);
+  }
+  function hexToRgb(h) { var n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+  function mixHex(a, b, t) { var x = hexToRgb(a), y = hexToRgb(b); var c = x.map(function (v, i) { return Math.round(v + (y[i] - v) * t); }); return "#" + c.map(function (v) { return ("0" + v.toString(16)).slice(-2); }).join(""); }
+
+  /* ---- small inline SVG icons (no icon fonts, no images) ---- */
+  var SVGNS = "http://www.w3.org/2000/svg";
+  var ICONS = {
+    letter: ["M3 6h18v12H3z", "M3 7l9 6 9-6"],
+    parcel: ["M3 8l9-4 9 4v9l-9 4-9-4z", "M3 8l9 4 9-4", "M12 12v9", "M7.5 6l9 4"],
+    reply: ["M4 5h16v10H9l-5 4z", "M8 9h8", "M8 12h5"],
+    sort: ["M3 4h8v7H3z", "M13 4h8v7h-8z", "M3 13h8v7H3z", "M13 13h8v7h-8z"],
+    chain: ["M9 15l6-6", "M10.5 6.5l1.8-1.8a4 4 0 015.7 5.7l-1.8 1.8", "M13.5 17.5l-1.8 1.8a4 4 0 01-5.7-5.7l1.8-1.8"],
+    telegram: ["M12 21V10", "M8 21h8", "M12 10a2 2 0 100-4 2 2 0 000 4z", "M7.5 4.5a6.5 6.5 0 000 7", "M16.5 4.5a6.5 6.5 0 010 7", "M5 2.5a10 10 0 000 11", "M19 2.5a10 10 0 010 11"],
+    weigh: ["M12 4v16", "M7 20h10", "M4 8h16", "M4 8l-2.5 6h5z", "M20 8l-2.5 6h5z"],
+    notice: ["M5 3h14v13H5z", "M8 7h8", "M8 10h8", "M8 13h5", "M8 16v5", "M16 16v5"],
+    bag: ["M5 8h14l-1 12H6z", "M9 8V6a3 3 0 016 0v2", "M5 12h14"],
+    shirt: ["M8 3l-5 4 3 3 2-1v12h8V9l2 1 3-3-5-4a4 4 0 01-8 0z"],
+    smile: ["M12 21a9 9 0 100-18 9 9 0 000 18z", "M8.5 14.5a4.5 4.5 0 007 0", "M9 9.5h.01", "M15 9.5h.01"],
+    sound: ["M4 9h4l5-4v14l-5-4H4z", "M16.5 8.5a5 5 0 010 7", "M19 6a8.5 8.5 0 010 12"],
+    mute: ["M4 9h4l5-4v14l-5-4H4z", "M17 9l5 6", "M22 9l-5 6"],
+    help: ["M12 21a9 9 0 100-18 9 9 0 000 18z", "M9.5 9a2.5 2.5 0 015 .5c0 2-2.5 2-2.5 4", "M12 17h.01"],
+    office: ["M3 10l9-6 9 6", "M5 10v10h14V10", "M9 20v-6h6v6"],
+    star: ["M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"]
+  };
+  function icon(name) {
+    var s = root.document.createElementNS(SVGNS, "svg");
+    s.setAttribute("viewBox", "0 0 24 24"); s.setAttribute("fill", "none"); s.setAttribute("stroke", "currentColor");
+    s.setAttribute("stroke-width", "1.8"); s.setAttribute("stroke-linecap", "round"); s.setAttribute("stroke-linejoin", "round"); s.setAttribute("aria-hidden", "true");
+    (ICONS[name] || ICONS.letter).forEach(function (d) { var pa = root.document.createElementNS(SVGNS, "path"); pa.setAttribute("d", d); s.appendChild(pa); });
+    return s;
+  }
+  function svgEl(tag, attrs) { var n = root.document.createElementNS(SVGNS, tag); Object.keys(attrs).forEach(function (k) { n.setAttribute(k, attrs[k]); }); return n; }
+
+  /* ---- a portrait drawn from the same parts as the 3D figure ---- */
+  function portraitSvg(pt, bg) {
+    var s = svgEl("svg", { viewBox: "0 0 100 100", "aria-hidden": "true" });
+    var hair = pt.hair, skin = pt.skin, top = pt.top, style = pt.hairStyle, acc = pt.accessory || "none";
+    s.appendChild(svgEl("rect", { x: 0, y: 0, width: 100, height: 100, fill: bg || "#dfe7ee" }));
+    if (style === "long" || style === "bob") s.appendChild(svgEl("path", { d: style === "long" ? "M27 44 Q27 22 50 21 Q73 22 73 44 L76 88 L24 88 Z" : "M26 44 Q26 20 50 20 Q74 20 74 44 L75 68 L25 68 Z", fill: hair }));
+    s.appendChild(svgEl("path", { d: "M16 104 Q18 74 50 72 Q82 74 84 104 Z", fill: top }));
+    if (acc === "apron") s.appendChild(svgEl("path", { d: "M36 104 L38 80 L62 80 L64 104 Z", fill: "#f4f1e8", opacity: ".95" }));
+    s.appendChild(svgEl("rect", { x: 43, y: 60, width: 14, height: 16, rx: 5, fill: mixHex(skin, "#000000", .12) }));
+    s.appendChild(svgEl("circle", { cx: 50, cy: 46, r: 21, fill: skin }));
+    if (style === "short") s.appendChild(svgEl("path", { d: "M29 44 Q28 22 50 22 Q72 22 71 44 Q66 32 50 32 Q36 32 29 44 Z", fill: hair }));
+    if (style === "long" || style === "bob") s.appendChild(svgEl("path", { d: "M29 46 Q28 22 50 22 Q72 22 71 46 Q64 30 48 33 Q37 35 29 46 Z", fill: hair }));
+    if (style === "bun") { s.appendChild(svgEl("circle", { cx: 50, cy: 20, r: 9, fill: hair })); s.appendChild(svgEl("path", { d: "M29 44 Q28 23 50 23 Q72 23 71 44 Q64 31 50 31 Q36 31 29 44 Z", fill: hair })); }
+    if (style === "curly") [[33, 32], [42, 25], [52, 23], [62, 26], [68, 34], [30, 42], [70, 43]].forEach(function (c) { s.appendChild(svgEl("circle", { cx: c[0], cy: c[1], r: 8, fill: hair })); });
+    if (style === "cap") { s.appendChild(svgEl("path", { d: "M28 42 Q28 22 50 22 Q72 22 72 42 Z", fill: hair })); s.appendChild(svgEl("path", { d: "M50 38 L82 40 Q80 45 50 43 Z", fill: mixHex(hair, "#000000", .25) })); }
+    if (style === "bald") s.appendChild(svgEl("path", { d: "M30 44 Q29 38 33 36 L33 46 Z M70 44 Q71 38 67 36 L67 46 Z", fill: hair }));
+    s.appendChild(svgEl("circle", { cx: 42, cy: 47, r: 2.6, fill: "#1d1a18" }));
+    s.appendChild(svgEl("circle", { cx: 58, cy: 47, r: 2.6, fill: "#1d1a18" }));
+    s.appendChild(svgEl("path", { d: "M43 56 Q50 61 57 56", fill: "none", stroke: "#1d1a18", "stroke-width": 2.2, "stroke-linecap": "round" }));
+    s.appendChild(svgEl("circle", { cx: 36, cy: 53, r: 3.5, fill: "#e87a7a", opacity: ".35" }));
+    s.appendChild(svgEl("circle", { cx: 64, cy: 53, r: 3.5, fill: "#e87a7a", opacity: ".35" }));
+    if (acc === "glasses") { [42, 58].forEach(function (x) { s.appendChild(svgEl("circle", { cx: x, cy: 47, r: 6, fill: "none", stroke: "#2b2b33", "stroke-width": 2 })); }); s.appendChild(svgEl("path", { d: "M48 47 L52 47", stroke: "#2b2b33", "stroke-width": 2 })); }
+    if (acc === "hat") { s.appendChild(svgEl("rect", { x: 22, y: 26, width: 56, height: 6, rx: 3, fill: "#3a3f4b" })); s.appendChild(svgEl("rect", { x: 33, y: 10, width: 34, height: 19, rx: 5, fill: "#3a3f4b" })); }
+    if (acc === "scarf") s.appendChild(svgEl("path", { d: "M33 70 Q50 80 67 70 L68 76 Q50 86 32 76 Z M58 76 L64 92 L56 92 L53 78 Z", fill: "#e0b23a" }));
+    if (acc === "headset") { s.appendChild(svgEl("path", { d: "M28 46 Q28 20 50 20 Q72 20 72 46", fill: "none", stroke: "#2b2f3a", "stroke-width": 3.5 })); s.appendChild(svgEl("rect", { x: 24, y: 42, width: 8, height: 12, rx: 3, fill: "#2b2f3a" })); s.appendChild(svgEl("rect", { x: 68, y: 42, width: 8, height: 12, rx: 3, fill: "#2b2f3a" })); s.appendChild(svgEl("path", { d: "M28 52 Q32 62 42 60", fill: "none", stroke: "#2b2f3a", "stroke-width": 2 })); }
+    if (acc === "bowtie") s.appendChild(svgEl("path", { d: "M50 75 L40 70 L40 80 Z M50 75 L60 70 L60 80 Z", fill: "#c4473a" }));
+    if (acc === "flower") { [[0, -5], [5, 0], [0, 5], [-5, 0]].forEach(function (o) { s.appendChild(svgEl("circle", { cx: 68 + o[0], cy: 30 + o[1], r: 4, fill: "#f28db8" })); }); s.appendChild(svgEl("circle", { cx: 68, cy: 30, r: 3, fill: "#ffd76a" })); }
+    return s;
+  }
+
+  /* ======================================================================
+     The planet. Everything below is driven by `data`.
+     The planet is a sphere of radius R; every position on it is a unit
+     direction vector ("dir"), and height above the surface comes from
+     heightAt(dir). The post office stands on the north pole (0,1,0); the
+     districts sit in a ring just south of the equator; a small sea covers
+     the south pole.
+     ====================================================================== */
+  var R = 26, WATER = -.55, TALK_DIST = 3.4, SPEED = 7.2;
+
+  function render(container, data) {
+    var THREE = root.THREE, doc = root.document;
+    var themeName = data.theme || "morning";
+    var T3 = THEME3D[themeName] || THEME3D.morning;
+    Object.keys(THEME3D).forEach(function (k) { container.classList.remove("nthview-theme-" + k); });
+    container.classList.add("nthview-theme-" + themeName);
+    var reduceMotion = !!(root.matchMedia && root.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    var isDark = function () { return !!(root.matchMedia && root.matchMedia("(prefers-color-scheme: dark)").matches); };
+    var css = function (n) { return getComputedStyle(container).getPropertyValue(n).trim(); };
+    var courierName = data.courier.name;
+    var pmName = data.postmaster.name;
+    var pmPortrait = data.postmaster.portrait || { skin: "#e8b48f", hair: "#d9d4cc", hairStyle: "bun", top: "#c4473a", accessory: "glasses" };
+
+    /* ---------- lookups ---------- */
+    var RES = {}, DIS = {}, ERR = {};
+    data.districts.forEach(function (d, i) { DIS[d.id] = d; d._i = i; d._color = d.color || PALETTES[themeName][i % 6]; });
+    data.residents.forEach(function (r) { RES[r.id] = r; });
+    data.errands.forEach(function (e, i) { ERR[e.id] = e; e._i = i; });
+    var required = data.errands.filter(function (e) { return e.kind !== "notice"; });
+    function errandColor(e) {
+      var who = e.to || e.owner || e.asker || (e.steps && e.steps[e.steps.length - 1].resident) || null;
+      if (who && RES[who]) return DIS[RES[who].district]._color;
+      if (e.district) return DIS[e.district]._color;
+      return "#c4473a";
+    }
+
+    /* ---------- DOM scaffold ---------- */
+    function hudBtn(ic, label, cls) {
+      var b = el("button", { type: "button", class: "nthview-hbtn nthview-glass" + (cls ? " " + cls : ""), "aria-label": label });
+      b.appendChild(icon(ic)); b.appendChild(el("span", { class: "nthview-hl", text: label })); return b;
+    }
+    var canvas = el("canvas", { class: "nthview-canvas", tabindex: "0", "aria-label": "A tiny planet you can walk around. Use WASD or the arrow keys to walk and drag to look around. Press Enter to talk to whoever is nearby, B for your bag." });
+    var brand = el("div", { class: "nthview-brand nthview-glass", text: data.title });
+    var tray = el("div", { class: "nthview-tray", role: "img", "aria-label": "Stamps collected" });
+    var bagBtn = hudBtn("bag", "Bag", "nthview-main");
+    var bagBadge = el("span", { class: "nthview-badge nthview-hidden", "aria-hidden": "true" }); bagBtn.appendChild(bagBadge);
+    var wardBtn = hudBtn("shirt", "Wardrobe"), emoteBtn = hudBtn("smile", "Emote"), soundBtn = hudBtn("sound", "Sound");
+    wardBtn.setAttribute("aria-expanded", "false"); emoteBtn.setAttribute("aria-expanded", "false"); soundBtn.setAttribute("aria-pressed", "true");
+    var hud = el("div", { class: "nthview-hud" }, [
+      el("div", {}, [brand, tray]),
+      el("div", { class: "nthview-hud-right" }, [bagBtn, wardBtn, emoteBtn, soundBtn])
+    ]);
+    var compass = el("div", { class: "nthview-compass nthview-glass", "aria-hidden": "true" }, [el("div", { class: "nthview-cmid" })]);
+    var pface = el("div", { class: "nthview-pface", "aria-hidden": "true" }), psmall = el("div", { class: "nthview-psmall" }), pbig = el("div", { class: "nthview-pbig" }), pacts = el("div", { class: "nthview-pacts" });
+    var prompt = el("div", { class: "nthview-prompt nthview-glass nthview-off", "aria-live": "polite" }, [pface, el("div", { class: "nthview-ptext" }, [psmall, pbig]), pacts]);
+    var toastEl = el("div", { class: "nthview-toast nthview-glass", role: "status", "aria-live": "polite" });
+    var knob = el("div", { class: "nthview-knob" });
+    var joy = el("div", { class: "nthview-joy nthview-glass", "aria-hidden": "true" }, [knob]);
+    var closeBtn = el("button", { type: "button", class: "nthview-close", text: "Close" });
+    var pbody = el("div");
+    var panel = el("aside", { class: "nthview-panel nthview-glass", "aria-label": "Conversation", "aria-hidden": "true" }, [closeBtn, pbody]); panel.inert = true;
+    var popWard = el("div", { class: "nthview-pop nthview-glass nthview-hidden", role: "dialog", "aria-label": "Wardrobe" });
+    var popEmote = el("div", { class: "nthview-pop nthview-glass nthview-hidden", role: "dialog", "aria-label": "Emotes" });
+    var overlay = el("div", { class: "nthview-overlay nthview-hidden", role: "dialog", "aria-modal": "true" });
+    [canvas, hud, compass, prompt, toastEl, joy, panel, popWard, popEmote, overlay].forEach(function (n) { container.appendChild(n); });
+
+    /* ---------- state ---------- */
+    var state = { started: false, met: {}, talkIdx: {}, es: {}, newStamp: null, muted: false, guide: false, panel: null, closingShown: false, overlay: null, read: {} };
+    var dress = { hair: WARDROBE.hair.colors[0], top: WARDROBE.top.colors[0], bottom: WARDROBE.bottom.colors[0], shoes: WARDROBE.shoes.colors[0] };
+    try { var savedDress = root.sessionStorage && JSON.parse(root.sessionStorage.getItem("nthview-courier-dress") || "null"); if (savedDress) Object.keys(dress).forEach(function (k) { if (typeof savedDress[k] === "string" && /^#[0-9a-f]{6}$/i.test(savedDress[k])) dress[k] = savedDress[k]; }); } catch (e) { /* session storage is optional */ }
+    data.errands.forEach(function (e) {
+      var st = { letter: e.from ? "pickup" : "carry", parcel: e.from ? "pickup" : "carry", reply: "ask", sort: "office", telegram: "office", weigh: "office", chain: "chain", notice: "read" }[e.kind];
+      state.es[e.id] = { stage: st, pos: 0, mix: [], seen: {}, placed: {}, tries: 0, firstTry: true };
+    });
+    function ES(e) { return state.es[e.id]; }
+    function isDone(e) { return ES(e).stage === "done"; }
+    function isLocked(e) { return !!(e.after && !isDone(ERR[e.after])); }
+    function allRequiredDone() { return required.every(isDone); }
+    function mixup(e, picked, why) {
+      var s = ES(e); s.firstTry = false;
+      if (s.seen[picked]) return; s.seen[picked] = true;
+      s.mix.push({ picked: picked, why: why });
+    }
+
+    var toastTimer;
+    function toast(msg) { if (state.panel || state.overlay) return; toastEl.textContent = msg; toastEl.classList.add("nthview-show"); clearTimeout(toastTimer); toastTimer = setTimeout(function () { toastEl.classList.remove("nthview-show"); }, 3600); }
+
+    /* ---------- sound: synthesised effects and a soft ambient pad, no files ---------- */
+    var actx = null, master = null, ambient = { next: 0, chime: 0, chord: 0 };
+    function audio() {
+      if (actx) return actx;
+      try {
+        var AC = root.AudioContext || root.webkitAudioContext; if (!AC) return null;
+        actx = new AC(); master = actx.createGain(); master.gain.value = state.muted ? 0 : 1; master.connect(actx.destination);
+      } catch (e) { actx = null; }
+      return actx;
+    }
+    function tone(f, st, dur, type, vol, dest) {
+      var a = audio(); if (!a) return;
+      try {
+        var t0 = a.currentTime + st, o = a.createOscillator(), g = a.createGain(); o.type = type || "sine"; o.frequency.setValueAtTime(f, t0);
+        g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(vol || .06, t0 + .015); g.gain.exponentialRampToValueAtTime(.0001, t0 + dur);
+        o.connect(g); g.connect(dest || master); o.start(t0); o.stop(t0 + dur + .05);
+      } catch (e) { /* audio is optional */ }
+    }
+    function sfx(kind) {
+      if (state.muted || !audio()) return;
+      if (actx.state === "suspended") { try { actx.resume(); } catch (e) { /* ignore */ } }
+      switch (kind) {
+        case "open": tone(660, 0, .09, "triangle", .035); break;
+        case "pick": tone(660, 0, .09, "triangle", .05); tone(880, .05, .12, "triangle", .05); break;
+        case "ok": [523, 659, 784].forEach(function (f, i) { tone(f, i * .09, .32, "sine", .06); }); break;
+        case "no": tone(220, 0, .22, "triangle", .045); tone(185, .1, .28, "triangle", .04); break;
+        case "stamp": tone(110, 0, .18, "square", .04); [784, 988, 1175, 1568].forEach(function (f, i) { tone(f, .12 + i * .08, .5, "sine", .05); }); break;
+        case "bell": tone(1319, 0, .9, "sine", .05); tone(1976, .02, .7, "sine", .025); break;
+        case "tele": [0, .1, .2, .42, .52].forEach(function (s, i) { tone(1046, s, i % 3 === 2 ? .2 : .07, "square", .02); }); break;
+        case "emote": tone(880, 0, .12, "triangle", .05); tone(1175, .08, .18, "triangle", .05); break;
+        case "step": tone(300 + Math.random() * 60, 0, .05, "triangle", .012); break;
+        case "letter": tone(392, 0, .5, "sine", .05); tone(587, .12, .6, "sine", .045); tone(784, .26, .8, "sine", .04); break;
+      }
+    }
+    /* ambient: a slow pad of soft chords and an occasional chime, scheduled from the loop */
+    var CHORDS = [[261.6, 329.6, 392], [220, 261.6, 329.6], [174.6, 220, 261.6], [196, 246.9, 293.7]];
+    var PENTA = [523.3, 587.3, 659.3, 784, 880, 1046.5];
+    function ambientTick(t) {
+      if (state.muted || !actx || !state.started || actx.state !== "running") return;
+      if (t >= ambient.next) {
+        var ch = CHORDS[ambient.chord++ % CHORDS.length];
+        ch.forEach(function (f, i) {
+          try {
+            var t0 = actx.currentTime, o = actx.createOscillator(), g = actx.createGain(), lp = actx.createBiquadFilter();
+            o.type = i === 0 ? "sine" : "triangle"; o.frequency.value = f / (i === 0 ? 2 : 1); o.detune.value = (i - 1) * 6;
+            lp.type = "lowpass"; lp.frequency.value = 900;
+            g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(.022, t0 + 2.5); g.gain.linearRampToValueAtTime(.016, t0 + 6); g.gain.linearRampToValueAtTime(0, t0 + 9.5);
+            o.connect(lp); lp.connect(g); g.connect(master); o.start(t0); o.stop(t0 + 9.8);
+          } catch (e) { /* ignore */ }
+        });
+        ambient.next = t + 8;
+      }
+      if (t >= ambient.chime) { tone(PENTA[Math.floor(Math.random() * PENTA.length)], 0, 1.6, "sine", .018); ambient.chime = t + 2.5 + Math.random() * 4; }
+    }
+    function setMuted(m) {
+      state.muted = m; soundBtn.setAttribute("aria-pressed", String(!m));
+      soundBtn.replaceChild(icon(m ? "mute" : "sound"), soundBtn.firstChild);
+      soundBtn.querySelector(".nthview-hl").textContent = m ? "Muted" : "Sound";
+      soundBtn.setAttribute("aria-label", m ? "Sound off" : "Sound on");
+      if (master && actx) { try { master.gain.setTargetAtTime(m ? 0 : 1, actx.currentTime, .1); } catch (e) { master.gain.value = m ? 0 : 1; } }
+    }
+    soundBtn.addEventListener("click", function () { audio(); setMuted(!state.muted); if (!state.muted) sfx("open"); });
+
+    /* ---------- renderer & scene ---------- */
+    var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+    renderer.setPixelRatio(Math.min(root.devicePixelRatio || 1, 2));
+    var W = function () { return container.clientWidth || 800; }, H = function () { return container.clientHeight || 600; };
+    renderer.setSize(W(), H(), false);
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(58, W() / H(), .1, 900);
+    var hemi = new THREE.HemisphereLight(T3.hemi[0], T3.hemi[1], .9); scene.add(hemi);
+    var sun = new THREE.DirectionalLight(T3.sun, .8); scene.add(sun); scene.add(sun.target);
+    var MATS = {};
+    var M = function (c, o) { return new THREE.MeshStandardMaterial(Object.assign({ color: c, roughness: .8, metalness: .02, flatShading: true }, o || {})); };
+    function mat(key, c, o) { if (!MATS[key]) MATS[key] = M(c, o); return MATS[key]; }
+    var glow = function (c, i) { return M(c, { emissive: c, emissiveIntensity: i === undefined ? .7 : i }); };
+
+    /* ---------- sphere helpers ---------- */
+    var V = function (x, y, z) { return new THREE.Vector3(x, y, z); };
+    var POLE = V(0, 1, 0), SOUTH = V(0, -1, 0);
+    function dirAt(theta, phi) { return V(Math.sin(theta) * Math.cos(phi), Math.cos(theta), Math.sin(theta) * Math.sin(phi)); }
+    function ang(a, b) { return Math.acos(Math.max(-1, Math.min(1, a.dot(b)))); }
+    function tangentTo(at, to) { var t = to.clone().addScaledVector(at, -to.dot(at)); if (t.lengthSq() < 1e-10) t = V(0, 0, 1).addScaledVector(at, -at.z); return t.normalize(); }
+    function frameAt(c) {
+      if (Math.abs(c.y) > .999) { var n0 = V(0, 0, 1); return { n: n0, e: n0.clone().cross(c).normalize() }; }
+      var n = tangentTo(c, POLE); return { n: n, e: n.clone().cross(c).normalize() };
+    }
+    function offset(c, f, a, dist) {
+      return c.clone().multiplyScalar(Math.cos(dist)).addScaledVector(f.n, Math.cos(a) * Math.sin(dist)).addScaledVector(f.e, Math.sin(a) * Math.sin(dist)).normalize();
+    }
+    function slerpDir(a, b, t) { var w = ang(a, b); if (w < 1e-6) return a.clone(); var s = Math.sin(w); return a.clone().multiplyScalar(Math.sin((1 - t) * w) / s).addScaledVector(b, Math.sin(t * w) / s).normalize(); }
+    function sm(e0, e1, x) { var t = Math.max(0, Math.min(1, (x - e0) / (e1 - e0))); return t * t * (3 - 2 * t); }
+    var _m4 = new THREE.Matrix4(), _xv = V(0, 0, 0), _fv = V(0, 0, 0);
+    function orient(obj, up, fwd) {
+      _fv.copy(fwd).addScaledVector(up, -fwd.dot(up)); if (_fv.lengthSq() < 1e-10) _fv.copy(frameAt(up).n); _fv.normalize();
+      _xv.crossVectors(up, _fv).normalize(); _m4.makeBasis(_xv, up, _fv); obj.quaternion.setFromRotationMatrix(_m4);
+    }
+
+    /* ---------- layout: post office, districts, ponds ---------- */
+    var ND = data.districts.length;
+    var POFRAME = frameAt(POLE);
+    var poA = .25 - Math.PI / ND;                              // between two district paths
+    var poDir = offset(POLE, POFRAME, poA, .13);               // the post office building
+    var pmDir = offset(POLE, POFRAME, poA + .55, .065);        // the postmaster, by the door
+    var spawnDir = offset(POLE, POFRAME, poA + Math.PI * .8, .05);
+    data.districts.forEach(function (d, i) {
+      var theta = ND >= 4 ? (i % 2 ? 1.86 : 1.42) : 1.6, phi = i * 2 * Math.PI / ND + Math.PI / 2 + .25;
+      d._dir = dirAt(theta, phi); d._phi = phi; d._frame = frameAt(d._dir);
+    });
+    var SEA_R = .6;
+    var ponds = [];
+    for (var pi = 0; pi < Math.min(ND, 3); pi++) {
+      var pa = data.districts[pi], pb = data.districts[(pi + 1) % ND];
+      var mid = pa._phi + (((pb._phi - pa._phi) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI) / 2;
+      ponds.push({ c: dirAt(.95, mid), r: .11 + (pi % 2) * .03 });
+    }
+    function noiseAt(d) { return Math.sin(d.x * 4.1 + 1.3) * Math.sin(d.y * 3.7 + .4) * Math.sin(d.z * 4.3 + 2.2) * .55 + Math.sin(d.x * 9.3 + d.z * 7.1 + .5) * Math.cos(d.y * 8.2) * .22; }
+    function heightAt(d) {
+      var flat = sm(.34, .2, ang(d, POLE));
+      for (var i = 0; i < ND; i++) flat = Math.max(flat, sm(.3, .17, ang(d, data.districts[i]._dir)));
+      var h = (noiseAt(d) * .7 + .22) * (1 - flat) + .12 * flat;
+      h -= 2.6 * sm(SEA_R + .07, SEA_R - .06, ang(d, SOUTH));
+      for (var k = 0; k < ponds.length; k++) h -= 2.1 * sm(ponds[k].r + .05, ponds[k].r - .04, ang(d, ponds[k].c));
+      return h;
+    }
+    function land(d) { return heightAt(d) > WATER + .18; }
+    function surf(d, lift) { return d.clone().multiplyScalar(R + heightAt(d) + (lift || 0)); }
+    function place(obj, d, fwd, lift) { obj.position.copy(surf(d, lift)); orient(obj, d, fwd || frameAt(d).n); scene.add(obj); return obj; }
+
+    /* ---------- path network: great-circle arcs ---------- */
+    var arcs = [];
+    function addArc(a, b) { var n = a.clone().cross(b); if (n.lengthSq() < 1e-10) return; arcs.push({ a: a, b: b, n: n.normalize(), len: ang(a, b) }); }
+    function arcClear(a, b) { for (var s = 1; s < 24; s++) if (!land(slerpDir(a, b, s / 24))) return false; return true; }
+    data.districts.forEach(function (d) { addArc(POLE, d._dir); });
+    var byPhi = data.districts.slice().sort(function (a, b) { return a._phi - b._phi; });
+    for (var ri = 0; ri < byPhi.length; ri++) {
+      if (ND === 2 && ri === 1) break;
+      var da = byPhi[ri], db = byPhi[(ri + 1) % byPhi.length];
+      if (ang(da._dir, db._dir) < 1.7 && arcClear(da._dir, db._dir)) { addArc(da._dir, db._dir); da._ring = (da._ring || []).concat([db._dir]); db._ring = (db._ring || []).concat([da._dir]); }
+    }
+    function arcDist(d, A) {
+      var off = Math.asin(Math.max(-1, Math.min(1, d.dot(A.n))));
+      var q = d.clone().addScaledVector(A.n, -d.dot(A.n)); if (q.lengthSq() < 1e-10) return Math.PI; q.normalize();
+      if (Math.abs(ang(A.a, q) + ang(q, A.b) - A.len) < 1e-3) return Math.abs(off);
+      return Math.min(ang(d, A.a), ang(d, A.b));
+    }
+    function pathDist(d) { var m = Math.PI; for (var i = 0; i < arcs.length; i++) m = Math.min(m, arcDist(d, arcs[i])); return m; }
+
+    /* ---------- the planet mesh: displaced icosphere with per-face colours ---------- */
+    var planetGeo = new THREE.IcosahedronGeometry(1, 28);
+    var ppos = planetGeo.attributes.position, nv = ppos.count, tmp = V(0, 0, 0);
+    for (var vi = 0; vi < nv; vi++) { tmp.set(ppos.getX(vi), ppos.getY(vi), ppos.getZ(vi)).normalize(); var rr = R + heightAt(tmp); ppos.setXYZ(vi, tmp.x * rr, tmp.y * rr, tmp.z * rr); }
+    planetGeo.computeVertexNormals();
+    var nf = nv / 3, faceCat = new Uint8Array(nf), faceTint = new Float32Array(nf), faceDis = new Int8Array(nf), faceVar = new Uint8Array(nf);
+    var rndFace = seeded("faces" + data.title);
+    for (var fi = 0; fi < nf; fi++) {
+      tmp.set(0, 0, 0);
+      for (var k3 = 0; k3 < 3; k3++) tmp.x += ppos.getX(fi * 3 + k3), tmp.y += ppos.getY(fi * 3 + k3), tmp.z += ppos.getZ(fi * 3 + k3);
+      var cl = tmp.length() / 3; tmp.normalize();
+      var hh = cl - R, cat = 0;
+      if (hh < WATER - .05) cat = 4; else if (hh < WATER + .32) cat = 2;
+      else if (ang(tmp, POLE) < .13) cat = 3;
+      else if (pathDist(tmp) < .032) cat = 1;
+      faceCat[fi] = cat; faceVar[fi] = rndFace() < .5 ? 1 : 0; faceDis[fi] = -1;
+      var best = 9;
+      for (var di = 0; di < ND; di++) { var a2 = ang(tmp, data.districts[di]._dir); if (a2 < best) { best = a2; faceDis[fi] = di; } }
+      faceTint[fi] = best < .4 ? sm(.4, .16, best) : 0;
+    }
+    planetGeo.setAttribute("color", new THREE.Float32BufferAttribute(new Float32Array(nv * 3), 3));
+    var planetMat = new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: .92, metalness: 0 });
+    var planet = new THREE.Mesh(planetGeo, planetMat); scene.add(planet);
+    function colourPlanet() {
+      var col = planetGeo.attributes.color, C = function (n, fb) { return new THREE.Color(css(n) || fb); };
+      var grass = C("--grass", "#86c06a"), grass2 = C("--grass2", "#79b35e"), path = C("--path", "#ead9ae"), sand = C("--sand", "#efe0b4"), plaza = C("--plaza", "#e4dccb");
+      var bed = sand.clone().lerp(C("--water", "#3aa6c4"), .55);
+      var tints = data.districts.map(function (d) { return new THREE.Color(d._color); });
+      var c = new THREE.Color(), path2 = path.clone().multiplyScalar(.94);
+      for (var f = 0; f < nf; f++) {
+        var cat = faceCat[f];
+        if (cat === 0) { c.copy(faceVar[f] ? grass : grass2); if (faceTint[f] > 0) c.lerp(tints[faceDis[f]], .26 * faceTint[f]); }
+        else if (cat === 1) c.copy(faceVar[f] ? path : path2);
+        else if (cat === 2) c.copy(sand);
+        else if (cat === 3) c.copy(plaza).multiplyScalar(faceVar[f] ? 1 : .95);
+        else c.copy(bed);
+        for (var k = 0; k < 3; k++) col.setXYZ(f * 3 + k, c.r, c.g, c.b);
+      }
+      col.needsUpdate = true;
+    }
+
+    /* ---------- water: one sphere just below the shoreline ---------- */
+    var waterGeo = new THREE.SphereGeometry(R + WATER, 72, 40);
+    var waterMat = new THREE.MeshStandardMaterial({ color: "#3aa6c4", roughness: .28, metalness: .1, flatShading: true, transparent: true, opacity: .9 });
+    var water = new THREE.Mesh(waterGeo, waterMat); scene.add(water);
+    var wpos = waterGeo.attributes.position, wbase = new Float32Array(wpos.count * 3);
+    for (var wi = 0; wi < wpos.count; wi++) { wbase[wi * 3] = wpos.getX(wi); wbase[wi * 3 + 1] = wpos.getY(wi); wbase[wi * 3 + 2] = wpos.getZ(wi); }
+    function waveWater(t) {
+      for (var i = 0; i < wpos.count; i++) {
+        var x = wbase[i * 3], y = wbase[i * 3 + 1], z = wbase[i * 3 + 2];
+        var k = 1 + (Math.sin(x * .9 + t * 1.3) + Math.cos(z * .8 + t * 1.1)) * .0024;
+        wpos.setXYZ(i, x * k, y * k, z * k);
+      }
+      wpos.needsUpdate = true; waterGeo.computeVertexNormals();
+    }
+
+    /* ---------- labels (canvas textures) ---------- */
+    var FONT_D = "Fredoka, \"Avenir Next Rounded\", system-ui, sans-serif", FONT_B = "Nunito, \"Segoe UI\", system-ui, sans-serif";
+    var labels = [];
+    function roundRect(x, l, t, w, h, r) { x.beginPath(); x.moveTo(l + r, t); x.lineTo(l + w - r, t); x.arc(l + w - r, t + r, r, -Math.PI / 2, 0); x.lineTo(l + w, t + h - r); x.arc(l + w - r, t + h - r, r, 0, Math.PI / 2); x.lineTo(l + r, t + h); x.arc(l + r, t + h - r, r, Math.PI / 2, Math.PI); x.lineTo(l, t + r); x.arc(l + r, t + r, r, Math.PI, Math.PI * 1.5); x.closePath(); }
+    function makeTag(name, sub, color, width) {
+      var c = doc.createElement("canvas"); c.width = 640; c.height = 200; var x = c.getContext("2d");
+      var tex = new THREE.CanvasTexture(c); tex.anisotropy = 4;
+      var sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, fog: false }));
+      var w = width || 3.6; sp.scale.set(w, w * 200 / 640, 1);
+      var L = { sprite: sp, name: name, sub: sub, color: color, draw: function () {
+        x.clearRect(0, 0, 640, 200);
+        x.font = "600 64px " + FONT_D; var tw = x.measureText(L.name).width, sw = 0;
+        if (L.sub) { x.font = "600 38px " + FONT_B; sw = x.measureText(L.sub).width; }
+        var bw = Math.min(632, Math.max(tw, sw) + 72), bh = L.sub ? 150 : 96, l = (640 - bw) / 2, t = 200 - bh - 4;
+        x.fillStyle = "rgba(14,18,32,.74)"; roundRect(x, l, t, bw, bh, 40); x.fill();
+        x.fillStyle = L.color || "#ffffff"; roundRect(x, l + 24, t + bh - 12, bw - 48, 6, 3); x.fill();
+        x.fillStyle = "#ffffff"; x.textAlign = "center"; x.textBaseline = "middle";
+        x.font = "600 64px " + FONT_D; x.fillText(L.name, 320, t + (L.sub ? 50 : 46), 600);
+        if (L.sub) { x.font = "600 38px " + FONT_B; x.fillStyle = "rgba(255,255,255,.82)"; x.fillText(L.sub, 320, t + 106, 600); }
+        tex.needsUpdate = true;
+      } };
+      L.draw(); labels.push(L); return L;
+    }
+    function boardTexture(title, color) {
+      var c = doc.createElement("canvas"); c.width = 512; c.height = 192; var x = c.getContext("2d");
+      x.fillStyle = "#f6efe0"; x.fillRect(0, 0, 512, 192); x.fillStyle = color; x.fillRect(0, 0, 512, 22); x.fillRect(0, 170, 512, 22);
+      x.fillStyle = "#2a2418"; x.textAlign = "center"; x.textBaseline = "middle"; x.font = "600 70px " + FONT_D; x.fillText(title, 256, 98, 480);
+      var tex = new THREE.CanvasTexture(c); tex.anisotropy = 4; return tex;
+    }
+
+    /* ---------- shared geometry and materials ---------- */
+    function prismGeo(w, d, h) {
+      var hw = w / 2, hd = d / 2, P = [[-hw, 0, -hd], [-hw, 0, hd], [-hw, h, 0], [hw, 0, -hd], [hw, 0, hd], [hw, h, 0]];
+      var F = [[0, 1, 2], [3, 5, 4], [0, 2, 5], [0, 5, 3], [1, 4, 5], [1, 5, 2], [0, 3, 4], [0, 4, 1]], arr = [];
+      F.forEach(function (f) { f.forEach(function (i) { arr.push(P[i][0], P[i][1], P[i][2]); }); });
+      var g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(arr, 3)); g.computeVertexNormals(); return g;
+    }
+    var G = {
+      box: new THREE.BoxGeometry(1, 1, 1), cyl: new THREE.CylinderGeometry(.5, .5, 1, 8), cone: new THREE.ConeGeometry(.5, 1, 7),
+      ico: new THREE.IcosahedronGeometry(.5, 0), ico1: new THREE.IcosahedronGeometry(.5, 1), dode: new THREE.DodecahedronGeometry(.5, 0), sph: new THREE.SphereGeometry(.5, 10, 8),
+      prism: prismGeo(1, 1, 1), pyr: new THREE.ConeGeometry(.71, 1, 4)
+    };
+    var markerGeo = new THREE.ConeGeometry(.26, .48, 3);
+    function mesh(geo, m, sx, sy, sz, x, y, z, parent) { var o = new THREE.Mesh(geo, m); o.scale.set(sx, sy, sz); o.position.set(x || 0, y || 0, z || 0); if (parent) parent.add(o); return o; }
+    var mWall = mat("wall", "#f6efe2"), mRoof = mat("roof", "#d9644a"), mWood = mat("wood", "#9b6a43"), mStone = mat("stone", "#a9a59c"), mDark = mat("dark", "#2b2f3a");
+    var mWin = mat("win", "#ffe7a3", { emissive: "#ffcf6b", emissiveIntensity: .1 }), mLamp = mat("lamp", "#fff1c4", { emissive: "#ffd77a", emissiveIntensity: .2 });
+    var mLeaf = mat("leaf", "#5fa04e"), mLeaf2 = mat("leaf2", "#4b8c45"), mPine = mat("pine", "#3d7a4a"), mTrunk = mat("trunk", "#7a5236"), mWhite = mat("white", "#f4f1e8"), mRed = mat("red", "#c4473a");
+    var mSnow = mat("snowcap", "#ffffff");
+    var FOLIAGE = { morning: ["#5fa04e", "#4b8c45", "#3d7a4a"], dusk: ["#8a9a48", "#b0763c", "#5a7444"], lantern: ["#2f5a46", "#3c6a4e", "#24483c"], snow: ["#3f6e58", "#5a8268", "#2f5a4c"] };
+    var districtMats = data.districts.map(function (d) { return M(d._color, { emissive: d._color, emissiveIntensity: .05 }); });
+    var waterProps = [], spinners = [], beams = [];
+
+    /* ---------- props: each builder returns [group, collision radius in units] ---------- */
+    function house(dm, small) {
+      var g = new THREE.Group(), w = small ? 1.9 : 2.5, d = small ? 1.7 : 2.1, h = small ? 1.4 : 1.8;
+      mesh(G.box, mWall, w, h, d, 0, h / 2, 0, g);
+      mesh(G.prism, mRoof, w + .3, small ? 1.1 : 1.2, d + .35, 0, h, 0, g);
+      mesh(G.box, mWood, .5, .85, .08, 0, .43, d / 2 + .02, g);
+      [-1, 1].forEach(function (s) { mesh(G.box, mWin, .42, .42, .06, s * w * .3, h * .62, d / 2 + .02, g); });
+      if (!small) mesh(G.box, mWin, .06, .42, .42, w / 2 + .02, h * .62, 0, g);
+      mesh(G.box, mStone, .32, .7, .32, w * .28, h + .55, -d * .2, g);
+      if (dm) mesh(G.box, dm, w + .06, .12, d + .06, 0, .06, 0, g);
+      return [g, small ? 1.3 : 1.7];
+    }
+    function tree(snowy) {
+      var g = new THREE.Group(); mesh(G.cyl, mTrunk, .28, 1.1, .28, 0, .55, 0, g);
+      mesh(G.ico1, mLeaf, 1.7, 1.5, 1.7, 0, 1.6, 0, g); mesh(G.ico, mLeaf2, 1.1, 1, 1.1, .35, 2.3, .1, g);
+      if (snowy) mesh(G.ico, mSnow, 1.2, .5, 1.2, 0, 2.3, 0, g);
+      return [g, .55];
+    }
+    function pine(snowy) {
+      var g = new THREE.Group(); mesh(G.cyl, mTrunk, .24, .8, .24, 0, .4, 0, g);
+      [[1.6, 1.3, .9], [1.25, 1.1, 1.65], [.85, .9, 2.3]].forEach(function (c) { mesh(G.cone, mPine, c[0], c[1], c[0], 0, c[2], 0, g); if (snowy) mesh(G.cone, mSnow, c[0] * .55, c[1] * .45, c[0] * .55, 0, c[2] + c[1] * .3, 0, g); });
+      return [g, .5];
+    }
+    var BUILD = {
+      house: function (dm) { return house(dm, false); },
+      cottage: function (dm) { return house(dm, true); },
+      tree: function () { return tree(themeName === "snow"); },
+      pine: function () { return pine(themeName === "snow"); },
+      lighthouse: function (dm) {
+        var g = new THREE.Group();
+        for (var i = 0; i < 5; i++) mesh(G.cyl, i % 2 ? (dm || mRed) : mWhite, 1.3 - i * .12, 1, 1.3 - i * .12, 0, .5 + i, 0, g);
+        var lampRoom = mesh(G.cyl, mLamp, .8, .7, .8, 0, 5.35, 0, g); mesh(G.cone, mDark, 1.1, .7, 1.1, 0, 6.05, 0, g);
+        mesh(G.cyl, mDark, 1.1, .08, 1.1, 0, 5, 0, g);
+        var beam = new THREE.Mesh(new THREE.ConeGeometry(.9, 7, 10, 1, true), new THREE.MeshBasicMaterial({ color: "#fff3c4", transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide, fog: false }));
+        beam.rotation.z = Math.PI / 2; beam.position.x = 3.5; var pivot = new THREE.Group(); pivot.position.y = 5.35; pivot.add(beam); g.add(pivot); beams.push({ pivot: pivot, beam: beam, room: lampRoom });
+        return [g, 1];
+      },
+      market: function (dm) {
+        var g = new THREE.Group();
+        [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(function (c) { mesh(G.box, mWood, .1, 1.7, .1, c[0] * 1.05, .85, c[1] * .6, g); });
+        mesh(G.box, mWood, 2.2, .7, 1.1, 0, .35, 0, g);
+        for (var i = 0; i < 5; i++) mesh(G.box, i % 2 ? mWhite : (dm || mRed), .46, .1, 1.5, -.92 + i * .46, 1.8, 0, g).rotation.x = .12;
+        [["#e0503a", -.6], ["#f0b23a", 0], ["#6aab4a", .6]].forEach(function (f) { for (var k = 0; k < 3; k++) mesh(G.sph, mat("fruit" + f[0], f[0]), .22, .22, .22, f[1] + (k - 1) * .16, .8, .3 - k * .1, g); });
+        return [g, 1.3];
+      },
+      windmill: function (dm) {
+        var g = new THREE.Group(); mesh(new THREE.CylinderGeometry(.7, 1.1, 3.2, 8), mWall, 1, 1, 1, 0, 1.6, 0, g); mesh(G.cone, dm || mRoof, 1.6, 1, 1.6, 0, 3.7, 0, g);
+        var hub = new THREE.Group(); hub.position.set(0, 3.1, .85); g.add(hub);
+        for (var i = 0; i < 4; i++) { var b = mesh(G.box, mWhite, .32, 2.2, .05, 0, 1.15, 0); var arm = new THREE.Group(); arm.rotation.z = i * Math.PI / 2; arm.add(b); hub.add(arm); }
+        spinners.push({ o: hub, axis: "z", speed: .8 }); return [g, 1.1];
+      },
+      tower: function (dm) {
+        var g = new THREE.Group(); mesh(G.box, mStone, 1.2, 4.6, 1.2, 0, 2.3, 0, g); mesh(G.pyr, dm || mRoof, 1.25, 1.2, 1.25, 0, 5.2, 0, g).rotation.y = Math.PI / 4;
+        var face = mesh(new THREE.CylinderGeometry(.42, .42, .08, 16), mWhite, 1, 1, 1, 0, 3.8, .62, g); face.rotation.x = Math.PI / 2;
+        var hand = mesh(G.box, mDark, .05, .34, .04, 0, 3.9, .67, g); spinners.push({ o: hand, axis: "z", speed: .3, pivotY: 3.8 });
+        return [g, .9];
+      },
+      library: function (dm) {
+        var g = new THREE.Group(); mesh(G.box, mWall, 3.4, 2.1, 2.3, 0, 1.05, -.2, g); mesh(G.box, mStone, 3.8, .25, 2.8, 0, .12, 0, g);
+        for (var i = 0; i < 4; i++) mesh(G.cyl, mWhite, .26, 1.9, .26, -1.2 + i * .8, 1.15, 1.05, g);
+        mesh(G.box, mStone, 3.7, .2, 2.7, 0, 2.2, 0, g); mesh(G.prism, dm || mRoof, 3.7, .9, 2.7, 0, 2.3, 0, g);
+        [-.9, .9].forEach(function (x) { mesh(G.box, mWin, .5, .7, .06, x, 1.15, .96, g); });
+        return [g, 2.1];
+      },
+      bakery: function (dm) {
+        var r = house(dm, false), g = r[0];
+        for (var i = 0; i < 4; i++) mesh(G.box, i % 2 ? mWhite : (dm || mRed), .62, .08, .7, -.93 + i * .62, 1.25, 1.35, g).rotation.x = .35;
+        var sign = mesh(new THREE.TorusGeometry(.28, .12, 6, 12, Math.PI), mat("bread", "#d9a05b"), 1, 1, 1, 0, 2.25, 1.1, g); sign.rotation.x = 0;
+        return [g, 1.7];
+      },
+      garden: function () {
+        var g = new THREE.Group(); mesh(G.box, mat("soil", "#7a5a3a"), 2.2, .2, 1.3, 0, .1, 0, g);
+        var cols = ["#f28db8", "#ffd76a", "#ffffff", "#e0503a", "#9a7ae0"], rnd = seeded("garden" + Math.random());
+        for (var i = 0; i < 14; i++) { var x = -.95 + (i % 7) * .32, z = i < 7 ? -.32 : .32; mesh(G.cyl, mLeaf2, .04, .3, .04, x, .35, z, g); mesh(G.ico, mat("fl" + i % 5, cols[i % 5]), .2, .2, .2, x, .52, z + (rnd() - .5) * .1, g); }
+        return [g, 0];
+      },
+      fountain: function () {
+        var g = new THREE.Group(); mesh(new THREE.CylinderGeometry(1.2, 1.3, .5, 12), mStone, 1, 1, 1, 0, .25, 0, g);
+        var w = mesh(new THREE.CylinderGeometry(1.05, 1.05, .1, 12), mat("fwater", "#7cc6e0", { emissive: "#3aa6c4", emissiveIntensity: .25 }), 1, 1, 1, 0, .45, 0, g); waterProps.push(w);
+        mesh(G.cyl, mStone, .25, 1.2, .25, 0, .9, 0, g); mesh(G.sph, mat("fwater", "#7cc6e0"), .5, .3, .5, 0, 1.55, 0, g);
+        return [g, 1.2];
+      },
+      lamp: function () { var g = new THREE.Group(); mesh(G.cyl, mDark, .1, 2.2, .1, 0, 1.1, 0, g); mesh(G.box, mDark, .34, .08, .34, 0, 2.25, 0, g); mesh(G.sph, mLamp, .3, .34, .3, 0, 2.05, 0, g); return [g, .2]; },
+      signpost: function (dm) {
+        var g = new THREE.Group(); mesh(G.cyl, mWood, .14, 2.6, .14, 0, 1.3, 0, g);
+        [[2.2, .3], [1.85, -.5], [1.5, 1.4]].forEach(function (a, i) { var b = mesh(G.box, i === 1 ? mWhite : (dm || mRed), 1.1, .26, .06, .4, a[0], 0); var arm = new THREE.Group(); arm.rotation.y = a[1]; arm.add(b); g.add(arm); });
+        return [g, .25];
+      },
+      crates: function () { var g = new THREE.Group(); mesh(G.box, mWood, .8, .8, .8, 0, .4, 0, g); mesh(G.box, mWood, .7, .7, .7, .85, .35, .2, g).rotation.y = .4; mesh(G.box, mWood, .6, .6, .6, .3, 1.1, .1, g).rotation.y = -.3; return [g, .9]; },
+      rocks: function () { var g = new THREE.Group(); mesh(G.dode, mStone, 1.1, .8, 1, 0, .3, 0, g); mesh(G.dode, mStone, .7, .6, .7, .8, .2, .3, g); mesh(G.dode, mStone, .5, .4, .5, -.6, .15, .5, g); return [g, .8]; },
+      well: function (dm) {
+        var g = new THREE.Group(); mesh(new THREE.CylinderGeometry(.8, .85, .8, 10, 1, true), mStone, 1, 1, 1, 0, .4, 0, g); mesh(new THREE.CylinderGeometry(.7, .7, .1, 10), mat("wellw", "#2f6f8f"), 1, 1, 1, 0, .5, 0, g);
+        [-1, 1].forEach(function (s) { mesh(G.box, mWood, .1, 1.5, .1, s * .75, 1.15, 0, g); }); mesh(G.prism, dm || mRoof, 1.9, .6, 1.2, 0, 1.85, 0, g);
+        return [g, .9];
+      },
+      dish: function () {
+        var g = new THREE.Group(); mesh(G.cyl, mDark, .16, 1.6, .16, 0, .8, 0, g);
+        var d = mesh(new THREE.SphereGeometry(.9, 12, 6, 0, Math.PI * 2, 0, Math.PI / 2.6), mWhite, 1, 1, 1, 0, 1.75, 0, g); d.material = M("#f0f0f0", { side: THREE.DoubleSide }); d.rotation.x = -2.2;
+        mesh(G.cyl, mDark, .05, .8, .05, 0, 1.95, .35, g).rotation.x = .9; spinners.push({ o: d, axis: "y", speed: .15, keepX: true });
+        return [g, .7];
+      }
+    };
+    var COUNT = { house: 2, cottage: 2, tree: 4, pine: 5, lamp: 3, rocks: 2, crates: 2, garden: 2, lighthouse: 1, market: 1, windmill: 1, tower: 1, library: 1, bakery: 1, fountain: 1, signpost: 1, well: 1, dish: 1 };
+
+    /* collision obstacles on the sphere: {d: dir, r: angular radius} */
+    var obstacles = [];
+    function addObstacle(d, units) { if (units > 0) obstacles.push({ d: d, r: units / R }); }
+    function putProp(kind, d, fwd, dm, scale) {
+      var r = BUILD[kind](dm); var g = r[0]; if (scale) g.scale.setScalar(scale);
+      place(g, d, fwd); addObstacle(d, r[1] * (scale || 1)); return g;
+    }
+
+    /* ---------- districts: landmark at the square, residents around it, props in a ring ---------- */
+    var noticeSpots = [];
+    data.districts.forEach(function (d, di) {
+      var f = d._frame, c = d._dir, dm = districtMats[di], rnd = seeded("district" + d.id);
+      var landmark = d.props[0];
+      putProp(landmark, c, f.n, dm, ["lamp", "signpost", "garden", "rocks", "crates"].indexOf(landmark) !== -1 ? 1.3 : 1);
+      var avoid = [0];
+      (d._ring || []).forEach(function (o) { var t = tangentTo(c, o); avoid.push(Math.atan2(t.dot(f.e), t.dot(f.n))); });
+      var slots = [];
+      d.props.slice(landmark === "lamp" ? 0 : 1).concat(d.props.length === 1 ? ["tree", "lamp"] : []).forEach(function (k) { for (var n = 0; n < (COUNT[k] || 1); n++) slots.push(k); });
+      var placed = [];
+      slots.forEach(function (k, si) {
+        for (var tries = 0; tries < 24; tries++) {
+          var a = rnd() * Math.PI * 2, dist = (k === "lamp" ? .2 : .24) + rnd() * .11;
+          if (avoid.some(function (b) { var dd = Math.abs(Math.atan2(Math.sin(a - b), Math.cos(a - b))); return dd < .32; })) continue;
+          var pd = offset(c, f, a, dist);
+          if (!land(pd) || pathDist(pd) < .05) continue;
+          if (placed.some(function (q) { return ang(q, pd) < .085; })) continue;
+          placed.push(pd); putProp(k, pd, tangentTo(pd, c), dm, .9 + rnd() * .2); break;
+        }
+      });
+      /* lamps along the path into the square */
+      [.42, .6].forEach(function (t, li) { var pd = offset(slerpDir(POLE, c, 1 - t * .4), frameAt(slerpDir(POLE, c, 1 - t * .4)), Math.PI / 2 * (li % 2 ? 1 : -1), .045); if (land(pd)) putProp("lamp", pd, null, dm); });
+      /* the district sign at the entrance, facing travellers from the post office */
+      var sd = slerpDir(c, POLE, .3 / ang(c, POLE)), sf = frameAt(sd), sdir = offset(sd, sf, Math.PI / 2, .06);
+      var sign = new THREE.Group(); [-1, 1].forEach(function (s) { mesh(G.box, mWood, .12, 2.1, .12, s * 1.15, 1.05, 0, sign); });
+      var board = new THREE.Mesh(new THREE.PlaneGeometry(2.6, .98), new THREE.MeshStandardMaterial({ map: boardTexture(d.name, d._color), side: THREE.DoubleSide, roughness: .9 }));
+      board.position.y = 1.65; sign.add(board); place(sign, sdir, tangentTo(sdir, POLE)); addObstacle(sdir, .4);
+      d._signBoard = board;
+      noticeSpots[di] = offset(sd, sf, -Math.PI / 2, .07);
+    });
+
+    /* ---------- notice boards ---------- */
+    var boards = [];
+    data.errands.forEach(function (e) {
+      if (e.kind !== "notice") return;
+      var di = DIS[e.district]._i, used = boards.filter(function (b) { return b.di === di; }).length;
+      var bd = used ? offset(noticeSpots[di], frameAt(noticeSpots[di]), Math.PI, .05 * used) : noticeSpots[di];
+      var g = new THREE.Group(); [-1, 1].forEach(function (s) { mesh(G.box, mWood, .12, 1.9, .12, s * .7, .95, 0, g); });
+      mesh(G.box, mWood, 1.7, 1.15, .1, 0, 1.45, 0, g); mesh(G.box, mWhite, .6, .75, .02, -.35, 1.45, .07, g).rotation.z = .06; mesh(G.box, mat("note2", "#ffe7a3"), .55, .6, .02, .38, 1.5, .07, g).rotation.z = -.08;
+      mesh(G.prism, mRoof, 1.9, .35, .4, 0, 2.05, 0, g);
+      place(g, bd, tangentTo(bd, DIS[e.district]._dir).negate()); addObstacle(bd, .45);
+      var mk = marker(); mk.position.y = 2.9; g.add(mk);
+      boards.push({ e: e, di: di, d: bd, g: g, mk: mk });
+    });
+
+    /* ---------- scattered scenery between districts ---------- */
+    (function () {
+      var rnd = seeded("scenery" + data.title), n = 0, spots = [];
+      for (var i = 0; i < 900 && n < 95; i++) {
+        var d = V(rnd() * 2 - 1, rnd() * 2 - 1, rnd() * 2 - 1); if (d.lengthSq() < .01) continue; d.normalize();
+        if (ang(d, POLE) < .36 || heightAt(d) < WATER + .45 || pathDist(d) < .07) continue;
+        if (data.districts.some(function (x) { return ang(d, x._dir) < .44; })) continue;
+        if (ponds.some(function (pd) { return ang(d, pd.c) < pd.r + .08; }) || spots.some(function (q) { return ang(q, d) < .09; })) continue;
+        spots.push(d); n++;
+        var roll = rnd(), kind = roll < .38 ? "pine" : roll < .72 ? "tree" : roll < .86 ? "rocks" : "flowers";
+        if (kind === "flowers") {
+          var g = new THREE.Group(), cols = ["#f28db8", "#ffd76a", "#ffffff", "#b08ae0"];
+          for (var k = 0; k < 6; k++) mesh(G.ico, mat("wf" + k % 4, cols[k % 4]), .22, .22, .22, (rnd() - .5) * 1.4, .15, (rnd() - .5) * 1.4, g);
+          place(g, d, null);
+        } else putProp(kind, d, tangentTo(d, POLE), null, .8 + rnd() * .5);
+      }
+      /* reeds around the ponds and a few rocks on the sea shore */
+      ponds.forEach(function (pd, i) { var f = frameAt(pd.c); for (var k = 0; k < 7; k++) { var rd = offset(pd.c, f, k * .9 + i, pd.r + .03); if (land(rd)) { var g = new THREE.Group(); for (var q = 0; q < 3; q++) mesh(G.cyl, mLeaf2, .05, .9, .05, (q - 1) * .12, .45, 0, g); place(g, rd, null); } } });
+    })();
+
+    /* ---------- markers over residents ---------- */
+    function marker() { var m = new THREE.Mesh(markerGeo, M("#ffffff", { emissive: "#ffffff", emissiveIntensity: .6 })); m.rotation.x = Math.PI; return m; }
+
+    /* ---------- figures: the courier, the residents and the postmaster share one builder ---------- */
+    function figure(look, courier) {
+      var g = new THREE.Group(), mats = { skin: M(look.skin), hair: M(look.hair), top: M(look.top), bottom: M(look.bottom), shoes: M(look.shoes) };
+      var legs = [-1, 1].map(function (s) { var leg = new THREE.Group(); leg.position.set(s * .14, .68, 0); mesh(G.box, mats.bottom, .22, .62, .24, 0, -.3, 0, leg); mesh(G.box, mats.shoes, .25, .14, .34, 0, -.62, .04, leg); g.add(leg); return leg; });
+      mesh(new THREE.CylinderGeometry(.33, .4, .74, 7), mats.top, 1, 1, 1, 0, 1.04, 0, g);
+      var arms = [-1, 1].map(function (s) { var arm = new THREE.Group(); arm.position.set(s * .44, 1.34, 0); mesh(G.box, mats.top, .16, .55, .18, 0, -.26, 0, arm); mesh(G.ico, mats.skin, .17, .17, .17, 0, -.58, 0, arm); g.add(arm); return arm; });
+      var head = new THREE.Group(); head.position.y = 1.68; g.add(head);
+      mesh(G.ico1, mats.skin, .66, .66, .66, 0, 0, 0, head);
+      [-1, 1].forEach(function (s) { mesh(G.box, mDark, .08, .1, .04, s * .12, .03, .31, head); });
+      var hs = look.hairStyle, hairCap = new THREE.SphereGeometry(.355, 10, 6, 0, Math.PI * 2, 0, Math.PI * (hs === "bob" ? .62 : .5));
+      if (hs !== "bald" && !courier) { var cap = mesh(hairCap, mats.hair, 1, 1, 1, 0, .02, -.02, head); cap.rotation.x = -.28; }
+      if (courier) { mesh(G.box, mats.hair, .62, .3, .2, 0, -.02, -.24, head); [-1, 1].forEach(function (s2) { mesh(G.box, mats.hair, .08, .24, .3, s2 * .31, .02, -.04, head); }); }
+      if (hs === "long") mesh(G.box, mats.hair, .62, .62, .18, 0, -.2, -.22, head);
+      if (hs === "bun") mesh(G.ico1, mats.hair, .3, .3, .3, 0, .36, -.18, head);
+      if (hs === "curly") [[-.24, .14, 0], [.24, .14, 0], [0, .3, -.05], [-.16, .26, -.18], [.16, .26, -.18], [0, .12, -.28]].forEach(function (c) { mesh(G.ico1, mats.hair, .28, .28, .28, c[0], c[1], c[2], head); });
+      if (hs === "cap" || courier) { var vis = mesh(G.box, courier ? mRed : mats.hair, .36, .05, .26, 0, .17, .3, head); vis.rotation.x = -.15; if (courier) { mesh(new THREE.CylinderGeometry(.33, .37, .2, 10), mRed, 1, 1, 1, 0, .2, -.02, head); mesh(new THREE.SphereGeometry(.33, 10, 5, 0, Math.PI * 2, 0, Math.PI / 2), mRed, 1, .45, 1, 0, .3, -.02, head); mesh(G.box, mWhite, .16, .1, .02, 0, .24, .355, head); } }
+      var acc = look.accessory || "none";
+      if (acc === "glasses") [-1, 1].forEach(function (s) { mesh(new THREE.TorusGeometry(.075, .016, 4, 10), mDark, 1, 1, 1, s * .12, .03, .33, head); });
+      if (acc === "hat") { mesh(G.cyl, mDark, .95, .05, .95, 0, .27, 0, head); mesh(G.cyl, mDark, .58, .32, .58, 0, .44, 0, head); }
+      if (acc === "scarf") { var sc = mesh(new THREE.TorusGeometry(.28, .085, 5, 12), mat("scarf", "#e0b23a"), 1, 1, 1, 0, 1.43, 0, g); sc.rotation.x = Math.PI / 2; }
+      if (acc === "apron") mesh(G.box, mWhite, .5, .62, .05, 0, .95, .38, g);
+      if (acc === "headset") { var band = mesh(new THREE.TorusGeometry(.37, .03, 4, 14, Math.PI), mDark, 1, 1, 1, 0, .05, 0, head); band.rotation.y = Math.PI / 2; [-1, 1].forEach(function (s) { mesh(G.box, mDark, .08, .16, .14, s * .36, 0, 0, head); }); }
+      if (acc === "bowtie") [-1, 1].forEach(function (s) { var bt = mesh(G.cone, mRed, .12, .14, .12, s * .07, 1.38, .34, g); bt.rotation.z = s * Math.PI / 2; });
+      if (acc === "flower") { mesh(G.ico, mat("flower", "#f28db8"), .16, .16, .16, .26, .25, .08, head); }
+      if (courier) { var bag = mesh(G.box, mat("satchel", "#8a5a34"), .36, .34, .14, .42, .82, .06, g); bag.rotation.z = .1; var strap = mesh(G.box, mat("satchel", "#8a5a34"), .07, 1.05, .05, 0, 1.18, .37, g); strap.rotation.z = -.62; }
+      g.userData = { legs: legs, arms: arms, head: head, mats: mats, phase: 0 };
+      return g;
+    }
+    function animateFigure(f, moving, dt, t, speedK) {
+      var u = f.userData; if (moving) u.phase += dt * 10 * (speedK || 1);
+      var s = moving && !reduceMotion ? Math.sin(u.phase) * .62 : 0;
+      u.legs[0].rotation.x += (s - u.legs[0].rotation.x) * .3; u.legs[1].rotation.x += (-s - u.legs[1].rotation.x) * .3;
+      if (!u.wave) { u.arms[0].rotation.x += (-s * .8 - u.arms[0].rotation.x) * .3; u.arms[1].rotation.x += (s * .8 - u.arms[1].rotation.x) * .3; u.arms[1].rotation.z += (0 - u.arms[1].rotation.z) * .2; }
+      else { u.wave -= dt; u.arms[1].rotation.z += (-2.6 - u.arms[1].rotation.z) * .25; u.arms[1].rotation.x = Math.sin(t * 14) * .3; if (u.wave <= 0) u.wave = 0; }
+    }
+    function residentLook(pt) { return { skin: pt.skin, hair: pt.hair, hairStyle: pt.hairStyle, top: pt.top, bottom: mixHex(pt.top, "#2a2f3d", .65), shoes: "#3a2a20", accessory: pt.accessory }; }
+
+    /* ---------- residents ---------- */
+    var people = [];
+    data.districts.forEach(function (d) {
+      var mine = data.residents.filter(function (r) { return r.district === d.id; }), K = mine.length;
+      mine.forEach(function (r, k) {
+        var a = K === 1 ? .45 : -Math.PI * .78 + (k + .5) * (Math.PI * 1.56 / K);
+        var rd = offset(d._dir, d._frame, a, .155);
+        var f = figure(residentLook(r.portrait), false); place(f, rd, tangentTo(rd, d._dir).negate());
+        var mk = marker(); mk.position.y = 2.75; f.add(mk);
+        var tag = makeTag(r.name, null, d._color, 3.2); tag.sprite.position.y = 3.55; f.add(tag.sprite);
+        addObstacle(rd, .55);
+        people.push({ r: r, id: r.id, d: rd, g: f, mk: mk, tag: tag, home: tangentTo(rd, d._dir).negate(), face: tangentTo(rd, d._dir).negate(), hop: 0, name: r.name, color: d._color });
+      });
+    });
+    var PEOPLE = {}; people.forEach(function (pp) { PEOPLE[pp.id] = pp; });
+    /* the postmaster */
+    var pmFig = figure(residentLook(pmPortrait), false); place(pmFig, pmDir, tangentTo(pmDir, spawnDir));
+    var pmMk = marker(); pmMk.position.y = 2.75; pmFig.add(pmMk);
+    var pmTag = makeTag(pmName, "Post office", "#c4473a", 3.4); pmTag.sprite.position.y = 3.55; pmFig.add(pmTag.sprite);
+    addObstacle(pmDir, .55);
+    var postmaster = { id: "_postmaster", d: pmDir, g: pmFig, mk: pmMk, home: tangentTo(pmDir, spawnDir), face: tangentTo(pmDir, spawnDir), hop: 0, name: pmName, color: "#c4473a" };
+
+    /* ---------- the post office on the north pole ---------- */
+    var scalePlate;
+    (function () {
+      var fwd = tangentTo(poDir, POLE), g = new THREE.Group(), red = mat("postred", "#c4473a");
+      mesh(G.box, mWall, 4.4, 2.7, 3.2, 0, 1.35, 0, g); mesh(G.prism, red, 4.8, 1.5, 3.7, 0, 2.7, 0, g);
+      mesh(G.box, mStone, 4.8, .2, 3.6, 0, .1, 0, g);
+      mesh(G.box, mWood, .9, 1.5, .08, 0, .75, 1.62, g);
+      [-1.45, 1.45].forEach(function (x) { mesh(G.box, mWin, .8, .7, .06, x, 1.5, 1.62, g); });
+      var env = new THREE.Group(); env.position.set(0, 2.15, 1.66); g.add(env);
+      mesh(G.box, mWhite, 1.3, .8, .06, 0, 0, 0, env);
+      [-1, 1].forEach(function (s) { var l = mesh(G.box, red, .78, .07, .02, s * .32, .14, .04, env); l.rotation.z = s * -.55; });
+      mesh(G.cyl, mDark, .06, 1.4, .06, 1.9, 4.1, -1, g); var flag = mesh(G.box, red, .8, .5, .03, 2.3, 4.55, -1, g); spinners.push({ o: flag, axis: "flag", speed: 1 });
+      place(g, poDir, fwd); addObstacle(poDir, 2.3);
+      var f = frameAt(poDir);
+      /* postbox */
+      var pb = new THREE.Group(); mesh(G.cyl, red, .62, 1.1, .62, 0, .55, 0, pb); mesh(new THREE.SphereGeometry(.31, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2), red, 1, 1, 1, 0, 1.1, 0, pb); mesh(G.box, mDark, .3, .05, .05, 0, .9, .3, pb);
+      var pbd = offset(poDir, f, Math.atan2(-1, 1.4) + Math.atan2(fwd.dot(f.e), fwd.dot(f.n)), .12); place(pb, pbd, tangentTo(pbd, POLE)); addObstacle(pbd, .4);
+      /* scale and sorting table, on either side of the door */
+      var side = function (s, dist) { return offset(poDir, f, Math.atan2(fwd.dot(f.e), fwd.dot(f.n)) + s, dist); };
+      var sc = new THREE.Group(); mesh(G.box, mWood, 1.2, .8, .8, 0, .4, 0, sc); mesh(G.cyl, mDark, .1, .5, .1, 0, 1.05, 0, sc);
+      scalePlate = mesh(new THREE.CylinderGeometry(.5, .5, .06, 14), mat("brass", "#d9a640", { metalness: .4, roughness: .4 }), 1, 1, 1, 0, 1.32, 0, sc);
+      mesh(G.box, mat("kraft", "#c89a64"), .5, .36, .4, 0, 1.55, 0, sc).userData.onPlate = true;
+      var scd = side(.62, .13); place(sc, scd, tangentTo(scd, POLE)); addObstacle(scd, .7);
+      var tb = new THREE.Group(); mesh(G.box, mWood, 1.8, .1, 1, 0, .9, 0, tb); [[-.8, -.4], [.8, -.4], [-.8, .4], [.8, .4]].forEach(function (c) { mesh(G.box, mWood, .08, .9, .08, c[0], .45, c[1], tb); });
+      data.districts.forEach(function (d, i) { var e2 = mesh(G.box, districtMats[i], .34, .03, .24, -.6 + (i % 3) * .55, .97 + Math.floor(i / 3) * .04, -.2 + Math.floor(i / 3) * .35, tb); e2.rotation.y = (i - 2) * .2; });
+      var tbd = side(-.62, .13); place(tb, tbd, tangentTo(tbd, POLE)); addObstacle(tbd, .9);
+      /* telegraph pole with a wire to the nearest district */
+      var tp = new THREE.Group(); mesh(G.cyl, mWood, .16, 3.4, .16, 0, 1.7, 0, tp); mesh(G.box, mWood, 1.3, .1, .1, 0, 3.1, 0, tp); [-.5, .5].forEach(function (x) { mesh(G.cyl, mWhite, .08, .16, .08, x, 3.22, 0, tp); });
+      mesh(G.box, mDark, .5, .25, .35, 0, 1.0, .2, tp);
+      var tpd = side(1.25, .1); place(tp, tpd, tangentTo(tpd, POLE)); addObstacle(tpd, .25);
+    })();
+
+    /* ---------- the courier and the companion ---------- */
+    var player = figure({ skin: "#f1c9a5", hair: dress.hair, hairStyle: "short", top: dress.top, bottom: dress.bottom, shoes: dress.shoes, accessory: "none" }, true);
+    scene.add(player);
+    function applyDress() { var m = player.userData.mats; m.hair.color.set(dress.hair); m.top.color.set(dress.top); m.bottom.color.set(dress.bottom); m.shoes.color.set(dress.shoes); }
+    var P = spawnDir.clone(), camF = tangentTo(spawnDir, poDir), faceF = camF.clone();
+    var pet = null;
+    if (data.companion) {
+      pet = new THREE.Group(); var kind = data.companion.kind, pm = mat("pet", kind === "bird" ? "#4f8fd9" : kind === "cat" ? "#5a5a66" : "#c98e56"), pw = mWhite;
+      var parts = { tail: null, wings: [] };
+      if (kind === "bird") {
+        mesh(G.ico1, pm, .5, .44, .6, 0, 0, 0, pet); mesh(G.ico1, pm, .34, .34, .34, 0, .22, .26, pet); mesh(G.cone, mat("beak", "#f0b23a"), .1, .2, .1, 0, .22, .48, pet).rotation.x = Math.PI / 2;
+        [-1, 1].forEach(function (s) { var wg = new THREE.Group(); wg.position.set(s * .2, .05, 0); mesh(G.box, pw, .5, .04, .3, s * .25, 0, 0, wg); pet.add(wg); parts.wings.push(wg); });
+        [-1, 1].forEach(function (s) { mesh(G.box, mDark, .04, .05, .02, s * .1, .27, .42, pet); });
+      } else {
+        var sc2 = kind === "cat" ? .85 : 1;
+        mesh(G.box, pm, .46 * sc2, .38 * sc2, .8 * sc2, 0, .5 * sc2, 0, pet); mesh(G.box, pw, .3 * sc2, .2 * sc2, .3 * sc2, 0, .42 * sc2, .3 * sc2, pet);
+        var hd = new THREE.Group(); hd.position.set(0, .8 * sc2, .45 * sc2); pet.add(hd);
+        mesh(G.box, pm, .4 * sc2, .36 * sc2, .38 * sc2, 0, 0, 0, hd); mesh(G.box, kind === "cat" ? pm : pw, .22 * sc2, .16 * sc2, .2 * sc2, 0, -.07 * sc2, .24 * sc2, hd);
+        mesh(G.box, mDark, .08, .06, .04, 0, -.02, .35 * sc2, hd);
+        [-1, 1].forEach(function (s) { mesh(G.box, mDark, .05, .06, .02, s * .1 * sc2, .06 * sc2, .2 * sc2, hd); if (kind === "cat") mesh(G.cone, pm, .14, .22, .14, s * .12, .26 * sc2, 0, hd); else mesh(G.box, mat("ear", "#7a5236"), .1, .26, .14, s * .2, .1, -.04, hd).rotation.z = s * .3; });
+        [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(function (c) { mesh(G.box, pm, .12 * sc2, .32 * sc2, .12 * sc2, c[0] * .15 * sc2, .16 * sc2, c[1] * .28 * sc2, pet); });
+        var tail = new THREE.Group(); tail.position.set(0, .62 * sc2, -.4 * sc2); mesh(G.box, pm, .09, kind === "cat" ? .7 : .38, .09, 0, kind === "cat" ? .35 : .19, 0, tail); tail.rotation.x = kind === "cat" ? -.3 : -.8; pet.add(tail); parts.tail = tail;
+      }
+      pet.userData = parts; scene.add(pet);
+      var petTag = makeTag(data.companion.name, null, "#ffffff", 2.2); petTag.sprite.position.y = kind === "bird" ? .9 : 1.65; pet.add(petTag.sprite);
+    }
+    var petDir = offset(P, frameAt(P), 2, .06);
+
+    /* ---------- sky: gradient dome, sun and moon on a day arc, stars, theme extras ---------- */
+    var domeGeo = new THREE.SphereGeometry(420, 32, 18);
+    domeGeo.setAttribute("color", new THREE.Float32BufferAttribute(new Float32Array(domeGeo.attributes.position.count * 3), 3));
+    var dome = new THREE.Mesh(domeGeo, new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.BackSide, fog: false, depthWrite: false }));
+    dome.renderOrder = -2; scene.add(dome);
+    function colourDome() {
+      var top = new THREE.Color(css("--sky") || "#9fd3ee"), bot = new THREE.Color(css("--sky2") || "#e9f6f4"), pos = domeGeo.attributes.position, col = domeGeo.attributes.color, c = new THREE.Color();
+      for (var i = 0; i < pos.count; i++) { var y = pos.getY(i) / 420; c.copy(bot).lerp(top, sm(-.25, .55, y)); col.setXYZ(i, c.r, c.g, c.b); }
+      col.needsUpdate = true;
+    }
+    var starGeo = new THREE.BufferGeometry(), sp = [], srnd = seeded("stars");
+    for (var si = 0; si < 700; si++) { var sd2 = V(srnd() * 2 - 1, srnd() * 2 - 1, srnd() * 2 - 1).normalize().multiplyScalar(400); sp.push(sd2.x, sd2.y, sd2.z); }
+    starGeo.setAttribute("position", new THREE.Float32BufferAttribute(sp, 3));
+    var stars = new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 1.6, sizeAttenuation: false, fog: false, transparent: true, opacity: .85 }));
+    stars.renderOrder = -1; scene.add(stars);
+    var sunDisc = new THREE.Mesh(new THREE.CircleGeometry(16, 24), new THREE.MeshBasicMaterial({ color: T3.disc, fog: false, transparent: true, opacity: .95 }));
+    var moonDisc = new THREE.Mesh(new THREE.CircleGeometry(9, 20), new THREE.MeshBasicMaterial({ color: 0xe9eef8, fog: false, transparent: true, opacity: .9 }));
+    scene.add(sunDisc); scene.add(moonDisc);
+    var sunDir = V(1, .7, 0).normalize(), dayW = 0;
+    function updateSun(t) {
+      dayW = reduceMotion ? .8 : .8 + t * 2 * Math.PI / 300;
+      var elev = themeName === "dusk" ? .3 : .75;
+      sunDir.set(Math.cos(dayW), elev, Math.sin(dayW)).normalize();
+      sun.position.copy(sunDir).multiplyScalar(120); sun.target.position.set(0, 0, 0);
+    }
+    var extras = [];
+    var dotTex = (function () { var c = doc.createElement("canvas"); c.width = c.height = 64; var x = c.getContext("2d"), g = x.createRadialGradient(32, 32, 0, 32, 32, 32); g.addColorStop(0, "rgba(255,255,255,1)"); g.addColorStop(.45, "rgba(255,255,255,.85)"); g.addColorStop(1, "rgba(255,255,255,0)"); x.fillStyle = g; x.fillRect(0, 0, 64, 64); return new THREE.CanvasTexture(c); })();
+    if (T3.extra === "clouds") {
+      var clouds = new THREE.Group(), crnd = seeded("clouds"), cm = M(T3.cloud, { transparent: true, opacity: .92, emissive: T3.cloud, emissiveIntensity: .15 });
+      for (var ci = 0; ci < 16; ci++) {
+        var cd = V(crnd() * 2 - 1, crnd() * 1.4 - .3, crnd() * 2 - 1).normalize(), cg = new THREE.Group();
+        for (var k = 0; k < 4; k++) mesh(G.ico1, cm, 3 + crnd() * 2.5, 1.6 + crnd(), 2.4 + crnd() * 1.5, (k - 1.5) * 2.2, crnd() * .8, crnd() * 1.4, cg);
+        cg.position.copy(cd).multiplyScalar(R + 12 + crnd() * 4); orient(cg, cd, tangentTo(cd, POLE)); clouds.add(cg);
+      }
+      scene.add(clouds); extras.push(function (t, dt) { if (!reduceMotion) clouds.rotation.y += dt * .012; });
+    }
+    if (T3.extra === "snow") {
+      var sn = 700, snGeo = new THREE.BufferGeometry(), snArr = new Float32Array(sn * 3), snr = seeded("snow");
+      for (var q = 0; q < sn; q++) { snArr[q * 3] = (snr() - .5) * 44; snArr[q * 3 + 1] = snr() * 18; snArr[q * 3 + 2] = (snr() - .5) * 44; }
+      snGeo.setAttribute("position", new THREE.BufferAttribute(snArr, 3));
+      var snow = new THREE.Points(snGeo, new THREE.PointsMaterial({ color: 0xffffff, size: .22, map: dotTex, transparent: true, opacity: .95, depthWrite: false })); var snowG = new THREE.Group(); snowG.add(snow); scene.add(snowG);
+      extras.push(function (t, dt) {
+        snowG.position.copy(P).multiplyScalar(R); orient(snowG, P, camF); if (reduceMotion) return;
+        for (var i = 0; i < sn; i++) { snArr[i * 3 + 1] -= dt * (1.6 + (i % 5) * .3); snArr[i * 3] += Math.sin(t + i) * dt * .3; if (snArr[i * 3 + 1] < -1) snArr[i * 3 + 1] = 17; }
+        snGeo.attributes.position.needsUpdate = true;
+      });
+    }
+    if (T3.extra === "fireflies") {
+      var ff = [], ffr = seeded("fireflies"), ffGeo = new THREE.BufferGeometry(), ffN = 90, ffArr = new Float32Array(ffN * 3);
+      for (var fq = 0; fq < ffN; fq++) { var base = fq < 60 ? data.districts[fq % ND]._dir : POLE; var fd = offset(base, frameAt(base), ffr() * 6.3, .05 + ffr() * .3); ff.push({ d: fd, h: .6 + ffr() * 2, ph: ffr() * 6 }); }
+      ffGeo.setAttribute("position", new THREE.BufferAttribute(ffArr, 3));
+      var ffPts = new THREE.Points(ffGeo, new THREE.PointsMaterial({ color: 0xffe28a, size: .4, map: dotTex, transparent: true, opacity: .9, depthWrite: false, blending: THREE.AdditiveBlending })); scene.add(ffPts);
+      extras.push(function (t) {
+        ff.forEach(function (f2, i) { var r2 = R + heightAt(f2.d) + f2.h + (reduceMotion ? 0 : Math.sin(t * 1.3 + f2.ph) * .3); ffArr[i * 3] = f2.d.x * r2; ffArr[i * 3 + 1] = f2.d.y * r2; ffArr[i * 3 + 2] = f2.d.z * r2; });
+        ffGeo.attributes.position.needsUpdate = true; ffPts.material.opacity = reduceMotion ? .8 : .55 + Math.sin(t * 2.1) * .35;
+      });
+    }
+    var night = false;
+    function applyTheme() {
+      var dark = isDark(); night = T3.night === "always" || dark;
+      colourPlanet(); colourDome();
+      scene.fog = new THREE.Fog(new THREE.Color(css("--sky2") || "#e9f6f4"), 34, 92);
+      waterMat.color.set(css("--water") || "#3aa6c4");
+      mWall.color.set(css("--wall") || "#f6efe2"); mRoof.color.set(css("--roof") || "#d9644a"); mWood.color.set(css("--wood") || "#9b6a43");
+      var fol = FOLIAGE[themeName] || FOLIAGE.morning;
+      mLeaf.color.set(dark ? mixHex(fol[0], "#0a1020", .3) : fol[0]); mLeaf2.color.set(dark ? mixHex(fol[1], "#0a1020", .3) : fol[1]); mPine.color.set(dark ? mixHex(fol[2], "#0a1020", .3) : fol[2]);
+      mWin.emissiveIntensity = night ? 1.1 : .08; mLamp.emissiveIntensity = night ? 1.3 : .15;
+      stars.visible = T3.stars === "always" || dark;
+      hemi.intensity = dark ? T3.hemiI[1] : T3.hemiI[0]; sun.intensity = dark ? T3.sunI[1] : T3.sunI[0];
+      sunDisc.visible = !(T3.night === "always"); moonDisc.material.opacity = night ? .95 : .45;
+      districtMats.forEach(function (m) { m.emissiveIntensity = night ? .25 : .05; });
+      beams.forEach(function (b) { b.beam.material.opacity = night ? .16 : 0; });
+      trail.forEach(function (d) { d.material.color.set(css("--accent") || "#ffb02e"); });
+    }
+
+    /* ======================================================================
+       Errands: where each one stands, who has something for the courier,
+       and the conversation flows that teach and complete them.
+       ====================================================================== */
+    function who(id) { return RES[id]; }
+    function statusOf(e) {
+      var s = ES(e);
+      if (s.stage === "done") return { text: e.kind === "notice" ? "Read" : "Stamped", cls: "nthview-ok" };
+      if (isLocked(e)) return { text: "Later, after “" + ERR[e.after].title + "”", cls: "" };
+      switch (e.kind) {
+        case "letter": case "parcel": return s.stage === "pickup" ? { text: "To collect", cls: "" } : { text: "In your bag", cls: "nthview-hot" };
+        case "reply": return s.stage === "ask" ? { text: "Ask around", cls: "" } : { text: "Reply in your bag", cls: "nthview-hot" };
+        case "chain": return s.pos === 0 ? { text: "Ask around", cls: "" } : { text: "Passed on " + s.pos + " of " + e.steps.length, cls: "nthview-hot" };
+        case "weigh": return s.stage === "office" ? { text: "At the post office", cls: "nthview-hot" } : { text: "In your bag", cls: "nthview-hot" };
+        case "sort": case "telegram": return { text: "At the post office", cls: "nthview-hot" };
+        case "notice": return { text: "Optional", cls: "" };
+      }
+      return { text: "", cls: "" };
+    }
+    function open(e) { return !isDone(e) && !isLocked(e); }
+    /* deterministic actions light a resident's marker; puzzles (parcels, chain order) never do */
+    function hotFor(pid) {
+      return data.errands.some(function (e) {
+        if (!open(e)) return false; var s = ES(e);
+        if (e.kind === "letter") return (s.stage === "pickup" && e.from === pid) || (s.stage === "carry" && e.to === pid);
+        if (e.kind === "parcel") return s.stage === "pickup" && e.from === pid;
+        if (e.kind === "reply") return (s.stage === "ask" && e.asker === pid) || (s.stage === "carry" && e.to === pid);
+        if (e.kind === "weigh") return s.stage === "carry" && e.to === pid;
+        if (e.kind === "chain") return s.pos === 0 && e.steps[0].resident === pid;
+        return false;
+      });
+    }
+    function officeOpen() { return data.errands.some(function (e) { return open(e) && (e.kind === "sort" || e.kind === "telegram" || (e.kind === "weigh" && ES(e).stage === "office")); }); }
+    function bagCount() { return data.errands.filter(function (e) { var s = ES(e); return open(e) && (s.stage === "carry" || (e.kind === "chain" && s.pos > 0)); }).length; }
+    function trailTarget() {
+      var list = required.concat(data.errands.filter(function (e) { return e.kind === "notice"; }));
+      for (var i = 0; i < list.length; i++) {
+        var e = list[i], s = ES(e); if (!open(e)) continue;
+        var id = null, d = null;
+        if (e.kind === "letter") id = s.stage === "pickup" ? e.from : e.to;
+        else if (e.kind === "parcel") id = s.stage === "pickup" ? e.from : null;
+        else if (e.kind === "reply") id = s.stage === "ask" ? e.asker : e.to;
+        else if (e.kind === "chain") id = s.pos === 0 ? e.steps[0].resident : null;
+        else if (e.kind === "weigh") id = s.stage === "office" ? "_postmaster" : e.to;
+        else if (e.kind === "sort" || e.kind === "telegram") id = "_postmaster";
+        else if (e.kind === "notice") { var b = boards.filter(function (x) { return x.e === e; })[0]; if (b) return { e: e, d: b.d, name: "the notice board", stop: .09 }; }
+        if (!id) continue;
+        if (id === "_postmaster") return { e: e, d: pmDir, name: pmName, stop: .1 };
+        return { e: e, d: PEOPLE[id].d, name: who(id).name, stop: .1 };
+      }
+      return null;
+    }
+
+    /* ---------- panel plumbing ---------- */
+    var lastFocus = null;
+    function openPanel(label) {
+      panel.setAttribute("aria-label", label || "Conversation"); panel.setAttribute("aria-hidden", "false"); panel.inert = false;
+      panel.classList.add("nthview-open"); state.panel = label; toastEl.classList.remove("nthview-show"); keys = {}; joyVec.x = joyVec.y = 0; stopWalk(); panel.scrollTop = 0; closePops();
+      setTimeout(function () { try { closeBtn.focus({ preventScroll: true }); } catch (e) { closeBtn.focus(); } }, 60);
+    }
+    function closePanel() {
+      if (!state.panel) return;
+      panel.classList.remove("nthview-open"); panel.setAttribute("aria-hidden", "true"); panel.inert = true; state.panel = null; promptKey = "";
+      refreshAll();
+      if (state.closingPending) { state.closingPending = false; setTimeout(showClosing, reduceMotion ? 0 : 450); return; }
+      try { canvas.focus({ preventScroll: true }); } catch (e) { canvas.focus(); }
+    }
+    closeBtn.addEventListener("click", closePanel);
+    function header(pt, kicker, name, sub, color) {
+      var face = el("div", { class: "nthview-portrait", style: "--dc:" + (color || "#c4473a") }); face.appendChild(portraitSvg(pt, mixHex(color || "#c4473a", "#ffffff", .72)));
+      var txt = el("div", {}, [el("p", { class: "nthview-kicker", text: kicker }), el("h2", { text: name })]);
+      if (sub) txt.appendChild(el("p", { class: "nthview-kicker", text: sub }));
+      return el("div", { class: "nthview-who" }, [face, txt]);
+    }
+    function seeFb(n) { setTimeout(function () { try { n.scrollIntoView({ block: "nearest", behavior: reduceMotion ? "auto" : "smooth" }); } catch (x) { /* ignore */ } }, 30); }
+    function bubble(name, text) { var b = el("div", { class: "nthview-bubble" }, [el("div", { class: "nthview-said", text: name })]); b.appendChild(p("", text)); return b; }
+    function box(title) { var d = el("div", { class: "nthview-box" }); if (title) d.appendChild(el("p", { class: "nthview-box-title", text: title })); return d; }
+    function paper(letter, mark, cls) {
+      var d = el("div", { class: "nthview-paper" + (mark ? " nthview-hasmark" : "") + (cls ? " " + cls : "") });
+      if (mark) d.appendChild(el("div", { class: "nthview-postmark", "aria-hidden": "true", text: mark }));
+      if (letter.heading) d.appendChild(el("h2", { text: letter.heading }));
+      letter.paragraphs.forEach(function (t) { d.appendChild(p("", t)); });
+      if (letter.signoff) d.appendChild(el("p", { class: "nthview-sign", text: letter.signoff }));
+      return d;
+    }
+    function stampEl(e, isNew) {
+      var st = el("div", { class: "nthview-stamp" + (isDone(e) ? "" : " nthview-blank") + (isNew ? " nthview-new" : ""), style: "--sc:" + errandColor(e), title: e.title, role: "img", "aria-label": (isDone(e) ? "Stamp: " : "Empty stamp: ") + e.title });
+      st.appendChild(icon(e.kind)); return st;
+    }
+    function optionsBlock(host, options, seed, onPick) {
+      var wrap = el("div", { class: "nthview-opts" }), solved = false;
+      shuffled(options, seed).forEach(function (o) {
+        var b = el("button", { type: "button", class: "nthview-opt" }); b.appendChild(rich(o.text)); var why = null;
+        b.addEventListener("click", function () {
+          if (!why) { why = el("div", { class: "nthview-why " + (o.correct ? "nthview-ok" : "nthview-no") }); why.appendChild(rich((o.correct ? "**That's it.** " : "**Not quite.** ") + o.why)); b.parentNode.insertBefore(why, b.nextSibling); }
+          b.classList.add(o.correct ? "nthview-right" : "nthview-wrong");
+          if (!solved) { if (o.correct) { solved = true; sfx("ok"); } else sfx("no"); onPick(o, wrap); }
+        });
+        wrap.appendChild(b);
+      });
+      host.appendChild(wrap);
+      host.appendChild(p("nthview-small", "Every answer explains itself. Tap any of them to read why."));
+      return wrap;
+    }
+
+    /* ---------- completing an errand ---------- */
+    function complete(e, speaker, host, at) {
+      var s = ES(e); if (s.stage === "done") return;
+      s.stage = "done"; state.newStamp = e.id; sfx("stamp");
+      if (at) burst(at, errandColor(e));
+      var card = el("div", { class: "nthview-done", role: "status" }, [stampEl(e, true)]), txt = el("div");
+      if (e.done) txt.appendChild(p("", (speaker ? "**" + speaker + ":** " : "") + e.done));
+      txt.appendChild(p("nthview-small", "Stamp collected. " + e.teaches));
+      card.appendChild(txt); host.appendChild(card);
+      if (allRequiredDone() && !state.closingShown) { state.closingPending = true; host.appendChild(p("nthview-small", "That was the last errand. " + pmName + " has a letter for you; it arrives when you close this.")); }
+      toast("Stamp collected: " + e.title);
+      refreshAll();
+      setTimeout(function () { try { card.scrollIntoView({ block: "nearest", behavior: reduceMotion ? "auto" : "smooth" }); } catch (x) { /* ignore */ } }, 60);
+    }
+
+    /* ---------- what each resident can do for the courier ---------- */
+    function actionsFor(pid) {
+      var r = who(pid), acts = [];
+      data.errands.forEach(function (e) {
+        if (!open(e)) return; var s = ES(e);
+        if (e.kind === "letter") {
+          if (s.stage === "pickup" && e.from === pid) acts.push({ e: e, hot: true, label: "Collect the letter for " + who(e.to).name, run: function (h) { letterPickup(e, h); } });
+          if (s.stage === "carry" && e.to === pid) acts.push({ e: e, hot: true, label: "Hand over the letter", sub: e.title, run: function (h) { letterDeliver(e, h); } });
+        } else if (e.kind === "parcel") {
+          if (s.stage === "pickup" && e.from === pid) acts.push({ e: e, hot: true, label: "Collect a parcel", sub: e.label, run: function (h) { parcelPickup(e, h); } });
+          if (s.stage === "carry") acts.push({ e: e, label: "Offer the mystery parcel", sub: e.label, run: function (h) { parcelOffer(e, pid, h); } });
+        } else if (e.kind === "reply") {
+          if (s.stage === "ask" && e.asker === pid) acts.push({ e: e, hot: true, label: "Ask what's on " + r.name + "'s mind", run: function (h) { replyAsk(e, h); } });
+          if (s.stage === "carry" && e.to === pid) acts.push({ e: e, hot: true, label: "Hand over " + who(e.asker).name + "'s reply", run: function (h) { h.appendChild(p("", "You hand " + r.name + " the reply card from " + who(e.asker).name + ": **" + plain(e.cards.filter(function (c) { return c.correct; })[0].text) + "**")); complete(e, r.name, h, PEOPLE[pid].d); } });
+        } else if (e.kind === "chain") {
+          var j = e.steps.map(function (st) { return st.resident; }).indexOf(pid);
+          if (j === -1) return;
+          if (s.pos === 0 && j === 0) acts.push({ e: e, hot: true, label: "Hear " + r.name + "'s request", sub: e.title, run: function (h) { chainStep(e, 0, h); } });
+          else if (s.pos > 0 && j >= s.pos) acts.push({ e: e, label: "Pass on the message", sub: plain(e.message), run: function (h) { chainStep(e, j, h); } });
+        } else if (e.kind === "weigh") {
+          if (s.stage === "carry" && e.to === pid) acts.push({ e: e, hot: true, label: "Hand over the weighed parcel", sub: e.label, run: function (h) { h.appendChild(p("", "You hand " + r.name + " the parcel from the scale: " + e.label.toLowerCase() + ", about " + fmtNum(e.answer, e.step || (e.max - e.min) / 100) + " " + e.unit + ".")); complete(e, r.name, h, PEOPLE[pid].d); } });
+        }
+      });
+      return acts;
+    }
+    function actList(host, acts, onRun) {
+      var list = el("div", { class: "nthview-acts" });
+      acts.forEach(function (a) {
+        var b = el("button", { type: "button", class: "nthview-act" + (a.hot ? " nthview-hot" : "") }); b.appendChild(icon(a.e ? a.e.kind : a.icon || "letter"));
+        var t = el("span", { text: a.label }); if (a.sub) t.appendChild(el("small", { text: a.sub })); b.appendChild(t);
+        if (a.disabled) b.disabled = true;
+        b.addEventListener("click", function () { onRun(a); }); list.appendChild(b);
+      });
+      host.appendChild(list); return list;
+    }
+
+    function talkTo(pp) {
+      var r = pp.r, first = !state.met[r.id]; state.met[r.id] = true;
+      pp.tag.sub = r.role; pp.tag.draw(); pp.hop = 1; pp.face = tangentTo(pp.d, P);
+      pbody.textContent = ""; var d = DIS[r.district];
+      pbody.appendChild(header(r.portrait, d.name, r.name, r.role, d._color));
+      pbody.appendChild(p("nthview-small", r.personality));
+      var line;
+      if (first) line = r.greeting;
+      else { state.talkIdx[r.id] = (state.talkIdx[r.id] === undefined ? -1 : state.talkIdx[r.id]) + 1; line = r.smallTalk[state.talkIdx[r.id] % r.smallTalk.length]; }
+      pbody.appendChild(bubble(r.name, line));
+      var know = box("What " + r.name + " does"); know.appendChild(p("", r.knows)); pbody.appendChild(know);
+      var area = el("div"); pbody.appendChild(area);
+      function showActs() {
+        area.textContent = "";
+        var acts = actionsFor(r.id);
+        if (acts.length) { area.appendChild(el("h3", { text: "Errands" })); actList(area, acts, function (a) { area.textContent = ""; var flow = el("div"); area.appendChild(flow); a.run(flow); area.appendChild(el("div", { class: "nthview-actions" }, [btn("Back to " + r.name, "nthview-small", function () { talkTo(pp); })])); }); }
+        else area.appendChild(p("nthview-small", "Nothing for " + r.name + " in your bag right now."));
+      }
+      showActs();
+      pbody.appendChild(el("div", { class: "nthview-actions" }, [btn("Say goodbye", "", closePanel)]));
+      if (!state.panel) openPanel("Talking to " + r.name); else panel.scrollTop = 0;
+      sfx("open"); refreshAll();
+    }
+
+    function letterPickup(e, host) {
+      ES(e).stage = "carry"; sfx("letter");
+      host.appendChild(p("", "**" + who(e.from).name + "** hands you a letter addressed to **" + who(e.to).name + ", " + who(e.to).role.toLowerCase() + "**. You can read it in your bag on the way."));
+      host.appendChild(paper(e.letter, "FROM " + who(e.from).name.toUpperCase()));
+      toast("Letter for " + who(e.to).name + " is in your bag"); refreshAll();
+    }
+    function letterDeliver(e, host) {
+      var r = who(e.to);
+      host.appendChild(p("", "You hand " + r.name + " the letter. " + r.name + " reads it carefully."));
+      var det = el("details"); det.appendChild(el("summary", { text: "Read the letter again" })); det.appendChild(paper(e.letter, null)); host.appendChild(det);
+      host.appendChild(bubble(r.name, e.check.question));
+      var area = el("div"); host.appendChild(area);
+      optionsBlock(area, e.check.options, e.id, function (o) {
+        if (o.correct) complete(e, r.name, host, PEOPLE[e.to].d);
+        else mixup(e, o.text, o.why);
+      });
+    }
+    function parcelPickup(e, host) {
+      ES(e).stage = "carry"; sfx("pick");
+      host.appendChild(p("", "**" + who(e.from).name + "** hands you a parcel: " + e.label.toLowerCase() + ". There is no name on it, only a label:"));
+      host.appendChild(clueList(e));
+      host.appendChild(p("nthview-small", "Work out whose it is from the clues, then offer it to them."));
+      refreshAll();
+    }
+    function clueList(e) { var b = box("The label says"); e.clues.forEach(function (c) { var li = el("div", { class: "nthview-clue" }); li.appendChild(rich(c)); b.appendChild(li); }); return b; }
+    function parcelOffer(e, pid, host) {
+      var r = who(pid);
+      host.appendChild(p("", "You show " + r.name + " the parcel: " + e.label.toLowerCase() + "."));
+      host.appendChild(clueList(e));
+      if (pid === e.owner) { complete(e, r.name, host, PEOPLE[pid].d); return; }
+      var dec = (e.decoys || []).filter(function (x) { return x.resident === pid; })[0];
+      var why = dec ? dec.why : "Not mine, I'm afraid. Here is what I do: " + plain(r.knows) + " Does that match the label?";
+      host.appendChild(bubble(r.name, why)); sfx("no");
+      host.appendChild(p("nthview-small", "The parcel stays in your bag. Who else in town would care about these clues?"));
+      mixup(e, "Offered it to " + r.name + " (" + r.role.toLowerCase() + ")", why);
+    }
+    function replyAsk(e, host) {
+      var r = who(e.asker), to = who(e.to);
+      host.appendChild(bubble(r.name, e.question));
+      host.appendChild(p("nthview-q", "Which reply card do you write?"));
+      var area = el("div"); host.appendChild(area);
+      optionsBlock(area, e.cards, e.id, function (o) {
+        if (!o.correct) { mixup(e, o.text, o.why); return; }
+        ES(e).stage = "carry"; sfx("letter");
+        area.appendChild(bubble(r.name, "Yes, that's it. Would you take that to " + to.name + " for me? " + to.name + " is the " + to.role.toLowerCase() + "."));
+        toast("Reply for " + to.name + " is in your bag"); refreshAll();
+      });
+    }
+    function chainStep(e, j, host) {
+      var s = ES(e), st = e.steps[j], r = who(st.resident);
+      if (j === s.pos) {
+        host.appendChild(bubble(r.name, st.says)); s.pos++; sfx(s.pos === e.steps.length ? "ok" : "pick");
+        if (s.pos === e.steps.length) { complete(e, r.name, host, PEOPLE[st.resident].d); return; }
+        if (j === 0) host.appendChild(p("", "You take the message: **" + plain(e.message) + "** Who needs it next?"));
+        else host.appendChild(p("", "Passed on, " + s.pos + " of " + e.steps.length + ". Who needs it next?"));
+        refreshAll();
+      } else {
+        var why = st.tooEarly || "Not yet. I come later in this story. Who should have it before me?";
+        host.appendChild(bubble(r.name, why)); sfx("no");
+        host.appendChild(p("nthview-small", "You still hold the message. Think about what has to happen first."));
+        mixup(e, "Took the message to " + r.name + " too early: " + r.name + " is step " + (j + 1) + " of " + e.steps.length + " and only " + s.pos + (s.pos === 1 ? " step was" : " steps were") + " done", why);
+      }
+    }
+
+    /* ---------- the post office: sorting table, telegraph, scale ---------- */
+    function talkToPostmaster() {
+      pbody.textContent = ""; var first = !state.met._postmaster; state.met._postmaster = true; postmaster.hop = 1; postmaster.face = tangentTo(pmDir, P);
+      pbody.appendChild(header(pmPortrait, "Post office", pmName, "Postmaster", "#c4473a"));
+      var line = allRequiredDone() ? "Every errand delivered. You know this town now. Read my letter whenever you like." :
+        first ? "There you are, " + courierName + "! Your bag has the first letters. When you want something to do here, the sorting table, the telegraph and the scale are all by the door." :
+        officeOpen() ? "Something is waiting here at the post office. Pick it below." : "Nothing on the counter right now. Out you go, the town is waiting.";
+      pbody.appendChild(bubble(pmName, line));
+      var area = el("div"); pbody.appendChild(area);
+      var acts = [];
+      data.errands.forEach(function (e) {
+        if (isDone(e) || (e.kind !== "sort" && e.kind !== "telegram" && e.kind !== "weigh")) return;
+        if (e.kind === "weigh" && ES(e).stage !== "office") return;
+        var where = { sort: "Sorting table", telegram: "Telegraph", weigh: "Scale" }[e.kind];
+        if (isLocked(e)) acts.push({ e: e, label: where + ": " + e.title, sub: "Later, after “" + ERR[e.after].title + "”", disabled: true });
+        else acts.push({ e: e, hot: true, label: where + ": " + e.title, run: function (h) { ({ sort: sortTable, telegram: telegraph, weigh: weighScale })[e.kind](e, h); } });
+      });
+      acts.push({ icon: "letter", label: "Read the welcome letter again", run: function () { closePanel(); showLetter(data.postmaster.opening, "Read", null); } });
+      if (state.closingShown || allRequiredDone()) acts.push({ icon: "star", hot: true, label: "Read the closing letter", run: function () { closePanel(); showClosing(); } });
+      acts.push({ icon: "notice", label: "See the review so far", run: function () { closePanel(); showReview(); } });
+      actList(area, acts, function (a) { if (a.e) { area.textContent = ""; var flow = el("div"); area.appendChild(flow); a.run(flow); area.appendChild(el("div", { class: "nthview-actions" }, [btn("Back to the counter", "nthview-small", talkToPostmaster)])); } else a.run(); });
+      pbody.appendChild(el("div", { class: "nthview-actions" }, [btn("Say goodbye", "", closePanel)]));
+      if (!state.panel) openPanel("Post office"); else panel.scrollTop = 0;
+      sfx("open"); refreshAll();
+    }
+    function sortTable(e, host) {
+      var s = ES(e), sel = null;
+      host.appendChild(el("h3", { text: e.title }));
+      host.appendChild(p("", e.intro || "Put each envelope in the pigeonhole of the district that deals with it."));
+      var envs = el("div", { class: "nthview-envs", role: "group", "aria-label": "Envelopes" }), bins = el("div", { class: "nthview-bins", role: "group", "aria-label": "Pigeonholes" }), fb = el("div", { class: "nthview-fb", "aria-live": "polite" });
+      host.appendChild(p("nthview-small", "Tap an envelope, then the pigeonhole it belongs in.")); host.appendChild(envs); host.appendChild(bins); host.appendChild(fb);
+      var order = shuffled(e.envelopes.map(function (x, i) { return i; }), e.id), binEls = {};
+      function drawEnvs() {
+        envs.textContent = "";
+        order.forEach(function (i) {
+          if (s.placed[i]) return; var en = e.envelopes[i];
+          var b = el("button", { type: "button", class: "nthview-env", "aria-pressed": String(sel === i) }); b.appendChild(rich(en.label));
+          b.addEventListener("click", function () { sel = i; sfx("pick"); drawEnvs(); var f = envs.querySelector("[aria-pressed=true]"); if (f) f.focus(); });
+          envs.appendChild(b);
+        });
+        if (!envs.childNodes.length) envs.appendChild(p("nthview-small", "The table is empty."));
+      }
+      data.districts.forEach(function (d) {
+        var b = el("button", { type: "button", class: "nthview-bin", style: "--dc:" + d._color }, [el("b", { text: d.name })]); var list = el("small"); b.appendChild(list); binEls[d.id] = list;
+        b.addEventListener("click", function () {
+          if (sel === null) { fb.className = "nthview-fb"; fb.textContent = "Pick an envelope first."; return; }
+          var en = e.envelopes[sel];
+          if (en.district === d.id) {
+            s.placed[sel] = true; sel = null; sfx("ok"); fb.className = "nthview-fb nthview-ok"; fb.textContent = ""; fb.appendChild(rich("Right pigeonhole. " + en.note));
+            redrawBins(); drawEnvs();
+            if (e.envelopes.every(function (x, k) { return s.placed[k]; })) complete(e, pmName, host, pmDir);
+          } else {
+            sfx("no"); fb.className = "nthview-fb nthview-no"; fb.textContent = ""; fb.appendChild(rich("Not " + d.name + ". " + d.blurb + " Try another pigeonhole."));
+            mixup(e, "“" + plain(en.label) + "” in " + d.name, en.note);
+          }
+          seeFb(fb);
+        });
+        bins.appendChild(b);
+      });
+      function redrawBins() { data.districts.forEach(function (d) { binEls[d.id].textContent = e.envelopes.filter(function (x, k) { return s.placed[k] && x.district === d.id; }).map(function (x) { return plain(x.label); }).join(" · "); }); }
+      redrawBins(); drawEnvs();
+    }
+    function telegraph(e, host) {
+      var to = who(e.to);
+      host.appendChild(el("h3", { text: e.title }));
+      host.appendChild(p("", "Fill every gap before you send it to **" + to.name + "**, the " + to.role.toLowerCase() + "."));
+      var sheet = el("div", { class: "nthview-paper nthview-tele" }), parts = e.text.split("___"), sels = [];
+      parts.forEach(function (t, i) {
+        sheet.appendChild(doc.createTextNode(t));
+        if (i < e.gaps.length) {
+          var sl = el("select", { class: "nthview-select", "aria-label": "Gap " + (i + 1) }); sl.appendChild(el("option", { value: "", text: "choose…" }));
+          e.gaps[i].options.forEach(function (o, k) { sl.appendChild(el("option", { value: String(k), text: o })); });
+          sl.addEventListener("change", function () { sl.classList.remove("nthview-wrong", "nthview-right"); });
+          sels.push(sl); sheet.appendChild(sl);
+        }
+      });
+      host.appendChild(sheet);
+      var fb = el("div", { class: "nthview-fb", "aria-live": "polite" }), send = btn("Send the telegram", "nthview-primary");
+      host.appendChild(el("div", { class: "nthview-actions" }, [send])); host.appendChild(fb);
+      send.addEventListener("click", function () {
+        fb.textContent = ""; var wrong = 0, blank = 0;
+        e.gaps.forEach(function (g, i) {
+          var v = sels[i].value; sels[i].classList.remove("nthview-wrong", "nthview-right");
+          if (v === "") { blank++; sels[i].classList.add("nthview-wrong"); return; }
+          if (Number(v) === g.answer) { sels[i].classList.add("nthview-right"); return; }
+          wrong++; sels[i].classList.add("nthview-wrong");
+          var why = g.why || "The word that fits is “" + g.options[g.answer] + "”.";
+          var line = el("div", { class: "nthview-why nthview-no" }); line.appendChild(rich("**Gap " + (i + 1) + ", “" + g.options[Number(v)] + "”:** not quite. " + (g.why ? g.why : "Think again about what this word must say."))); fb.appendChild(line);
+          mixup(e, "Gap " + (i + 1) + ": “" + g.options[Number(v)] + "”", why);
+        });
+        if (blank) fb.appendChild(p("nthview-small", blank === 1 ? "One gap is still empty." : blank + " gaps are still empty."));
+        if (wrong || blank) { sfx("no"); seeFb(fb); return; }
+        sels.forEach(function (sl) { sl.disabled = true; }); send.disabled = true; sfx("tele");
+        fb.appendChild(p("nthview-fb nthview-ok", "Sent. The telegraph clicks, and a reply comes back from " + to.name + "."));
+        complete(e, to.name, host, PEOPLE[e.to].d);
+      });
+    }
+    function weighScale(e, host) {
+      var s = ES(e), step = e.step || (e.max - e.min) / 100, val = e.min + Math.round(((e.max - e.min) / 2) / step) * step;
+      host.appendChild(el("h3", { text: e.title }));
+      host.appendChild(p("", "On the scale: **" + e.label + "**."));
+      host.appendChild(p("", e.prompt));
+      var read = el("div", { class: "nthview-readout", "aria-live": "polite", text: fmtNum(val, step) + " " + e.unit });
+      var range = el("input", { type: "range", class: "nthview-range", min: String(e.min), max: String(e.max), step: String(step), value: String(val), "aria-label": "Your estimate in " + e.unit });
+      range.addEventListener("input", function () { val = Number(range.value); read.textContent = fmtNum(val, step) + " " + e.unit; if (scalePlate) scalePlate.position.y = 1.32 - (val - e.min) / (e.max - e.min) * .12; });
+      host.appendChild(read); host.appendChild(range);
+      host.appendChild(el("div", { class: "nthview-small", text: "Scale from " + fmtNum(e.min, step) + " to " + fmtNum(e.max, step) + " " + e.unit }));
+      var fb = el("div", { class: "nthview-fb", "aria-live": "polite" }), go = btn("Weigh it", "nthview-primary"), show = btn("Show me the real weight", "nthview-hidden");
+      host.appendChild(el("div", { class: "nthview-actions" }, [go, show])); host.appendChild(fb);
+      function finish(right) {
+        go.disabled = true; show.disabled = true; range.disabled = true; s.stage = "carry";
+        if (scalePlate) scalePlate.position.y = 1.32 - (e.answer - e.min) / (e.max - e.min) * .12;
+        fb.className = "nthview-fb"; fb.textContent = "";
+        var b2 = box(right ? "Close enough: about " + fmtNum(e.answer, step) + " " + e.unit : "It weighs about " + fmtNum(e.answer, step) + " " + e.unit);
+        b2.appendChild(p("", e.reveal)); fb.appendChild(b2);
+        fb.appendChild(p("", "Now take the parcel to **" + who(e.to).name + "**, the " + who(e.to).role.toLowerCase() + "."));
+        sfx(right ? "ok" : "pick"); toast("Weighed parcel for " + who(e.to).name + " is in your bag"); refreshAll();
+      }
+      go.addEventListener("click", function () {
+        s.tries++;
+        if (Math.abs(val - e.answer) <= e.tolerance + 1e-9) { finish(true); return; }
+        sfx("no"); fb.className = "nthview-fb nthview-no"; fb.textContent = val < e.answer ? "Heavier than that. Try again." : "Lighter than that. Try again.";
+        mixup(e, "First guess: " + fmtNum(val, step) + " " + e.unit, e.reveal); show.classList.remove("nthview-hidden"); seeFb(fb);
+      });
+      show.addEventListener("click", function () { finish(false); });
+    }
+    function readNotice(b) {
+      var e = b.e; pbody.textContent = "";
+      pbody.appendChild(el("p", { class: "nthview-kicker", text: "Notice board · " + DIS[e.district].name }));
+      pbody.appendChild(el("h2", { text: e.title }));
+      pbody.appendChild(paper({ heading: e.heading, paragraphs: e.paragraphs }, "NOTICE"));
+      var area = el("div"); pbody.appendChild(area);
+      if (!isDone(e)) complete(e, null, area, b.d); else area.appendChild(p("nthview-small", "You have read this one. " + e.teaches));
+      pbody.appendChild(el("div", { class: "nthview-actions" }, [btn("Back to the town", "", closePanel)]));
+      if (!state.panel) openPanel("Notice board"); sfx("open");
+    }
+
+    /* ---------- bag, checklist and stamps ---------- */
+    function openBag() {
+      pbody.textContent = "";
+      pbody.appendChild(el("p", { class: "nthview-kicker", text: courierName + "'s mail bag" }));
+      pbody.appendChild(el("h2", { text: "Your bag" }));
+      pbody.appendChild(el("h3", { text: "Carrying" }));
+      var carrying = 0;
+      data.errands.forEach(function (e) {
+        var s = ES(e); if (!open(e)) return;
+        var item = null;
+        if ((e.kind === "letter" || e.kind === "parcel" || e.kind === "reply" || e.kind === "weigh") && s.stage === "carry") item = e;
+        if (e.kind === "chain" && s.pos > 0) item = e;
+        if (!item) return; carrying++;
+        var li = el("div", { class: "nthview-box" }), title;
+        if (e.kind === "letter") title = "Letter for " + who(e.to).name + ", " + who(e.to).role.toLowerCase();
+        else if (e.kind === "parcel") title = "Mystery parcel: " + e.label.toLowerCase();
+        else if (e.kind === "reply") title = "Reply card from " + who(e.asker).name + " for " + who(e.to).name;
+        else if (e.kind === "weigh") title = "Weighed parcel for " + who(e.to).name + ": " + e.label.toLowerCase();
+        else title = "Message to pass on";
+        li.appendChild(el("p", { class: "nthview-box-title", text: title }));
+        if (e.kind === "letter") { var det = el("details"); det.appendChild(el("summary", { text: "Read the letter" })); det.appendChild(paper(e.letter, null)); li.appendChild(det); }
+        if (e.kind === "parcel") e.clues.forEach(function (c) { var cl = el("div", { class: "nthview-clue" }); cl.appendChild(rich(c)); li.appendChild(cl); });
+        if (e.kind === "reply") li.appendChild(p("", e.cards.filter(function (c) { return c.correct; })[0].text));
+        if (e.kind === "weigh") li.appendChild(p("nthview-small", "About " + fmtNum(e.answer, e.step || (e.max - e.min) / 100) + " " + e.unit + "."));
+        if (e.kind === "chain") { li.appendChild(p("", e.message)); li.appendChild(p("nthview-small", "Passed on " + s.pos + " of " + e.steps.length + ". Who needs it next?")); }
+        pbody.appendChild(li);
+      });
+      if (!carrying) pbody.appendChild(p("nthview-small", "Nothing to carry right now. The checklist says where errands are waiting."));
+      pbody.appendChild(el("h3", { text: "Errands" }));
+      var list = el("ul", { class: "nthview-list" });
+      data.errands.forEach(function (e) {
+        var st = statusOf(e), li = el("li", { class: "nthview-li" + (isDone(e) ? " nthview-isdone" : "") + (isLocked(e) ? " nthview-later" : "") });
+        var ic = el("span", { class: "nthview-ico" }); ic.appendChild(icon(e.kind)); li.appendChild(ic);
+        var tx = el("div"); tx.appendChild(el("b", { text: e.title })); tx.appendChild(el("small", { text: KIND_LABEL[e.kind] + (e.kind === "notice" ? " (optional)" : "") + " · " + e.hint }));
+        tx.appendChild(el("span", { class: "nthview-status " + st.cls, text: st.text })); li.appendChild(tx); list.appendChild(li);
+      });
+      pbody.appendChild(list);
+      var tog = el("button", { type: "button", class: "nthview-toggle", role: "switch", "aria-checked": String(state.guide), "aria-label": "Guide me" });
+      tog.addEventListener("click", function () { setGuide(!state.guide); tog.setAttribute("aria-checked", String(state.guide)); });
+      var sw = el("div", { class: "nthview-switch" }, [el("div", {}, [el("b", { text: "Guide me" }), el("small", { class: "nthview-small", style: "display:block", text: "A soft trail to the next errand, and a Walk me there button. Puzzles (mystery parcels, the order of a chain) are left to you." })]), tog]);
+      pbody.appendChild(sw);
+      var done = data.errands.filter(isDone).length;
+      pbody.appendChild(el("h3", { text: "Stamps · " + done + " of " + data.errands.length }));
+      var stamps = el("div", { class: "nthview-stamps" }); data.errands.forEach(function (e) { stamps.appendChild(stampEl(e, false)); }); pbody.appendChild(stamps);
+      pbody.appendChild(el("div", { class: "nthview-actions" }, [btn("Review so far", "", function () { closePanel(); showReview(); }), btn("Controls", "", function () { closePanel(); showHelp(); }), btn("Back to the town", "nthview-primary", closePanel)]));
+      openPanel("Mail bag"); sfx("open");
+    }
+    bagBtn.addEventListener("click", function () { if (state.panel === "Mail bag") closePanel(); else if (state.started) openBag(); });
+    function setGuide(on) { state.guide = on; trailDirty = true; promptKey = ""; if (!on) stopWalk(); toast(on ? "Guide me is on: follow the glowing trail" : "Guide me is off"); }
+
+    function renderTray() {
+      tray.textContent = ""; var n = 0;
+      data.errands.forEach(function (e) { var on = isDone(e); if (on) n++; tray.appendChild(el("span", { class: "nthview-tstamp" + (on ? " nthview-on" : "") + (e.kind === "notice" ? " nthview-optional" : ""), style: "--sc:" + errandColor(e), title: e.title })); });
+      tray.setAttribute("aria-label", n + " of " + data.errands.length + " stamps collected");
+    }
+    function updateBadge() { var c = bagCount(); bagBadge.textContent = String(c); bagBadge.classList.toggle("nthview-hidden", !c); bagBtn.setAttribute("aria-label", "Bag" + (c ? ", carrying " + c : "")); }
+    var COL_HOT = new THREE.Color("#ffc94d"), COL_NEW = new THREE.Color("#ffffff"), COL_IDLE = new THREE.Color("#9aa3b8");
+    function setMarker(mk, mode) {
+      mk.visible = mode !== "none"; var c = mode === "hot" ? COL_HOT : mode === "new" ? COL_NEW : COL_IDLE;
+      mk.material.color.copy(c); mk.material.emissive.copy(c); mk.material.emissiveIntensity = mode === "hot" ? 1 : .55; mk.userData.mode = mode;
+      var s = mode === "hot" ? 1.25 : mode === "new" ? 1 : .7; mk.scale.set(s, s, s);
+    }
+    function updateMarkers() {
+      people.forEach(function (pp) { setMarker(pp.mk, hotFor(pp.id) ? "hot" : state.met[pp.id] ? "idle" : "new"); });
+      setMarker(pmMk, officeOpen() || !state.met._postmaster || (allRequiredDone() && !state.closingShown) ? "hot" : "idle");
+      boards.forEach(function (b) { setMarker(b.mk, isDone(b.e) ? "none" : "new"); });
+    }
+    function refreshAll() { renderTray(); updateBadge(); updateMarkers(); trailDirty = true; promptKey = ""; buildCompass(); }
+
+    /* ---------- compass strip: the post office and every resident you have met ---------- */
+    var cmarks = [];
+    function buildCompass() {
+      cmarks.forEach(function (c) { compass.removeChild(c.n); }); cmarks = [];
+      var po = el("div", { class: "nthview-cmark", style: "background:#c4473a" }); po.appendChild(icon("office")); compass.appendChild(po); cmarks.push({ n: po, d: pmDir, id: "_postmaster" });
+      po.setAttribute("data-id", "_postmaster");
+      people.forEach(function (pp) { if (!state.met[pp.id]) return; var n = el("div", { class: "nthview-cmark", style: "background:" + pp.color, text: pp.name.charAt(0).toUpperCase(), "data-id": pp.id }); compass.appendChild(n); cmarks.push({ n: n, d: pp.d, id: pp.id }); });
+      boards.forEach(function (b) {
+        if (isDone(b.e) || !data.residents.some(function (r) { return r.district === b.e.district && state.met[r.id]; })) return;
+        var n = el("div", { class: "nthview-cmark", style: "background:" + DIS[b.e.district]._color, "data-id": "board-" + b.e.id }); n.appendChild(icon("notice")); compass.appendChild(n); cmarks.push({ n: n, d: b.d, id: b.e.id });
+      });
+    }
+    function updateCompass() {
+      var right = camF.clone().cross(P), tgt = state.guide ? trailTarget() : null;
+      cmarks.forEach(function (c) {
+        var t = tangentTo(P, c.d), b = Math.atan2(t.dot(right), t.dot(camF)), far = ang(P, c.d) * R;
+        var vis = Math.abs(b) < Math.PI / 2 && far > 1.5;
+        c.n.style.opacity = vis ? String(Math.max(.45, 1 - far / 90)) : "0";
+        c.n.style.left = (50 + b / (Math.PI / 2) * 50) + "%";
+        c.n.classList.toggle("nthview-target", !!(tgt && ((tgt.d === c.d))));
+      });
+    }
+
+    /* ---------- wardrobe and emotes ---------- */
+    function closePops() { [popWard, popEmote].forEach(function (pp) { pp.classList.add("nthview-hidden"); }); wardBtn.setAttribute("aria-expanded", "false"); emoteBtn.setAttribute("aria-expanded", "false"); }
+    function togglePop(pop, b) { var opening = pop.classList.contains("nthview-hidden"); closePops(); if (opening) { pop.classList.remove("nthview-hidden"); b.setAttribute("aria-expanded", "true"); var f = pop.querySelector("button"); if (f) f.focus(); } }
+    (function () {
+      popWard.appendChild(el("h3", { text: "Wardrobe" }));
+      Object.keys(WARDROBE).forEach(function (k) {
+        var row = el("div", { class: "nthview-swrow" }, [el("b", { text: WARDROBE[k].label })]), sws = el("div", { class: "nthview-sws", role: "group", "aria-label": WARDROBE[k].label + " colour" });
+        WARDROBE[k].colors.forEach(function (c, i) {
+          var b = el("button", { type: "button", class: "nthview-sw", style: "--c:" + c, "aria-pressed": String(dress[k] === c), "aria-label": WARDROBE[k].label + " colour " + (i + 1) });
+          b.addEventListener("click", function () { dress[k] = c; applyDress(); sfx("pick"); Array.prototype.forEach.call(sws.childNodes, function (x) { x.setAttribute("aria-pressed", String(x === b)); }); try { root.sessionStorage.setItem("nthview-courier-dress", JSON.stringify(dress)); } catch (e) { /* optional */ } });
+          sws.appendChild(b);
+        });
+        row.appendChild(sws); popWard.appendChild(row);
+      });
+      popWard.appendChild(p("nthview-small", "Just for fun. It lasts for this visit."));
+      popEmote.appendChild(el("h3", { text: "Emote" }));
+      var row = el("div", { class: "nthview-emos" });
+      EMOTES.forEach(function (em) { var b = el("button", { type: "button", class: "nthview-emo", "aria-label": em[1], title: em[1], text: em[0] }); b.addEventListener("click", function () { emote(em); closePops(); try { canvas.focus({ preventScroll: true }); } catch (e) { canvas.focus(); } }); row.appendChild(b); });
+      popEmote.appendChild(row);
+    })();
+    wardBtn.addEventListener("click", function () { togglePop(popWard, wardBtn); });
+    emoteBtn.addEventListener("click", function () { togglePop(popEmote, emoteBtn); });
+    var bubbleC = doc.createElement("canvas"); bubbleC.width = 256; bubbleC.height = 256;
+    var bubbleTex = new THREE.CanvasTexture(bubbleC), emoteSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: bubbleTex, transparent: true, depthWrite: false, fog: false }));
+    emoteSprite.visible = false; scene.add(emoteSprite); var emoteT = 0, playerHop = 0;
+    function emote(em) {
+      var x = bubbleC.getContext("2d"); x.clearRect(0, 0, 256, 256);
+      x.fillStyle = "rgba(255,255,255,.96)"; x.beginPath(); x.arc(128, 112, 96, 0, Math.PI * 2); x.fill(); x.beginPath(); x.moveTo(100, 196); x.lineTo(128, 246); x.lineTo(150, 196); x.fill();
+      x.font = "120px \"Apple Color Emoji\",\"Segoe UI Emoji\",\"Noto Color Emoji\",sans-serif"; x.textAlign = "center"; x.textBaseline = "middle"; x.fillText(em[0], 128, 120);
+      bubbleTex.needsUpdate = true; emoteSprite.visible = true; emoteT = 2.6; playerHop = 1; sfx("emote");
+      if (em[1] === "Wave" || em[1] === "Hooray") player.userData.wave = 1.4;
+      var near = people.filter(function (pp) { return ang(P, pp.d) * R < 9; }).concat(ang(P, pmDir) * R < 9 ? [postmaster] : []);
+      near.forEach(function (pp) { pp.hop = 1; pp.face = tangentTo(pp.d, P); if (em[1] === "Wave" || em[1] === "Hooray") pp.g.userData.wave = 1.4; });
+      if (pet) petHop = 1;
+      if (near.length) toast(near[0].name + (em[1] === "Wave" ? " waves back." : em[1] === "Heart" ? " beams at you." : em[1] === "Puzzled" ? " scratches their head too." : em[1] === "Sleepy" ? " yawns." : " smiles back."));
+    }
+    var petHop = 0;
+
+    /* ---------- overlays: intro, letters, closing letter, review, controls ---------- */
+    function showOverlay(node, opts) {
+      overlay.textContent = ""; overlay.appendChild(node); overlay.classList.remove("nthview-hidden", "nthview-fading"); state.overlay = opts || {};
+      overlay.setAttribute("aria-label", (opts && opts.label) || "Letter"); closePops(); keys = {}; stopWalk();
+      overlay.scrollTop = 0; setTimeout(function () { var f = overlay.querySelector(".nthview-primary") || overlay.querySelector("button"); if (f) { try { f.focus({ preventScroll: true }); } catch (e) { f.focus(); } } }, 80);
+    }
+    function hideOverlay(then) {
+      overlay.classList.add("nthview-fading"); state.overlay = null; promptKey = "";
+      setTimeout(function () { overlay.classList.add("nthview-hidden"); overlay.textContent = ""; if (then) then(); else { try { canvas.focus({ preventScroll: true }); } catch (e) { canvas.focus(); } } }, reduceMotion ? 0 : 300);
+    }
+    function showIntro() {
+      var card = el("div", { class: "nthview-card nthview-glass" });
+      card.appendChild(el("p", { class: "nthview-kicker", text: "A tiny planet to learn on" }));
+      card.appendChild(el("h1", { text: data.title }));
+      if (data.subtitle) card.appendChild(p("nthview-lede", data.subtitle));
+      card.appendChild(p("", data.courier.role));
+      card.appendChild(p("nthview-small", "Walk with WASD or the arrow keys and drag to look around; on a phone, use the stick. Press Enter to talk to whoever is close. Nobody is keeping score: wrong guesses only earn an explanation."));
+      card.appendChild(el("div", { class: "nthview-actions" }, [btn("Open the welcome letter", "nthview-primary", function () { sfx("letter"); hideOverlay(function () { showLetter(data.postmaster.opening, "Start delivering", start); }); })]));
+      showOverlay(el("div", {}, [card]), { label: "Welcome", intro: true });
+    }
+    function showLetter(letter, label, after) {
+      var wrap = el("div", { class: "nthview-letterwrap" }), pap = paper(letter, "PAID · " + data.title.toUpperCase().slice(0, 18));
+      pap.appendChild(el("div", { class: "nthview-actions" }, [btn(label, "nthview-primary", function () { hideOverlay(after); })]));
+      wrap.appendChild(pap); showOverlay(wrap, { label: letter.heading || "Letter", intro: !state.started });
+    }
+    function start() {
+      state.started = true; audio(); if (actx && actx.state === "suspended") { try { actx.resume(); } catch (e) { /* ignore */ } }
+      ambient.next = 0; promptKey = ""; refreshAll();
+      try { canvas.focus({ preventScroll: true }); } catch (e) { canvas.focus(); }
+      setTimeout(function () { toast(bagCount() ? "Your bag has mail. Open it to see the errands." : "Open your bag to see the errands."); }, 400);
+    }
+    function showClosing() {
+      state.closingShown = true; refreshAll(); sfx("letter");
+      var c = data.postmaster.closing, wrap = el("div", { class: "nthview-letterwrap" }), pap = paper({ heading: c.heading, paragraphs: c.paragraphs }, "DELIVERED");
+      var ol = el("ol", { class: "nthview-recap" }); data.errands.forEach(function (e) { var li = el("li"); li.appendChild(rich(e.teaches)); ol.appendChild(li); }); pap.appendChild(ol);
+      if (c.signoff) pap.appendChild(el("p", { class: "nthview-sign", text: c.signoff }));
+      var stamps = el("div", { class: "nthview-stamps" }); data.errands.forEach(function (e) { stamps.appendChild(stampEl(e, false)); }); pap.appendChild(stamps);
+      pap.appendChild(el("div", { class: "nthview-actions" }, [btn("See the review", "nthview-primary", function () { hideOverlay(showReview); }), btn("Keep exploring", "", function () { hideOverlay(); })]));
+      wrap.appendChild(pap); showOverlay(wrap, { label: "Closing letter" });
+      burst(P, "#ffd76a", 160);
+    }
+    function showReview() {
+      var card = el("div", { class: "nthview-card nthview-glass nthview-wide" }), rep = data.report;
+      card.appendChild(el("p", { class: "nthview-kicker", text: data.title }));
+      card.appendChild(el("h1", { text: rep.heading }));
+      if (rep.intro) card.appendChild(p("nthview-lede", rep.intro));
+      var done = data.errands.filter(isDone).length;
+      card.appendChild(p("nthview-small", done + " of " + data.errands.length + " errands stamped. Nothing here is a score: the mix-ups are what you learned along the way."));
+      var ul = el("ul", { class: "nthview-rev" });
+      data.errands.forEach(function (e, i) {
+        var s = ES(e), li = el("li"), headRow = el("div", { class: "nthview-revhead" });
+        var ic = el("span", { class: "nthview-ico" }); ic.appendChild(icon(e.kind)); headRow.appendChild(ic);
+        var ht = el("div"); ht.appendChild(el("b", { text: (i + 1) + ". " + e.title })); ht.appendChild(el("div", { class: "nthview-small", text: KIND_LABEL[e.kind] + " · " + statusOf(e).text })); headRow.appendChild(ht); li.appendChild(headRow);
+        li.appendChild(p("", "**What it teaches:** " + e.teaches));
+        if (s.mix.length) {
+          var mx = el("div", { class: "nthview-mix" }); mx.appendChild(p("", "**Mixed up along the way**"));
+          s.mix.forEach(function (m) { var row = el("p"); row.appendChild(rich("**" + m.picked.replace(/[.!?]+$/, "") + ".** ")); row.appendChild(rich(m.why)); mx.appendChild(row); }); li.appendChild(mx);
+        } else if (isDone(e)) li.appendChild(p("nthview-small", e.kind === "notice" ? "Read." : "Right first time, nothing mixed up."));
+        else li.appendChild(p("nthview-small", "Not done yet. Hint: " + e.hint));
+        ul.appendChild(li);
+      });
+      card.appendChild(ul);
+      if (data.glossary && data.glossary.length) {
+        card.appendChild(el("h2", { text: "Who is who", style: "font-family:var(--display);font-weight:600;margin:18px 0 4px" }));
+        var tb = el("table", { class: "nthview-t" }); tb.appendChild(el("tr", {}, [el("th", { text: "In the story" }), el("th", { text: "In real life" })]));
+        data.glossary.forEach(function (g) { tb.appendChild(el("tr", {}, [el("td", { text: g.term }), el("td", { text: g.meaning })])); }); card.appendChild(tb);
+      }
+      if (rep.source) {
+        var sp2 = el("p", { class: "nthview-small" }); sp2.appendChild(doc.createTextNode("Source: "));
+        if (rep.source.url) sp2.appendChild(el("a", { href: rep.source.url, target: "_blank", rel: "noopener", text: rep.source.label })); else sp2.appendChild(doc.createTextNode(rep.source.label));
+        if (rep.source.note) sp2.appendChild(doc.createTextNode(" " + rep.source.note)); card.appendChild(sp2);
+      }
+      card.appendChild(el("div", { class: "nthview-actions" }, [btn("Back to the town", "nthview-primary", function () { hideOverlay(); })]));
+      showOverlay(card, { label: "Review" });
+    }
+    function showHelp() {
+      var card = el("div", { class: "nthview-card nthview-glass" });
+      card.appendChild(el("h1", { text: "Controls", style: "font-size:2.2rem" }));
+      var k = el("div", { class: "nthview-keys" });
+      [["WASD / ↑ ↓", "Walk"], ["← →  or drag", "Look around"], ["Enter or E", "Talk to whoever is close, or read a board"], ["B", "Open your bag and the checklist"], ["G", "Guide me on or off"], ["Esc", "Close a panel"], ["Phone", "Stick at the bottom left; tap the card to talk"]].forEach(function (r2) { k.appendChild(el("span", { text: r2[0] })); k.appendChild(el("span", { text: r2[1] })); });
+      card.appendChild(k);
+      card.appendChild(p("nthview-small", "Residents with a gold marker have something for you or are waiting for something you carry. White markers mean you have not met them yet. Mystery parcels and chains never light up: working them out is the point."));
+      card.appendChild(el("div", { class: "nthview-actions" }, [btn("Back to the town", "nthview-primary", function () { hideOverlay(); })]));
+      showOverlay(card, { label: "Controls" });
+    }
+
+    /* ---------- confetti bursts on the sphere ---------- */
+    var bursts = [];
+    function burst(d, color, n) {
+      if (reduceMotion) return; n = n || 70;
+      var origin = surf(d, 2.2), geo = new THREE.BufferGeometry(), pos = new Float32Array(n * 3), vel = [], up = d.clone().normalize(), f = frameAt(up);
+      for (var i = 0; i < n; i++) { pos[i * 3] = origin.x; pos[i * 3 + 1] = origin.y; pos[i * 3 + 2] = origin.z; var a = Math.random() * 6.28, o = 1.5 + Math.random() * 3; vel.push(up.clone().multiplyScalar(4 + Math.random() * 5).addScaledVector(f.n, Math.cos(a) * o).addScaledVector(f.e, Math.sin(a) * o)); }
+      geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+      var pts = new THREE.Points(geo, new THREE.PointsMaterial({ color: color, size: .3, transparent: true, opacity: 1 })); scene.add(pts); bursts.push({ pts: pts, vel: vel, up: up, t: 0 });
+    }
+    function updateBursts(dt) {
+      for (var i = bursts.length - 1; i >= 0; i--) {
+        var b = bursts[i], arr = b.pts.geometry.attributes.position.array; b.t += dt;
+        b.vel.forEach(function (v, k) { v.addScaledVector(b.up, -11 * dt); arr[k * 3] += v.x * dt; arr[k * 3 + 1] += v.y * dt; arr[k * 3 + 2] += v.z * dt; });
+        b.pts.geometry.attributes.position.needsUpdate = true; b.pts.material.opacity = Math.max(0, 1 - b.t / 1.8);
+        if (b.t > 1.8) { scene.remove(b.pts); b.pts.geometry.dispose(); bursts.splice(i, 1); }
+      }
+    }
+
+    /* ---------- guide trail and walk-me-there ---------- */
+    var trailMat = new THREE.MeshBasicMaterial({ color: "#ffb02e", transparent: true, opacity: .9, depthWrite: false });
+    var trailGeo = new THREE.CircleGeometry(.34, 12), trail = [];
+    for (var ti = 0; ti < 18; ti++) { var dot = new THREE.Mesh(trailGeo, trailMat.clone()); dot.visible = false; scene.add(dot); trail.push(dot); }
+    var trailDirty = true;
+    function routeTo(target) { return arcClear(P, target) ? [target] : [POLE, target]; }
+    function updateTrail(t) {
+      var tgt = state.guide && state.started ? trailTarget() : null;
+      if (!tgt) { trail.forEach(function (d) { d.visible = false; }); return; }
+      var pts = [P.clone()].concat(routeTo(tgt.d)), segs = [], total = 0;
+      for (var i = 1; i < pts.length; i++) { var l = ang(pts[i - 1], pts[i]); segs.push(l); total += l; }
+      var startA = 1.6 / R, endA = total - 2 / R, gap = Math.max(1.8 / R, (endA - startA) / trail.length), k = 0;
+      for (var a = startA; a < endA && k < trail.length; a += gap) {
+        var acc = 0, si = 0; while (si < segs.length - 1 && acc + segs[si] < a) { acc += segs[si]; si++; }
+        var dd = slerpDir(pts[si], pts[si + 1], Math.min(1, (a - acc) / segs[si]));
+        var dot2 = trail[k++]; dot2.visible = true; dot2.position.copy(surf(dd, .06)); orient(dot2, dd, frameAt(dd).n); dot2.rotateX(-Math.PI / 2);
+        var pulse = reduceMotion ? .5 : Math.max(0, Math.sin(t * 3 - k * .6));
+        dot2.material.opacity = .55 + .4 * pulse; dot2.scale.setScalar(.8 + .35 * pulse);
+      }
+      for (; k < trail.length; k++) trail[k].visible = false;
+    }
+    var walk = null;
+    function startWalk() { var tgt = trailTarget(); if (!tgt) return; closePops(); walk = { route: routeTo(tgt.d), stop: tgt.stop, name: tgt.name, best: 9, stuck: 0, detours: 0, side: 1 }; promptKey = ""; }
+    function stopWalk() { if (walk) { walk = null; promptKey = ""; } }
+
+    /* ---------- the prompt card at the bottom ---------- */
+    var promptKey = "", promptPrimary = null, nearest = null;
+    function findNearest() {
+      var best = null, bd = TALK_DIST;
+      people.forEach(function (pp) { var d = ang(P, pp.d) * R; if (d < bd) { bd = d; best = { type: "resident", pp: pp }; } });
+      var dp = ang(P, pmDir) * R; if (dp < bd + .6) { bd = dp; best = { type: "postmaster" }; }
+      boards.forEach(function (b) { var d = ang(P, b.d) * R; if (d < bd) { bd = d; best = { type: "board", b: b }; } });
+      return best;
+    }
+    function setPrompt(key, face, small, big, actions) {
+      if (key === promptKey && key !== "") return; promptKey = key;
+      if (!key) { prompt.classList.add("nthview-off"); promptPrimary = null; return; }
+      prompt.classList.remove("nthview-off"); pface.textContent = ""; if (face) pface.appendChild(face);
+      psmall.textContent = small; pbig.textContent = big; pacts.textContent = "";
+      promptPrimary = actions.length ? actions[0].fn : null;
+      actions.forEach(function (a, i) { var b = btn(a.label, i === 0 ? "nthview-primary nthview-small" : "nthview-small", a.fn); if (i === 0 && a.kbd) b.appendChild(el("span", { class: "nthview-kbd", "aria-hidden": "true", text: a.kbd })); pacts.appendChild(b); });
+    }
+    function updatePrompt() {
+      if (!state.started || state.panel || state.overlay) { setPrompt("", null); return; }
+      nearest = findNearest();
+      var gt = state.guide ? trailTarget() : null, extra = [];
+      if (gt && nearest) {
+        var here = nearest.type === "resident" ? nearest.pp.d : nearest.type === "postmaster" ? pmDir : nearest.b.d;
+        if (gt.d !== here) extra.push({ label: "Walk to next errand", fn: startWalk });
+      }
+      if (nearest && nearest.type === "resident") {
+        var pp = nearest.pp, r = pp.r, met = state.met[r.id], hot = hotFor(r.id);
+        setPrompt("r" + r.id + met + hot + extra.length, portraitSvg(r.portrait, mixHex(pp.color, "#ffffff", .7)), met ? r.role + " · " + DIS[r.district].name : "Someone new", r.name, [{ label: hot ? "Talk · has an errand" : "Talk", kbd: "Enter", fn: function () { talkTo(pp); } }].concat(extra));
+      } else if (nearest && nearest.type === "postmaster") {
+        setPrompt("pm" + officeOpen() + extra.length, portraitSvg(pmPortrait, "#f4d6cf"), "Post office", pmName, [{ label: officeOpen() ? "Talk · work waiting" : "Talk", kbd: "Enter", fn: talkToPostmaster }].concat(extra));
+      } else if (nearest && nearest.type === "board") {
+        var ic = icon("notice"); setPrompt("b" + nearest.b.e.id + isDone(nearest.b.e) + extra.length, ic, "Notice board · " + DIS[nearest.b.e.district].name, nearest.b.e.heading, [{ label: "Read", kbd: "Enter", fn: function () { readNotice(nearest.b); } }].concat(extra));
+      } else if (walk) {
+        setPrompt("walk" + walk.name, icon("bag"), "Walking to", walk.name, [{ label: "Stop", fn: stopWalk }]);
+      } else if (state.guide) {
+        var tgt = trailTarget();
+        if (tgt) setPrompt("guide" + tgt.e.id + ES(tgt.e).stage + ES(tgt.e).pos, icon(tgt.e.kind), "Guide me · next errand", tgt.e.title, [{ label: "Walk me there", fn: startWalk }, { label: "Bag", fn: openBag }]);
+        else setPrompt("guide-none", icon("star"), "Guide me", allRequiredDone() ? "Everything is delivered" : "The rest are puzzles for you", [{ label: "Bag", fn: openBag }]);
+      } else setPrompt("", null);
+    }
+
+    /* ---------- input ---------- */
+    var keys = {}, MOVE_KEYS = ["w", "a", "s", "d", "arrowup", "arrowdown", "arrowleft", "arrowright"];
+    function onKeyDown(e) {
+      if (!canvas.isConnected) return;
+      if (e.key === "Escape") {
+        if (!popWard.classList.contains("nthview-hidden") || !popEmote.classList.contains("nthview-hidden")) { closePops(); return; }
+        if (state.panel) { closePanel(); return; }
+        if (state.overlay && !state.overlay.intro) { hideOverlay(); return; }
+        if (walk) stopWalk();
+        return;
+      }
+      if (state.panel || state.overlay || !state.started) return;
+      if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+      if (e.target && e.target.tagName === "BUTTON" && (e.key === "Enter" || e.key === " ")) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      var k = e.key.toLowerCase();
+      if (MOVE_KEYS.indexOf(k) !== -1) { keys[k] = true; e.preventDefault(); return; }
+      if (k === "enter" || k === "e") { if (promptPrimary) { promptPrimary(); e.preventDefault(); } return; }
+      if (k === "b") { openBag(); e.preventDefault(); return; }
+      if (k === "g") { setGuide(!state.guide); e.preventDefault(); }
+    }
+    function onKeyUp(e) { delete keys[e.key.toLowerCase()]; }
+    function onBlur() { keys = {}; }
+    root.addEventListener("keydown", onKeyDown); root.addEventListener("keyup", onKeyUp); root.addEventListener("blur", onBlur);
+    var drag = null, pitch = .42;
+    canvas.addEventListener("pointerdown", function (e) { drag = { id: e.pointerId, x: e.clientX, y: e.clientY }; try { canvas.setPointerCapture(e.pointerId); } catch (x) { /* ignore */ } closePops(); try { canvas.focus({ preventScroll: true }); } catch (x) { canvas.focus(); } });
+    canvas.addEventListener("pointermove", function (e) {
+      if (!drag || drag.id !== e.pointerId) return; var dx = e.clientX - drag.x, dy = e.clientY - drag.y; drag.x = e.clientX; drag.y = e.clientY;
+      rotateCam(-dx * .006); pitch = Math.max(.12, Math.min(1.15, pitch + dy * .004));
+    });
+    var endDrag = function (e) { if (drag && drag.id === e.pointerId) drag = null; };
+    canvas.addEventListener("pointerup", endDrag); canvas.addEventListener("pointercancel", endDrag);
+    var joyVec = { x: 0, y: 0 }, joyId = null;
+    function joyMove(e) { var r = joy.getBoundingClientRect(); var x = (e.clientX - r.left - r.width / 2) / (r.width / 2), y = (e.clientY - r.top - r.height / 2) / (r.height / 2); var l = Math.hypot(x, y); if (l > 1) { x /= l; y /= l; } joyVec.x = x; joyVec.y = y; knob.style.transform = "translate(" + x * 34 + "px," + y * 34 + "px)"; }
+    joy.addEventListener("pointerdown", function (e) { joyId = e.pointerId; try { joy.setPointerCapture(e.pointerId); } catch (x) { /* ignore */ } joyMove(e); });
+    joy.addEventListener("pointermove", function (e) { if (e.pointerId === joyId) joyMove(e); });
+    var joyEnd = function (e) { if (e.pointerId !== joyId) return; joyId = null; joyVec.x = joyVec.y = 0; knob.style.transform = ""; };
+    joy.addEventListener("pointerup", joyEnd); joy.addEventListener("pointercancel", joyEnd);
+    function rotateCam(a) { var q = new THREE.Quaternion().setFromAxisAngle(P, a); camF.applyQuaternion(q).addScaledVector(P, -camF.dot(P)).normalize(); }
+
+    /* ---------- walking on the sphere ---------- */
+    var PLAYER_R = .42 / R, _q = new THREE.Quaternion();
+    function stepFrom(from, dir, dist) {
+      var axis = from.clone().cross(dir); if (axis.lengthSq() < 1e-12) return null; axis.normalize();
+      var np = from.clone().applyQuaternion(_q.setFromAxisAngle(axis, dist / R)).normalize();
+      for (var i = 0; i < obstacles.length; i++) {
+        var o = obstacles[i], lim = o.r + PLAYER_R; if (np.dot(o.d) < Math.cos(lim)) continue;
+        var t = tangentTo(o.d, np); np = o.d.clone().multiplyScalar(Math.cos(lim + 1e-4)).addScaledVector(t, Math.sin(lim + 1e-4)).normalize();
+      }
+      return land(np) ? np : null;
+    }
+    /* auto-walk steering: bend around buildings, people and trees that sit ahead on the great circle */
+    var LOOK = 3 / R;
+    function avoid(dir, goal) {
+      var out = dir.clone(), right = dir.clone().cross(P);
+      for (var i = 0; i < obstacles.length; i++) {
+        var o = obstacles[i]; if (ang(o.d, goal) < o.r + .5 / R) continue;
+        var dd = ang(P, o.d) - o.r - PLAYER_R; if (dd > LOOK) continue;
+        var to = tangentTo(P, o.d), ahead = to.dot(dir); if (ahead <= .05) continue;
+        var side = right.dot(to) > 0 ? -1 : 1, w = Math.max(0, 1 - dd / LOOK) * ahead * 2.2;
+        out.addScaledVector(right, side * w);
+      }
+      return out.addScaledVector(P, -out.dot(P)).normalize();
+    }
+    function moveBy(dir, dist) {
+      var np = stepFrom(P, dir, dist);
+      if (!np) { var tries = [.8, -.8, 1.4, -1.4]; for (var i = 0; i < tries.length && !np; i++) np = stepFrom(P, dir.clone().applyQuaternion(_q.setFromAxisAngle(P, tries[i])), dist * .6); }
+      if (!np) return false;
+      var q = new THREE.Quaternion().setFromUnitVectors(P, np);
+      camF.applyQuaternion(q); faceF.applyQuaternion(q); P.copy(np);
+      camF.addScaledVector(P, -camF.dot(P)).normalize(); faceF.addScaledVector(P, -faceF.dot(P)).normalize();
+      return true;
+    }
+
+    /* ---------- loop ---------- */
+    var clock = new THREE.Clock(), frame = 0, alive = true, stepT = 0;
+    var camPos = V(0, 0, 0), camUp = P.clone(), camDist = 8.6, lookAt = V(0, 0, 0);
+    function eyeFor() { return surf(P, 1.5 + camDist * Math.sin(pitch)).addScaledVector(camF, -camDist * Math.cos(pitch)); }
+    camPos.copy(eyeFor());
+    var ro = null;
+    function cleanup() {
+      alive = false; renderer.dispose(); root.removeEventListener("keydown", onKeyDown); root.removeEventListener("keyup", onKeyUp); root.removeEventListener("blur", onBlur);
+      if (ro) ro.disconnect(); else root.removeEventListener("resize", onResize);
+      if (mq) { if (mq.removeEventListener) mq.removeEventListener("change", applyTheme); else if (mq.removeListener) mq.removeListener(applyTheme); }
+      if (actx) { try { actx.close(); } catch (e) { /* ignore */ } }
+    }
+    function tick() {
+      if (!alive || !canvas.isConnected) { if (alive) cleanup(); return; }
+      var dt = Math.min(clock.getDelta(), .05), t = clock.elapsedTime; frame++;
+      var moving = false, mdir = null;
+      if (state.started && !state.panel && !state.overlay) {
+        var f = 0, r = 0;
+        if (keys.w || keys.arrowup) f += 1; if (keys.s || keys.arrowdown) f -= 1;
+        if (keys.a) r -= 1; if (keys.d) r += 1;
+        if (keys.arrowleft) rotateCam(dt * 2.1); if (keys.arrowright) rotateCam(-dt * 2.1);
+        f += -joyVec.y; r += joyVec.x;
+        var len = Math.hypot(f, r);
+        if (len > .15 && walk) stopWalk();
+        if (walk) {
+          var wp = walk.route[0], left = ang(P, wp);
+          if (left < (walk.route.length === 1 ? walk.stop : .02)) { walk.route.shift(); walk.best = 9; walk.stuck = 0; if (!walk.route.length) { walk = null; promptKey = ""; } }
+          else {
+            mdir = avoid(tangentTo(P, wp), wp); moving = moveBy(mdir, Math.min(SPEED * 1.15 * dt, left * R));
+            var want = mdir.clone(), cross = camF.clone().cross(want).dot(P), dotf = camF.dot(want); rotateCam(Math.atan2(cross, dotf) * Math.min(1, dt * 2.2));
+            if (left > walk.best - .05 / R) {
+              walk.stuck += dt;
+              if (walk.stuck > .5 && walk.detours < 5) { walk.route.unshift(offset(P, { n: mdir, e: mdir.clone().cross(P).normalize() }, walk.side * Math.PI * .4, 3.2 / R)); walk.side = -walk.side; walk.detours++; walk.stuck = 0; walk.best = 9; }
+              else if (walk.stuck > .9) { walk = null; promptKey = ""; toast("Something is in the way. Walk the last bit yourself."); }
+            } else { walk.best = left; walk.stuck = 0; }
+          }
+        } else if (len > .05) {
+          var right = camF.clone().cross(P); mdir = camF.clone().multiplyScalar(f).addScaledVector(right, r).normalize();
+          moving = moveBy(mdir, SPEED * Math.min(1, len) * dt);
+        }
+      }
+      if (moving && mdir) { faceF.lerp(mdir, Math.min(1, dt * 12)).addScaledVector(P, -faceF.dot(P)).normalize(); stepT += dt; if (stepT > .34) { stepT = 0; sfx("step"); } }
+      animateFigure(player, moving, dt, t);
+      playerHop = Math.max(0, playerHop - dt * 2.4);
+      player.position.copy(surf(P, Math.sin(playerHop * Math.PI) * .5 + (moving && !reduceMotion ? Math.abs(Math.sin(player.userData.phase)) * .06 : 0))); orient(player, P, faceF);
+      /* companion */
+      if (pet) {
+        var behind = offset(P, { n: faceF, e: faceF.clone().cross(P).normalize() }, Math.PI - .5, 1.7 / R), gap = ang(petDir, behind);
+        if (gap > .4 / R) { var pd = tangentTo(petDir, behind); petDir = petDir.clone().applyQuaternion(new THREE.Quaternion().setFromAxisAngle(petDir.clone().cross(pd).normalize(), Math.min(gap, (gap > 4 / R ? 14 : SPEED * 1.1) * dt / R))).normalize(); pet.userData.f = pd; }
+        petHop = Math.max(0, petHop - dt * 2.4);
+        var bird = data.companion.kind === "bird", lift = bird ? 2.4 + (reduceMotion ? 0 : Math.sin(t * 3) * .25) : (gap > .5 / R && !reduceMotion ? Math.abs(Math.sin(t * 12)) * .12 : 0);
+        pet.position.copy(surf(petDir, lift + Math.sin(petHop * Math.PI) * .6)); orient(pet, petDir, pet.userData.f || faceF);
+        if (pet.userData.tail && !reduceMotion) pet.userData.tail.rotation.z = Math.sin(t * (data.companion.kind === "cat" ? 2 : 12)) * .5;
+        pet.userData.wings.forEach(function (w, i) { w.rotation.z = (i ? -1 : 1) * (reduceMotion ? .2 : Math.sin(t * 16) * .7); });
+      }
+      /* residents and the postmaster turn to you, hop when greeted */
+      people.concat([postmaster]).forEach(function (pp, i) {
+        var near = ang(P, pp.d) * R < 7, want = near ? tangentTo(pp.d, P) : pp.home;
+        pp.cur = (pp.cur || pp.home.clone()).lerp(want, Math.min(1, dt * 4)).addScaledVector(pp.d, -(pp.cur || pp.home).dot(pp.d)).normalize();
+        pp.hop = Math.max(0, (pp.hop || 0) - dt * 2.2);
+        pp.g.position.copy(surf(pp.d, Math.sin(pp.hop * Math.PI) * .45 + (reduceMotion ? 0 : Math.sin(t * 2 + i) * .02))); orient(pp.g, pp.d, pp.cur);
+        animateFigure(pp.g, false, dt, t);
+        var mk = pp.mk; mk.position.y = 2.75 + (reduceMotion ? 0 : Math.sin(t * 2.4 + i) * .12); mk.rotation.y = reduceMotion ? 0 : t * 1.6;
+        if (mk.userData.mode === "hot" && !reduceMotion) mk.material.emissiveIntensity = .7 + .4 * Math.sin(t * 5);
+        if (pp.tag) { var dist = ang(P, pp.d) * R; pp.tag.sprite.material.opacity = Math.max(0, Math.min(1, 1.7 - dist / 20)); }
+      });
+      boards.forEach(function (b, i) { b.mk.position.y = 2.9 + (reduceMotion ? 0 : Math.sin(t * 2.4 + i) * .12); b.mk.rotation.y = reduceMotion ? 0 : t * 1.6; });
+      updatePrompt();
+      /* camera follows from behind, upright to the local "up" */
+      var eye = eyeFor(), ed = eye.clone().normalize(), minR = R + heightAt(ed) + 1; if (eye.length() < minR) eye.setLength(minR);
+      var k = reduceMotion ? 1 : 1 - Math.exp(-dt * 7);
+      camPos.lerp(eye, k); camUp.lerp(P, k).normalize();
+      camera.position.copy(camPos); camera.up.copy(camUp);
+      lookAt.copy(surf(P, 1.55)).addScaledVector(camF, 1.3); camera.lookAt(lookAt);
+      /* sky */
+      updateSun(t);
+      dome.position.copy(camera.position); orient(dome, camUp, camF); stars.position.copy(camera.position);
+      sunDisc.position.copy(camera.position).addScaledVector(sunDir, 380); sunDisc.lookAt(camera.position);
+      moonDisc.position.copy(camera.position).addScaledVector(sunDir, -380); moonDisc.lookAt(camera.position);
+      if (!reduceMotion && frame % 2 === 0) waveWater(t);
+      if (!reduceMotion) spinners.forEach(function (s) { if (s.axis === "z") s.o.rotation.z += dt * s.speed; else if (s.axis === "y") s.o.rotation.y += dt * s.speed; else if (s.axis === "flag") s.o.rotation.y = Math.sin(t * 3) * .25; });
+      beams.forEach(function (b) { if (!reduceMotion) b.pivot.rotation.y = t * .8; b.room.material.emissiveIntensity = night ? 1.3 : .3; });
+      extras.forEach(function (fn) { fn(t, dt); });
+      updateBursts(dt);
+      if (trailDirty || frame % 6 === 0) { updateTrail(t); trailDirty = false; }
+      if (frame % 2 === 0) updateCompass();
+      if (emoteT > 0) { emoteT -= dt; emoteSprite.position.copy(surf(P, 3.1 + (reduceMotion ? 0 : Math.min(.4, (2.6 - emoteT) * 1.5)))); var es = Math.min(1, (2.6 - emoteT) * 5) * Math.min(1, emoteT * 3); emoteSprite.scale.set(1.5 * es, 1.5 * es, 1); if (emoteT <= 0) emoteSprite.visible = false; }
+      ambientTick(t);
+      renderer.render(scene, camera);
+      root.requestAnimationFrame(tick);
+    }
+    function onResize() { renderer.setSize(W(), H(), false); camera.aspect = W() / H(); camera.updateProjectionMatrix(); }
+    if (root.ResizeObserver) { ro = new root.ResizeObserver(onResize); ro.observe(container); } else root.addEventListener("resize", onResize);
+    var mq = root.matchMedia && root.matchMedia("(prefers-color-scheme: dark)");
+    if (mq) { if (mq.addEventListener) mq.addEventListener("change", applyTheme); else if (mq.addListener) mq.addListener(applyTheme); }
+
+    applyTheme(); applyDress(); refreshAll(); updateSun(0);
+    showIntro();
+    tick();
+    if (doc.fonts && doc.fonts.ready) doc.fonts.ready.then(function () { if (!alive) return; labels.forEach(function (L) { L.draw(); }); data.districts.forEach(function (d) { d._signBoard.material.map = boardTexture(d.name, d._color); d._signBoard.material.needsUpdate = true; }); });
+  }
+
+  NthView.build = function (container, data) {
+    if (!container || typeof container.appendChild !== "function") {
+      throw new TypeError("NthView.build: container must be a DOM element");
+    }
+    container.innerHTML = "";
+    container.classList.add("nthview", "nthview-courier");
+    injectStyles();
+
+    if (typeof NthView.validate !== "function") {
+      renderErrorPanel(container, { errors: [{ path: "$", message: "validate.js must be inlined before view.js" }] });
+      return { valid: false, errors: [], warnings: [] };
+    }
+    var result = NthView.validate(data);
+    if (!result.valid) {
+      renderErrorPanel(container, result);
+      return result;
+    }
+    var missing = (NthView.libs || []).filter(function (l) { return l.kind === "script" && !root[l.global]; });
+    if (missing.length) {
+      var errs = missing.map(function (l) { return { path: "$", message: l.name + " did not load from " + l.src + ". This file needs internet access the first time it opens." }; });
+      renderErrorPanel(container, { errors: errs });
+      return { valid: false, errors: errs, warnings: result.warnings };
+    }
+    render(container, data);
+    return result;
+  };
+
+  NthView.libs = [
+    { kind: "script", src: "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js", global: "THREE", name: "three.js r128" },
+    { kind: "style", href: "https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Nunito:ital,wght@0,400;0,700;0,800;1,400&display=swap", name: "Google Fonts (Fredoka, Nunito)" }
+  ];
+})(typeof globalThis !== "undefined" ? globalThis : window);

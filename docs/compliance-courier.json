@@ -1,0 +1,326 @@
+{
+  "schemaVersion": 1,
+  "title": "Riverside Rounds",
+  "subtitle": "What compliance really means, learned one errand at a time at BrightPath",
+  "theme": "dusk",
+  "courier": {
+    "name": "Sam",
+    "role": "You are Sam, the new coordinator of BrightPath's Riverside centre. Priya, your manager, is away this week, so the post round is how you learn who keeps which rule, and why."
+  },
+  "companion": { "kind": "cat", "name": "Biscuit" },
+  "postmaster": {
+    "name": "Mo",
+    "portrait": { "skin": "#c98e66", "hair": "#2b1d14", "hairStyle": "short", "top": "#b4475a", "accessory": "headset" },
+    "opening": {
+      "heading": "Welcome to Riverside, Sam",
+      "paragraphs": [
+        "BrightPath runs after-school classes for 600 children in three centres. We hold their personal details, take payments from parents, keep a few pupils' medicines, and promise families that their children are safe and their information is private. Lots of rules apply to a place like this, and compliance is the everyday work of actually following them, and being able to show that you did.",
+        "Every rule here has a keeper, and they all live in this little town. Mo at the post office will hand you the post. Carry it round, talk to people, and you will soon know who keeps which rule. Nobody is marking you: if you take something to the wrong person, they will tell you why."
+      ],
+      "signoff": "Priya, centre manager (away this week)"
+    },
+    "closing": {
+      "heading": "You kept every promise this week",
+      "paragraphs": [
+        "Sam, every errand this week was about the same few ideas. Rules come in layers, and our own policies are promises on top of the law. Rules protect people in the moments they feel inconvenient. Records are only worth keeping if they are true. Speaking up and declaring are how problems get fixed before they hurt anyone.",
+        "So how do we know we are compliant? We know which rules apply to us, we follow them every day, we keep true records, people speak up when something is off, and we check ourselves regularly. Here is everything you carried."
+      ],
+      "signoff": "Priya"
+    }
+  },
+  "districts": [
+    { "id": "rulebook-row", "name": "Rulebook Row", "blurb": "Where the rules come from: laws, regulations, standards and BrightPath's own policies. New rules and changes to rules belong here.", "color": "#8a62c4", "props": ["library", "lamp", "tree"] },
+    { "id": "front-desk", "name": "The Front Desk", "blurb": "Where children arrive and leave. Anything about who may collect a child, and checking it, belongs here.", "color": "#d88a3a", "props": ["house", "signpost", "garden"] },
+    { "id": "records-room", "name": "Records Room", "blurb": "Where personal details and logs are kept. Requests for someone's information, and keeping records true, belong here.", "color": "#5a78b8", "props": ["tower", "crates", "lamp"] },
+    { "id": "safety-yard", "name": "Safety Yard", "blurb": "Where drills, first aid and medicines are looked after. Anything that could hurt someone today belongs here.", "color": "#c24d4d", "props": ["lighthouse", "well", "rocks"] },
+    { "id": "staff-room", "name": "The Staff Room", "blurb": "Where staff learn and declare. Gifts, conflicts of interest and training belong here.", "color": "#6c9a52", "props": ["cottage", "market", "tree"] },
+    { "id": "inspectors-hill", "name": "Inspector's Hill", "blurb": "Where BrightPath checks itself. Audits, inspections and monitoring belong here.", "color": "#b35a8c", "props": ["windmill", "pine", "dish"] }
+  ],
+  "residents": [
+    {
+      "id": "lex", "name": "Lex", "role": "Keeper of the law", "district": "rulebook-row",
+      "personality": "Grave and slow-spoken, carries a very heavy book everywhere.",
+      "portrait": { "skin": "#e0ac69", "hair": "#d9d4cc", "hairStyle": "bald", "top": "#5a3f7a", "accessory": "glasses" },
+      "knows": "I keep the **law**: rules passed by parliament that everyone must follow, like keeping children safe and protecting personal data. I set the floor. Nobody, not even BrightPath's owners, can write a rule that goes below me.",
+      "greeting": "Ah. The new coordinator. Everything you do this week sits on top of me, whether you notice it or not.",
+      "smallTalk": ["Laws say what must happen. They rarely say exactly how. That is Reggie's work.", "If a policy and the law ever disagree, the law wins. Every time."]
+    },
+    {
+      "id": "reggie", "name": "Reggie", "role": "Regulation clerk", "district": "rulebook-row",
+      "personality": "Brisk, precise, loves a numbered list.",
+      "portrait": { "skin": "#f1c27d", "hair": "#4a4a4a", "hairStyle": "short", "top": "#8a62c4", "accessory": "bowtie" },
+      "knows": "I write **regulations**: the detailed rules that agencies and inspectors issue to say how a law must be met. The law says keep children safe; I say keep a written list of who may collect each child.",
+      "greeting": "Good afternoon. Regulation 4, paragraph 2: always greet the new coordinator. Done.",
+      "smallTalk": ["Inspectors check you against my regulations, so I am worth knowing.", "Data-protection authorities issue regulations too, about how long records may be kept."]
+    },
+    {
+      "id": "stan", "name": "Stan", "role": "Standards steward", "district": "rulebook-row",
+      "personality": "Proud of every certificate on his wall, and of keeping the promises behind them.",
+      "portrait": { "skin": "#8d5a3b", "hair": "#1d1a18", "hairStyle": "curly", "top": "#3fa7a0", "accessory": "scarf" },
+      "knows": "I look after **standards**: promises BrightPath chose to sign up to, like an industry safeguarding standard. Nobody forced us, but once we signed, parents and inspectors can hold us to them.",
+      "greeting": "Welcome! See that framed certificate? That's a promise, not a decoration.",
+      "smallTalk": ["A standard often asks for more than the law does. That is why families trust it.", "Breaking a standard we signed up to can cost us the certificate, and the trust that came with it."]
+    },
+    {
+      "id": "polly", "name": "Polly", "role": "Policy keeper", "district": "rulebook-row",
+      "personality": "Warm and practical, turns big rules into short, clear steps.",
+      "portrait": { "skin": "#f3d2b3", "hair": "#a33b62", "hairStyle": "bob", "top": "#c25b9c", "accessory": "flower" },
+      "knows": "I keep BrightPath's own **policies**: how we turn laws, regulations and standards into daily practice at Riverside. Policies are written down so they don't change with the manager on duty, and they are often stricter than the law.",
+      "greeting": "Hello, Sam! I'm the one who writes 'phone a listed parent' instead of 'take reasonable steps'.",
+      "smallTalk": ["If a manager asks you to break a policy, the policy wins, and the right move is to raise it.", "A good policy says what to do, who does it, and how you show it was done."]
+    },
+    {
+      "id": "gwen", "name": "Gwen", "role": "Gatekeeper", "district": "front-desk",
+      "personality": "Kind to every child, unbudging about the pickup list.",
+      "portrait": { "skin": "#a8705a", "hair": "#2b1d14", "hairStyle": "bun", "top": "#d88a3a", "accessory": "glasses" },
+      "knows": "I make sure every child leaves with someone on their **approved pickup list**. If an adult isn't on it, I don't guess and I don't stonewall: I verify with a listed parent, then I write down what happened.",
+      "greeting": "Hello! Mind the coats. Home time is the busiest ten minutes of my day.",
+      "smallTalk": ["Children often know the people they must not leave with. That's why the list exists.", "A phone call to a listed parent usually settles it in two minutes."]
+    },
+    {
+      "id": "dot", "name": "Dot", "role": "Data keeper", "district": "records-room",
+      "personality": "Gentle and firm, treats every file like it belongs to someone else, because it does.",
+      "portrait": { "skin": "#d7a27b", "hair": "#2a5fa8", "hairStyle": "long", "top": "#5a78b8", "accessory": "none" },
+      "knows": "I look after **personal data**. Information belongs to the person it is about. A parent may have her own child's records; nobody may have other families' details without their agreement.",
+      "greeting": "Come in, quietly. Six hundred children's details live on these shelves, and every one of them is a promise.",
+      "smallTalk": ["'Privacy' is not a reason to refuse everything. It's a reason to share the right things with the right people.", "If in doubt, offer to pass a message on instead of passing the details on."]
+    },
+    {
+      "id": "rhea", "name": "Rhea", "role": "Record keeper", "district": "records-room",
+      "personality": "Meticulous and honest to a fault, will not sign anything she did not see.",
+      "portrait": { "skin": "#f5d6c6", "hair": "#6b3e26", "hairStyle": "short", "top": "#3c5a80", "accessory": "apron" },
+      "knows": "I keep the **records**: drill logs, incident notes, who collected whom. A record is only worth something if it is true. 'We can show we did it' means nothing unless we actually did it.",
+      "greeting": "Hello. Before you ask: no, I won't backdate anything. Now, what can I do for you?",
+      "smallTalk": ["A record of a drill that went badly is worth more than a perfect record of one that never happened.", "When something unusual happens, write it down the same day: who, what, when."]
+    },
+    {
+      "id": "sid", "name": "Sid", "role": "Safety officer", "district": "safety-yard",
+      "personality": "Calm, cheerful, and always the first to say 'that doesn't look safe'.",
+      "portrait": { "skin": "#e8b48f", "hair": "#b5562c", "hairStyle": "cap", "top": "#c24d4d", "accessory": "none" },
+      "knows": "I look after **safety**: drills, first aid and the medicine cabinet. My rule is simple: remove the danger now, then report it so it gets fixed for good and is on record. Speaking up is part of everyone's job.",
+      "greeting": "Hi Sam! Fire exits clear, first-aid box full, kettle off. Good day so far.",
+      "smallTalk": ["Reporting a colleague's mistake isn't telling tales. It's how the next child stays safe.", "Medicines and children are always a safety matter, however popular the person who left the cabinet open."]
+    },
+    {
+      "id": "gil", "name": "Gil", "role": "Gifts registrar", "district": "staff-room",
+      "personality": "Cheerful and unembarrassable, keeps a big ledger titled 'Declared'.",
+      "portrait": { "skin": "#f0c8a0", "hair": "#e2b84c", "hairStyle": "curly", "top": "#6c9a52", "accessory": "hat" },
+      "knows": "I keep the **gifts and interests register**. A gift from a supplier creates a conflict of interest, even if you're sure it won't sway you. We handle it by declaring it, not by trusting ourselves.",
+      "greeting": "Got something to declare? Wonderful. That's my favourite sentence.",
+      "smallTalk": ["Declaring a gift isn't an accusation. It protects you as much as BrightPath.", "Small, cheap thank-yous can be fine. The policy says where the line is."]
+    },
+    {
+      "id": "tara", "name": "Tara", "role": "Trainer", "district": "staff-room",
+      "personality": "Enthusiastic, collects real stories from the centre to make courses stick.",
+      "portrait": { "skin": "#c98e66", "hair": "#3b2a20", "hairStyle": "long", "top": "#8aab5a", "accessory": "headset" },
+      "knows": "I run **training**. Training works when people see the point, so I use real examples from this centre and make time for it. Compliance is a culture of understanding, not a pile of completed checkboxes.",
+      "greeting": "Sam! Perfect timing. Can I borrow a story from your first week for the next course?",
+      "smallTalk": ["Clicking through a course at midnight teaches nothing. Ten minutes with a real example teaches a lot.", "People follow rules they understand. People work around rules they don't."]
+    },
+    {
+      "id": "audra", "name": "Audra", "role": "Auditor", "district": "inspectors-hill",
+      "personality": "Curious rather than scary, asks 'show me' more than 'why not'.",
+      "portrait": { "skin": "#8d5a3b", "hair": "#d9d4cc", "hairStyle": "bun", "top": "#b35a8c", "accessory": "glasses" },
+      "knows": "I do **audits**: every so often I check that the rules are being followed in practice, find the gaps and help fix them. Day-to-day monitoring is everyone's; audits are the periodic check. Neither is about blame.",
+      "greeting": "Hello. Don't look so worried. I'm here to find small problems before they become big ones.",
+      "smallTalk": ["The best audit finding is one the team already spotted and fixed.", "If an audit only ever finds nothing, it probably isn't looking."]
+    }
+  ],
+  "errands": [
+    {
+      "id": "what-compliance-means", "kind": "letter", "title": "A letter for the policy keeper",
+      "hint": "Polly lives on Rulebook Row, where the rules come from.",
+      "teaches": "Compliance means following the rules that apply to your work, and being able to show that you did. It is everyone's job, not a department.",
+      "done": "That's it exactly. Following the rules, and being able to show it. Welcome to Riverside.",
+      "to": "polly",
+      "letter": {
+        "paragraphs": [
+          "Polly, Sam starts today and a parent already asked, half joking, what compliance even means. Could you give Sam the short answer? Not the legal text, just the idea: which rules apply to us, following them sensibly, and keeping honest records so anyone can see we did.",
+          "Priya"
+        ]
+      },
+      "check": {
+        "question": "Polly smiles: \"So, Sam. If that parent asks again, what is compliance?\"",
+        "options": [
+          { "text": "Making sure we follow the laws, regulations, standards and policies that apply to us, and can show that we did", "correct": true, "why": "Both halves matter: actually following the rules that apply, and keeping honest records so an inspector, a parent or a court can see that you did." },
+          { "text": "Following every rule exactly, no matter what", "why": "Compliance isn't blind obedience. It means knowing which rules apply, following them sensibly, and raising it when two rules seem to clash." },
+          { "text": "The paperwork the legal team does so the rest of us don't have to", "why": "Compliance happens where the work happens: at the front desk, in the classroom, in the email you send. A legal team can write a rule; only you can follow it." },
+          { "text": "Avoiding fines", "why": "Fines are one consequence of getting it wrong. The rules exist to protect children, parents and staff; avoiding fines follows from that." }
+        ]
+      }
+    },
+    {
+      "id": "rule-to-the-desk", "kind": "chain", "title": "How a rule reaches the front desk",
+      "after": "what-compliance-means",
+      "hint": "A rule about who may collect a child has to travel from the top of Rulebook Row all the way to the front desk. Pass it along in the right order.",
+      "teaches": "Rules come in layers: laws set the floor, regulations spell out how, standards are promises we chose, and policies turn them into daily practice.",
+      "done": "And that's what I do at five o'clock every day. Now you know where it comes from.",
+      "message": "Children must be kept safe when they leave the centre.",
+      "steps": [
+        { "resident": "lex", "says": "The law: children in our care must be kept safe. That is the floor. Take it to whoever spells out how." },
+        { "resident": "reggie", "says": "Regulation: keep a written list of the adults allowed to collect each child. Now, has BrightPath promised anything extra?", "tooEarly": "I spell out how to meet a law. Which law? Start at the very top of the row." },
+        { "resident": "stan", "says": "Our safeguarding standard: any unknown adult is verified with a listed parent. We signed that. Now it needs to become our own steps.", "tooEarly": "I add promises on top of the regulations. Has the regulation clerk had it yet?" },
+        { "resident": "polly", "says": "Policy: phone a listed parent, release the child only if they confirm, and write it down. Off to the front desk with it.", "tooEarly": "I turn the layers above me into steps. I can't write the policy before I know what the standard promised." },
+        { "resident": "gwen", "says": "Phone, confirm, write it down. That's exactly my routine.", "tooEarly": "I follow the policy at the desk. Nobody has written it yet. Who writes our policies?" }
+      ]
+    },
+    {
+      "id": "gwens-question", "kind": "reply", "title": "Gwen's question at home time",
+      "hint": "Gwen at the front desk has a tricky moment at home time. Ask her about it.",
+      "teaches": "Rules protect people in the exact moments they feel inconvenient. Follow the verification step rather than skipping it or stonewalling.",
+      "done": "Written down: who came, who I phoned, who confirmed, and the time. Thank you, Sam.",
+      "asker": "gwen",
+      "question": "A man I've never met is here for six-year-old Lily. He isn't on her pickup list, but she ran straight to him and he says he's in a hurry. What should I do?",
+      "cards": [
+        { "text": "Phone a parent who is on the list, let Lily go if they confirm, and write down what happened.", "correct": true, "why": "The rule gives you a way to verify, so use it. Confirming with a listed adult and recording it keeps Lily safe and the record true, and usually takes two minutes." },
+        { "text": "Let her go. She obviously knows him.", "why": "The list exists for exactly this moment. Children often know the people they must not leave with, for example a parent who has lost custody." },
+        { "text": "Refuse and tell him to come back with paperwork.", "why": "Refusing without trying to verify is the box-ticking version of the rule. A phone call would have settled it; safe doesn't have to mean unhelpful." },
+        { "text": "Ask Lily if it's okay to go with him.", "why": "A six-year-old cannot authorise her own release. The rules put that decision with approved adults precisely because children cannot judge the risk." }
+      ],
+      "to": "rhea"
+    },
+    {
+      "id": "phone-numbers", "kind": "parcel", "title": "A folder of phone numbers",
+      "hint": "No name on this one. Read the label and think who looks after information about people.",
+      "teaches": "Personal data belongs to the person it is about. Share someone's own information when they ask; never share other people's without their agreement.",
+      "done": "Thank you. I'll send Theo's mum her own son's records, and offer to pass her number to the other families instead.",
+      "label": "A folder with a sticky note",
+      "clues": ["Inside: the phone numbers of two other children's families.", "A parent's note: \"For a playdate, please! And my son Theo's progress notes.\"", "Stamped on the front: \"Belongs to the people it describes.\""],
+      "owner": "dot",
+      "decoys": [
+        { "resident": "gwen", "why": "I check who collects children. Who may see a family's details is a different question, for whoever looks after personal data." },
+        { "resident": "rhea", "why": "I keep records true, but deciding who may see someone's personal details isn't mine. Try the data keeper, two shelves along." },
+        { "resident": "polly", "why": "I wrote the policy on sharing details, but the folder itself belongs with whoever looks after personal data day to day." }
+      ]
+    },
+    {
+      "id": "sort-the-inbox", "kind": "sort", "title": "Sort Monday's inbox",
+      "hint": "Mo at the post office has a pile of notes. Each one belongs to the part of town that deals with it.",
+      "teaches": "Every situation belongs to someone: the desk checks pickups, records keep details and logs true, safety removes danger, the staff room declares and trains, the hill checks.",
+      "done": "Every note in the right pigeonhole. You'll be running this place by Friday.",
+      "intro": "Put each note in the pigeonhole of the part of town that deals with it.",
+      "envelopes": [
+        { "label": "An unknown adult is here for Lily", "district": "front-desk", "note": "Who may collect a child is checked at the front desk, against the pickup list." },
+        { "label": "A mother asks for her son's progress notes", "district": "records-room", "note": "Requests for someone's own information go to the records room." },
+        { "label": "The monthly fire drill is due", "district": "safety-yard", "note": "Drills are run from the safety yard, and the result is logged truthfully." },
+        { "label": "The medicine cabinet was left unlocked", "district": "safety-yard", "note": "Anything that could hurt someone today is a safety matter first." },
+        { "label": "The snack supplier sent a gift voucher", "district": "staff-room", "note": "Gifts and conflicts of interest are declared in the staff room." },
+        { "label": "An inspection is booked for next term", "district": "inspectors-hill", "note": "Audits and inspections are BrightPath checking itself, up on the hill." },
+        { "label": "Parliament changed the data-protection law", "district": "rulebook-row", "note": "New and changed rules start on Rulebook Row, then flow down into policy." }
+      ]
+    },
+    {
+      "id": "telegram-to-sid", "kind": "telegram", "title": "A telegram for the safety officer",
+      "hint": "The telegraph is at the post office. Sid in the Safety Yard needs to hear about the medicine cabinet.",
+      "teaches": "Speaking up is part of the job. Remove the immediate danger, then report it so it is fixed for good and on record.",
+      "done": "Locked and reported the same day. That's exactly right. I'll speak to Jordan and add a check to the closing routine.",
+      "to": "sid",
+      "text": "SID STOP MEDICINE CABINET FOUND ___ BETWEEN SESSIONS STOP I HAVE ___ IT STOP REPORTING TO PRIYA ___ STOP SAM",
+      "gaps": [
+        { "options": ["UNLOCKED", "TIDY", "EMPTY"], "answer": 0, "why": "The danger was an unlocked cabinet with children walking past it all afternoon." },
+        { "options": ["IGNORED", "LOCKED", "PHOTOGRAPHED"], "answer": 1, "why": "Remove the immediate danger first: lock it now, then report." },
+        { "options": ["NEXT MONTH", "TODAY", "IF ASKED"], "answer": 1, "why": "Medicines and children are a safety matter: report it today, so it's fixed for good and on record." }
+      ]
+    },
+    {
+      "id": "biggest-fine", "kind": "weigh", "title": "How big can a data fine be?",
+      "after": "phone-numbers",
+      "hint": "There's a heavy envelope on the post-office scale, a notice from the data-protection authority. Estimate it, then take it to whoever looks after personal data.",
+      "teaches": "Data-protection fines can reach 4% of a company's worldwide yearly turnover, but the reason for the rule is protecting people, not avoiding fines.",
+      "done": "Four percent. Big enough to make the news, but it's still the families' trust I worry about. Thank you.",
+      "label": "A notice about data-protection fines",
+      "prompt": "Under the EU's data-protection law (GDPR), the highest fines can reach a share of a company's worldwide yearly turnover. What percentage, do you think?",
+      "unit": "%",
+      "min": 0, "max": 20, "step": 0.5, "answer": 4, "tolerance": 1,
+      "reveal": "Up to 4% of worldwide yearly turnover, or 20 million euros if that is higher (GDPR Article 83). Fines are what make the news; the rule exists to protect people's information.",
+      "to": "dot"
+    },
+    {
+      "id": "drill-log", "kind": "letter", "title": "A note about the drill log",
+      "hint": "Audra on Inspector's Hill has a note for the record keeper in the Records Room.",
+      "teaches": "Records must be true. 'We can show we did it' only has value if you actually did it.",
+      "done": "Exactly. We'll run a short drill this afternoon and log what really happened, slow bits and all.",
+      "from": "audra",
+      "to": "rhea",
+      "letter": {
+        "paragraphs": [
+          "Rhea, a colleague suggested just signing this month's drill log because everyone is busy and last month went fine. Could you remind Sam why we never do that? A drill log is evidence. If it's signed without a drill, it's worse than no log at all.",
+          "Audra"
+        ]
+      },
+      "check": {
+        "question": "Rhea taps the empty drill log: \"So, Sam. Everyone's busy. What do we do?\"",
+        "options": [
+          { "text": "Run the drill, even a short one, and record what actually happened, including anything that went wrong", "correct": true, "why": "A true record of a short drill is worth far more than a perfect record of one that never happened. Anything that went wrong is exactly what the next drill fixes." },
+          { "text": "Sign it. Last month went fine, so nothing has changed.", "why": "Signing for a drill that didn't happen makes the record false. If there's ever a fire, the record shows a safety check that never took place." },
+          { "text": "Leave the log blank and skip this month", "why": "Honest, but it leaves the safety check undone. The rule is to run the drill and record it, not just to avoid lying about it." }
+        ]
+      }
+    },
+    {
+      "id": "gift-voucher", "kind": "parcel", "title": "A thank-you voucher",
+      "hint": "Another unaddressed parcel. Someone in the staff room keeps a big ledger of things to declare.",
+      "teaches": "Conflicts of interest are handled by declaring them, not by trusting yourself.",
+      "done": "Declared, logged, and it'll go into the team's treats jar as the policy says. Nobody can say it swayed you.",
+      "label": "A gift voucher in a shiny envelope",
+      "clues": ["A voucher worth about a week's groceries.", "From the company that supplies the centre's snacks, \"as thanks for a great first month\".", "A tag on the ribbon: \"Declare me before you decide.\""],
+      "owner": "gil",
+      "decoys": [
+        { "resident": "tara", "why": "I'd love to use it as a training story, but gifts are declared in the ledger next door, not on my course." },
+        { "resident": "sid", "why": "Nothing dangerous in there, unless you count the temptation. Gifts go to whoever keeps the register." },
+        { "resident": "polly", "why": "The gifts policy is mine, but the voucher itself is declared to the registrar in the staff room." }
+      ]
+    },
+    {
+      "id": "what-audits-are-for", "kind": "letter", "title": "A letter for the auditor",
+      "hint": "Tara in the staff room has a letter for Audra up on Inspector's Hill.",
+      "from": "tara",
+      "to": "audra",
+      "teaches": "Monitoring is daily and audits are periodic. Both exist to find problems while they are small, not to assign blame.",
+      "done": "Found early, fixed small. That's all an audit is for. Tell the nervous tutor they're welcome to come along.",
+      "letter": {
+        "paragraphs": [
+          "Audra, one of the tutors is nervous about next term's inspection and asked me what an audit is actually for. Could you explain it to Sam, so Sam can explain it to the team? I think they imagine someone hunting for a person to blame.",
+          "Tara"
+        ]
+      },
+      "check": {
+        "question": "Audra smiles: \"So, Sam, what is an audit for?\"",
+        "options": [
+          { "text": "To check the rules are followed in practice, find the gaps, and fix them before anyone gets hurt", "correct": true, "why": "That is the whole point. Daily monitoring is everyone's job; an audit is the periodic, careful check that catches what daily habits miss." },
+          { "text": "To catch someone doing something wrong", "why": "Blame makes people hide problems, which is the opposite of what an audit needs. Audits look at processes, so gaps get fixed." },
+          { "text": "To produce a report for the shelf", "why": "A report nobody acts on is wasted. An audit only helps when its findings are fixed and checked again." }
+        ]
+      }
+    },
+    {
+      "id": "staff-room-board", "kind": "notice", "title": "The staff-room noticeboard",
+      "hint": "There is a noticeboard by the staff room. Tara pinned something new on it.",
+      "teaches": "Training works when people see the point: real examples and protected time, not a course clicked through at midnight.",
+      "district": "staff-room",
+      "heading": "This week's training: data protection, the Riverside way",
+      "paragraphs": [
+        "Everyone has until Friday to finish the twenty-minute data-protection course. Please don't click through it at midnight. We've blocked out Thursday's first half hour so you can do it together, with tea.",
+        "Before you start, think of the email from Theo's mum asking for other families' phone numbers. The course is about exactly that moment."
+      ]
+    }
+  ],
+  "glossary": [
+    { "term": "Lex, keeper of the law", "meaning": "Laws: rules passed by parliament that everyone must follow" },
+    { "term": "Reggie, the regulation clerk", "meaning": "Regulations: detailed rules from agencies and inspectors on how to meet a law" },
+    { "term": "Stan, the standards steward", "meaning": "Standards: voluntary promises an organisation signs up to, such as an industry safeguarding standard" },
+    { "term": "Polly, the policy keeper", "meaning": "Policies: the organisation's own written rules that turn the layers above into daily practice" },
+    { "term": "Gwen, the gatekeeper", "meaning": "Safeguarding procedures, such as the approved pickup list and how to verify" },
+    { "term": "Dot, the data keeper", "meaning": "Data protection: personal data belongs to the person it is about (e.g. GDPR)" },
+    { "term": "Rhea, the record keeper", "meaning": "Record-keeping: logs and evidence that must be true and made at the time" },
+    { "term": "Sid, the safety officer", "meaning": "Health and safety, incident reporting and speaking up" },
+    { "term": "Gil, the gifts registrar", "meaning": "Conflicts of interest and the gifts and interests register" },
+    { "term": "Tara, the trainer", "meaning": "Compliance training and culture" },
+    { "term": "Audra, the auditor", "meaning": "Audits and monitoring: periodic and daily checks that rules work in practice" }
+  ],
+  "report": {
+    "heading": "Your week at Riverside",
+    "intro": "Every errand, what it taught, and anything you mixed up on the way, with why.",
+    "source": { "label": "The same BrightPath setting as the Scenario Quiz and Island Quest docs", "note": "The GDPR fine ceiling is from Article 83(5) of Regulation (EU) 2016/679." }
+  }
+}

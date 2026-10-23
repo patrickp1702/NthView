@@ -1,0 +1,14 @@
+{
+  "name": "nthview-marketplace",
+  "owner": { "name": "Patrick P", "url": "https://github.com/patrickp1702" },
+  "description": "Marketplace for NthView, the learn-anything skills that turn any concept into one shareable HTML view or a multi-chapter lesson.",
+  "plugins": [
+    {
+      "name": "nthview",
+      "source": "./",
+      "description": "Learn anything, in the nth view that suits you: seven learning views plus a parent skill that picks the right one and assembles lessons.",
+      "category": "learning",
+      "tags": ["learning", "education", "explainer", "quiz", "game", "concept-map", "codebase"]
+    }
+  ]
+}

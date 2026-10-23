@@ -1,0 +1,23 @@
+{
+  "name": "nthview",
+  "displayName": "NthView \u2014 Learn anything",
+  "version": "0.1.0",
+  "description": "Learn anything, in the nth view that suits you. Skills that turn any concept, paper or codebase into one shareable, single-file HTML view: a scenario quiz, an island game, an explorable lab, a detective case, a concept map, a zoomable code map or a courier planet, or a multi-chapter lesson that mixes them. Works on any machine; Node, Bun or Deno recommended for the validators and build tools, not required.",
+  "author": {
+    "name": "Patrick P",
+    "url": "https://github.com/patrickp1702"
+  },
+  "homepage": "https://github.com/patrickp1702/NthView",
+  "repository": "https://github.com/patrickp1702/NthView",
+  "keywords": [
+    "learning",
+    "education",
+    "skills",
+    "html",
+    "single-file",
+    "explainer",
+    "quiz",
+    "game",
+    "concept-map"
+  ]
+}

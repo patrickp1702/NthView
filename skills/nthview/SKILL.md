@@ -48,23 +48,39 @@ First settle the format, then the view. Ask only what the user has not said.
 ### 3. Validate
 Each view's validator checks its own JSON:
 
-    node skills/<view>/scripts/validate.js <path-to-json>
+    node ${CLAUDE_SKILL_DIR}/../<view>/scripts/validate.js <path-to-json>
 
 For a lesson, also keep `lesson.json` valid (see `references/lesson-format.md`).
+
+Without `node`, try `bun` or `deno run -A`. With no JavaScript runtime at
+all, each view's `SKILL.md` says how to check the JSON by hand against its
+`references/schema.md`; the lesson manifest is checked against the table in
+`references/lesson-format.md`.
 
 ### 4. Build the HTML file
 - **Document:** build with the view's tool into the root `docs/` folder,
   JSON next to HTML:
 
-      node scripts/build-html.js skills/<view> docs/<slug>.json docs/<slug>.html
+      node ${CLAUDE_SKILL_DIR}/../../scripts/build-html.js ${CLAUDE_SKILL_DIR}/../<view> docs/<slug>.json docs/<slug>.html
 
 - **Lesson:** create `lessons/<lesson-slug>/lesson.json` and one
   `chapters/NN-<slug>.json` per chapter, then build everything, including the
   contents page and the previous/next bar on every chapter:
 
-      node scripts/build-lesson.js lessons/<lesson-slug>
+      node ${CLAUDE_SKILL_DIR}/../../scripts/build-lesson.js lessons/<lesson-slug>
 
-Both register the result in the gallery (`index.html`) automatically.
+Inside this repository both also register the result in the gallery
+(`index.html`). Used as an installed plugin from another project, the files
+are simply written where you point them; there is no gallery to update.
+`${CLAUDE_SKILL_DIR}` is the folder of the skill being followed; Claude Code
+fills it in, other agents replace it with that path.
+
+With no JavaScript runtime, build a document by hand as its view's
+`SKILL.md` step 4 describes. For a lesson, read `scripts/build-lesson.js`
+and reproduce exactly what it writes: each chapter page assembled as
+`build-html.js` does, the lesson bar block from `lessonBar()` appended
+verbatim with that chapter's links filled in, and the contents page. Tell
+the user it was built by hand; a script run is faster and surer.
 
 ### 5. Deliver
 Hand over the file (or the lesson's `index.html`) and say which views were
@@ -85,9 +101,12 @@ Minimal guidance only; each view's `SKILL.md` has the detail.
 | Beginners, children, anyone asking for a game | Island Quest | Detective Case |
 | Consolidating several ideas at the end of a lesson | Island Quest | Scenario Quiz |
 | An overview before diving in, or a recap after | Concept Map | Explorable Lab |
+| A big system or codebase to understand top down, down to its files | Zoom Map | Concept Map |
+| Roles and parts that can be personified; relaxed, exploratory learning | Courier | Island Quest |
 
 Skill names: `nthview-concept-map`, `nthview-explorable`,
-`nthview-scenario-quiz`, `nthview-detective`, `nthview-island-quest`.
+`nthview-scenario-quiz`, `nthview-detective`, `nthview-island-quest`,
+`nthview-zoom-map`, `nthview-courier`.
 
 ### Shaping a lesson
 - 3–10 chapters, each with one learning objective and one view.
@@ -109,4 +128,4 @@ Skill names: `nthview-concept-map`, `nthview-explorable`,
 
 ## Files
 - `references/lesson-format.md` — the `lesson.json` format, folder layout and build commands
-- `../nthview-concept-map/SKILL.md`, `../nthview-explorable/SKILL.md`, `../nthview-scenario-quiz/SKILL.md`, `../nthview-detective/SKILL.md`, `../nthview-island-quest/SKILL.md` — the view skills this one hands off to
+- `../nthview-concept-map/SKILL.md`, `../nthview-explorable/SKILL.md`, `../nthview-scenario-quiz/SKILL.md`, `../nthview-detective/SKILL.md`, `../nthview-island-quest/SKILL.md`, `../nthview-zoom-map/SKILL.md`, `../nthview-courier/SKILL.md` — the view skills this one hands off to

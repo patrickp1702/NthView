@@ -53,14 +53,19 @@ Chapter: `file` (string, `NN-kebab-case`, must match `chapters/<file>.json`),
 ## Build
 
 ```bash
-node scripts/build-lesson.js lessons/<lesson-slug>
+node ${CLAUDE_SKILL_DIR}/../../scripts/build-lesson.js lessons/<lesson-slug>
 ```
 
 The tool validates `lesson.json`, validates every chapter's JSON with its
 view's validator, assembles each chapter page exactly as `build-html.js`
 does, appends the lesson bar, writes `index.html`, and regenerates the
 gallery registry so the lesson appears in the gallery's "docs and lessons"
-dialog. `--all` rebuilds every lesson.
+dialog. `--all` rebuilds every lesson. `bun` and `deno run -A` run it
+unchanged. With no JavaScript runtime, reproduce what the script writes by
+hand: validate every chapter against its view's `references/schema.md`, build
+each chapter page as `build-html.js` specifies, append the lesson bar exactly
+as `lessonBar()` emits it, and write the contents page in the same shape as
+an existing lesson's `index.html`.
 
 ## The lesson bar
 
