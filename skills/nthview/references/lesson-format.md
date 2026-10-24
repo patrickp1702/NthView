@@ -1,6 +1,7 @@
 # Lesson format
 
-A lesson is a folder under the repo-root `lessons/` directory. It holds a
+A lesson is a folder under the repo-root `lessons/` directory (or, when NthView
+is used as a plugin from another project, any folder the user chooses). It holds a
 manifest and one view output per chapter. Nothing in a lesson is hand-written
 HTML: every page is produced by `scripts/build-lesson.js`.
 

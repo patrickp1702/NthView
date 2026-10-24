@@ -119,7 +119,7 @@ Produce one standalone file using the template in AGENTS.md §6. The
 repository tool does this exactly, including the Google Fonts tag declared in
 `NthView.libs`:
 
-    node ${CLAUDE_SKILL_DIR}/../../scripts/build-html.js ${CLAUDE_SKILL_DIR} <path-to-json> docs/<concept-slug>-zoom-map.html
+    node ${CLAUDE_SKILL_DIR}/../../scripts/build-html.js ${CLAUDE_SKILL_DIR} <path-to-json> <out-dir>/<concept-slug>-zoom-map.html
 
 If building by hand:
 - the JSON in `<script type="application/json" id="nthview-data">`, with
@@ -127,10 +127,14 @@ If building by hand:
 - the one `<link rel="stylesheet">` tag from `NthView.libs` before the scripts,
 - the full contents of `scripts/validate.js`, then `assets/view.js`, inlined,
 - the bootstrap script that calls `NthView.build(document.getElementById("app"), data)`.
-Name the file `<concept-slug>-zoom-map.html`. Generated maps go in the
-repo-root `docs/` folder, JSON next to HTML (or in `lessons/<lesson>/chapters/`
-when it is a lesson chapter built by `scripts/build-lesson.js`), never inside
-`skills/`.
+Name the file `<concept-slug>-zoom-map.html`.
+
+Where the files go: inside the NthView repository, `docs/` for a document
+(JSON next to HTML) and `lessons/<lesson>/chapters/` for a lesson chapter built
+by `scripts/build-lesson.js`. Anywhere else, such as a project using NthView
+as a plugin, write to the current folder or where the user asks; do not create
+or reuse a `docs/` folder there, it may hold the project's own documentation.
+Never write inside `skills/`.
 
 The hand build is the fallback when no JavaScript runtime is available; the
 tool does nothing beyond that template, so the result is identical.

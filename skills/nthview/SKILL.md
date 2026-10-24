@@ -58,20 +58,25 @@ all, each view's `SKILL.md` says how to check the JSON by hand against its
 `references/lesson-format.md`.
 
 ### 4. Build the HTML file
-- **Document:** build with the view's tool into the root `docs/` folder,
-  JSON next to HTML:
+- **Document:** build with the view's tool, JSON next to HTML:
 
-      node ${CLAUDE_SKILL_DIR}/../../scripts/build-html.js ${CLAUDE_SKILL_DIR}/../<view> docs/<slug>.json docs/<slug>.html
+      node ${CLAUDE_SKILL_DIR}/../../scripts/build-html.js ${CLAUDE_SKILL_DIR}/../<view> <out-dir>/<slug>.json <out-dir>/<slug>.html
 
-- **Lesson:** create `lessons/<lesson-slug>/lesson.json` and one
+  `<out-dir>` is `docs/` inside the NthView repository. Anywhere else it is
+  the current folder or where the user asks; never a `docs/` folder created
+  for the purpose, since the project may keep its own documentation there.
+
+- **Lesson:** create `lessons/<lesson-slug>/lesson.json` (inside the NthView
+  repository; elsewhere `<lesson-slug>/lesson.json` in the current folder) and one
   `chapters/NN-<slug>.json` per chapter, then build everything, including the
   contents page and the previous/next bar on every chapter:
 
-      node ${CLAUDE_SKILL_DIR}/../../scripts/build-lesson.js lessons/<lesson-slug>
+      node ${CLAUDE_SKILL_DIR}/../../scripts/build-lesson.js <path-to-lesson-folder>
 
 Inside this repository both also register the result in the gallery
 (`index.html`). Used as an installed plugin from another project, the files
-are simply written where you point them; there is no gallery to update.
+are simply written where you point them; there is no gallery to update and
+the lesson tool skips that step on its own.
 `${CLAUDE_SKILL_DIR}` is the folder of the skill being followed; Claude Code
 fills it in, other agents replace it with that path.
 

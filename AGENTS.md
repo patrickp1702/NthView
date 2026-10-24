@@ -226,6 +226,13 @@ Produce one standalone file using the template in AGENTS.md §6:
 - the bootstrap script that calls `NthView.build(document.getElementById("app"), data)`.
 Name the file `<concept-slug>-<view>.html`.
 
+Where the files go: inside the NthView repository, `docs/` for a document
+(JSON next to HTML) and `lessons/<lesson>/chapters/` for a lesson chapter built
+by `scripts/build-lesson.js`. Anywhere else, such as a project using NthView
+as a plugin, write to the current folder or where the user asks; do not create
+or reuse a `docs/` folder there, it may hold the project's own documentation.
+Never write inside `skills/`.
+
 The hand build is the fallback when no JavaScript runtime is available; the
 tool does nothing beyond that template, so the result is identical.
 

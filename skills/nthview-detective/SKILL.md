@@ -110,7 +110,7 @@ error panel if anything was missed.
 Produce one standalone file using the template in AGENTS.md §6. The
 repository tool does this exactly:
 
-    node ${CLAUDE_SKILL_DIR}/../../scripts/build-html.js ${CLAUDE_SKILL_DIR} <path-to-json> docs/<concept-slug>-detective.html
+    node ${CLAUDE_SKILL_DIR}/../../scripts/build-html.js ${CLAUDE_SKILL_DIR} <path-to-json> <out-dir>/<concept-slug>-detective.html
 
 If building by hand: the JSON in `<script type="application/json"
 id="nthview-data">` with every `<` replaced by the six characters `\u003c`,
@@ -119,8 +119,12 @@ the one Google Fonts tag from `NthView.libs` before the scripts, then
 three-line bootstrap that calls
 `NthView.build(document.getElementById("app"), data)`.
 
-Generated cases go in the repo-root `docs/` folder, in `lessons/<lesson>/chapters/` for a lesson chapter built by
-`scripts/build-lesson.js`, or wherever the user asks; never inside `skills/`.
+Where the files go: inside the NthView repository, `docs/` for a document
+(JSON next to HTML) and `lessons/<lesson>/chapters/` for a lesson chapter built
+by `scripts/build-lesson.js`. Anywhere else, such as a project using NthView
+as a plugin, write to the current folder or where the user asks; do not create
+or reuse a `docs/` folder there, it may hold the project's own documentation.
+Never write inside `skills/`.
 
 The hand build is the fallback when no JavaScript runtime is available; the
 tool does nothing beyond that template, so the result is identical.
