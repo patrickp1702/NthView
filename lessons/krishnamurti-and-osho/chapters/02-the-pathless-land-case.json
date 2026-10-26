@@ -1,0 +1,169 @@
+{
+  "schemaVersion": 1,
+  "title": "The Pathless Land Case",
+  "subtitle": "In 1929 the young man raised to be a \"World Teacher\" closed down the Order built around him. Find out why.",
+  "caseNumber": "OM-1929",
+  "theme": "parchment",
+  "briefing": {
+    "heading": "Case briefing",
+    "paragraphs": [
+      "As a boy, Jiddu Krishnamurti was chosen by the Theosophical Society, a worldwide spiritual movement, and raised to be the **World Teacher** they believed was coming. In 1911 the Society founded an organisation, the Order of the Star in the East, to prepare the world for him.",
+      "On 3 August 1929, at the Order's own camp in Ommen in the Netherlands, Krishnamurti dissolved it. The organisation that existed for him simply ended, by his decision.",
+      "Your class is putting together a small exhibition about that day, and you have been given the archive boxes. Four people already have an explanation. Each sounds reasonable. Only one fits everything the archive holds."
+    ],
+    "question": "Why did Krishnamurti dissolve the Order of the Star in 1929?",
+    "stakes": "Search the archive, pin what you find, rule theories out with evidence, then name the explanation."
+  },
+  "detective": {
+    "title": "You are Asha, a philosophy student cataloguing the archive",
+    "description": "You don't need to know anything about Krishnamurti yet. Read what he said and look at what he did afterwards. Quotes in this case are his own words with their source; anything else is the archive's description."
+  },
+  "cast": [
+    { "id": "meera", "name": "Dr Meera Iyer", "role": "Archivist, your supervisor", "kind": "expert", "bio": "Has read most of Krishnamurti's published talks. Prefers his own words to anyone's summary of them.", "portrait": { "skin": "brown", "hair": "bun", "hairColor": "grey", "outfit": "cardigan", "outfitColor": "#8a5a44", "accessory": "glasses", "expression": "smile" } },
+    { "id": "rohan", "name": "Rohan", "role": "Classmate, read one biography", "kind": "witness", "bio": "Moved by the story of the brothers. Thinks grief explains everything.", "portrait": { "skin": "tan", "hair": "short", "hairColor": "black", "outfit": "hoodie", "outfitColor": "#3b6e8f", "expression": "worried" } },
+    { "id": "varghese", "name": "Mr Varghese", "role": "Retired history teacher", "kind": "witness", "bio": "Forty years of teaching how organisations rise and fall. Suspects politics behind every exit.", "portrait": { "skin": "brown", "hair": "bald", "hairColor": "white", "outfit": "shirt", "outfitColor": "#6b7f3a", "facialHair": "moustache", "expression": "stern" } },
+    { "id": "priya", "name": "Priya", "role": "Classmate, studies marketing", "kind": "witness", "bio": "Sees brands everywhere. Admires a bold relaunch.", "portrait": { "skin": "olive", "hair": "ponytail", "hairColor": "brown", "outfit": "shirt", "outfitColor": "#b04a6a", "accessory": "earrings", "expression": "smile" } },
+    { "id": "leo", "name": "Leo", "role": "Hosts a science podcast", "kind": "witness", "bio": "Likes a debunking. Reads Krishnamurti as a rationalist who saw through religion.", "portrait": { "skin": "fair", "hair": "curly", "hairColor": "auburn", "outfit": "hoodie", "outfitColor": "#44506b", "accessory": "headset", "facialHair": "stubble", "expression": "neutral" } }
+  ],
+  "hypotheses": [
+    { "id": "grief", "title": "Grief broke his faith", "statement": "His brother Nitya died in 1925, and his faith died with him. Closing the Order was a man walking away from belief itself.", "holder": "rohan", "popular": true, "tempting": "The loss was real and deep, and the dissolution came only four years later. Grief does change what people believe.", "why": "Grief may well have shaped him, but it isn't the reason he gave, and his actions don't fit someone who stopped believing in anything. He founded a school in 1928, and the speech itself affirms that there is a truth to be found; it only denies that any path leads to it." },
+    { "id": "power", "title": "Pushed out in a power struggle", "statement": "Organisations fight. Someone wanted him gone, and dissolving the Order was the way he was made to leave.", "holder": "varghese", "tempting": "Spiritual movements do have rivalries, and big exits often hide politics.", "why": "The Order existed for him, and he ended it himself, in person, at the Order's own camp, with a reason about truth rather than about people. Afterwards he spoke around the world for 57 years without any title. People pushed out don't usually leave like that." },
+    { "id": "bigger", "title": "Making room for his own following", "statement": "He shut down someone else's organisation to start his own, with himself at the top.", "holder": "priya", "popular": true, "tempting": "He did go on to found schools and became world famous, so it can look like a relaunch.", "why": "His own words rule out any path, religion or sect, which would include one built around him. Later he said that separating people by belief breeds violence. Schools fit the idea of building institutions, but fitting isn't proof: he never set up a new order of followers." },
+    { "id": "antispiritual", "title": "He rejected spirituality altogether", "statement": "He saw through the whole spiritual business and became, in effect, a rationalist.", "holder": "leo", "tempting": "He rejected gurus, rituals and beliefs, called thought a material process and held long dialogues with a physicist.", "why": "For decades after 1929 he kept exploring awareness, the self and fear, the questions spiritual traditions care most about. What he rejected was authority and method, not the inner questions themselves." },
+    { "id": "pathless", "title": "Truth can't be organised", "statement": "He held that truth cannot be reached through any organisation, authority, belief or method. An Order built around him as an authority contradicted the very freedom he wanted people to find, so he ended it.", "holder": "meera", "correct": true, "why": "It is the reason he gave himself: \"Truth is a pathless land\". It also fits everything he did next: 57 years of talks without followers, rituals or method, teaching people to look at their own conditioning, at thought and fear, and at the observer who is the observed." }
+  ],
+  "clues": [
+    { "id": "noticed-1909", "title": "Noticed on a beach, 1909", "kind": "document", "text": "Index card: in 1909 the Theosophist C. W. Leadbeater noticed a boy on the beach at Adyar, near Chennai. The boy was Jiddu Krishnamurti, born on 11 May 1895 in Madanapalle (the date is disputed).", "proves": "He didn't choose the role. Others chose it for him when he was a boy of about fourteen.", "why": "The authority around him was built by others. That matters when you ask whether ending it was a loss of nerve or a decision about freedom.", "supports": ["pathless"] },
+    { "id": "order-1911", "title": "An Order built for him", "kind": "document", "text": "Leaflet: the Order of the Star in the East, founded in 1911 by the Theosophical Society to prepare the world for a coming World Teacher, the young Krishnamurti.", "proves": "The organisation existed because of him, with him as its awaited authority.", "why": "If anyone was secure in the Order, he was. Ending it was in his hands, and it meant giving up the role it was built around.", "rulesOut": [ { "hypothesis": "power", "because": "Nobody needed to push out the person the whole Order was built around; it existed for him, and ending it was his choice to make." } ], "supports": ["pathless"] },
+    { "id": "nitya-1925", "title": "Nitya dies, 1925", "kind": "record", "text": "Folder note: his younger brother Nityananda died on 13 November 1925 in Ojai, California, where Krishnamurti had settled in 1922.", "proves": "He suffered a deep personal loss about four years before the dissolution.", "why": "Grief is real and can change a person. But a loss on its own doesn't tell you what someone concluded from it.", "supports": ["grief"] },
+    { "id": "school-1928", "title": "A school founded in 1928", "kind": "record", "text": "Rebuilt timeline: Rishi Valley school in India was founded in 1928, three years after Nitya's death and a year before the dissolution.", "proves": "In the years after his loss he was building something new, not withdrawing from the world.", "why": "His later life centred on education and dialogue, not on running a religious order. Schools are institutions, but they don't claim to be a path to truth.", "rulesOut": [ { "hypothesis": "grief", "because": "A man whose faith had died doesn't found a school three years after his loss and then teach for the rest of his life." } ], "supports": ["bigger", "pathless"] },
+    { "id": "pathless-land", "title": "\"Truth is a pathless land\"", "kind": "document", "text": "The opening line of the 1929 speech: \"I maintain that Truth is a pathless land and cannot be approached by any path whatsoever, by any religion, by any sect.\"", "proves": "He gave a reason, and it was a principle: no path, religion or sect leads to truth.", "why": "This is the heart of his teaching. Truth isn't something an organisation can hand out or a method can reach, so an Order promising to lead people to it made no sense to him.", "rulesOut": [ { "hypothesis": "bigger", "because": "A new following with himself at the top would be exactly the kind of path, religion or sect the sentence rules out." }, { "hypothesis": "grief", "because": "The sentence affirms that there is a truth to find. It isn't the voice of someone who has stopped believing in anything." } ], "supports": ["pathless"] },
+    { "id": "announced-himself", "title": "He announced it himself", "kind": "document", "text": "Archive note: the dissolution was announced by Krishnamurti himself, on 3 August 1929, at the Order's own Star Camp at Ommen in the Netherlands.", "proves": "It was his decision, made in public, at the heart of the Order.", "why": "Acting on his own conclusion, in front of the people who had waited for him, was itself the teaching: no authority to lean on, including his own.", "rulesOut": [ { "hypothesis": "power", "because": "People who lose a power struggle don't usually dissolve the organisation themselves, in person, at its own gathering." } ], "supports": ["pathless"] },
+    { "id": "fifty-seven-years", "title": "57 more years of talks", "kind": "record", "text": "Talks register: after 1929 he kept giving public talks around the world, at Berkeley, Saanen, Brockwood Park and across India, until his death in Ojai on 17 February 1986.", "proves": "He didn't stop teaching. He stopped leading an Order.", "why": "For 57 years he taught without followers, rituals or method, which is what you'd expect from someone who believed truth can't be organised.", "rulesOut": [ { "hypothesis": "power", "because": "A man driven out by rivals usually loses his platform; he went on speaking around the world for 57 years without any title or Order behind him." } ], "supports": ["pathless"] },
+    { "id": "observer-observed", "title": "\"The observer is the observed\"", "kind": "document", "text": "Typed transcript, talk at Saanen, 5 August 1973, one line underlined: \"The observer is the observed\".", "proves": "Decades after 1929 he was still exploring awareness and the self.", "why": "He taught that the \"I\" who watches anger or fear is not separate from it. Seeing that, without choosing or judging, is what his readers call **choiceless awareness**.", "rulesOut": [ { "hypothesis": "antispiritual", "because": "He never left the inner questions behind: the self, awareness and freedom stayed at the centre of his talks for the rest of his life." } ], "supports": ["pathless"] },
+    { "id": "fear-known", "title": "Afraid of the known ending", "kind": "testimony", "text": "From a talk at Berkeley, 5 February 1969: \"One is never afraid of the unknown; one is afraid of the known coming to an end.\"", "proves": "He looked at fear as the mind clinging to what it already knows.", "why": "\"Freedom from the known\", the title of his 1969 book, names the theme: real freedom means not being held by memory, habit and conditioning.", "rulesOut": [ { "hypothesis": "antispiritual", "because": "Examining fear as the mind's clinging to the known is inner work, the kind spiritual traditions care about, not a rejection of it." } ], "supports": ["pathless"] },
+    { "id": "thought-matter", "title": "\"Thought is matter\"", "kind": "document", "text": "From Freedom from the Known (1969): \"Thought is matter as much as the floor, the wall, the telephone, are matter.\"", "proves": "He saw thought as a material process, built from memory.", "why": "It sounds like a materialist talking, but in his teaching it marks thought's limits: something made of the known can't reach what is new.", "supports": ["antispiritual", "pathless"] },
+    { "id": "belief-violence", "title": "Belief divides", "kind": "testimony", "text": "From Freedom from the Known (1969): \"When you separate yourself by belief, by nationality, by tradition, it breeds violence.\"", "proves": "He saw belief-based groups as something that divides people.", "why": "Any group defined by what its members believe separates \"us\" from \"them\". That is one reason he would not form one.", "rulesOut": [ { "hypothesis": "bigger", "because": "Building his own group of believers would contradict his own warning that separating people by belief breeds violence." } ], "supports": ["pathless"] },
+    { "id": "first-step", "title": "\"The first step is the last step\"", "kind": "document", "text": "From Krishnamurti in India, 1970–71: \"The first step is the last step.\"", "proves": "He offered no gradual path, ladder or stages of progress.", "why": "Orders and methods promise progress in steps. He suggested that seeing clearly happens now or not at all, which leaves nothing for an Order to administer.", "supports": ["pathless"] },
+    { "id": "without-changing", "title": "Understanding, not effort", "kind": "testimony", "text": "From Think on These Things (1964): \"If you begin to understand what you are without trying to change it, then what you are undergoes a transformation.\"", "proves": "Change, in his teaching, comes from understanding, not from discipline or a technique.", "why": "If transformation comes from simply understanding yourself, no one needs a teacher, a method or a membership to get there.", "supports": ["pathless"] },
+    { "id": "bohm-dialogues", "title": "Dialogues with a physicist", "kind": "record", "text": "Catalogue: from the early 1960s he held long dialogues with the physicist David Bohm; one book of them, The Ending of Time, appeared in 1985.", "proves": "He was happy to explore the mind alongside a scientist.", "why": "It fits the idea of a rational, sceptical thinker, but fitting isn't proof: the dialogues were about time, thought and consciousness, not about doing away with inner inquiry.", "supports": ["antispiritual"] },
+    { "id": "brockwood-1969", "title": "Brockwood Park, 1969", "kind": "record", "text": "Prospectus: Brockwood Park school in England was founded in 1969, joining Rishi Valley in India.", "proves": "He did create lasting institutions: schools.", "why": "It fits the \"own organisation\" theory, but a school teaches; it doesn't claim to be the way to truth or ask anyone to follow a leader.", "supports": ["bigger"] },
+    { "id": "star-programme", "title": "A framed camp programme", "kind": "physical", "text": "A framed programme from a 1920s Star Camp hangs by the reading-room door.", "proves": "Only that the camps were big, organised events.", "why": "A souvenir tells you what the Order looked like, not why it ended.", "redHerring": true }
+  ],
+  "locations": [
+    { "id": "reading-room", "name": "The archive reading room", "type": "examine", "summary": "Three boxes, a cabinet and a lot of dust.", "intro": "Dr Iyer has left the first boxes out for you. Start by looking around.", "scene": "office", "host": "meera",
+      "hotspots": [
+        { "id": "cabinet", "label": "Index cabinet", "object": "cabinet", "x": 18, "y": 45, "note": "The first card in the drawer is dated 1909.", "clue": "noticed-1909" },
+        { "id": "leaflet", "label": "Box of leaflets", "object": "box", "x": 42, "y": 68, "note": "Yellowed leaflets announcing a new Order, 1911.", "clue": "order-1911" },
+        { "id": "folder", "label": "A folder", "object": "drawer", "x": 66, "y": 62, "note": "A folder labelled \"Nityananda, 1925\".", "clue": "nitya-1925" },
+        { "id": "frame", "label": "Framed programme", "object": "certificate", "x": 84, "y": 28, "note": "A souvenir programme from a 1920s Star Camp.", "clue": "star-programme" },
+        { "id": "shelf", "label": "Bookshelf", "object": "shelf", "x": 52, "y": 26, "note": "His books: The First and Last Freedom (1954), Freedom from the Known (1969). Useful later; nothing to pin yet." },
+        { "id": "plant", "label": "Pot plant", "object": "plant", "x": 90, "y": 78, "note": "Someone waters it. That's all." }
+      ] },
+    { "id": "speech", "name": "The Ommen speech", "type": "document", "summary": "The archive's card for 3 August 1929.", "docType": "report", "docTitle": "Speech at the Ommen Star Camp",
+      "meta": [ { "label": "Date", "value": "3 August 1929" }, { "label": "Place", "value": "Ommen, the Netherlands" }, { "label": "Speaker", "value": "J. Krishnamurti" } ],
+      "prompt": "Highlight the lines that explain what happened and why.",
+      "lines": [
+        { "text": "\"I maintain that Truth is a pathless land and cannot be approached by any path whatsoever, by any religion, by any sect.\"", "clue": "pathless-land" },
+        { "text": "Archivist's note: with this speech the Order of the Star is dissolved, by Krishnamurti himself, at the Order's own camp.", "clue": "announced-himself" },
+        { "text": "Archivist's note: the full speech is long; this card reproduces only its opening line.", "note": "His later talks show how he developed the idea." },
+        { "text": "Archivist's note: filed under \"Order of the Star in the East, 1911–1929\".", "note": "The Order lasted eighteen years." }
+      ] },
+    { "id": "timeline", "name": "Twenty years, in order", "type": "timeline", "summary": "Put the archive's key dates in order.", "prompt": "Drag the events into the order they happened.",
+      "events": [
+        { "id": "t1909", "time": "1909", "text": "Leadbeater notices the boy on the beach at Adyar." },
+        { "id": "t1911", "time": "1911", "text": "The Order of the Star in the East is founded." },
+        { "id": "t1922", "time": "1922", "text": "Krishnamurti settles in Ojai, California." },
+        { "id": "t1925", "time": "1925", "text": "His brother Nityananda dies." },
+        { "id": "t1928", "time": "1928", "text": "Rishi Valley school is founded in India." },
+        { "id": "t1929", "time": "1929", "text": "He dissolves the Order at Ommen." }
+      ],
+      "solvedNote": "The school comes after the loss and before the dissolution: in those years he was building something, not collapsing.", "clue": "school-1928" },
+    { "id": "rohan", "name": "Interview: Rohan", "type": "interview", "person": "rohan", "summary": "The classmate who read the biography.",
+      "opening": "\"Read any biography and it's obvious. His brother died, and something in him died too.\"",
+      "questions": [
+        { "id": "nitya", "ask": "What happened in 1925?", "answer": "\"His younger brother Nitya died, in Ojai, in November 1925. Four years later he shut the whole Order down.\"", "clue": "nitya-1925", "unlocks": ["meaning"] },
+        { "id": "meaning", "ask": "So what was the dissolution about, for you?", "answer": "\"Walking away from belief. After a loss like that, you stop believing anything will protect you.\"" },
+        { "id": "school", "ask": "He founded a school in 1928, after the loss. Does that fit?", "requires": ["school-1928"], "answer": "\"Huh. Someone who'd given up wouldn't start a school. Maybe the grief changed what he believed, not whether he believed.\"" },
+        { "id": "aunt", "ask": "Did anyone notice a change in him?", "answer": "\"My aunt says he just got tired of being famous.\"", "redHerring": true, "note": "Hearsay from someone who never met him, and \"tired of fame\" doesn't match the reason he actually gave." }
+      ] },
+    { "id": "varghese", "name": "Interview: Mr Varghese", "type": "interview", "person": "varghese", "summary": "The history teacher who suspects politics.",
+      "opening": "\"Every organisation has its politics. Mark my words, somebody wanted him out.\"",
+      "questions": [
+        { "id": "for-whom", "ask": "Who was the Order of the Star for?", "answer": "\"Well... it was founded in 1911 to prepare for the coming World Teacher. And that was him, wasn't it?\"", "clue": "order-1911" },
+        { "id": "who-announced", "ask": "Who announced the dissolution?", "requires": ["announced-himself"], "answer": "\"He did? Himself, at the Order's own camp? That isn't how people who lose a power struggle usually leave.\"" },
+        { "id": "money", "ask": "Was money involved?", "answer": "\"There always is. Big camps, big donations.\"", "redHerring": true, "note": "A general suspicion with nothing behind it: nothing in the archive ties his decision to money." }
+      ] },
+    { "id": "priya", "name": "Interview: Priya", "type": "interview", "person": "priya", "summary": "The classmate who sees a relaunch.",
+      "opening": "\"Smart move, honestly. Close down their brand, launch your own.\"",
+      "questions": [
+        { "id": "built", "ask": "What did he build afterwards?", "answer": "\"Schools! Rishi Valley in India, and Brockwood Park in England in 1969. Sounds like an empire to me.\"", "clue": "brockwood-1969" },
+        { "id": "sect", "ask": "His speech says no religion or sect leads to truth. Does a new following fit that?", "requires": ["pathless-land"], "answer": "\"Okay, a sect of his own would break his own rule. But schools aren't sects, are they?\"", "unlocks": ["belief"] },
+        { "id": "belief", "ask": "Did he ever say what belief does to people?", "answer": "\"Yes, in Freedom from the Known: 'When you separate yourself by belief, by nationality, by tradition, it breeds violence.' Hm. Not very empire-like.\"", "clue": "belief-violence" }
+      ] },
+    { "id": "leo", "name": "Interview: Leo", "type": "interview", "person": "leo", "summary": "The podcaster who calls him a rationalist.",
+      "opening": "\"He was basically a rationalist. No gurus, no rituals, long chats with a physicist.\"",
+      "questions": [
+        { "id": "rationalist", "ask": "Why do you call him a rationalist?", "answer": "\"Listen to this, from Freedom from the Known: 'Thought is matter as much as the floor, the wall, the telephone, are matter.' That's a materialist talking.\"", "clue": "thought-matter" },
+        { "id": "physicist", "ask": "Who was the physicist?", "answer": "\"David Bohm. They talked for years, from the early sixties. One book of their dialogues, The Ending of Time, came out in 1985.\"", "clue": "bohm-dialogues" },
+        { "id": "observer", "ask": "What about \"the observer is the observed\"?", "requires": ["observer-observed"], "answer": "\"Saanen, 1973... that's about awareness of the self. Not exactly a lab result. Fine: he kept the inner questions.\"" }
+      ] },
+    { "id": "meera", "name": "Interview: Dr Iyer", "type": "interview", "person": "meera", "summary": "Your supervisor, who prefers his own words.",
+      "opening": "\"Start with what he said himself, and with what he did for the next fifty-seven years.\"",
+      "questions": [
+        { "id": "fear", "ask": "How did he talk about fear?", "answer": "\"Berkeley, February 1969: 'One is never afraid of the unknown; one is afraid of the known coming to an end.' Fear, for him, was the mind holding on.\"", "clue": "fear-known" },
+        { "id": "method", "ask": "Did he give people a method or a practice?", "answer": "\"No method. Think on These Things, 1964: 'If you begin to understand what you are without trying to change it, then what you are undergoes a transformation.'\"", "clue": "without-changing", "unlocks": ["progress"] },
+        { "id": "progress", "ask": "Then how does anyone make progress?", "answer": "\"In his view there's no ladder to climb. From Krishnamurti in India, 1970–71: 'The first step is the last step.'\"", "clue": "first-step" }
+      ] },
+    { "id": "compare", "name": "An order and a pathless land", "type": "compare", "summary": "The Order next to what he taught afterwards.", "prompt": "Find the rows where the two sides cannot both be true.",
+      "rowLabels": ["At the centre", "Who belongs", "The way to truth", "Who has authority"],
+      "left": { "label": "The Order of the Star, 1911–1929", "caption": "As the archive's leaflets describe it", "rows": ["A coming World Teacher", "Enrolled members", "Prepare, and follow", "The Teacher and the Society"] },
+      "right": { "label": "His teaching after 1929", "caption": "As his talks describe it", "rows": ["Your own looking", "No members", "No path: a pathless land", "No one, including him"] },
+      "spots": [
+        { "row": 2, "note": "An Order offers a way; he said there is no way, and no gradual progress either.", "clue": "first-step" },
+        { "row": 3, "note": "An Order needs someone in charge. He refused to be that person." }
+      ] },
+    { "id": "transcripts", "name": "The sealed transcript box", "type": "lock", "summary": "A box of later talks, under a combination lock.", "requires": ["noticed-1909"], "lockedNote": "Look around the reading room first: the lock's code is written on something there.",
+      "prompt": "A four-digit lock. The archivist's label reads: \"The year the story began.\"", "answer": "1909",
+      "hints": ["The story begins with the first card in the index cabinet.", "It's the year Leadbeater noticed the boy at Adyar.", "The code is 1 9 0 9."],
+      "openText": "Inside: typed transcripts of talks from the 1960s and 70s. One, from Saanen on 5 August 1973, has a line underlined: \"The observer is the observed\".", "clue": "observer-observed" },
+    { "id": "register", "name": "The talks register", "type": "ledger", "summary": "Where and when he spoke after 1929.", "prompt": "Find the entry that cannot be right.",
+      "rule": "Krishnamurti died in Ojai on 17 February 1986. The register should list only talks he gave himself.",
+      "columns": ["Year", "Place", "Entry"],
+      "rows": [
+        ["1929", "Ommen", "Dissolution of the Order"],
+        ["1969", "Berkeley", "Public talk, 5 February"],
+        ["1970–71", "India", "Talks, later published"],
+        ["1973", "Saanen", "Talk, 5 August"],
+        ["1979", "Brockwood Park", "Seminar meeting"],
+        ["1990", "Ojai", "Listed as \"talk\""]
+      ],
+      "mismatches": [ { "row": 5, "cell": 0, "note": "He died in 1986, so this can't be his talk. The register really runs from 1929 to 1986: 57 years.", "clue": "fifty-seven-years" } ],
+      "okNote": "This entry checks out." }
+  ],
+  "board": {
+    "heading": "The case board",
+    "intro": "Pin each clue, then string it to the theories it fits or contradicts. A contradiction rules a theory out; fitting is not proof."
+  },
+  "accusation": {
+    "prompt": "Name the reason",
+    "intro": "Choose the explanation every piece of evidence converges on, and say how sure you are."
+  },
+  "epilogue": {
+    "heading": "Epilogue",
+    "concept": "Truth is a pathless land",
+    "paragraphs": [
+      "Krishnamurti dissolved the Order of the Star because he held that truth cannot be reached through any organisation, authority, belief or method. An Order built to prepare people for him, as their teacher, was a path; and he had concluded there was no path. Ending it was his teaching in action.",
+      "For the next 57 years he taught without followers, rituals or method. He asked people to look at their own **conditioning**: at thought as something built from memory, at fear as the mind clinging to the known, and at the way the observer is the observed. Seeing all this without choosing or judging, what readers call choiceless awareness, was for him where freedom begins.",
+      "Grief, politics, ambition and scepticism each explain a piece of the story. Only the pathless land explains all of it."
+    ],
+    "takeaways": [
+      "\"Truth is a pathless land\": no religion, sect or method leads to it.",
+      "He refused to be an authority, even the one prepared for him.",
+      "Change comes from understanding what you are, not from trying to become something else.",
+      "Thought is built from the known; fear is the known coming to an end.",
+      "The observer is not separate from what is observed.",
+      "Fitting a theory is not proof; only what contradicts it rules it out."
+    ]
+  }
+}

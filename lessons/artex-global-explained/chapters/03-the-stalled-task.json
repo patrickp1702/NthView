@@ -1,0 +1,269 @@
+{
+  "schemaVersion": 1,
+  "title": "The Stalled Task",
+  "subtitle": "An ARTEX task went quiet for six hours. Read the agent team's records and work out why.",
+  "caseNumber": "ATL-0617",
+  "theme": "neon",
+  "briefing": {
+    "heading": "Case briefing",
+    "paragraphs": [
+      "**Acme Training Lab** runs a fictional, isolated practice range; everything in it lives under the reserved domain acme.test. Yesterday at 19:00 red-team lead Mira Osei started an authorized ARTEX task on the lab's practice shop, with one sentence of instructions, and went home.",
+      "The plan the agents made had four routine steps: (1) map the training site, (2) identify what software it runs, (3) compare those versions with the lab's known-issues list, (4) write up the result. The first two went quickly. Then, from about 01:00 to 07:00, nothing new happened at all. The dashboard still says **running**.",
+      "Nobody broke anything, and nobody touched it overnight. The answer is somewhere in the records the agent team keeps about itself, and finding it is the quickest way to understand how that team actually coordinates."
+    ],
+    "question": "Why did the ARTEX task stop making progress on step 3 for six hours?",
+    "stakes": "Search the team's records, pin what you find, rule theories out with evidence, then name the cause."
+  },
+  "detective": {
+    "title": "You are Theo Park, the lab's new operations analyst",
+    "description": "You don't need to read any code. You need to know who does what in ARTEX's agent team, where it keeps what it knows, and what makes it move."
+  },
+  "cast": [
+    { "id": "mira", "name": "Mira Osei", "role": "Red-team lead, started the task", "kind": "witness", "bio": "Gave ARTEX one sentence at 19:00 and went home. Her phone was off all night.", "portrait": { "skin": "deep", "hair": "curly", "hairColor": "black", "outfit": "hoodie", "outfitColor": "#7c3aed", "accessory": "headset", "expression": "smile" } },
+    { "id": "dev", "name": "Dev Sharma", "role": "Night-shift lab operator", "kind": "witness", "bio": "Watched the dashboard overnight. Has run plenty of job queues, none of them with AI in them.", "portrait": { "skin": "tan", "hair": "short", "hairColor": "black", "outfit": "uniform", "accessory": "cap", "expression": "worried" } },
+    { "id": "sam", "name": "Sam Rivera", "role": "Junior tester", "kind": "witness", "bio": "Uses AI chat assistants every day and knows how quickly they lose the thread.", "portrait": { "skin": "fair", "hair": "bob", "hairColor": "red", "outfit": "hoodie", "outfitColor": "#0ea5e9", "accessory": "glasses", "expression": "neutral" } },
+    { "id": "lena", "name": "Lena Fischer", "role": "Platform engineer", "kind": "witness", "bio": "Keeps the lab's servers alive. When something goes quiet, her first guess is a dead process.", "portrait": { "skin": "porcelain", "hair": "ponytail", "hairColor": "blonde", "outfit": "shirt", "accessory": "earrings", "expression": "stern" } },
+    { "id": "kofi", "name": "Kofi Mensah", "role": "Lab manager", "kind": "witness", "bio": "Glanced at the dashboard on his way in. Wants a one-line answer for the morning meeting.", "portrait": { "skin": "brown", "hair": "buzz", "hairColor": "black", "outfit": "suit", "facialHair": "beard", "expression": "neutral" } },
+    { "id": "ines", "name": "Ines Moreau", "role": "ARTEX specialist", "kind": "expert", "bio": "Studied how ARTEX's agent team works before the lab adopted it. Explains it with a whiteboard and a lot of arrows.", "portrait": { "skin": "olive", "hair": "long", "hairColor": "brown", "outfit": "labcoat", "accessory": "glasses", "expression": "smile" } }
+  ],
+  "hypotheses": [
+    { "id": "workers-waiting", "title": "Workers waiting to be assigned", "holder": "dev", "popular": true,
+      "statement": "All three workers sat idle because the planner stopped handing each of them a job. They were waiting to be assigned work.",
+      "tempting": "Most job systems have a manager handing out tasks, and the worker panel really did show all three workers idle for six hours.",
+      "why": "In ARTEX nobody assigns work. The planner only writes work orders; any free worker picks up the next waiting one by itself. The queue held zero waiting work orders, so idle workers meant there was nothing to pick up, not that a hand-out was missing." },
+    { "id": "forgot-plan", "title": "The planner forgot its plan", "holder": "sam", "popular": true,
+      "statement": "Every planner wake-up is a brand-new AI conversation, so overnight it simply forgot the four-step plan and lost track of step 3.",
+      "tempting": "It is true that each planner wake-up starts with a blank conversation, and with chat assistants that usually means forgetting.",
+      "why": "The plan doesn't live in the conversation. It lives in the planner's todolist, which survives every wake-up and is read back in each time. The todolist still showed all four steps, with step 3 waiting for one specific fact." },
+    { "id": "awaiting-approval", "title": "Stuck waiting for approval", "holder": "mira",
+      "statement": "It's paused at the approval gate, waiting for me to approve a command, and I had my phone off.",
+      "tempting": "The approval gate really can pause a worker until a human decides, and Mira wasn't watching.",
+      "why": "The approval log was empty all night and no worker was paused. A worker held at the gate shows up as a waiting request and a paused worker; there was neither." },
+    { "id": "planner-stopped", "title": "The planner crashed", "holder": "lena",
+      "statement": "The planner crashed or stopped waking up, so nothing new was decided after one o'clock.",
+      "tempting": "Six hours with no new work looks exactly like a process that has died.",
+      "why": "The wake log shows the planner woke 36 times overnight, about every ten minutes, and each time reviewed the records and decided there was nothing new to do. It was alive and making the right decision from what it could see." },
+    { "id": "task-finished", "title": "It had already finished", "holder": "kofi",
+      "statement": "The task simply finished early. The dashboard status is stale.",
+      "tempting": "Steps 1 and 2 were done and every worker was idle, which looks like a wrapped-up job.",
+      "why": "An ARTEX task ends by itself only when every goal is proven with evidence. Its one goal was still open, steps 3 and 4 had never run, and the status was correctly 'running'." },
+    { "id": "missing-fact", "title": "A fact never reached shared memory", "holder": "ines", "correct": true,
+      "statement": "Step 3 was waiting for a fact that never reached the shared memory. Worker 2 saw the software versions but left them only in its own notes, so the todolist kept step 3 locked and the planner, correctly, found nothing new to release.",
+      "why": "The todolist held step 3 waiting for a 'software versions' fact. Worker 2's notes show it saw the versions, yet the exploration graph has no fact under its work order. Facts are what drive the loop: progress came only after new facts, and the planner kept waking but found nothing new. When the versions were put into shared memory, step 3 was released on the next wake-up." }
+  ],
+  "clues": [
+    { "id": "todolist-step3", "title": "Step 3: waiting for a fact", "kind": "record",
+      "text": "The planner's todolist: 1 Map the training site, done. 2 Identify the software, work order done. 3 Compare versions with the known-issues list, waiting for: software versions fact. 4 Write up, waiting on step 3.",
+      "proves": "The plan was intact; step 3 was held back by one missing fact, not by a missing plan.",
+      "why": "The planner writes a multi-step plan once and releases each step only when the fact it depends on exists. That keeps steps in order even though every wake-up is a fresh conversation.",
+      "rulesOut": [
+        { "hypothesis": "forgot-plan", "because": "The plan was still there, step by step, with each step's status. Nothing had been forgotten: it lives in the todolist, not in the planner's conversation." },
+        { "hypothesis": "task-finished", "because": "Steps 3 and 4 were still open on the plan, so the task could not have finished." }
+      ],
+      "supports": ["missing-fact"] },
+    { "id": "wake-log", "title": "36 wake-ups, no new work", "kind": "record",
+      "text": "Planner wake log, 01:00 to 07:00: 36 wake-ups, about every ten minutes. Every entry ends: 'Reviewed the graph. No new direction. No work orders written.'",
+      "proves": "The planner was alive and deciding all night; each time it decided there was nothing new to do.",
+      "why": "When nothing changes, the planner still wakes about every ten minutes as a backstop. Most wake-ups end with no new work orders: it only writes work when something new has appeared.",
+      "rulesOut": [
+        { "hypothesis": "planner-stopped", "because": "A crashed planner can't write 36 log entries. It woke on schedule all night and made a decision each time." }
+      ],
+      "supports": ["missing-fact"] },
+    { "id": "facts-drive-progress", "title": "Progress followed new facts", "kind": "record",
+      "text": "Rebuilt in order: every burst of progress came right after a new fact. After the last fact at 22:10 and a factless finish at 00:58, only timer wake-ups remained.",
+      "proves": "New facts were what moved the task forward; when facts stopped arriving, progress stopped.",
+      "why": "ARTEX is a self-driving loop: a new fact wakes the planner, which writes the next work order, whose worker records the next fact. Cut off the facts and the loop idles.",
+      "rulesOut": [
+        { "hypothesis": "planner-stopped", "because": "The timeline shows the planner still waking on its timer long after progress stopped. It didn't stop; it had nothing new to react to." }
+      ],
+      "supports": ["missing-fact"] },
+    { "id": "workers-idle", "title": "Three idle workers, empty queue", "kind": "record",
+      "text": "Worker panel at 07:00: workers 1, 2 and 3 idle; none paused, none waiting on approval. Work orders waiting to be picked up: 0.",
+      "proves": "There was simply no work for the workers to take.",
+      "why": "A free worker picks up the next waiting work order by itself. Idle workers plus an empty queue means the planner had released nothing, which fits more than one theory. Fitting is not proof.",
+      "rulesOut": [
+        { "hypothesis": "awaiting-approval", "because": "A worker held at the approval gate shows as paused and waiting. All three were plainly idle." }
+      ],
+      "supports": ["workers-waiting", "missing-fact"] },
+    { "id": "pickup-rule", "title": "Workers take their own jobs", "kind": "testimony",
+      "text": "Ines: \"Workers take the next waiting work order themselves, most urgent first. The planner never assigns a work order to a particular worker. It just writes them.\"",
+      "proves": "No one in ARTEX hands out jobs.",
+      "why": "Separating deciding (the planner) from doing (the workers) means a free worker never waits on a decision: if a work order exists, someone picks it up.",
+      "rulesOut": [
+        { "hypothesis": "workers-waiting", "because": "Workers pick up waiting work orders themselves, so they can't be 'waiting to be assigned'. With nothing in the queue, there was nothing to pick up." }
+      ] },
+    { "id": "new-directions-only", "title": "Planner won't repeat finished work", "kind": "testimony",
+      "text": "Ines: \"The planner writes a work order only for a direction nobody has covered yet. Step 2's work order was marked done, so as far as it could tell, that direction was covered.\"",
+      "proves": "The planner deliberately doesn't redo finished work, even when that work produced nothing.",
+      "why": "Not duplicating covered work keeps the team efficient and stops it looping on the same idea. The cost is that a work order which ends without recording its fact leaves a gap nobody revisits on their own.",
+      "supports": ["missing-fact"] },
+    { "id": "notes-versions", "title": "The versions were in the notes", "kind": "document",
+      "text": "Worker 2's notes, 00:41: the shop's About page lists its web framework as version 4.2 and its database as version 13. Last line, 00:58: 'Done: software identified.' No fact recorded.",
+      "proves": "The information step 3 needed was seen, but only written in one worker's own log.",
+      "why": "Worker notes keep everything a worker did and saw, and other workers can search them. But the plan only advances on facts recorded in the shared exploration graph, and a note is not a fact.",
+      "supports": ["missing-fact"] },
+    { "id": "lineage-gap", "title": "Step 2 left no fact behind", "kind": "record",
+      "text": "In the exploration graph, step 1's work order links to the facts it produced. Step 2's work order is marked done and links to nothing.",
+      "proves": "Step 2's work finished without adding anything to the shared memory.",
+      "why": "Each work order in the exploration graph links to the facts it yielded, so you can trace how one idea led to the next. A finished work order with no facts is a dead end the planner can't build on.",
+      "supports": ["missing-fact"] },
+    { "id": "asset-map", "title": "Step 1 filled the site map", "kind": "record",
+      "text": "The asset map holds the practice shop and the 12 pages and 3 forms step 1 found, each filed under the right part of the site.",
+      "proves": "Step 1's results did land in the shared memory, unlike step 2's.",
+      "why": "The asset graph is the shared map of what exists: workers report what they find and the system files it in place. Comparing what landed for step 1 and step 2 shows exactly where the chain broke.",
+      "supports": ["missing-fact"] },
+    { "id": "approval-empty", "title": "Approval log: empty", "kind": "document",
+      "text": "Approval gate log, 19:00 to 07:30: requests raised: 0. Requests waiting: 0. Rules active: commands marked risky must ask a human first.",
+      "proves": "Nothing was waiting for a human to approve.",
+      "why": "The approval gate pauses a worker only when one of its rules says a command needs a person, and every such pause is logged as a request. No requests means no worker was ever held.",
+      "rulesOut": [
+        { "hypothesis": "awaiting-approval", "because": "The gate raised no requests all night, so there was nothing for Mira to approve." }
+      ] },
+    { "id": "goal-open", "title": "The goal is still open", "kind": "record",
+      "text": "Dashboard, task goals: 'Report which of the shop's software versions appear on the lab's known-issues list': open, no evidence linked. Status: running.",
+      "proves": "The task's goal had not been proven, so the task was still live.",
+      "why": "An ARTEX task ends by itself when evidence proves every goal; until then it stays running. An open goal is the reason the planner kept waking up at all.",
+      "rulesOut": [
+        { "hypothesis": "task-finished", "because": "The only goal was open with no evidence linked. A task finishes when its goals are proven, not when its workers go quiet." }
+      ] },
+    { "id": "fact-unblocks", "title": "Fact in, step 3 out", "kind": "test",
+      "text": "Replaying the morning: once the versions are put into shared memory, by a human hint through the main agent or by recording them as a fact, the planner releases step 3 on its next wake-up.",
+      "proves": "The only thing step 3 was waiting for was that fact.",
+      "why": "Humans steer ARTEX by adding information, not by taking over. A hint through the main agent lands in shared memory, and the planner reads it on its next wake-up.",
+      "rulesOut": [
+        { "hypothesis": "forgot-plan", "because": "The moment the fact appeared, the planner released exactly step 3, the right next step, so it had known the plan all along." }
+      ],
+      "supports": ["missing-fact"] },
+    { "id": "maintenance-notice", "title": "Network maintenance notice", "kind": "physical", "redHerring": true,
+      "text": "Taped to the office door: 'Lab network maintenance, 02:00 to 02:15 tonight.'",
+      "proves": "There was a short maintenance window overnight.",
+      "why": "Fifteen minutes can't explain six hours, and the wake log shows the planner reviewing the records before, during and after the window." }
+  ],
+  "locations": [
+    { "id": "office", "name": "The operations office", "type": "examine", "summary": "Theo's desk, the dashboard and the overnight paperwork.",
+      "intro": "Kofi wants an answer by the nine o'clock meeting. The dashboard is still open on last night's task.",
+      "scene": "office",
+      "hotspots": [
+        { "id": "dashboard", "label": "Dashboard", "object": "laptop", "x": 34, "y": 52, "note": "The task's goals panel: one goal, still open, no evidence linked. Status: running.", "clue": "goal-open" },
+        { "id": "rack-screen", "label": "Worker panel", "object": "cabinet", "x": 78, "y": 46, "note": "The worker panel on the rack screen: three workers, all idle. Waiting work orders: 0.", "clue": "workers-idle" },
+        { "id": "door", "label": "Door notice", "object": "door", "x": 12, "y": 40, "note": "A maintenance notice for 02:00 to 02:15.", "clue": "maintenance-notice" },
+        { "id": "handover", "label": "Mira's note", "object": "note", "x": 56, "y": 30, "note": "Mira's handover note: \"Worker notes archive code = the number of pages step 1 found.\"" },
+        { "id": "plant", "label": "Plant", "object": "plant", "x": 90, "y": 74, "note": "Thirsty, and not involved." }
+      ] },
+    { "id": "todolist", "name": "The planner's todolist", "type": "document", "docType": "log", "docTitle": "Planner todolist: practice shop review",
+      "summary": "The plan the planner keeps between wake-ups.",
+      "intro": "The planner starts each wake-up with a blank conversation. This list is what it reads first.",
+      "meta": [ { "label": "Task", "value": "Practice shop software review" }, { "label": "Updated", "value": "22:10" } ],
+      "lines": [
+        { "text": "1. Map the training site: done (facts recorded 22:10).", "note": "Step 1's facts landed in shared memory, and step 2 was released at once." },
+        { "text": "2. Identify the software: work order done (00:58).", "note": "Done means the work order ended. It doesn't say whether it recorded anything." },
+        { "text": "3. Compare versions with the known-issues list: waiting for: software versions fact.", "clue": "todolist-step3" },
+        { "text": "4. Write up the result: waiting on step 3.", "note": "The write-up can only start once there is something to write up." }
+      ] },
+    { "id": "wake-log", "name": "Planner wake log", "type": "document", "docType": "log", "docTitle": "Planner wake-ups, 01:00 to 07:00",
+      "summary": "Every time the planner woke up overnight, and what it decided.",
+      "lines": [
+        { "text": "01:08 Woke (timer). Reviewed the graph. No new direction. No work orders written.", "note": "The first quiet wake-up. Ten minutes after step 2's work order ended." },
+        { "text": "Total 01:00 to 07:00: 36 wake-ups, about one every ten minutes, each ending 'No work orders written.'", "clue": "wake-log" },
+        { "text": "Wake reasons: timer 36, new fact 0.", "note": "Nothing new arrived all night; only the backstop timer woke it." }
+      ] },
+    { "id": "night", "name": "The night, in order", "type": "timeline", "summary": "Rebuild how the task moved, then stopped.",
+      "prompt": "Put the night's events in order.",
+      "events": [
+        { "id": "brief", "time": "19:02", "text": "Mira's one-sentence brief; the goals agent writes the goal and scope." },
+        { "id": "plan", "time": "19:05", "text": "Planner's first wake-up: writes the four-step plan and releases step 1." },
+        { "id": "step1", "time": "22:10", "text": "Step 1's facts land; the planner wakes at once and releases step 2." },
+        { "id": "step2", "time": "00:58", "text": "Worker 2 ends step 2: 'software identified'. No fact recorded." },
+        { "id": "quiet", "time": "01:08", "text": "Planner wakes on its timer: nothing new, nothing to release." },
+        { "id": "morning", "time": "07:00", "text": "The 36th quiet wake-up in a row." }
+      ],
+      "solvedNote": "Every burst of progress came straight after a new fact. After 00:58 no fact arrived, so only the ten-minute timer woke the planner.",
+      "clue": "facts-drive-progress" },
+    { "id": "graph", "name": "Exploration graph: step 1 vs step 2", "type": "compare", "summary": "What each step left in the shared memory.",
+      "prompt": "Compare what the two finished work orders left behind.",
+      "rowLabels": ["Work order", "Status", "Facts recorded", "Added to site map", "Next step released"],
+      "left": { "label": "Step 1", "rows": ["Map the training site", "Done", "12 pages, 3 forms", "Yes: 15 entries", "Step 2, at 22:10"] },
+      "right": { "label": "Step 2", "rows": ["Identify the software", "Done", "None", "No", "None"] },
+      "spots": [
+        { "row": 2, "note": "Step 2 finished but recorded no fact at all.", "clue": "lineage-gap" },
+        { "row": 3, "note": "Step 1's discoveries were filed into the shared site map.", "clue": "asset-map" },
+        { "row": 4, "note": "No fact, so nothing for step 3 to wait on: it stays locked." }
+      ] },
+    { "id": "approvals", "name": "Approval gate log", "type": "document", "docType": "report", "docTitle": "Approval gate: overnight summary",
+      "summary": "Any command that had to wait for a human.",
+      "lines": [
+        { "text": "Rules active: commands marked risky must ask a human first; denied commands are skipped.", "note": "This is how ARTEX keeps a person in control of risky steps." },
+        { "text": "Requests raised 19:00 to 07:30: 0. Requests still waiting: 0.", "clue": "approval-empty" },
+        { "text": "Notification channel: Mira's phone (off overnight).", "note": "True, but with nothing raised there was nothing to miss." }
+      ] },
+    { "id": "dev", "name": "Interview: Dev", "type": "interview", "person": "dev", "summary": "The night-shift operator who watched it go quiet.",
+      "opening": "\"All three workers just sat there from one o'clock. I kept waiting for the planner to give them something.\"",
+      "questions": [
+        { "id": "panel", "ask": "What did the worker panel show?", "answer": "\"Idle, idle, idle. And the waiting-work count was zero all night.\"", "clue": "workers-idle" },
+        { "id": "theory", "ask": "Why do you think they stopped?", "answer": "\"The planner stopped handing out jobs. That's what a manager process does, right?\"" },
+        { "id": "provider", "ask": "Could the AI service have been slow overnight?", "answer": "\"Probably. Those providers throttle at night. I bet the planner just gave up waiting for an answer.\"", "redHerring": true, "note": "The wake log shows every wake-up completed and reached a decision. The model answered each time; it just had nothing new to decide about." }
+      ] },
+    { "id": "ines", "name": "Interview: Ines", "type": "interview", "person": "ines", "summary": "The lab's ARTEX specialist.",
+      "opening": "\"Draw it as a team. One lead who decides, a few testers who do, and a shared notebook in the middle that everyone reads.\"",
+      "questions": [
+        { "id": "jobs", "ask": "How do workers get their jobs?", "answer": "\"They take them. The planner writes work orders and leaves them waiting; any free worker picks up the next one, most urgent first. Nobody assigns anything.\"", "clue": "pickup-rule" },
+        { "id": "decide", "ask": "How does the planner decide whether to write new work?", "answer": "\"It reads the shared memory and writes a work order only for a direction nobody has covered. A finished work order counts as covered, even if it came back empty.\"", "clue": "new-directions-only" },
+        { "id": "memory", "ask": "Where does the plan live between wake-ups?", "requires": ["todolist-step3"], "answer": "\"In the todolist. The planner's conversation is thrown away every time, on purpose, so it never gets stale. The todolist and the graphs are its memory.\"" },
+        { "id": "unstick", "ask": "So what would unstick it?", "requires": ["notes-versions"], "answer": "\"Put the versions where the planner can see them. A hint through the main agent is enough. Try it in the replay.\"" }
+      ] },
+    { "id": "mira", "name": "Interview: Mira", "type": "interview", "person": "mira", "summary": "The red-team lead who started the task.",
+      "opening": "\"I gave it one sentence and went home. That's rather the point of ARTEX.\"",
+      "questions": [
+        { "id": "brief", "ask": "What exactly did you ask it to do?", "answer": "\"Check the practice shop's software against our known-issues list and write it up. The goals agent turned that into one goal, and it's still open on the dashboard.\"", "clue": "goal-open" },
+        { "id": "approve", "ask": "Did you approve anything overnight?", "answer": "\"No, my phone was off. Maybe it's been waiting for me all night?\"" },
+        { "id": "notes", "ask": "Where would I find what the workers actually saw?", "answer": "\"In their notes. I locked the archive; the code's on my handover note.\"" }
+      ] },
+    { "id": "archive", "name": "Worker notes archive", "type": "lock", "summary": "Everything each worker did and saw, step by step.",
+      "requires": ["asset-map"], "lockedNote": "You need a number from step 1's results first. Compare what the two steps left behind.",
+      "prompt": "A two-digit code. Mira's handover note says it is the number of pages step 1 found.",
+      "answer": "12",
+      "hints": ["Mira's note on Theo's desk says the code is a count from step 1.", "Step 1 found pages and forms; the code is the number of pages.", "The code is 1 2."],
+      "openText": "Worker 2's notes for step 2 scroll past: the site's About page, two version numbers on screen, and then a final line saying the job is done.",
+      "clue": "notes-versions" },
+    { "id": "replay", "name": "Replay the morning", "type": "lab", "summary": "Try putting the missing information into shared memory.",
+      "requires": ["notes-versions"], "lockedNote": "Find out what the workers actually saw first.",
+      "host": "ines",
+      "intro": "Ines has a copy of the task's records. Change what reaches shared memory and see what the planner does on its next wake-up.",
+      "prompt": "Choose what reaches the shared memory, then let the planner wake up.",
+      "visual": "gauge", "meterLabel": "Chance step 3 is released",
+      "controls": [
+        { "id": "hint", "label": "Hint via the main agent", "options": ["None", "Point to worker 2's notes"] },
+        { "id": "fact", "label": "Versions recorded as a fact", "options": ["No", "Yes"] }
+      ],
+      "outcomes": [
+        { "when": { "hint": 1 }, "level": 95, "reading": "Released", "text": "The planner reads the hint on its next wake-up, records the versions and releases step 3 straight away. A worker picks it up within minutes.", "clue": "fact-unblocks" },
+        { "when": { "fact": 1 }, "level": 95, "reading": "Released", "text": "With the versions in the shared memory, step 3's prerequisite exists; the planner releases it on its next wake-up.", "clue": "fact-unblocks" },
+        { "level": 3, "reading": "Still stalled", "text": "Nothing new reaches the shared memory, so the planner wakes, finds nothing new and writes no work, exactly as it did 36 times overnight." }
+      ] }
+  ],
+  "board": {
+    "heading": "The case board",
+    "intro": "Pin each clue, then string it to the theories it fits or contradicts. A contradiction rules a theory out; fitting is not proof."
+  },
+  "accusation": {
+    "prompt": "Name why the task stalled",
+    "intro": "Choose the explanation every piece of evidence converges on, and say how sure you are."
+  },
+  "epilogue": {
+    "heading": "Epilogue",
+    "concept": "Shared memory drives the loop",
+    "paragraphs": [
+      "ARTEX runs a security test as a team. A goals agent turns the brief into goals; the planner is the only one who decides, and it writes work orders; workers each pick one up, do it and record what they found; the main agent is the human's window in. Every new fact wakes the planner, which is what keeps the test moving with nobody pushing.",
+      "That loop runs on **shared memory**, not on any agent's recollection. The planner forgets every conversation by design: its plan lives in the todolist and its knowledge in the graphs. A long plan advances only when the fact each step depends on lands there. Worker notes are searchable, but they are not facts.",
+      "So when a fact never lands, nothing is broken. The planner keeps waking, sees nothing new and correctly waits. The fix is to put the information where the team can see it, and a human hint through the main agent is enough."
+    ],
+    "takeaways": [
+      "Workers pick up work orders themselves; nobody assigns them.",
+      "The planner starts every wake-up fresh; its plan lives in the todolist.",
+      "Progress comes from new facts: no new fact, no new work.",
+      "Most planner wake-ups correctly end with no new work orders.",
+      "An observation left in a worker's notes is not a fact the plan can use.",
+      "Humans steer ARTEX by adding information, not by taking over."
+    ]
+  }
+}

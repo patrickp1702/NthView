@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "title": "Cucumber and BDD: Specs Everyone Can Read",
+  "description": "What Behaviour-Driven Development is, how Cucumber turns plain-language Gherkin scenarios into automated tests, and how to keep a Cucumber suite readable, fast and trustworthy.",
+  "audience": "Developers and testers new to BDD; examples use Java with Cucumber-JVM and JUnit 5.",
+  "chapters": [
+    { "file": "01-how-cucumber-fits-together", "title": "How Cucumber Fits Together", "view": "nthview-concept-map", "summary": "From the BDD conversation to Gherkin, step definitions, the runner, hooks and reports, on one map you rebuild from memory." },
+    { "file": "02-writing-good-scenarios", "title": "Writing Good Scenarios", "view": "nthview-scenario-quiz", "summary": "Ten review decisions on real-looking scenarios: declarative steps, one behaviour each, Backgrounds, Outlines, tags and shared state." },
+    { "file": "03-why-our-bdd-failed", "title": "Why Our BDD Failed", "view": "nthview-detective", "summary": "A team adopted Cucumber and got slow, brittle tests nobody reads. Find out what really went wrong." },
+    { "file": "04-suite-maths", "title": "Suite Maths", "view": "nthview-explorable", "summary": "Play with flaky odds, retries, UI versus API steps, parallel runs and exploding Scenario Outlines." },
+    { "file": "05-cucumber-archipelago", "title": "Cucumber Archipelago", "view": "nthview-island-quest", "summary": "One island per big idea, hands-on activities, then a final exam." }
+  ]
+}

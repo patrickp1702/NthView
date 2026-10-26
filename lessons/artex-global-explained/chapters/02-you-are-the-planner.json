@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "title": "You Are the Planner",
+  "subtitle": "Ten wake-ups, ten decisions: how ARTEX's team lead keeps an AI team moving",
+  "theme": "midnight",
+  "scenario": {
+    "heading": "The scenario",
+    "setting": [
+      "**Acme Training Lab** runs a fictional, isolated practice range; everything in it lives under the reserved name acme.test. Mira Osei, the lab's red-team lead, has started an authorized ARTEX task against the lab's practice web shop with a one-line brief: \"Find out which software on shop.acme.test is out of date compared with the lab's known-issues list, and write it up.\" The goals agent has already turned that into one goal and a narrow scope: shop.acme.test only.",
+      "ARTEX's team is now running. Three **workers** stand ready to pick up work orders and run real tools. The **main agent** is there for Mira to chat with. And there is you. Mira has gone home; the decisions below are yours."
+    ],
+    "role": {
+      "title": "You are the planner, the one agent on the team that decides what happens next",
+      "description": "You never run tools yourself. You wake up whenever something new lands in the shared notebook (and, as a backstop, after a long quiet spell). Every wake-up is a fresh conversation: you remember nothing on your own, but you are handed a summary of the notebook and your own todolist. Your only output is work orders, or a decision to write none."
+    },
+    "goal": "Move the goal to proof with as few, as focused and as well-ordered work orders as possible."
+  },
+  "questions": [
+    {
+      "id": "first-wake",
+      "situation": "Your first wake-up. The notebook holds one goal and one address, shop.acme.test. Nothing else is known yet.",
+      "prompt": "What do you do?",
+      "options": [
+        { "text": "Write one big work order: \"carry out the whole assessment of shop.acme.test\".", "trap": true, "tempting": "It's simple, and it hands the whole job to a capable worker in one go.", "why": "A worker does one focused job and stops. One giant order leaves two workers idle, runs into the worker's time limit, and produces one tangled record instead of a clear trail. ARTEX works best with small, separate orders." },
+        { "text": "Write a few focused discovery work orders that map what the site contains.", "correct": true, "why": "Mapping comes first because every later step builds on what is found. A few separate orders let the three workers run in parallel, and each result arrives as a fact you can plan from." },
+        { "text": "Start mapping the site yourself, then hand the rest out.", "tempting": "You can see the goal most clearly, so doing the first bit yourself feels efficient.", "why": "The planner never runs tools. Keeping deciding and doing apart is the core of ARTEX's design: you stay free to judge results while workers do the hands-on work." },
+        { "text": "Wait for Mira to say where to start.", "tempting": "Checking with the human before acting feels safe.", "why": "The brief and the goal are the instruction. ARTEX is built to run without someone pushing each step; Mira can add hints through the main agent whenever she wants." }
+      ],
+      "takeaway": "The planner starts with a few small, separate work orders, and never does the work itself."
+    },
+    {
+      "id": "new-sections",
+      "situation": "You wake because a worker recorded new facts: the shop has three sections, a store, a help centre and a blog. Two open work orders already cover the store and the help centre.",
+      "prompt": "What do you write?",
+      "options": [
+        { "text": "Three new work orders, one per section, to be thorough.", "trap": true, "tempting": "Covering everything explicitly feels like the careful choice.", "why": "Two of those already have work orders, so you'd create duplicates that waste workers and muddy the trail. ARTEX's planner only writes orders for directions not yet covered." },
+        { "text": "One work order for the blog, the only section nobody is looking at.", "correct": true, "why": "You check what's already covered and add only the new direction. That keeps the team from tripping over itself." },
+        { "text": "Nothing: the open work orders will find the blog anyway.", "tempting": "It saves a work order, and workers sometimes wander into neighbouring areas.", "why": "Workers stick to their own order. If nobody is asked to look at the blog, it stays a gap in the map." },
+        { "text": "Tell worker 2 specifically to take the blog.", "tempting": "Assigning the job to someone who is free sounds organised.", "why": "In ARTEX nobody assigns jobs. You write the work order; whichever worker is free next picks it up. That way no worker ever waits for you." }
+      ],
+      "takeaway": "Write work orders only for directions nobody is covering yet; workers pick them up themselves."
+    },
+    {
+      "id": "nothing-new",
+      "situation": "You wake again. The only change: a worker noted that a page it revisited looks exactly as it did an hour ago. All three workers are busy with existing orders.",
+      "prompt": "What do you do this round?",
+      "options": [
+        { "text": "Write nothing and let the round end.", "correct": true, "why": "Nothing new means no new direction. Most of a planner's wake-ups end like this, and that is the design working: thinking costs money, so it only acts when something has changed." },
+        { "text": "Write a fresh work order anyway, so the team keeps moving.", "trap": true, "tempting": "An idle-looking round feels like wasted time, and more activity looks like progress.", "why": "Busywork orders repeat what's covered, spend money and add noise to the notebook. The team is already moving; you'll be woken again the moment a real result lands." },
+        { "text": "Cancel the open work orders and plan again from scratch.", "tempting": "If progress seems slow, a fresh start can feel decisive.", "why": "The open orders are fine and partly done. Throwing them away loses their work for no reason." },
+        { "text": "Ask Mira what to do next.", "tempting": "When unsure, asking a human is often wise.", "why": "There's no real question here: nothing changed. Bothering the human with routine rounds defeats the point of an autonomous team." }
+      ],
+      "takeaway": "Most planner wake-ups end with no new work orders, and that is correct."
+    },
+    {
+      "id": "the-chain",
+      "situation": "The map is done. You can now see the rest as a chain: (1) identify what software each section runs, (2) compare those versions with the lab's known-issues list, (3) confirm each match, (4) write up the result. Each step needs the facts from the one before.",
+      "prompt": "What do you release now?",
+      "options": [
+        { "text": "All four steps at once, so the three workers can run them in parallel.", "trap": true, "tempting": "Parallel work is usually faster, and you have three workers waiting.", "why": "Later steps need earlier facts. Run step 2 before step 1's versions exist and the worker has nothing to compare, so it fails or guesses. Parallelism only helps independent work." },
+        { "text": "Write the chain into your todolist, and release only step 1 now.", "correct": true, "why": "This is how ARTEX finishes long chains without derailing. The whole plan is recorded once, and each later round releases only the next step whose prerequisite fact exists." },
+        { "text": "Release steps 1 and 2 together to save one round.", "tempting": "It feels like a sensible compromise: some overlap, a little faster.", "why": "Step 2 still can't start until step 1's versions are known, so it would sit and fail. Saving a round isn't worth a broken step." },
+        { "text": "Release nothing until you are certain of the entire chain.", "tempting": "Being sure before acting sounds careful.", "why": "Step 1's results may change the later steps, which is fine: the todolist can be updated each round. Waiting for certainty just stalls the team." }
+      ],
+      "takeaway": "Dependent steps go into the todolist once and are released one at a time, in order."
+    },
+    {
+      "id": "fresh-start",
+      "situation": "You wake up. You have no memory of writing the chain, or of anything else: every wake-up is a brand-new conversation.",
+      "prompt": "How do you know what to do next?",
+      "options": [
+        { "text": "Read the notebook summary and your todolist: step 1 is done, so step 2 is ready.", "correct": true, "why": "ARTEX keeps memory outside the model on purpose. The notebook says what is known; the todolist says what was planned and what's next. A fresh conversation never gets cluttered with stale reasoning." },
+        { "text": "Work the plan out again from scratch.", "trap": true, "tempting": "With no memory, re-deriving the plan seems like the only option.", "why": "A new plan might differ from the old one and re-release steps already done. The todolist exists so each fresh wake-up continues the same plan." },
+        { "text": "Ask Mira to remind you of the plan.", "tempting": "Humans keep context well, and she's reachable through the main agent.", "why": "The plan isn't in Mira's head; it's in the todolist. Asking her would make every wake-up depend on a human." },
+        { "text": "Guess from the most recent fact.", "tempting": "The latest fact is usually the most relevant one.", "why": "The latest fact might belong to a side direction. Without the todolist you could release the wrong step, or the right one twice." }
+      ],
+      "takeaway": "Each wake-up is fresh; the notebook and the todolist are the planner's memory."
+    },
+    {
+      "id": "shared-notes",
+      "situation": "Worker 1 finished its order. In its step-by-step notes it mentions that one page showed a software version in its footer, but it never recorded that as a formal fact. You're about to write the step 2 order for that section.",
+      "prompt": "How do you write it?",
+      "options": [
+        { "text": "Write the order and point it at worker 1's notes, so the new worker starts from what was already seen.", "correct": true, "why": "Workers can search each other's notes. Pointing the next order at an observation that never became a fact saves the team from rediscovering it." },
+        { "text": "Write the order normally and let the new worker find the version again.", "trap": true, "tempting": "Fresh, first-hand evidence is reassuring, and it's simpler to write.", "why": "Repeating the work costs time, money and extra traffic. The new worker can still double-check, but it should start from what is already known." },
+        { "text": "Record the version as a fact yourself.", "tempting": "You've read the note, so writing it down seems quick.", "why": "Facts come from workers' observations with their evidence attached. A planner writing facts from a summary would blur who saw what." },
+        { "text": "Skip that section, since a note isn't a confirmed fact.", "tempting": "Waiting for formal evidence feels rigorous.", "why": "Skipping leaves a gap in the result. The note is exactly the lead the next worker needs." }
+      ],
+      "takeaway": "Workers share notes; good work orders build on what another worker already saw."
+    },
+    {
+      "id": "off-track",
+      "situation": "Worker 3 has spent most of its time limit on the blog's image gallery, which has nothing to do with its order to identify the help centre's software.",
+      "prompt": "What do you do?",
+      "options": [
+        { "text": "Send it a short course correction to get back to the help centre.", "correct": true, "why": "ARTEX lets the planner steer a running worker; the message lands before the worker's next action. Its progress so far is kept, and only its direction changes." },
+        { "text": "Stop the worker and write a new order.", "tempting": "A clean restart is sometimes best, and the planner can stop a worker.", "why": "That's right when an order is hopeless, but here it throws away useful context. Try a course correction first." },
+        { "text": "Let it run; it will get back on track eventually.", "trap": true, "tempting": "Interrupting feels heavy-handed, and workers are usually sensible.", "why": "It may simply run out of time and end with nothing for the help centre. A one-line correction now is cheaper than a wasted run." },
+        { "text": "Write a duplicate order so another worker does the help centre.", "tempting": "A second worker guarantees someone does it.", "why": "Now two workers spend time on overlapping jobs, and the first is still off track." }
+      ],
+      "takeaway": "The planner can steer a running worker instead of letting it waste its time limit."
+    },
+    {
+      "id": "human-hint",
+      "situation": "A note arrives from Mira through the main agent: \"The blog runs on separate software from the store, so include it in the comparison.\"",
+      "prompt": "How do you treat it?",
+      "options": [
+        { "text": "As new information: check it against the scope and the notebook, then write a step 1 order for the blog if nobody covers it.", "correct": true, "why": "In ARTEX a human steers by adding information. The hint becomes part of what you read, and you decide what work it calls for, within scope." },
+        { "text": "Drop the current plan and do exactly what the hint says, right now.", "trap": true, "tempting": "The human is in charge, so their word should override everything.", "why": "Mira asked to add the blog, not to abandon the rest. Throwing away the todolist would lose finished steps. Fold the hint into the plan." },
+        { "text": "Ignore it: the brief was set at the start.", "tempting": "Sticking to the original brief sounds disciplined.", "why": "Hints exist precisely so humans can guide a running task. Ignoring them makes the chat pointless." },
+        { "text": "Forward it straight to a worker.", "tempting": "It's a concrete request, so sending it to whoever does the work seems direct.", "why": "Workers only take work orders; you're the one who turns information into work. Going around the planner would break the single-decider design." }
+      ],
+      "takeaway": "Human hints are new information for the planner, not orders that bypass it."
+    },
+    {
+      "id": "gate-denied",
+      "situation": "A worker's command was blocked by the approval gate, with a message saying it is a platform rule for this task, not the target refusing.",
+      "prompt": "What do you do next?",
+      "options": [
+        { "text": "Accept it as a firm no, and choose a different approach that stays within the rules.", "correct": true, "why": "ARTEX deliberately tells the agents that a block is platform policy, so they don't treat it as an obstacle to work around. Your job is to find another route to the goal, or none." },
+        { "text": "Write an order to try a slightly different version of the same command.", "trap": true, "tempting": "Agents are good at finding variations, and the goal still matters.", "why": "That treats a safety rule as a puzzle. The message exists to prevent exactly this: rules set by the operator are not something to get past." },
+        { "text": "Pause the whole task until Mira returns.", "tempting": "Stopping everything after a block feels cautious.", "why": "One blocked command doesn't make the rest of the plan unsafe. Other in-scope work can continue." },
+        { "text": "Have the same worker simply retry.", "tempting": "Some failures are temporary.", "why": "A rule-based block is not a glitch; retrying gives the same answer and wastes the worker's time." }
+      ],
+      "takeaway": "An approval-gate block is a firm platform rule: change direction, don't work around it."
+    },
+    {
+      "id": "goal-proven",
+      "situation": "Step 4 is done: a worker has recorded the comparison, with evidence for every out-of-date component. That proves the task's only goal. A couple of side directions are still open.",
+      "prompt": "What do you do?",
+      "options": [
+        { "text": "Mark the goal proven, linked to its evidence; with the last goal proven, the task ends and stops any running workers.", "correct": true, "why": "In ARTEX a goal is done when evidence proves it, and a task is done when all its goals are. Ending there keeps the test inside what was asked." },
+        { "text": "Keep exploring the side directions to be thorough.", "trap": true, "tempting": "More coverage feels like more value for Mira.", "why": "The goals define \"done\". Carrying on past them spends money and time on work nobody asked for. Mira can start a new task if she wants more." },
+        { "text": "Mark the goal met without linking the evidence; the report has it anyway.", "tempting": "The result is obviously there, so the link feels like paperwork.", "why": "Linking proof to the goal is what makes the trail traceable, from goal to work orders to facts to evidence. Skip it and the report loses its spine." },
+        { "text": "Wait for Mira to confirm before marking anything.", "tempting": "Letting the human sign off feels safe.", "why": "Mira asked for the result, and the evidence is there. She reviews the report; she doesn't need to approve the ending." }
+      ],
+      "takeaway": "A task ends itself when evidence proves every goal; the goals define done."
+    }
+  ],
+  "summary": {
+    "heading": "What you've learned",
+    "closing": [
+      "As the planner you never touched a tool. You woke up when something new arrived, read the notebook and your todolist, and wrote a few small work orders, or none. Workers picked them up on their own, shared what they saw, and wrote facts that woke you again. That loop is what lets ARTEX run a whole test without someone pushing each step.",
+      "The things that make it work are simple rules kept strictly: one decider, one job per worker, memory outside the conversation, long chains released step by step, humans steering with information, and rules that are firm limits, not puzzles."
+    ]
+  }
+}

@@ -1,0 +1,208 @@
+{
+  "schemaVersion": 1,
+  "title": "Suite Maths",
+  "subtitle": "Why big Cucumber suites go red, slow and expensive, and which fixes actually help",
+  "theme": "chalk",
+  "seed": 5,
+  "intro": {
+    "kicker": "Explorable lab",
+    "question": "What happens to a Cucumber suite as it grows, and what really keeps it green and fast?",
+    "body": [
+      "A Cucumber suite starts small and readable. Then it grows to hundreds of scenarios, runs through the browser, and one day nobody trusts a red build any more. Most of that comes down to a little arithmetic most teams never do.",
+      "Five small models follow: ((flaky test)) odds, what ((retries)) hide, UI-level versus API-level steps, ((parallel execution)) and how ((Scenario Outline)) tables explode. The numbers are illustrative; the shapes are real."
+    ]
+  },
+  "model": {
+    "variables": [
+      { "id": "scenarios", "label": "Scenarios in the suite", "min": 10, "max": 1000, "default": 300, "step": 10, "format": "int" },
+      { "id": "flakeRate", "label": "Chance each scenario fails randomly", "min": 0, "max": 0.05, "default": 0.01, "step": 0.001, "format": "pct1" },
+      { "id": "retries", "label": "Automatic retries", "min": 0, "max": 2, "default": 0, "step": 1, "format": "int" },
+      { "id": "realFailRate", "label": "Real bug fails this often", "min": 0, "max": 1, "default": 0.5, "step": 0.05, "format": "pct" },
+      { "id": "uiShare", "label": "Scenarios driven through the UI", "min": 0, "max": 1, "default": 0.8, "step": 0.05, "format": "pct" },
+      { "id": "uiSecs", "label": "Seconds per UI scenario", "min": 5, "max": 60, "default": 20, "step": 1, "format": "int", "unit": "s" },
+      { "id": "apiSecs", "label": "Seconds per API scenario", "min": 0.1, "max": 5, "default": 0.5, "step": 0.1, "format": "dp1", "unit": "s" },
+      { "id": "workers", "label": "Parallel workers", "min": 1, "max": 16, "default": 1, "step": 1, "format": "int" },
+      { "id": "isolated", "label": "Scenarios are independent", "min": 0, "max": 1, "default": 1, "step": 1, "format": "int" },
+      { "id": "params", "label": "Parameters in the Outline", "min": 1, "max": 6, "default": 3, "step": 1, "format": "int" },
+      { "id": "valuesEach", "label": "Values tried per parameter", "min": 2, "max": 6, "default": 4, "step": 1, "format": "int" },
+      { "id": "secsPerRow", "label": "Seconds per Examples row", "min": 1, "max": 30, "default": 5, "step": 1, "format": "int", "unit": "s" }
+    ],
+    "formulas": [
+      { "id": "pGreen", "expr": "pow(1 - pow(flakeRate, retries + 1), scenarios)", "label": "Chance the whole run is green", "format": "pct1" },
+      { "id": "realBugPass", "expr": "1 - pow(realFailRate, retries + 1)", "label": "Chance a real intermittent bug passes", "format": "pct" },
+      { "id": "serialMins", "expr": "scenarios * (uiShare * uiSecs + (1 - uiShare) * apiSecs) / 60", "label": "Run time on one worker", "format": "dp1", "unit": "min" },
+      { "id": "effWorkers", "expr": "if(isolated, workers, 1)", "label": "Workers that actually help", "format": "int" },
+      { "id": "parallelMins", "expr": "serialMins / effWorkers", "label": "Run time", "format": "dp1", "unit": "min" },
+      { "id": "exampleRows", "expr": "pow(valuesEach, params)", "label": "Examples rows for every combination", "format": "int" },
+      { "id": "outlineMins", "expr": "exampleRows * secsPerRow / 60", "label": "Outline run time", "format": "dp1", "unit": "min" }
+    ]
+  },
+  "steps": [
+    {
+      "id": "flaky",
+      "title": "One percent, three hundred times",
+      "kicker": "Flaky odds",
+      "body": [
+        "A ((flaky test)) sometimes fails for reasons unrelated to the code: a slow page, a timing race, a shared test account. Say each scenario fails randomly [[flakeRate]] of the time.",
+        "With [[scenarios]] scenarios, the chance that a whole run comes back green is **{pGreen}**. Every scenario has to pass at once, so the chances multiply."
+      ],
+      "start": { "scenarios": 10, "flakeRate": 0.01, "retries": 0 },
+      "visuals": [
+        { "kind": "line", "title": "Chance of a fully green run", "format": "pct", "yLabel": "Green runs", "yMin": "0", "yMax": "1",
+          "x": { "id": "s", "from": "10", "to": "1000", "label": "Scenarios", "format": "int" },
+          "series": [ { "label": "Green", "y": "pow(1 - pow(flakeRate, retries + 1), s)", "color": "green" } ],
+          "marker": "scenarios", "markerLabel": "Your suite" },
+        { "kind": "gauge", "title": "Green runs", "value": "pGreen", "min": "0", "max": "1", "format": "pct",
+          "zones": [ { "to": 0.5, "color": "red", "label": "Nobody trusts red" }, { "to": 0.9, "color": "amber", "label": "Annoying" }, { "to": 1, "color": "green", "label": "Trustworthy" } ] }
+      ],
+      "controls": [ { "kind": "slider", "var": "scenarios" }, { "kind": "slider", "var": "flakeRate" } ],
+      "predict": {
+        "prompt": "The suite grows from 10 to 300 scenarios, each still failing randomly 1% of the time. How often is a whole run green?",
+        "options": [
+          { "text": "About 99% of the time: each scenario is 99% reliable", "why": "That's the odds for one scenario. A run is green only if all 300 pass together, so the 99%s multiply." },
+          { "text": "About 70% of the time", "why": "Closer, but still too optimistic: 0.99 multiplied by itself 300 times is far smaller." },
+          { "text": "About 5% of the time", "correct": true, "why": "0.99³⁰⁰ ≈ 0.049. Nineteen runs in twenty fail somewhere, even though nothing is broken." }
+        ],
+        "set": { "scenarios": "300" },
+        "expect": "pGreen > 0.04 && pGreen < 0.06",
+        "notice": "Only **{pGreen}** of runs are green. At this point a red build tells the team nothing, so they stop looking, and real failures hide among the random ones."
+      },
+      "challenge": { "prompt": "Keep 300 scenarios and get the green rate above 90% by making each scenario more reliable.", "when": "scenarios >= 300 && pGreen > 0.9 && retries == 0", "success": "At {flakeRate} flakiness per scenario, {pGreen} of runs are green.", "hint": "Even 0.1% per scenario leaves only about 74% of runs green. You need flakiness close to zero." },
+      "takeaway": "Flakiness multiplies across a suite: small per-scenario odds become a mostly red build."
+    },
+    {
+      "id": "retries",
+      "title": "What retries hide",
+      "kicker": "Retries",
+      "body": [
+        "The quick fix is to rerun failed scenarios automatically. With [[retries]] retry, a scenario only counts as failed if it fails every attempt, and the suite of [[scenarios]] comes back green **{pGreen}** of the time.",
+        "But some intermittent failures are real bugs, such as a race condition that breaks [[realFailRate]] of the time. With retries, it still passes **{realBugPass}** of runs."
+      ],
+      "start": { "scenarios": 300, "flakeRate": 0.01, "retries": 0, "realFailRate": 0.5 },
+      "visuals": [
+        { "kind": "compare", "title": "No retry or one retry",
+          "scenarios": [ { "label": "No retry", "set": { "retries": "0" }, "color": "red" }, { "label": "One automatic retry", "set": { "retries": "1" }, "color": "green" } ],
+          "metrics": [
+            { "label": "Green runs", "value": "pGreen", "format": "pct1", "better": "higher" },
+            { "label": "Real bug slips through", "value": "realBugPass", "format": "pct", "better": "lower" }
+          ] }
+      ],
+      "controls": [ { "kind": "stepper", "var": "retries" }, { "kind": "slider", "var": "realFailRate" } ],
+      "predict": {
+        "prompt": "You add one automatic retry for failed scenarios. What happens?",
+        "options": [
+          { "text": "The suite turns green about 97% of the time, and a real bug that fails half the time now passes 75% of runs.", "correct": true, "why": "Random 1% failures almost never happen twice in a row (0.01%), so the suite goes green. But a real 50% bug also gets two chances: it passes three runs in four." },
+          { "text": "The suite turns green, and nothing is lost.", "why": "Retries treat every intermittent failure as noise, including the ones that are real problems." },
+          { "text": "Nothing changes: flaky scenarios fail again on retry.", "why": "Truly random failures rarely repeat back to back; that's why retries look so effective." }
+        ],
+        "set": { "retries": "1" },
+        "expect": "pGreen > 0.96 && realBugPass == 0.75",
+        "notice": "Green rate **{pGreen}**, but a real intermittent bug passes **{realBugPass}** of runs. Retries are a painkiller: use them while you fix the cause, and report every retried pass."
+      },
+      "takeaway": "Retries make builds green by hiding intermittent failures, real bugs included; fix flakiness at its source."
+    },
+    {
+      "id": "levels",
+      "title": "Through the browser or underneath it",
+      "kicker": "Step level",
+      "body": [
+        "Gherkin says what the system should do, not how to drive it. The same scenario can run through the browser or call the application's API directly. Here [[uiShare]] of scenarios go through the UI at about [[uiSecs]] each; the rest take about [[apiSecs]].",
+        "On one worker the suite takes **{serialMins}**."
+      ],
+      "start": { "scenarios": 300, "uiShare": 0.8, "uiSecs": 20, "apiSecs": 0.5, "workers": 1 },
+      "visuals": [
+        { "kind": "stack", "title": "Where the time goes", "shape": "bar", "format": "dp1", "unit": "min", "parts": [
+          { "label": "UI scenarios", "value": "scenarios * uiShare * uiSecs / 60", "color": "orange" },
+          { "label": "API scenarios", "value": "scenarios * (1 - uiShare) * apiSecs / 60", "color": "teal" } ] },
+        { "kind": "number", "items": [ { "label": "Suite run time", "value": "serialMins", "format": "dp1", "unit": "min", "color": "accent" } ] }
+      ],
+      "controls": [ { "kind": "slider", "var": "uiShare" }, { "kind": "slider", "var": "uiSecs" } ],
+      "predict": {
+        "prompt": "You keep the Gherkin exactly the same but rewire half of the UI scenarios to run against the API instead (80% UI → 40% UI). What happens to the run time?",
+        "options": [
+          { "text": "It barely changes: it's the same scenarios.", "why": "The scenarios read the same, but almost all the time is spent driving the browser, and half of that is now gone." },
+          { "text": "It roughly halves.", "correct": true, "why": "UI time is nearly all of it: 300 × 0.8 × 20 s ≈ 80 min becomes 300 × 0.4 × 20 s ≈ 40 min, plus a minute or so of API calls." },
+          { "text": "It drops forty-fold, like the per-scenario speed-up.", "why": "Only the rewired scenarios get forty times faster; the other 40% still run through the browser." }
+        ],
+        "set": { "uiShare": "0.4" },
+        "expect": "serialMins > 40 && serialMins < 43",
+        "notice": "**{serialMins}** instead of about 80. Because the Gherkin describes behaviour rather than clicks, you can change how it is automated without rewriting a single scenario."
+      },
+      "takeaway": "Declarative scenarios let you automate below the UI where possible, which is where most of the speed comes from."
+    },
+    {
+      "id": "parallel",
+      "title": "Parallel only works when scenarios are independent",
+      "kicker": "Parallel runs",
+      "body": [
+        "Cucumber-JVM can run scenarios in parallel. With [[workers]] workers, an independent suite takes **{parallelMins}**.",
+        "But if scenarios share state (one test account, one database row, an expected run order), they collide when run at once. To stay green they have to run one at a time."
+      ],
+      "start": { "scenarios": 300, "uiShare": 0.4, "uiSecs": 20, "apiSecs": 0.5, "workers": 1, "isolated": 0 },
+      "visuals": [
+        { "kind": "compare", "title": "Shared state or independent scenarios",
+          "scenarios": [ { "label": "Shared state", "set": { "isolated": "0" }, "color": "red" }, { "label": "Independent", "set": { "isolated": "1" }, "color": "green" } ],
+          "metrics": [ { "label": "Run time", "value": "parallelMins", "format": "dp1", "unit": "min", "better": "lower" }, { "label": "Workers that help", "value": "effWorkers", "format": "int", "better": "higher" } ] }
+      ],
+      "controls": [ { "kind": "stepper", "var": "workers" }, { "kind": "toggle", "var": "isolated", "label": "Each scenario sets up its own data" } ],
+      "predict": {
+        "prompt": "The scenarios all log in as the same test user and depend on each other's leftover data. You turn on 8 parallel workers. How long does a green run take?",
+        "options": [
+          { "text": "About an eighth of the time: 8 workers", "why": "Parallel workers only help if scenarios can run at the same time without stepping on each other. These can't." },
+          { "text": "The same as before: they still have to run one at a time to pass", "correct": true, "why": "Shared state forces serial execution, or the scenarios randomly break each other, which is just more flakiness." },
+          { "text": "Slower: parallelism adds overhead", "why": "There is some overhead, but the real problem is that the speed-up never happens at all." }
+        ],
+        "set": { "workers": "8" },
+        "expect": "abs(parallelMins - serialMins) < 0.001 && workers == 8",
+        "notice": "Still **{parallelMins}**. Independence first: each scenario creates its own data in a fresh scenario context. Then parallelism pays."
+      },
+      "challenge": { "prompt": "Get the suite under 6 minutes.", "when": "parallelMins < 6", "success": "{effWorkers|int} effective workers bring it to {parallelMins}.", "hint": "Make the scenarios independent first, then add workers." },
+      "takeaway": "Parallel runs pay only when every scenario is independent: no shared accounts, data or run order."
+    },
+    {
+      "id": "outline",
+      "title": "The exploding Outline",
+      "kicker": "Scenario Outline",
+      "body": [
+        "A ((Scenario Outline)) runs once per row of its Examples table. Testing every combination of [[params]] parameters with [[valuesEach]] values each means **{exampleRows|int}** rows.",
+        "At [[secsPerRow]] per row, that one Outline takes **{outlineMins}**."
+      ],
+      "start": { "params": 3, "valuesEach": 4, "secsPerRow": 5 },
+      "visuals": [
+        { "kind": "timeline", "title": "Rows as parameters are added", "frames": "params + 1", "value": "pow(valuesEach, k)", "display": "bars", "label": "{k} parameter(s): **{value|int}** rows", "frameMs": 800, "color": "orange" },
+        { "kind": "number", "items": [ { "label": "Examples rows", "value": "exampleRows", "format": "int", "color": "accent" }, { "label": "Run time", "value": "outlineMins", "format": "dp1", "unit": "min" } ] }
+      ],
+      "controls": [ { "kind": "stepper", "var": "params" }, { "kind": "stepper", "var": "valuesEach" } ],
+      "predict": {
+        "prompt": "A tester adds a fourth parameter with 4 values to an Outline that tests all combinations. How much longer does it take?",
+        "options": [
+          { "text": "A bit longer: one more column", "why": "A column multiplies the rows when every combination is listed, rather than adding to them." },
+          { "text": "Four times longer: 64 rows become 256", "correct": true, "why": "Every existing row now needs each of the 4 new values: 4³ = 64 becomes 4⁴ = 256." },
+          { "text": "The same: it's still one scenario", "why": "It's one Outline in the file, but Cucumber runs it once per Examples row." }
+        ],
+        "set": { "params": "4" },
+        "expect": "exampleRows == 256",
+        "notice": "**{exampleRows|int}** rows, **{outlineMins}**. BDD examples should illustrate the rules, a few telling cases each, not enumerate every combination. Exhaustive checks belong in fast unit tests."
+      },
+      "takeaway": "Outlines multiply: choose a few examples that illustrate each rule instead of every combination."
+    }
+  ],
+  "glossary": [
+    { "term": "flaky test", "definition": "A test that sometimes passes and sometimes fails without any change to the code or the test." },
+    { "term": "retries", "definition": "Automatically rerunning a failed scenario, counting it as passed if a later attempt passes." },
+    { "term": "parallel execution", "definition": "Running several scenarios at the same time on separate threads or processes." },
+    { "term": "Scenario Outline", "definition": "A Gherkin scenario template run once per row of its Examples table, with <placeholders> filled from each row." }
+  ],
+  "wrapUp": {
+    "heading": "What you discovered",
+    "body": [
+      "Large Cucumber suites fail in predictable ways. Flakiness multiplies across scenarios until red means nothing; retries turn builds green but hide real intermittent bugs; UI-driven steps make suites slow; shared state blocks parallel runs; and exhaustive Outlines multiply run time.",
+      "Most fixes come from writing scenarios well: declarative steps you can automate below the UI, independent scenarios that set up their own data, and a few telling examples per rule. The arithmetic simply shows why the advice matters."
+    ],
+    "next": [
+      "In step 1, try 1,000 scenarios at 0.1% flakiness. Is that suite trustworthy?",
+      "In step 3, set UI share to 10% and see how close you get to a one-minute suite.",
+      "In step 5, try 2 values each for 6 parameters, then 6 values each for 2. Which explodes faster?"
+    ]
+  }
+}

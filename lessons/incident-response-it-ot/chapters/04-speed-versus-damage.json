@@ -1,0 +1,254 @@
+{
+  "schemaVersion": 1,
+  "title": "Speed versus Damage",
+  "subtitle": "Six trade-offs that decide how bad an incident gets, from the first alert to the regulator's clock",
+  "theme": "lab",
+  "seed": 11,
+  "intro": {
+    "kicker": "Explorable lab",
+    "question": "Where in an incident do minutes matter, where do they not, and what actually shortens the damage?",
+    "body": [
+      "An incident is a race: the attacker spreads, the business bleeds, and deadlines tick. This lab gives you six small models, one for each stage of a response: spotting the real alert among the noise, how far an intruder spreads before you notice, how fast containment works, whether to shut a plant down, how long recovery takes and which legal clocks have already run out.",
+      "Every number here is **illustrative**, chosen to show the shape of each trade-off, not to predict a real incident. The deadlines in the last step are real; whether each applies depends on who you are and what was affected."
+    ]
+  },
+  "model": {
+    "variables": [
+      { "id": "alertsPerDay", "label": "Alerts per day", "min": 100, "max": 5000, "default": 1000, "step": 100, "format": "int" },
+      { "id": "analysts", "label": "Analysts on shift", "min": 1, "max": 20, "default": 5, "step": 1, "format": "int" },
+      { "id": "perAnalyst", "label": "Alerts one analyst triages well", "min": 20, "max": 200, "default": 80, "step": 10, "format": "int" },
+      { "id": "realPerMonth", "label": "Real incidents per month", "min": 1, "max": 20, "default": 4, "step": 1, "format": "int" },
+      { "id": "detectHours", "label": "Time to detect", "min": 1, "max": 240, "default": 72, "step": 1, "format": "int", "unit": "h" },
+      { "id": "doublingHours", "label": "Spread doubles every", "min": 2, "max": 48, "default": 12, "step": 1, "format": "int", "unit": "h" },
+      { "id": "totalHosts", "label": "Machines in the network", "min": 100, "max": 20000, "default": 5000, "step": 100, "format": "int" },
+      { "id": "containMins", "label": "Time to isolate", "min": 5, "max": 240, "default": 120, "step": 5, "format": "int", "unit": "min" },
+      { "id": "encMins", "label": "Encryption doubles every", "min": 5, "max": 60, "default": 15, "step": 5, "format": "int", "unit": "min" },
+      { "id": "pSpread", "label": "Chance it reaches the plant", "min": 0, "max": 1, "default": 0.05, "step": 0.01, "format": "pct" },
+      { "id": "impactIfSpread", "label": "Loss if it reaches the plant", "min": 10, "max": 1000, "default": 200, "step": 10, "format": "int", "prefix": "$", "unit": "M" },
+      { "id": "shutdownHours", "label": "Precautionary shutdown", "min": 1, "max": 240, "default": 120, "step": 1, "format": "int", "unit": "h" },
+      { "id": "costPerHour", "label": "Cost of downtime per hour", "min": 0.01, "max": 2, "default": 0.1, "step": 0.01, "format": "dp2", "prefix": "$", "unit": "M" },
+      { "id": "hostsToRestore", "label": "Machines to restore", "min": 10, "max": 5000, "default": 1000, "step": 10, "format": "int" },
+      { "id": "engineers", "label": "Recovery engineers", "min": 1, "max": 50, "default": 10, "step": 1, "format": "int" },
+      { "id": "restoreRate", "label": "Machines per engineer-hour", "min": 0.5, "max": 10, "default": 2, "step": 0.5, "format": "dp1" },
+      { "id": "identityHours", "label": "Rebuild identity first", "min": 4, "max": 120, "default": 48, "step": 4, "format": "int", "unit": "h" },
+      { "id": "hoursSince", "label": "Hours since you became aware", "min": 0, "max": 168, "default": 0, "step": 1, "format": "int", "unit": "h" },
+      { "id": "materialityHours", "label": "Hours to decide it is material", "min": 0, "max": 240, "default": 48, "step": 4, "format": "int", "unit": "h" }
+    ],
+    "formulas": [
+      { "id": "triageShare", "expr": "min(1, analysts * perAnalyst / alertsPerDay)", "label": "Share of alerts properly triaged", "format": "pct" },
+      { "id": "missedPerMonth", "expr": "realPerMonth * (1 - triageShare)", "label": "Real incidents missed per month", "format": "dp1" },
+      { "id": "hostsAtDetect", "expr": "min(totalHosts, pow(2, detectHours / doublingHours))", "label": "Machines compromised at detection", "format": "int" },
+      { "id": "encrypted", "expr": "min(totalHosts, pow(2, containMins / encMins))", "label": "Machines encrypted before isolation", "format": "int" },
+      { "id": "expectedRun", "expr": "pSpread * impactIfSpread", "label": "Expected loss if you keep running", "format": "dp1", "prefix": "$", "unit": "M" },
+      { "id": "shutdownCost", "expr": "shutdownHours * costPerHour", "label": "Cost of a precautionary shutdown", "format": "dp1", "prefix": "$", "unit": "M" },
+      { "id": "restoreHours", "expr": "hostsToRestore / (engineers * restoreRate)", "label": "Hours restoring machines", "format": "dp1", "unit": "h" },
+      { "id": "recoveryHours", "expr": "identityHours + restoreHours", "label": "Total recovery time", "format": "dp1", "unit": "h" },
+      { "id": "certInLeft", "expr": "6 - hoursSince", "label": "CERT-In (India) hours left", "format": "int", "unit": "h" },
+      { "id": "nis2Left", "expr": "24 - hoursSince", "label": "NIS2 early warning hours left", "format": "int", "unit": "h" },
+      { "id": "gdprLeft", "expr": "72 - hoursSince", "label": "GDPR hours left", "format": "int", "unit": "h" },
+      { "id": "secLeft", "expr": "materialityHours + 96 - hoursSince", "label": "SEC 8-K hours left (approx.)", "format": "int", "unit": "h" },
+      { "id": "clocksMissed", "expr": "(certInLeft < 0) + (nis2Left < 0) + (gdprLeft < 0) + (secLeft < 0)", "label": "Clocks already run out", "format": "int" }
+    ]
+  },
+  "steps": [
+    {
+      "id": "noise",
+      "title": "More alerts, fewer catches",
+      "kicker": "Detect",
+      "body": [
+        "A ((SOC)) receives [[alertsPerDay]] alerts a day. [[analysts]] analysts can each ((triage)) about [[perAnalyst]] alerts properly, so only **{triageShare}** get a real look.",
+        "Hidden in the noise are about [[realPerMonth]] real incidents a month. If triage is a lottery, about **{missedPerMonth}** of them slip past each month."
+      ],
+      "start": { "alertsPerDay": 1000, "analysts": 5, "perAnalyst": 80, "realPerMonth": 4 },
+      "visuals": [
+        { "kind": "stack", "title": "Today's alerts", "shape": "donut", "format": "pct", "parts": [ { "label": "Triaged properly", "value": "triageShare", "color": "teal" }, { "label": "Skimmed or skipped", "value": "1 - triageShare", "color": "red" } ] },
+        { "kind": "number", "items": [ { "label": "Triaged", "value": "triageShare", "format": "pct", "color": "accent" }, { "label": "Real incidents missed / month", "value": "missedPerMonth", "format": "dp1", "color": "red" } ] }
+      ],
+      "controls": [ { "kind": "slider", "var": "alertsPerDay" }, { "kind": "stepper", "var": "analysts" }, { "kind": "slider", "var": "perAnalyst" } ],
+      "predict": {
+        "prompt": "A new security tool goes live untuned and doubles the alerts to 2,000 a day. Same team. What happens to the real incidents you miss?",
+        "options": [
+          { "text": "Fewer are missed: more alerts means more coverage.", "why": "Only if someone looks at them. With the same team, extra alerts mostly add noise, so a smaller share of everything gets real attention." },
+          { "text": "More are missed: the triaged share halves.", "correct": true, "why": "400 good triages out of 2,000 alerts is 20%, down from 40%. The real incidents are now buried deeper." },
+          { "text": "No change: the team's capacity is the same.", "why": "Capacity is the same, but it is spread over twice as much. The share that gets a proper look drops." }
+        ],
+        "set": { "alertsPerDay": "2000" },
+        "expect": "triageShare == 0.2 && missedPerMonth > 3",
+        "notice": "Only **{triageShare}** of alerts get a real look now, and about **{missedPerMonth}** real incidents a month slip past. Tuning detections is as important as adding them."
+      },
+      "challenge": { "prompt": "Keep 2,000 alerts a day and find a way to triage every one properly.", "when": "alertsPerDay >= 2000 && triageShare >= 1", "success": "{analysts|int} analysts × {perAnalyst|int} alerts covers all {alertsPerDay|int}. In real SOCs this usually comes from tuning and automation, not just hiring.", "hint": "Analysts × alerts each has to reach the daily total." },
+      "takeaway": "Untuned alerts drown real ones; detection quality beats detection quantity."
+    },
+    {
+      "id": "dwell",
+      "title": "The cost of noticing late",
+      "kicker": "Dwell time",
+      "body": [
+        "An intruder who isn't noticed keeps spreading. In this model the number of compromised machines doubles every [[doublingHours]] hours, out of [[totalHosts]] in the network.",
+        "You notice after [[detectHours]] hours. By then **{hostsAtDetect}** machines are compromised. The time between break-in and detection is called ((dwell time))."
+      ],
+      "start": { "detectHours": 72, "doublingHours": 12, "totalHosts": 5000 },
+      "visuals": [
+        { "kind": "line", "title": "Compromised machines over time", "format": "int", "yLabel": "Machines", "logY": true,
+          "x": { "id": "t", "from": "0", "to": "240", "label": "Hours since break-in", "format": "int" },
+          "series": [ { "label": "Compromised", "y": "min(totalHosts, pow(2, t / doublingHours))", "color": "red" } ],
+          "marker": "detectHours", "markerLabel": "Detected", "caption": "Illustrative: real intruders move in bursts, not smooth doublings. Log scale. Mandiant's M-Trends 2026 puts the global median dwell time at about two weeks." },
+        { "kind": "number", "items": [ { "label": "Compromised at detection", "value": "hostsAtDetect", "format": "int", "color": "red" } ] }
+      ],
+      "controls": [ { "kind": "slider", "var": "detectHours" }, { "kind": "slider", "var": "doublingHours" } ],
+      "predict": {
+        "prompt": "Better monitoring halves your detection time, from 72 to 36 hours. How many machines are compromised when you notice?",
+        "options": [
+          { "text": "Half as many: about 32", "why": "Halving the time would halve a steady trickle. Spread compounds, so the saving is much bigger." },
+          { "text": "Eight times fewer: about 8", "correct": true, "why": "36 hours is three doublings instead of six, so 2³ = 8 machines instead of 2⁶ = 64." },
+          { "text": "About the same: they're already in", "why": "Getting in is the first step; reaching many machines takes time, and that time is what faster detection takes away." }
+        ],
+        "set": { "detectHours": "36" },
+        "expect": "hostsAtDetect == 8",
+        "notice": "**{hostsAtDetect}** machines instead of 64. Because spread compounds, every hour you cut from dwell time saves more than the last."
+      },
+      "takeaway": "Spread compounds, so cutting detection time pays off far more than linearly."
+    },
+    {
+      "id": "contain",
+      "title": "Minutes during encryption",
+      "kicker": "Contain",
+      "body": [
+        "Once ransomware starts encrypting, it can spread in minutes. Here the encrypted count doubles every [[encMins]] minutes until machines are isolated from the network.",
+        "Isolation takes [[containMins]] minutes: finding the right person, getting approval, running the change. **{encrypted}** machines are encrypted before it lands."
+      ],
+      "start": { "containMins": 120, "encMins": 15, "totalHosts": 5000 },
+      "visuals": [
+        { "kind": "compare", "title": "Wait for approval, or act on a pre-approved playbook",
+          "scenarios": [ { "label": "Manual approval (2 h)", "set": { "containMins": "120" }, "color": "red" }, { "label": "Pre-approved (15 min)", "set": { "containMins": "15" }, "color": "teal" } ],
+          "metrics": [ { "label": "Machines encrypted", "value": "encrypted", "format": "int", "better": "lower" } ] },
+        { "kind": "gauge", "title": "Encrypted before isolation", "value": "encrypted", "min": "0", "max": "512", "format": "int",
+          "zones": [ { "to": 16, "color": "green", "label": "Contained" }, { "to": 128, "color": "amber", "label": "Serious" }, { "to": 100000, "color": "red", "label": "Major outage" } ] }
+      ],
+      "controls": [ { "kind": "slider", "var": "containMins" }, { "kind": "slider", "var": "encMins" } ],
+      "predict": {
+        "prompt": "Your playbook lets the on-call analyst isolate machines without waiting for a manager, cutting isolation from 120 to 60 minutes. How many machines are spared?",
+        "options": [
+          { "text": "About half: 128 encrypted instead of 256", "why": "Halving the time halves the doublings, not the count. Four fewer doublings is 16 times fewer machines." },
+          { "text": "Far more: 16 encrypted instead of 256", "correct": true, "why": "60 minutes is 4 doublings (2⁴ = 16) instead of 8 (2⁸ = 256)." },
+          { "text": "None: the damage was done when it started", "why": "Encryption is still spreading while you wait; every doubling you prevent is real machines saved." }
+        ],
+        "set": { "containMins": "60" },
+        "expect": "encrypted == 16",
+        "notice": "**{encrypted}** machines instead of 256. Pre-approved containment, decided calmly in advance, beats a perfect decision made two hours late."
+      },
+      "takeaway": "Decide containment authority before the incident: during encryption, approval delays cost whole machines per minute."
+    },
+    {
+      "id": "shutdown",
+      "title": "Shut the plant down?",
+      "kicker": "OT decision",
+      "body": [
+        "Ransomware is in the office network, not the plant. Keep running, and there is a [[pSpread]] chance it reaches the plant's control systems, costing about [[impactIfSpread]] in damage and danger.",
+        "Or stop production as a precaution for [[shutdownHours]] at [[costPerHour]] an hour. Expected loss if you run: **{expectedRun}**. Cost of shutting down: **{shutdownCost}**."
+      ],
+      "start": { "pSpread": 0.05, "impactIfSpread": 200, "shutdownHours": 120, "costPerHour": 0.1 },
+      "visuals": [
+        { "kind": "bars", "title": "Run or shut down?", "format": "dp1", "prefix": "$", "unit": "M", "horizontal": true,
+          "bars": [
+            { "label": "Expected loss if running", "value": "expectedRun", "color": "red", "alert": "expectedRun > shutdownCost" },
+            { "label": "Certain cost: shut down", "value": "shutdownCost", "color": "amber" }
+          ], "caption": "A bar marked ! is the worse bet. Real decisions also weigh safety, which no dollar figure fully captures." },
+        { "kind": "number", "items": [ { "label": "Running costs more by", "value": "expectedRun - shutdownCost", "format": "dp1", "prefix": "$", "unit": "M", "color": "accent" } ] }
+      ],
+      "controls": [ { "kind": "slider", "var": "pSpread" }, { "kind": "slider", "var": "shutdownHours" }, { "kind": "slider", "var": "costPerHour" } ],
+      "predict": {
+        "prompt": "Investigators find the intruder had access to a system that also talks to the plant. The chance of spread rises from 5% to 20%. What now?",
+        "options": [
+          { "text": "Keep running: a shutdown is a certain loss, spread is only a chance.", "why": "A certain loss feels worse, but at 20% the expected loss of running ($40M here) is more than three times the shutdown's cost." },
+          { "text": "Shutting down becomes the better bet.", "correct": true, "why": "0.20 × $200M = $40M expected loss, against $12M for a five-day precautionary stop." },
+          { "text": "It makes no difference to the decision.", "why": "The decision turns on exactly this probability. Quadrupling it flips the answer." }
+        ],
+        "set": { "pSpread": "0.2" },
+        "expect": "expectedRun > shutdownCost",
+        "notice": "Running now risks **{expectedRun}** against a certain **{shutdownCost}**. This is why some operators stop physical operations while only IT is hit: they can't yet rule out spread, and in a plant the downside includes safety."
+      },
+      "challenge": { "prompt": "At a 20% chance of spread, how long could the shutdown last before running becomes the better bet again?", "when": "pSpread >= 0.2 && shutdownCost >= expectedRun && shutdownHours <= 420", "success": "At {shutdownHours|int} hours the shutdown costs {shutdownCost}, at least the {expectedRun} expected loss of running.", "hint": "Raise the shutdown length or the hourly cost until the two bars meet." },
+      "takeaway": "Precautionary OT shutdowns are a bet on uncertainty: the less you can rule out, the more stopping is worth."
+    },
+    {
+      "id": "recover",
+      "title": "The bottleneck in recovery",
+      "kicker": "Recover",
+      "body": [
+        "Before restoring any machine you need trustworthy ((identity)) systems: the logins and permissions everything else depends on. Rebuilding them takes [[identityHours]] hours, and it can't be parallelised.",
+        "Then [[engineers]] engineers restore [[hostsToRestore]] machines at about [[restoreRate]] machines each per hour. Total: **{recoveryHours}**."
+      ],
+      "start": { "hostsToRestore": 1000, "engineers": 10, "restoreRate": 2, "identityHours": 48 },
+      "visuals": [
+        { "kind": "stack", "title": "Where recovery time goes", "shape": "bar", "format": "dp1", "unit": "h", "parts": [ { "label": "Rebuild identity", "value": "identityHours", "color": "violet" }, { "label": "Restore machines", "value": "restoreHours", "color": "teal" } ] },
+        { "kind": "number", "items": [ { "label": "Total recovery", "value": "recoveryHours", "format": "dp1", "unit": "h", "color": "accent" }, { "label": "Days", "value": "recoveryHours / 24", "format": "dp1" } ] }
+      ],
+      "controls": [ { "kind": "stepper", "var": "engineers" }, { "kind": "slider", "var": "identityHours" }, { "kind": "slider", "var": "hostsToRestore" } ],
+      "predict": {
+        "prompt": "You call in a recovery firm and double the engineers from 10 to 20. How long does recovery now take?",
+        "options": [
+          { "text": "Half as long: about 49 hours", "why": "Only the parallel part halves. The identity rebuild still has to happen first, one step at a time." },
+          { "text": "About 73 hours: the identity rebuild still comes first", "correct": true, "why": "48 h for identity is unchanged; restoring drops from 50 h to 25 h. 48 + 25 = 73." },
+          { "text": "No faster: recovery is limited by backups", "why": "Backup speed matters, but here more hands really do shorten the restore part." }
+        ],
+        "set": { "engineers": "20" },
+        "expect": "abs(recoveryHours - 73) < 0.01",
+        "notice": "**{recoveryHours}**: extra engineers shrank only the teal part. A clean, offline copy of your identity systems is worth more than a second recovery team."
+      },
+      "challenge": { "prompt": "Keep 10 engineers and get total recovery under 60 hours.", "when": "engineers <= 10 && recoveryHours < 60", "success": "{recoveryHours} with {engineers|int} engineers. Shrinking the serial step is what did it.", "hint": "Which part can't be parallelised? Make it faster, as tested offline identity backups would." },
+      "takeaway": "Recovery is limited by its serial steps; protect and rehearse identity recovery before you ever need it."
+    },
+    {
+      "id": "clocks",
+      "title": "The clocks start when you know",
+      "kicker": "Notify",
+      "body": [
+        "Regulators set deadlines that start ticking at awareness, not when the investigation ends. Slide [[hoursSince]] forward to see which clocks have run out.",
+        "The US SEC clock is different: four business days after the company decides the incident is ((material)), here after [[materialityHours]]. **{clocksMissed|int}** clock(s) have already run out."
+      ],
+      "start": { "hoursSince": 0, "materialityHours": 48 },
+      "visuals": [
+        { "kind": "bars", "title": "Hours left on each clock", "format": "int", "unit": "h", "horizontal": true,
+          "bars": [
+            { "label": "India CERT-In: 6 h", "value": "max(0, certInLeft)", "color": "orange", "alert": "certInLeft < 0" },
+            { "label": "EU NIS2 warning: 24 h", "value": "max(0, nis2Left)", "color": "blue", "alert": "nis2Left < 0" },
+            { "label": "EU GDPR: 72 h", "value": "max(0, gdprLeft)", "color": "violet", "alert": "gdprLeft < 0" },
+            { "label": "US SEC: 4 business days", "value": "max(0, secLeft)", "color": "teal", "alert": "secLeft < 0" }
+          ], "caption": "Each rule applies only to certain organisations and incidents. SEC time is approximate (business days, from the materiality decision)." }
+      ],
+      "controls": [ { "kind": "play", "var": "hoursSince", "duration": 12 }, { "kind": "slider", "var": "materialityHours" } ],
+      "predict": {
+        "prompt": "It is hour 8 of the incident at an Indian company with EU customers. Which clock has already run out?",
+        "options": [
+          { "text": "None: they all give at least a day.", "why": "Many people assume so, but India's CERT-In directions require reporting within 6 hours of noticing a covered incident." },
+          { "text": "CERT-In's 6-hour reporting window", "correct": true, "why": "At hour 8 the CERT-In clock is 2 hours past; NIS2's 24-hour early warning and GDPR's 72 hours are still open." },
+          { "text": "All of them", "why": "GDPR allows 72 hours and NIS2 24 hours for the first notice; only the 6-hour clock has passed." }
+        ],
+        "set": { "hoursSince": "8" },
+        "expect": "certInLeft < 0 && nis2Left > 0 && gdprLeft > 0",
+        "notice": "**{clocksMissed|int}** clock run out by hour 8. Fast clocks are why mature teams draft notification templates and know who signs them before anything happens."
+      },
+      "takeaway": "Notification deadlines start at awareness and can be as short as 6 hours; prepare who reports what, to whom, in advance."
+    }
+  ],
+  "glossary": [
+    { "term": "SOC", "definition": "Security Operations Centre: the team (in-house or outsourced) that watches alerts and handles incidents around the clock." },
+    { "term": "triage", "definition": "Quickly sorting alerts into real, harmless or unclear, and deciding what to look at first." },
+    { "term": "dwell time", "definition": "The time between an intruder getting in and the defenders noticing." },
+    { "term": "identity", "definition": "The systems that decide who can log in and what they can do, such as Active Directory. Almost everything depends on them, so they are usually restored first." },
+    { "term": "material", "definition": "Important enough that a reasonable investor would want to know. US-listed companies must disclose material cyber incidents to the SEC." }
+  ],
+  "wrapUp": {
+    "heading": "What you discovered",
+    "body": [
+      "Speed matters most where damage compounds: while an intruder spreads and while ransomware encrypts. There, cutting hours of dwell time or minutes of containment saves far more than linearly, which is why teams pre-approve containment and invest in detection quality rather than alert quantity.",
+      "Elsewhere, structure matters more than speed. Recovery is held up by serial steps like rebuilding identity. Shutting down a plant is a bet on how much you can rule out. And legal clocks start when you know, so the paperwork has to be ready before the incident."
+    ],
+    "next": [
+      "In step 2, set spread to double every 4 hours and see how much a 24-hour detection improvement is worth.",
+      "In step 4, make downtime cost $1M an hour and find the spread chance where stopping is worth it.",
+      "In step 6, set materiality to 0 hours and watch the SEC clock against the others."
+    ]
+  }
+}

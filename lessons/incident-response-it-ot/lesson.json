@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "title": "Incident Response in IT and OT",
+  "description": "How enterprises detect, contain, recover from and report cybersecurity incidents, and why the playbook changes when the systems run factories, pipelines and power grids.",
+  "audience": "Developers, IT staff and managers who want an enterprise-level picture of incident response; no security background needed.",
+  "chapters": [
+    { "file": "01-the-incident-response-map", "title": "The Incident Response Map", "view": "nthview-concept-map", "summary": "The response lifecycle, the people and tools involved, and how IT and OT differ, on one map you rebuild from memory." },
+    { "file": "02-the-first-24-hours", "title": "The First 24 Hours", "view": "nthview-scenario-quiz", "summary": "You lead the response to a ransomware outbreak: triage, containment, evidence, communication, regulators and the ransom question." },
+    { "file": "03-the-night-shift-anomaly", "title": "The Night-Shift Anomaly", "view": "nthview-detective", "summary": "A plant's process starts behaving oddly at 2 a.m. Sensor fault, human error or intrusion? Investigate the safe way." },
+    { "file": "04-speed-versus-damage", "title": "Speed versus Damage", "view": "nthview-explorable", "summary": "Play with alert volume, detection time, containment speed, shutdown decisions, recovery bottlenecks and notification clocks." },
+    { "file": "05-response-archipelago", "title": "Response Archipelago", "view": "nthview-island-quest", "summary": "One island per phase and idea, hands-on activities, then a final exam." }
+  ]
+}
