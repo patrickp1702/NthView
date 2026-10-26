@@ -1,0 +1,291 @@
+{
+  "schemaVersion": 1,
+  "title": "Islands of Awareness",
+  "subtitle": "Seven islands, two teachers: what Krishnamurti and Osho taught, and where they meet and part",
+  "theme": "snow",
+  "companion": { "name": "Tara" },
+  "coins": 10,
+  "intro": {
+    "paragraphs": [
+      "Your friend Tara found two shelves side by side in a bookshop: one for **J. Krishnamurti**, one for **Osho**. Both write about freedom, awareness and meditation, yet the books feel completely different. She can't decide where to start.",
+      "So you're taking her on a walk. Seven islands, one big idea each: two lives, the pathless land, thought and fear, the watcher, Zorba the Buddha, Dynamic Meditation, and where the two teachers meet and part. You walk ahead; Tara follows."
+    ],
+    "steps": [
+      "Press **Walk me there** or follow the arrow. Pick up coins on the causeways.",
+      "On each island read the short lesson, then do the activity. Some are played on foot: walk through a gate, step on pads in order.",
+      "Each wrong try costs a coin; right first time earns 3 stars. Finish all seven to open Tara's questions at the hub."
+    ],
+    "note": "Quotes are cited to their published sources. Osho's books are edited transcripts of his talks, so their years are publication years. Teachings are described, not endorsed."
+  },
+  "islands": [
+    {
+      "id": "two-lives",
+      "name": "Two Lives",
+      "theme": "hall",
+      "lead": "**Jiddu Krishnamurti** (1895–1986) was noticed as a boy at Adyar in 1909 and raised by the Theosophical Society to be a coming \"World Teacher\". In 1929 he dissolved the Order built around him, then spent the rest of his life giving talks around the world, living mostly in Ojai, California, and founding schools such as Rishi Valley (1928) and Brockwood Park (1969).",
+      "body": [
+        "**Osho** (1931–1990) was born Chandra Mohan Jain in Kuchwada, India. He said he became enlightened in 1953, taught philosophy at a university in Jabalpur, and gathered a large following, first in Pune and from 1981 on a ranch in Oregon that became the city of Rajneeshpuram. He took the name Osho in 1989, the year before he died in Pune.",
+        "Osho's story includes serious controversy. In 1984 commune leaders, including his secretary Sheela, carried out a salmonella attack that sickened 751 people in the nearby town of The Dalles; Sheela was later convicted and imprisoned. In 1985 Osho was arrested, made a plea on immigration charges and left the US, returning to Pune in 1987. He was also known for a collection of more than 90 Rolls-Royces."
+      ],
+      "activity": {
+        "type": "order",
+        "title": "Two timelines, one line",
+        "prompt": "Put these moments from both lives in order, earliest first.",
+        "items": [
+          { "text": "1909: Krishnamurti, a boy of about 14, is noticed at Adyar", "note": "The Theosophical Society raises him to be the \"World Teacher\"." },
+          { "text": "1929: Krishnamurti dissolves the Order of the Star", "note": "\"Truth is a pathless land.\"" },
+          { "text": "1931: Chandra Mohan Jain, later Osho, is born in Kuchwada", "note": "Born on 11 December 1931." },
+          { "text": "1970: Osho presents Dynamic Meditation and initiates his first sannyasins", "note": "The first initiations were on 26 September 1970, at a meditation camp in Manali." },
+          { "text": "1981: Osho moves to a ranch in Oregon", "note": "It became Rajneeshpuram; he left the US in 1985." },
+          { "text": "1986: Krishnamurti dies in Ojai", "note": "17 February 1986, 57 years after dissolving the Order." },
+          { "text": "1990: Osho dies in Pune", "note": "19 January 1990. His epitaph begins \"Never Born – Never Died\"." }
+        ]
+      },
+      "remember": "Krishnamurti (1895–1986) walked away from the role prepared for him; Osho (1931–1990) became a guru with a commune, and with serious controversy."
+    },
+    {
+      "id": "pathless-land",
+      "name": "Pathless Land",
+      "theme": "plain",
+      "lead": "In 1929 Krishnamurti closed the Order built around him with a sentence that sums up his teaching: \"I maintain that Truth is a pathless land and cannot be approached by any path whatsoever, by any religion, by any sect.\" (Ommen, 3 August 1929)",
+      "body": [
+        "He meant it. For 57 years he taught without followers, rituals or method, and refused to be anyone's authority, including his own. Truth, for him, isn't handed down by an organisation or reached by following steps: you have to see it for yourself. As he put it later, \"The first step is the last step.\" (Krishnamurti in India, 1970–71)"
+      ],
+      "activity": {
+        "type": "fork",
+        "title": "Three gates",
+        "prompt": "Tara wants to find out what is true. Three gates stand in front of her. Which way would Krishnamurti point her?",
+        "paths": [
+          { "id": "join", "label": "Join an order", "hint": "He dissolved the biggest one he had: no organisation can lead you to truth." },
+          { "id": "guru", "label": "Follow a guru", "hint": "He refused to be anyone's authority, including his own." },
+          { "id": "see", "label": "See for yourself" }
+        ],
+        "answer": "see"
+      },
+      "remember": "Truth is a pathless land: no organisation, guru or method can take you there; you have to see for yourself."
+    },
+    {
+      "id": "thought-and-fear",
+      "name": "Thought and Fear",
+      "theme": "tower",
+      "lead": "Krishnamurti looked hard at thought. He saw it as built from memory, from everything we already know, and called it a material process: \"Thought is matter as much as the floor, the wall, the telephone, are matter.\" (Freedom from the Known, 1969) Thought is useful for practical things, but in his view it can't reach what is truly new.",
+      "body": [
+        "He traced fear to the same place. We aren't really afraid of what we don't know, he said, but of losing what we do know: our habits, our image of ourselves, our security. He also questioned \"psychological time\": telling ourselves we will become calmer or freer later, instead of seeing what we are now."
+      ],
+      "activity": {
+        "type": "cloze",
+        "title": "Finish his sentence",
+        "text": "\"One is never afraid of the ___; one is afraid of the ___ coming to an end.\" (Berkeley, 1969)",
+        "gaps": [
+          { "options": ["unknown", "future", "dark"], "answer": 0 },
+          { "options": ["night", "known", "world"], "answer": 1 }
+        ]
+      },
+      "remember": "Thought is built from the known, and fear is the known coming to an end."
+    },
+    {
+      "id": "the-watcher",
+      "name": "The Watcher",
+      "theme": "grove",
+      "lead": "Krishnamurti's best-known phrase may be \"The observer is the observed\" (Saanen, 5 August 1973). When you watch your own anger, it feels as if a calm \"you\" is looking at it. He suggested that the watcher is made of the same stuff, past reactions, opinions and judgements, so the split between you and your anger is itself part of the problem.",
+      "body": [
+        "His alternative is often called **choiceless awareness**: noticing what is going on in you completely, without condemning it, excusing it or trying to steer it. \"If you begin to understand what you are without trying to change it, then what you are undergoes a transformation.\" (Think on These Things, 1964)"
+      ],
+      "activity": {
+        "type": "predict",
+        "title": "Tara and the jealousy",
+        "question": "Tara notices she is jealous of a friend's success. Which response fits Krishnamurti's teaching?",
+        "options": [
+          { "text": "Fight it with willpower until it goes away", "why": "Fighting sets up a split, and in his view the one fighting is the jealous mind too, so the conflict goes on." },
+          { "text": "Replace it with a positive thought", "why": "That is another way of escaping what is there instead of understanding it." },
+          { "text": "Watch the jealousy fully, without judging it or trying to change it", "correct": true }
+        ],
+        "runLabel": "Watch Tara",
+        "frames": [
+          "Tara feels the sting of jealousy.",
+          "Her first reaction is \"I shouldn't feel this\". She notices that reaction too.",
+          "She stays with the feeling, neither condemning nor excusing it.",
+          "She sees that the voice judging the jealousy is built from the same comparing as the jealousy itself."
+        ],
+        "result": "In Krishnamurti's view, change comes from understanding what is, not from effort: the observer is the observed."
+      },
+      "remember": "The observer is the observed: understanding what you are, without trying to change it, is what changes it."
+    },
+    {
+      "id": "zorba-buddha",
+      "name": "Zorba the Buddha",
+      "theme": "arena",
+      "lead": "Osho's ideal was a new kind of person he called **Zorba the Buddha**: someone who enjoys life fully, like Zorba, the life-loving hero of the novel Zorba the Greek, and who is also deeply still and aware, like the Buddha. He described this \"new man\" as embracing both science and spirituality.",
+      "body": [
+        "So instead of asking people to give up the world, Osho criticised repression and organised religion, and asked them to say yes to life, with celebration, dance and laughter as part of the path. \"Tantra is a great yea-sayer; it says yes to everything.\" (Tantra: The Supreme Understanding, 1975) His 1968 talks, published as From Sex to Superconsciousness, made him known in the Indian press as the \"sex guru\"."
+      ],
+      "activity": {
+        "type": "multi",
+        "title": "Who is Zorba the Buddha?",
+        "question": "Which of these fit Osho's \"Zorba the Buddha\"? Tick all that apply.",
+        "options": [
+          { "text": "Enjoying life fully while also meditating", "correct": true },
+          { "text": "Celebration, dance and laughter as part of the path", "correct": true },
+          { "text": "Science and spirituality together", "correct": true },
+          { "text": "Giving up all pleasure to become holy", "why": "Osho criticised that kind of repression; he wanted people to say yes to life." },
+          { "text": "Leaving the world for a life of strict denial", "why": "His new man lives fully in the world, and is also still inside." }
+        ]
+      },
+      "remember": "Zorba the Buddha: Osho's ideal person enjoys life fully and is also deeply aware; he rejected repression."
+    },
+    {
+      "id": "dynamic-meditation",
+      "name": "Dynamic Meditation",
+      "theme": "workshop",
+      "lead": "Osho gave his followers many meditation techniques. The best known is **Dynamic Meditation**, first presented in early 1970. It lasts an hour and starts not with silence but with movement: the idea is to let pent-up tension out first, so that real stillness becomes possible.",
+      "body": [
+        "Its five stages: 10 minutes of fast, chaotic breathing; 10 minutes of catharsis, letting out whatever comes; 10 minutes of jumping with the sound \"Hoo!\"; 15 minutes of complete stillness; and 15 minutes of dancing and celebration.",
+        "Behind it is Osho's idea of **witnessing**: watching body, thoughts and feelings as they come and go, without getting caught up in them."
+      ],
+      "activity": {
+        "type": "steps",
+        "title": "The five stages",
+        "prompt": "Step on the pads in the order of Dynamic Meditation's five stages.",
+        "items": [
+          { "id": "breathe", "label": "Breathe" },
+          { "id": "catharsis", "label": "Let it out" },
+          { "id": "hoo", "label": "Hoo!" },
+          { "id": "stillness", "label": "Stillness" },
+          { "id": "celebrate", "label": "Celebrate" }
+        ]
+      },
+      "aside": {
+        "title": "Why not just sit?",
+        "text": "Many traditions begin by sitting still. Osho's active methods begin by moving, on the view that people first need to release tension before they can simply watch. Krishnamurti, by contrast, offered no technique at all: for him any method was another path."
+      },
+      "remember": "Dynamic Meditation: breathe, let it out, \"Hoo!\", stillness, celebrate. Release first, then witness."
+    },
+    {
+      "id": "meet-and-part",
+      "name": "Meet and Part",
+      "theme": "canyon",
+      "lead": "Both teachers rejected organised religion and authority based on belief, and both put awareness at the centre. \"If you believe in any religion you cannot meditate,\" said Osho (Autobiography of a Spiritually Incorrect Mystic, published 2000). Krishnamurti warned that separating people \"by belief, by nationality, by tradition\" breeds violence (Freedom from the Known, 1969).",
+      "body": [
+        "Their ways of teaching could hardly differ more. Krishnamurti refused to have followers and gave no method. Osho initiated disciples into his neo-sannyas movement from 1970, as their master, and taught many meditation techniques.",
+        "Osho spoke about Krishnamurti often, warmly and critically: \"His teachings have all the seeds, but he never prepared the ground.\" (Rinzai: Master of the Irrational, ch. 5, via Osho News) In Osho's view, the ideas were right, but people needed more practical help to live them."
+      ],
+      "activity": {
+        "type": "sort",
+        "title": "Who taught this?",
+        "prompt": "Put each description in the right bucket: Krishnamurti, Osho, or both.",
+        "buckets": [
+          { "id": "k", "label": "Krishnamurti" },
+          { "id": "o", "label": "Osho" },
+          { "id": "both", "label": "Both" }
+        ],
+        "items": [
+          { "text": "Refused to have followers", "bucket": "k" },
+          { "text": "Gave no method or technique", "bucket": "k" },
+          { "text": "Long dialogues with a physicist, David Bohm", "bucket": "k" },
+          { "text": "Initiated disciples as their master", "bucket": "o" },
+          { "text": "Taught active, cathartic meditations", "bucket": "o" },
+          { "text": "Celebration and laughter as part of the path", "bucket": "o" },
+          { "text": "Rejected organised religion and belief", "bucket": "both" },
+          { "text": "Put awareness at the centre", "bucket": "both" }
+        ]
+      },
+      "remember": "Both rejected belief-based religion and centred awareness; Krishnamurti gave no method and no followers, Osho gave disciples many methods."
+    }
+  ],
+  "finale": {
+    "name": "Tara's Questions",
+    "lead": "Back at the bookshop, Tara has six questions before she picks a book. Answer each one with what the islands taught you.",
+    "questions": [
+      {
+        "question": "A blurb says Krishnamurti \"founded the greatest spiritual order of his time\". What's wrong with that?",
+        "options": [
+          { "text": "He dissolved the Order built around him, saying truth is a pathless land", "correct": true },
+          { "text": "Nothing: he led the Order of the Star all his life", "why": "He dissolved it in 1929 and spent 57 years teaching without one." },
+          { "text": "His order was small, not great", "why": "Size isn't the point: he rejected any order as a way to truth." }
+        ],
+        "okText": "Right: he walked away from the Order, and from being an authority."
+      },
+      {
+        "question": "Tara is angry and tries to calm herself by watching the anger from a distance. What would Krishnamurti add?",
+        "options": [
+          { "text": "The watcher is part of the anger: the observer is the observed", "correct": true },
+          { "text": "Keep the distance, the calm watcher is your true self", "why": "He questioned exactly that split between a calm watcher and the feeling watched." },
+          { "text": "Use a breathing technique until it passes", "why": "He offered no technique; understanding, not method, is what changes things." }
+        ],
+        "okText": "Right: seeing without the split is his choiceless awareness."
+      },
+      {
+        "question": "What does Osho's \"Zorba the Buddha\" ask of a person?",
+        "options": [
+          { "text": "To enjoy life fully and also be deeply aware", "correct": true },
+          { "text": "To give up worldly pleasures for meditation", "why": "Osho criticised that kind of repression; Zorba loves life." },
+          { "text": "To choose between being worldly and being spiritual", "why": "The whole point is to be both at once." }
+        ],
+        "okText": "Right: both the Zorba and the Buddha, in one person."
+      },
+      {
+        "question": "Why does Dynamic Meditation begin with fast breathing and catharsis rather than silence?",
+        "options": [
+          { "text": "To release pent-up tension first, so stillness and witnessing become possible", "correct": true },
+          { "text": "Because Osho thought silence was useless", "why": "Silence comes in the fourth stage: 15 minutes of complete stillness." },
+          { "text": "As exercise, to get fit", "why": "The movement serves the meditation: release, then watch." }
+        ],
+        "okText": "Right: release first, then witness."
+      },
+      {
+        "question": "Which of these did both teachers share?",
+        "options": [
+          { "text": "Rejecting organised religion and belief-based authority, and centring awareness", "correct": true },
+          { "text": "Initiating disciples", "why": "Only Osho did; Krishnamurti refused to have followers." },
+          { "text": "Teaching a set of meditation techniques", "why": "Osho taught many; Krishnamurti offered no method at all." }
+        ],
+        "okText": "Right: same suspicion of belief, same focus on awareness."
+      },
+      {
+        "question": "Tara wants one sentence on how their teaching styles differed. Which is fairest?",
+        "options": [
+          { "text": "Krishnamurti gave no method and no followers; Osho was a master who gave disciples many methods", "correct": true },
+          { "text": "Krishnamurti was religious; Osho was not", "why": "Both rejected organised religion while exploring awareness and meditation." },
+          { "text": "They taught the same thing in the same way", "why": "Their ideas overlap, but their ways of teaching were opposite." }
+        ],
+        "okText": "Right. Now Tara knows which shelf to start with, or that she might read both."
+      }
+    ]
+  },
+  "report": {
+    "heading": "Tara is ready to read!",
+    "tiers": {
+      "perfect": "Every island on the first try. You could explain both teachers over coffee.",
+      "great": "A strong grasp of both teachers. Revisit any island where you lost stars.",
+      "pass": "You have walked every island. A second lap will make it stick."
+    },
+    "lessons": [
+      "Krishnamurti (1895–1986) dissolved the Order built around him; Osho (1931–1990) became a guru with a commune, and with serious controversy.",
+      "Truth is a pathless land: no organisation, guru or method can take you there.",
+      "Thought is built from the known, and fear is the known coming to an end.",
+      "The observer is the observed: understanding what you are, without trying to change it, is what changes it.",
+      "Zorba the Buddha: enjoy life fully and be deeply aware; Osho rejected repression.",
+      "Dynamic Meditation releases tension first, then witnesses in stillness, then celebrates.",
+      "Both rejected belief-based religion and centred awareness; they differed on method and on followers."
+    ],
+    "glossaryIntro": "Words from the islands, and what they mean.",
+    "glossaryColumns": ["Word", "Meaning"],
+    "glossary": [
+      { "term": "Pathless land", "meaning": "Krishnamurti's image for truth: no path, religion or sect leads to it" },
+      { "term": "Conditioning", "meaning": "The habits, beliefs and memories that shape how we see" },
+      { "term": "Choiceless awareness", "meaning": "Noticing what is in you without judging or steering it" },
+      { "term": "Observer is the observed", "meaning": "The watcher of a feeling is not separate from it" },
+      { "term": "Psychological time", "meaning": "\"I will become better later\": living in becoming, not seeing now" },
+      { "term": "Zorba the Buddha", "meaning": "Osho's new man: fully alive and deeply aware" },
+      { "term": "Witnessing", "meaning": "Watching body, thoughts and feelings without getting caught up" },
+      { "term": "Dynamic Meditation", "meaning": "Osho's one-hour active meditation in five stages" },
+      { "term": "Catharsis", "meaning": "Letting pent-up feelings out, the second stage of Dynamic" },
+      { "term": "Neo-sannyas", "meaning": "Osho's movement of initiated disciples, from 1970" }
+    ],
+    "source": {
+      "label": "Krishnamurti Foundation of America; Wikipedia, \"Jiddu Krishnamurti\" and \"Rajneesh\"; Osho News; the books cited on each island",
+      "url": "https://www.jkrishnamurti.org",
+      "note": "Quotes are cited to their published sources. Osho's books are edited transcripts of his talks."
+    }
+  }
+}
