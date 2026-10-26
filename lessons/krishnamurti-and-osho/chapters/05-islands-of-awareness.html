@@ -1457,6 +1457,24 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     ]));
   }
 
+  /* three.js throws when WebGL is off or unsupported; probe first so the reader gets a notice, not a blank page */
+  function hasWebGL() {
+    try {
+      var c = root.document.createElement("canvas");
+      var gl = c.getContext("webgl2") || c.getContext("webgl") || c.getContext("experimental-webgl");
+      var lose = gl && gl.getExtension("WEBGL_lose_context");
+      if (lose) lose.loseContext(); /* release the probe context right away */
+      return !!gl;
+    } catch (e) { return false; }
+  }
+  function renderNoWebGL(container) {
+    container.appendChild(el("div", { class: "nthview-error-panel", role: "alert" }, [
+      el("h2", { text: "This view needs 3D graphics" }),
+      el("p", { text: "The islands are drawn with WebGL, which this browser has turned off or does not support." }),
+      el("p", { text: "Turn on hardware acceleration in the browser settings, or open this file in another browser, then reload." })
+    ]));
+  }
+
   // ---- view-specific rendering: data is already valid here ---------------
   /* island accent palettes per world theme (light-mode, dark-mode) */
   var PALETTES = {
@@ -3408,6 +3426,10 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       var errs = missing.map(function (l) { return { path: "$", message: l.name + " did not load from " + l.src + ". This file needs internet access the first time it opens." }; });
       renderErrorPanel(container, { errors: errs });
       return { valid: false, errors: errs, warnings: result.warnings };
+    }
+    if (!hasWebGL()) {
+      renderNoWebGL(container);
+      return { valid: false, errors: [{ path: "$", message: "WebGL is unavailable in this browser, so the 3D islands cannot be drawn." }], warnings: result.warnings };
     }
     render(container, data);
     return result;
