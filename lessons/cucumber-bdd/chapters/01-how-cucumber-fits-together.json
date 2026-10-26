@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "title": "How Cucumber Fits Together",
+  "subtitle": "From a conversation about behaviour to plain-language scenarios, Java glue, a test run and living documentation",
+  "theme": "botanic",
+  "intro": [
+    "**Cucumber** runs specifications written in plain language as automated tests. A scenario such as \"Given Sam's basket holds 2 apples, When Sam removes one, Then the basket holds 1 apple\" is readable by a product owner and executable by a build server.",
+    "But Cucumber is only one part of a bigger idea, **Behaviour-Driven Development (BDD)**, which starts with people agreeing on examples before anyone writes code. This map connects the practice, the Gherkin language, the Java glue code, the runner and what you get out of it. Tour it, then rebuild it from memory."
+  ],
+  "root": "cucumber",
+  "clusters": [
+    { "id": "practice", "name": "BDD practice", "color": "green", "description": "The collaborative process Cucumber was built to support: discover, formulate, automate." },
+    { "id": "gherkin", "name": "Gherkin", "color": "gold", "description": "The plain-language format for writing scenarios, in .feature files." },
+    { "id": "glue", "name": "Glue code (Java)", "color": "blue", "description": "The Java code that connects each plain-language step to the system under test." },
+    { "id": "engine", "name": "Running it", "color": "violet", "description": "How Cucumber-JVM runs: launched by JUnit 5, filtered by tags, reporting a result for every step." },
+    { "id": "value", "name": "What you get", "color": "teal", "description": "Why teams bother: a shared understanding, kept honest by specifications that run." }
+  ],
+  "nodes": [
+    { "id": "cucumber", "label": "Cucumber", "cluster": "engine", "definition": "A tool that reads Gherkin scenarios, matches each step to code and runs them as tests, reporting which behaviours work.", "note": "Created by Aslak Hellesøy around 2008 in Ruby, as a successor to RSpec's Story Runner. Today there are official implementations for many languages, including Cucumber-JVM (8.x) and cucumber-js (13.x). SmartBear owned the project from 2019; on 19 December 2024 it returned to community ownership under the non-profit Open Source Collective." },
+    { "id": "bdd", "label": "Behaviour-Driven Development", "cluster": "practice", "definition": "A way of building software where the team agrees on concrete examples of the desired behaviour before building it, and uses those examples as tests.", "note": "Dan North introduced the name in his 2006 article \"Introducing BDD\", growing it out of test-driven development to focus on behaviour instead of tests. He had started JBehave, the first BDD framework, in 2003." },
+    { "id": "discovery", "label": "Discovery", "cluster": "practice", "definition": "Conversations, before coding, in which the team explores a story through concrete examples, uncovering rules, edge cases and questions.", "note": "Discovery, Formulation and Automation are the three practices of BDD as described by Seb Rose and Gáspár Nagy in their BDD Books series." },
+    { "id": "formulation", "label": "Formulation", "cluster": "practice", "definition": "Writing the agreed examples down as Gherkin scenarios, in language the whole team understands." },
+    { "id": "automation", "label": "Automation", "cluster": "practice", "definition": "Writing the step definitions that make each scenario executable, ideally while the feature is being built." },
+    { "id": "three-amigos", "label": "Three amigos", "cluster": "practice", "definition": "The common name for a short discovery session with three perspectives: business (what to build), development (how) and testing (what could go wrong)." },
+    { "id": "example-mapping", "label": "Example Mapping", "cluster": "practice", "definition": "A quick discovery technique using coloured cards: yellow for the story, blue for rules, green for examples, red for questions.", "note": "Matt Wynne introduced it on the Cucumber blog in 2015. Lots of red cards means the story isn't ready; lots of blue means it may be too big." },
+    { "id": "feature", "label": "Feature file", "cluster": "gherkin", "definition": "A plain-text .feature file that describes one capability of the system with a short description and its scenarios.", "note": "Gherkin's keywords are Feature, Rule, Background, Scenario (or Example), Scenario Outline (or Scenario Template), Examples, Given, When, Then, And, But and *. Lines starting with # are comments. Gherkin is available in over 70 spoken languages." },
+    { "id": "scenario", "label": "Scenario", "cluster": "gherkin", "definition": "One concrete example of the system's behaviour, written as a short list of steps.", "example": "Scenario: Removing an item. Given Sam's basket holds 2 apples / When Sam removes 1 apple / Then Sam's basket holds 1 apple." },
+    { "id": "steps", "label": "Given / When / Then", "cluster": "gherkin", "definition": "The step keywords: Given sets up the context, When is the action or event, Then checks the outcome. And and But continue the previous kind.", "note": "Cucumber doesn't treat the keywords differently when matching steps; they're there so humans can read the scenario as a specification. Steps can carry a data table (rows with |) or a doc string (a block between triple quotes)." },
+    { "id": "background", "label": "Background", "cluster": "gherkin", "definition": "Steps that run before every scenario in a feature (or rule), to give them a common context.", "note": "Cucumber's Gherkin reference advises keeping it short; long Backgrounds hide what matters in each scenario." },
+    { "id": "outline", "label": "Scenario Outline", "cluster": "gherkin", "definition": "A scenario template with placeholders in angle brackets, run once for each row of its Examples table.", "example": "When Sam orders <total> of groceries / Then delivery costs <fee>, with an Examples table of a few totals and fees around the free-delivery threshold." },
+    { "id": "rule", "label": "Rule", "cluster": "gherkin", "definition": "An optional keyword (part of Gherkin since version 6) that groups the scenarios illustrating one business rule inside a feature." },
+    { "id": "tags", "label": "Tags", "cluster": "gherkin", "definition": "Labels starting with @, placed above a feature, rule, scenario or examples table, such as @smoke, @wip or @payments." },
+    { "id": "stepdefs", "label": "Step definitions", "cluster": "glue", "definition": "Java methods annotated with a pattern; when a step's text matches, Cucumber calls the method with the captured values.", "example": "@When(\"Sam removes {int} apple(s)\") public void removes(int count) { basket.remove(\"apple\", count); }" },
+    { "id": "expressions", "label": "Cucumber Expressions", "cluster": "glue", "definition": "The pattern language for step definitions: readable text with parameters such as {int}, {float}, {word}, {string} and {}.", "note": "(text) marks optional text and / separates alternatives. Custom parameter types (a name, a regular expression and a converter) turn text into your own objects. In Java, a pattern anchored with ^ or $ is treated as a regular expression instead." },
+    { "id": "context", "label": "Scenario context", "cluster": "glue", "definition": "Objects that hold the state of one scenario (the current basket, the logged-in user), shared between step-definition classes by dependency injection.", "note": "Cucumber-JVM creates a new instance of each glue class before every scenario. Modules such as PicoContainer (the usual choice if you have no DI framework), Spring and Guice inject the same context into several classes for one scenario only." },
+    { "id": "hooks", "label": "Hooks", "cluster": "glue", "definition": "Code that runs around scenarios or steps: @Before and @After (around each scenario), @BeforeStep and @AfterStep, and @BeforeAll and @AfterAll (once per run).", "note": "After hooks run even when a step failed, which makes them the place for screenshots and clean-up. Hooks can be limited with a tag expression, such as @Before(\"@browser and not @headless\"). Cucumber's docs advise using Before only for low-level setup." },
+    { "id": "sut", "label": "System under test", "cluster": "glue", "definition": "The application the scenarios describe. Step definitions can drive it through its UI, its API or its code directly." },
+    { "id": "junit", "label": "JUnit Platform engine", "cluster": "engine", "definition": "Cucumber-JVM runs as a JUnit 5 Platform engine, so build tools and IDEs run feature files like any other tests.", "note": "Add io.cucumber:cucumber-junit-platform-engine, then write a suite class annotated @Suite, @IncludeEngines(\"cucumber\") and a selector such as @SelectClasspathResource(\"features\") that points at the feature files. Configuration such as cucumber.glue (the packages holding step definitions), cucumber.plugin and cucumber.filter.tags comes from JUnit Platform configuration, for example junit-platform.properties." },
+    { "id": "tag-expr", "label": "Tag expressions", "cluster": "engine", "definition": "Boolean expressions over tags that choose which scenarios (or hooks) apply, such as \"@smoke and not @wip\" or \"(@smoke or @ui) and not @slow\"." },
+    { "id": "results", "label": "Step results", "cluster": "engine", "definition": "Each step ends as passed, failed, skipped, undefined (no matching step definition), pending (marked as work in progress) or ambiguous (more than one definition matches).", "note": "An undefined step stops its scenario, and the steps after it are skipped. Cucumber prints a code snippet to help you write the missing definition. In Cucumber-JVM, an ambiguous match throws an AmbiguousStepDefinitionsException." },
+    { "id": "reports", "label": "Reports", "cluster": "engine", "definition": "Output from formatter plugins: pretty console output, html, json, message and junit (plus progress, rerun and testng on the JVM)." },
+    { "id": "living-docs", "label": "Living documentation", "cluster": "value", "definition": "Feature files plus their latest results: a description of the system that is checked against the real code on every run, so it can't silently go stale." },
+    { "id": "shared", "label": "Shared understanding", "cluster": "value", "definition": "Business, development and testing agreeing on what the system should do, with concrete examples, before it is built.", "note": "Many BDD practitioners consider this the main payoff; the automated tests are a valuable by-product." }
+  ],
+  "edges": [
+    { "id": "e-cucumber-feature", "from": "cucumber", "to": "feature", "relation": "reads", "explanation": "Cucumber parses each .feature file into features, rules, scenarios and steps." },
+    { "id": "e-cucumber-stepdefs", "from": "cucumber", "to": "stepdefs", "relation": "finds and calls", "explanation": "For every step it finds the one step definition whose pattern matches the text and calls it with the captured parameters." },
+    { "id": "e-cucumber-results", "from": "cucumber", "to": "results", "relation": "marks each step with", "explanation": "Every step gets a status, so you can see exactly which behaviour works, which fails and which isn't implemented yet." },
+    { "id": "e-cucumber-reports", "from": "cucumber", "to": "reports", "relation": "writes", "explanation": "Formatter plugins configured with cucumber.plugin turn the results into console output, HTML pages or machine-readable files for CI." },
+    { "id": "e-bdd-discovery", "from": "bdd", "to": "discovery", "relation": "starts with", "explanation": "BDD begins with conversation, not code: the examples are discovered together before anything is built." },
+    { "id": "e-discovery-formulation", "from": "discovery", "to": "formulation", "relation": "is followed by", "explanation": "Once the team agrees on the examples, they are written down precisely as Gherkin." },
+    { "id": "e-formulation-automation", "from": "formulation", "to": "automation", "relation": "is followed by", "explanation": "The agreed scenarios are then wired to the system with step definitions, ideally alongside building the feature." },
+    { "id": "e-amigos-discovery", "from": "three-amigos", "to": "discovery", "relation": "hold", "explanation": "Discovery works best with at least the business, development and testing perspectives in the room, each spotting different gaps." },
+    { "id": "e-em-discovery", "from": "example-mapping", "to": "discovery", "relation": "structures", "explanation": "Coloured cards keep a discovery session short and visible: rules, the examples that illustrate them and the questions still open." },
+    { "id": "e-discovery-shared", "from": "discovery", "to": "shared", "relation": "builds", "explanation": "Talking through concrete examples exposes misunderstandings while they cost a conversation, not a rewrite." },
+    { "id": "e-formulation-feature", "from": "formulation", "to": "feature", "relation": "produces", "explanation": "Formulation turns the agreed examples into feature files written in Gherkin." },
+    { "id": "e-automation-stepdefs", "from": "automation", "to": "stepdefs", "relation": "writes", "explanation": "Automation is the step-definition code that makes each scenario executable." },
+    { "id": "e-feature-scenario", "from": "feature", "to": "scenario", "relation": "contains", "explanation": "A feature holds the scenarios that illustrate it, optionally grouped under rules." },
+    { "id": "e-rule-scenario", "from": "rule", "to": "scenario", "relation": "groups", "explanation": "Rule collects the scenarios that illustrate one business rule, so readers can see which examples belong to which rule." },
+    { "id": "e-background-scenario", "from": "background", "to": "scenario", "relation": "runs before each", "explanation": "Background steps are repeated before every scenario in the feature or rule, not once for all of them." },
+    { "id": "e-outline-scenario", "from": "outline", "to": "scenario", "relation": "is a template for", "explanation": "A Scenario Outline runs once per Examples row, with each <placeholder> replaced by that row's value." },
+    { "id": "e-tags-scenario", "from": "tags", "to": "scenario", "relation": "label", "explanation": "Tags mark scenarios by purpose or status; a tag on a feature applies to every scenario in it." },
+    { "id": "e-scenario-steps", "from": "scenario", "to": "steps", "relation": "is made of", "explanation": "A scenario is a short sequence of Given, When and Then steps, usually a handful." },
+    { "id": "e-steps-stepdefs", "from": "steps", "to": "stepdefs", "relation": "are matched to", "explanation": "This is the core mechanism: each plain-language step is matched to exactly one step definition, which runs the code behind it. No match means the step is undefined; two matches means it's ambiguous." },
+    { "id": "e-stepdefs-expressions", "from": "stepdefs", "to": "expressions", "relation": "match steps using", "explanation": "Each step definition carries a Cucumber Expression such as \"Sam removes {int} apple(s)\", which both matches the text and converts the parameters." },
+    { "id": "e-stepdefs-sut", "from": "stepdefs", "to": "sut", "relation": "drive", "explanation": "Step definitions do the real work: call an API, drive a browser or call the code. Because Gherkin only says what, the how can change freely." },
+    { "id": "e-stepdefs-context", "from": "stepdefs", "to": "context", "relation": "share state through", "explanation": "Steps in different classes pass data through an injected per-scenario context, never through static fields, which would leak between scenarios." },
+    { "id": "e-context-scenario", "from": "context", "to": "scenario", "relation": "is fresh for each", "explanation": "Cucumber's docs are explicit: scenarios must be independent, so no state is shared between them. Fresh context per scenario is what makes order-independent and parallel runs possible." },
+    { "id": "e-hooks-scenario", "from": "hooks", "to": "scenario", "relation": "run around each", "explanation": "Before and After hooks wrap every scenario (or only tagged ones) for technical setup and clean-up, such as starting a browser or resetting data." },
+    { "id": "e-junit-cucumber", "from": "junit", "to": "cucumber", "relation": "launches", "explanation": "Maven, Gradle and IDEs talk to the JUnit Platform, which hands the feature files to the Cucumber engine." },
+    { "id": "e-tagexpr-tags", "from": "tag-expr", "to": "tags", "relation": "combine", "explanation": "Expressions such as \"@smoke and not @wip\" pick exactly the subset you want, for instance a fast check on every commit." },
+    { "id": "e-junit-tagexpr", "from": "junit", "to": "tag-expr", "relation": "applies", "explanation": "Set cucumber.filter.tags in the JUnit Platform configuration, and only matching scenarios run." },
+    { "id": "e-results-reports", "from": "results", "to": "reports", "relation": "fill", "explanation": "Reports are the step results presented for people (pretty, html) or for tools (json, junit, message)." },
+    { "id": "e-feature-living", "from": "feature", "to": "living-docs", "relation": "becomes", "explanation": "A feature file that runs on every build describes the system as it really is; if behaviour changes, the scenario fails until someone updates it." },
+    { "id": "e-reports-living", "from": "reports", "to": "living-docs", "relation": "prove current", "explanation": "Published results show which documented behaviours actually pass today." },
+    { "id": "e-living-shared", "from": "living-docs", "to": "shared", "relation": "preserves", "explanation": "The understanding reached in discovery stays written down, executable and trustworthy long after the meeting." }
+  ],
+  "tour": [
+    { "title": "Specifications that run", "text": "**Cucumber** reads feature files, matches every step to a step definition, and marks each step passed, failed or undefined. That is the whole engine; everything else on the map is about using it well.", "focus": ["cucumber", "feature", "stepdefs", "results", "e-cucumber-feature", "e-cucumber-stepdefs", "e-cucumber-results"] },
+    { "title": "BDD starts with a conversation", "text": "Before any Gherkin, the team explores a story through examples: **discovery**, often as a three-amigos session using Example Mapping. Then they formulate the examples as scenarios and automate them.", "focus": ["bdd", "discovery", "formulation", "automation", "three-amigos", "example-mapping", "shared", "e-bdd-discovery", "e-discovery-formulation", "e-formulation-automation", "e-amigos-discovery", "e-em-discovery", "e-discovery-shared"] },
+    { "title": "Gherkin", "text": "A **feature file** contains scenarios, optionally grouped under rules. Each scenario is a handful of Given, When and Then steps. Backgrounds share setup, Outlines repeat a scenario per Examples row, and tags label everything.", "focus": ["feature", "scenario", "steps", "background", "outline", "rule", "tags", "formulation", "e-formulation-feature", "e-feature-scenario", "e-rule-scenario", "e-background-scenario", "e-outline-scenario", "e-tags-scenario", "e-scenario-steps"] },
+    { "title": "The Java glue", "text": "Each step **is matched to** a step definition through a Cucumber Expression. Step definitions drive the system under test and share state through a fresh per-scenario context; hooks wrap each scenario.", "focus": ["steps", "stepdefs", "expressions", "context", "hooks", "sut", "scenario", "automation", "e-steps-stepdefs", "e-stepdefs-expressions", "e-stepdefs-sut", "e-stepdefs-context", "e-context-scenario", "e-hooks-scenario", "e-automation-stepdefs"] },
+    { "title": "Running it", "text": "The **JUnit Platform engine** launches Cucumber from Maven, Gradle or your IDE, applies tag expressions to pick scenarios, and the step results fill the reports.", "focus": ["junit", "cucumber", "tag-expr", "tags", "results", "reports", "e-junit-cucumber", "e-junit-tagexpr", "e-tagexpr-tags", "e-cucumber-reports", "e-results-reports"] },
+    { "title": "What it's for", "text": "Feature files that run on every build become **living documentation**, and the results prove it is current. Together they preserve the shared understanding that discovery created.", "focus": ["living-docs", "shared", "feature", "reports", "discovery", "e-feature-living", "e-reports-living", "e-living-shared", "e-discovery-shared"] }
+  ],
+  "rebuild": {
+    "intro": "Three pieces have drifted out of their clusters, the BDD practices have lost their order, some labels have gone blank, one link has vanished and one now says something false. Rebuild the map from memory.",
+    "tasks": [
+      { "id": "place-three", "type": "place", "nodes": ["example-mapping", "hooks", "tag-expr"], "hint": "Is each one part of the conversation, part of the Java code, or part of how a run is configured?", "why": "Example Mapping is a discovery technique (BDD practice). Hooks are Java glue that runs around scenarios. Tag expressions choose what runs, so they belong to running Cucumber." },
+      { "id": "order-practice", "type": "order", "prompt": "Put the three BDD practices in order.", "nodes": ["discovery", "formulation", "automation"], "hint": "Talk, write down, wire up.", "why": "Discover examples together, formulate them as Gherkin, then automate them with step definitions. Teams that start at automation get tests, but miss the shared understanding." },
+      { "id": "rel-match", "type": "relation", "edge": "e-steps-stepdefs", "hint": "What happens to the text of a step when Cucumber runs it?", "why": "Each step's text is matched against the step-definition patterns, and the one matching method is called. Nothing is compiled or generated from the Gherkin.",
+        "options": [
+          { "label": "are matched to", "correct": true },
+          { "label": "are compiled into", "why": "Gherkin isn't compiled into code. It stays plain text, matched at run time against your step-definition patterns." },
+          { "label": "are generated from", "why": "Step definitions don't generate steps. People write the steps; Cucumber only suggests snippets for undefined ones." },
+          { "label": "replace", "why": "Both remain: the Gherkin for humans, the Java for the machine. They're linked, not substituted." }
+        ] },
+      { "id": "connect-context", "type": "connect", "edge": "e-stepdefs-context", "prompt": "The link that explains how steps in different classes pass data has vanished. Draw it.", "hint": "Not static fields. What does Cucumber-JVM inject, fresh for each scenario?", "why": "Step definitions share state through a per-scenario context injected by a DI module such as PicoContainer. Static fields would leak between scenarios and break parallel runs." },
+      { "id": "spot-background", "type": "spot", "edge": "e-background-scenario", "wrongRelation": "runs once before all", "candidates": ["e-background-scenario", "e-feature-scenario", "e-rule-scenario", "e-tags-scenario"], "hint": "If Background ran only once, what would happen to the second scenario's starting state?", "why": "Background runs before each scenario, not once before all of them. Every scenario starts from the same fresh context, which is exactly what keeps scenarios independent." },
+      { "id": "label-expressions", "type": "label", "node": "expressions", "hint": "The readable pattern language with {int}, {string} and {word}.", "why": "Cucumber Expressions are the default pattern language for step definitions: readable text with typed parameters, converted automatically.",
+        "options": [
+          { "label": "Cucumber Expressions", "correct": true },
+          { "label": "Tag expressions", "why": "Tag expressions combine @tags to select scenarios, such as \"@smoke and not @wip\"; they don't match step text." },
+          { "label": "Hooks", "why": "Hooks run code around scenarios; they don't match steps." },
+          { "label": "Step results", "why": "Results are what happens after matching: passed, failed, undefined and so on." }
+        ] },
+      { "id": "rel-outline", "type": "relation", "edge": "e-outline-scenario", "hint": "How many times does an Outline with five Examples rows run?", "why": "A Scenario Outline is a template: Cucumber runs it once per Examples row, filling in the placeholders. Five rows means five scenarios.",
+        "options": [
+          { "label": "is a template for", "correct": true },
+          { "label": "is the same as", "why": "An Outline produces scenarios, but it isn't one itself: it runs once per row." },
+          { "label": "contrasts with", "why": "It is a way of writing scenarios, not an alternative to them." }
+        ] },
+      { "id": "label-living", "type": "label", "node": "living-docs", "hint": "Documentation that is checked against the real system on every build.", "why": "Feature files that run, together with their results, are living documentation: they can't silently go out of date, because a stale scenario fails.",
+        "options": [
+          { "label": "Living documentation", "correct": true },
+          { "label": "Reports", "why": "Reports are part of it, but on their own they are run results, not a description of the system." },
+          { "label": "Feature file", "why": "A feature file becomes living documentation only when it runs and its results are kept current." },
+          { "label": "Shared understanding", "why": "That's what living documentation preserves, not the documentation itself." }
+        ] },
+      { "id": "rel-bdd", "type": "relation", "edge": "e-bdd-discovery", "hint": "Does BDD begin with writing tests, or with something before that?", "why": "BDD starts with discovery: conversations about concrete examples. Teams that skip it and only automate end up with slow UI tests that nobody outside QA reads.",
+        "options": [
+          { "label": "starts with", "correct": true },
+          { "label": "ends with", "why": "Discovery comes first: you can't formulate or automate examples nobody has agreed on." },
+          { "label": "can skip", "why": "Plenty of teams do skip it, and that's the most common reason BDD adoptions disappoint." }
+        ] }
+    ]
+  },
+  "reflection": {
+    "prompt": "If you could keep only three links from this map, which would they be?",
+    "keyEdges": [
+      { "edge": "e-discovery-shared", "why": "The reason BDD exists: agreeing on concrete examples before building catches misunderstandings cheaply." },
+      { "edge": "e-steps-stepdefs", "why": "The mechanism of Cucumber itself: plain-language steps matched to code. Everything technical hangs off this one link." },
+      { "edge": "e-feature-living", "why": "The long-term payoff: specifications that run can't silently go stale, so the documentation stays true." }
+    ],
+    "candidates": ["e-discovery-shared", "e-steps-stepdefs", "e-feature-living", "e-bdd-discovery", "e-stepdefs-context", "e-context-scenario", "e-stepdefs-sut", "e-background-scenario", "e-outline-scenario", "e-tagexpr-tags", "e-junit-cucumber", "e-living-shared"],
+    "closing": "Agree on examples, match steps to code, keep the specification running: hold those three and the rest of Cucumber follows."
+  },
+  "glossary": [
+    { "term": "BDD", "meaning": "Behaviour-Driven Development: agreeing on examples of behaviour before building, and using them as automated acceptance tests." },
+    { "term": "Gherkin", "meaning": "The plain-language syntax (Feature, Scenario, Given, When, Then…) that Cucumber reads." },
+    { "term": "Glue code", "meaning": "The step definitions and hooks that connect Gherkin to the system under test; cucumber.glue tells Cucumber-JVM where to find them." },
+    { "term": "Step definition", "meaning": "A method whose pattern matches one kind of step and runs the code behind it." },
+    { "term": "Hook", "meaning": "Code that runs before or after scenarios, steps or the whole run." },
+    { "term": "Dependency injection", "meaning": "Handing objects to a class instead of letting it create them; Cucumber-JVM uses it to share a per-scenario context." },
+    { "term": "JUnit Platform", "meaning": "The JUnit 5 foundation that build tools and IDEs use to discover and run tests, including Cucumber scenarios." },
+    { "term": "Examples table", "meaning": "The rows of values a Scenario Outline runs with, one run per row." }
+  ],
+  "summary": {
+    "heading": "The map, rebuilt",
+    "paragraphs": [
+      "BDD starts with people: a short discovery conversation turns a story into rules and concrete examples, which are formulated as Gherkin scenarios and then automated. Cucumber reads those scenarios, matches every step to a step definition, runs it against the system and reports a result for each step.",
+      "In Java, the JUnit Platform engine launches Cucumber, tag expressions choose what runs, hooks wrap scenarios, and a fresh, injected context keeps every scenario independent. Kept running on every build, the feature files become living documentation of a shared understanding."
+    ]
+  }
+}

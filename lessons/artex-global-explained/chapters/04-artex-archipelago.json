@@ -1,0 +1,298 @@
+{
+  "schemaVersion": 1,
+  "title": "ARTEX Archipelago",
+  "subtitle": "Seven islands, one AI pentest team: what ARTEX is, how its agents work together, and why defenders care",
+  "theme": "aurora",
+  "companion": { "name": "Mira" },
+  "coins": 10,
+  "intro": {
+    "paragraphs": [
+      "Mira Osei leads the red team at Acme Training Lab, a fictional, isolated practice range where every target lives under acme.test and every exercise is authorized in writing. Next week her team runs ARTEX there for the first time.",
+      "Before anyone presses Start, Mira wants the big picture: what ARTEX is, who does what inside it, where it keeps its memory, how it keeps going on its own, and what it looks like to the people defending against it. You walk ahead; Mira follows. Seven islands, one idea each."
+    ],
+    "steps": [
+      "Press **Walk me there** or follow the arrow. Pick up coins on the causeways.",
+      "On each island read the short lesson, then do the activity. Some are played on foot: carry orbs to bins, light beacons.",
+      "Each wrong try costs a coin; right first time earns 3 stars. Finish all seven to open the exam at the hub."
+    ],
+    "note": "Based on the jiwoochris/artex-global README (system architecture) and its defense guide. Concepts only: no code internals and no attack techniques. ARTEX may only be used against systems you own or are authorized to test."
+  },
+  "islands": [
+    {
+      "id": "not-a-scanner",
+      "name": "Not a Scanner",
+      "theme": "hall",
+      "lead": "ARTEX is an **autonomous penetration-testing system**: a team of AI agents that tests a target's security by itself. You give it a target and a goal. It breaks the goal down, runs real security tools, learns from every reply, and keeps going until it can prove the goal, with little or no human help.",
+      "body": [
+        "That makes it different from two things people often compare it to. A **classic scanner** runs a fixed checklist in the same order and stops when the list runs out. **One chatbot with tools** can adapt, but it waits for you to ask for each next step and holds everything in one long conversation.",
+        "artex-global is a translated edition of a Chinese open-source project. It was published so defenders can study how autonomous AI attacks work."
+      ],
+      "activity": {
+        "type": "sort",
+        "title": "Who works like this?",
+        "prompt": "Put each description in the bucket it describes best.",
+        "buckets": [
+          { "id": "scanner", "label": "Classic scanner" },
+          { "id": "chatbot", "label": "One chatbot with tools" },
+          { "id": "artex", "label": "ARTEX team" }
+        ],
+        "items": [
+          { "text": "Runs the same checklist in the same order every time", "bucket": "scanner" },
+          { "text": "Stops when its list runs out", "bucket": "scanner" },
+          { "text": "Waits for you to ask for each next step", "bucket": "chatbot" },
+          { "text": "Keeps everything in one long conversation", "bucket": "chatbot" },
+          { "text": "One planner decides; several workers act in parallel", "bucket": "artex" },
+          { "text": "Keeps going on its own until the goal is proven", "bucket": "artex" },
+          { "text": "Keeps its memory in a shared map, not in a conversation", "bucket": "artex" }
+        ]
+      },
+      "remember": "ARTEX is a self-driving team, not a checklist and not a single chat: it decides each next step from what it just learned."
+    },
+    {
+      "id": "the-crew",
+      "name": "The Crew",
+      "theme": "workshop",
+      "lead": "Inside ARTEX is a small crew of AI agents, each with one job, a bit like a security consultancy. Splitting the work this way keeps the strategy in one place while the hands-on work happens in parallel.",
+      "body": [
+        "The **goals agent** reads the brief once at the start and turns it into clear end goals, rules and an allowed scope. The **planner** is the crew lead: the only one who decides what to try next, written as **work orders**. **Workers** (three by default) each pick up one work order, carry it out with real tools, write down what they found, and stop. The **main agent** is the one Mira can chat with."
+      ],
+      "activity": {
+        "type": "match",
+        "title": "Who does what?",
+        "prompt": "Match each crew member to its job.",
+        "pairs": [
+          { "left": "Goals agent", "right": "Turns the brief into goals, rules and a scope" },
+          { "left": "Planner", "right": "The only one who decides what to try next" },
+          { "left": "Worker", "right": "Does one work order with real tools, then stops" },
+          { "left": "Main agent", "right": "Talks with the human and passes on hints" }
+        ]
+      },
+      "aside": { "title": "Why only one decider?", "text": "If every worker chose its own next move, the team would duplicate effort and pull in different directions. With one planner, every decision is made against the same picture of the whole task, and workers stay focused on one job each." },
+      "remember": "One planner decides, several workers do, one main agent talks to people, and the goals agent sets the brief."
+    },
+    {
+      "id": "twin-maps",
+      "name": "Twin Maps",
+      "theme": "grove",
+      "lead": "ARTEX keeps its memory outside the AI models, in two linked maps. The **asset map** answers \"what exists?\": domains, servers, services and pages, shared by every task. The **exploration notebook** answers \"what have we tried, and why?\" for one task: goals, work orders, facts and findings.",
+      "body": [
+        "The notebook is a family tree of ideas: a goal leads to a work order, the work order yields a fact, the fact inspires a new work order, and that one proves a finding. Pins link each entry to the asset it is about.",
+        "This matters because each time the planner wakes up it starts a brand-new conversation. It does not need to remember anything: it reads the maps."
+      ],
+      "activity": {
+        "type": "gather",
+        "title": "Sort the memories",
+        "prompt": "Carry each orb to the map it belongs on: things that exist, or steps in the task's reasoning.",
+        "bins": [
+          { "id": "assets", "label": "What exists" },
+          { "id": "notebook", "label": "What we tried" }
+        ],
+        "items": [
+          { "label": "Subdomain", "bin": "assets" },
+          { "label": "Web service", "bin": "assets" },
+          { "label": "Login page", "bin": "assets" },
+          { "label": "Goal", "bin": "notebook" },
+          { "label": "Work order", "bin": "notebook" },
+          { "label": "Fact", "bin": "notebook" },
+          { "label": "Finding", "bin": "notebook" }
+        ]
+      },
+      "remember": "Two linked maps hold the memory: what exists, and what was tried and why. Every fresh planner session reads them instead of remembering."
+    },
+    {
+      "id": "the-loop",
+      "name": "The Loop",
+      "theme": "clock",
+      "lead": "Nobody pushes ARTEX forward, and its timer is only a backstop. **Results drive it.** Every time something new lands in the maps, the planner wakes up, looks at the whole picture and decides whether there is a new direction worth trying.",
+      "body": [
+        "Most of the time the answer is \"nothing new\", and it goes back to sleep. When there is something new, it writes work orders, workers carry them out, and their results wake the planner again. The loop ends when every goal is proven with evidence, or when someone stops it."
+      ],
+      "activity": {
+        "type": "order",
+        "title": "One turn of the loop",
+        "prompt": "Put one turn of the loop in order, starting from a worker's result.",
+        "items": [
+          { "text": "A worker records a new fact", "note": "Writing to the maps is what starts everything." },
+          { "text": "The new fact wakes the planner", "note": "No clock, no human: the change itself is the trigger." },
+          { "text": "The planner reviews everything known so far", "note": "A fresh session, reading the two maps." },
+          { "text": "If there is a new direction, it writes work orders", "note": "Often it writes none and goes back to sleep." },
+          { "text": "Idle workers each pick up one work order", "note": "Workers pull work; nobody hands it to them." },
+          { "text": "They run real tools and record what they found", "note": "And that new record starts the next turn." }
+        ]
+      },
+      "remember": "Results drive the loop: a new fact wakes the planner, the planner may write work, workers produce new facts, until every goal is proven."
+    },
+    {
+      "id": "chain-bridge",
+      "name": "Chain Bridge",
+      "theme": "canyon",
+      "lead": "Some goals need several steps in a row, where each step depends on the one before: first find a way in, then use it to reach something deeper, and so on. Sending every step out at once would tangle them, because later steps need results that do not exist yet.",
+      "body": [
+        "So the planner keeps a **to-do list** that lasts for the whole task. It writes the ordered plan down once, then on each wake releases only the next step whose earlier step has produced its result. The README calls this the core of how ARTEX finishes long chains without derailing."
+      ],
+      "activity": {
+        "type": "predict",
+        "title": "What goes out next?",
+        "question": "The planner's to-do list holds a 4-step plan, each step needing the last one's result. Step 1 has just finished. What does the planner send out now?",
+        "options": [
+          { "text": "Steps 2, 3 and 4 together, so workers run them in parallel", "why": "Parallel is usually faster, but steps 3 and 4 need results that step 2 has not produced yet. Workers would be working blind." },
+          { "text": "Only step 2; steps 3 and 4 wait for its result", "correct": true },
+          { "text": "Nothing until a human approves the next step", "why": "No human is needed: the to-do list tells the planner what is ready. People can steer it, but the chain moves on its own." }
+        ],
+        "runLabel": "Watch the chain",
+        "frames": [
+          "First wake: the planner writes the 4-step plan into its to-do list and releases only step 1.",
+          "A worker finishes step 1 and records the result in the maps.",
+          "Next wake, a brand-new session: the planner reads the to-do list and the maps, ticks off step 1 and releases step 2.",
+          "Steps 3 and 4 stay parked until the results they depend on exist."
+        ],
+        "result": "One ready step at a time. The to-do list survives between wakes, so the chain stays in order even though each wake starts fresh."
+      },
+      "remember": "For dependent steps the planner's to-do list releases one ready step at a time, so long chains finish in order."
+    },
+    {
+      "id": "open-harbor",
+      "name": "Open Harbor",
+      "theme": "arena",
+      "lead": "ARTEX can run unattended, but people can still steer it. Through the **main agent** Mira can ask what is happening, leave a hint for the planner, or push an urgent work order to the front of the queue. Teams can also set an **approval gate**: certain risky commands wait for a person's yes or no, and a \"no\" means the agent has to find another way.",
+      "body": [
+        "Workers help each other too. A worker can search the notes of the other workers in the same task, so an odd detail one of them spotted, even if it never became a formal fact, does not have to be rediscovered."
+      ],
+      "activity": {
+        "type": "beacons",
+        "title": "Ways to steer",
+        "prompt": "Light every beacon that is a real way for a person to influence a running ARTEX task. Leave the others dark.",
+        "items": [
+          { "id": "chat", "label": "Chat with it", "lit": true },
+          { "id": "hint", "label": "Leave a hint", "lit": true },
+          { "id": "urgent", "label": "Urgent work", "lit": true },
+          { "id": "approve", "label": "Approve risky", "lit": true },
+          { "id": "type-each", "label": "Type each step", "lit": false },
+          { "id": "ok-every", "label": "OK every step", "lit": false }
+        ]
+      },
+      "aside": { "title": "Not every step needs a person", "text": "Nobody has to type ARTEX's commands or approve each move. Only the commands that match the team's approval rules stop and wait; everything else runs on its own. That is what makes it autonomous, and why the approval rules matter." },
+      "remember": "People steer by chatting, hinting, pushing urgent work and approving risky commands; workers share notes so nothing is learned twice."
+    },
+    {
+      "id": "watchtower",
+      "name": "Watchtower",
+      "theme": "tower",
+      "lead": "Why does this matter to defenders? The repository's defense guide puts it plainly: the adversary shifts \"from one skilled attacker to a swarm of agents that never tire and never rest\". Looking around and breaking in merge into one continuous flow, so the gap where a human would review results and come back days later disappears.",
+      "body": [
+        "Because the AI writes each request after reading the last reply, the requests keep changing, so rules that match one exact bad string miss it. What is hard to hide is the **behaviour**: one source moving through very different kinds of activity in one session, never pausing, and adjusting after every failure."
+      ],
+      "activity": {
+        "type": "multi",
+        "title": "Spot the tells",
+        "question": "Which of these are tell-tale behaviours of an autonomous AI attacker like ARTEX? Tick all that apply.",
+        "options": [
+          { "text": "Keeps going without pause, even in the middle of the night", "correct": true },
+          { "text": "Moves from looking around to probing to logging in, in one flow", "correct": true },
+          { "text": "Changes its next request after each failure", "correct": true },
+          { "text": "Sends exactly the same request every time", "why": "The AI writes each request from context, so requests vary. That is why exact-match signatures struggle." },
+          { "text": "Gives up as soon as it is blocked", "why": "It reads the block and tries a different angle. Persistence after failures is one of the tells." },
+          { "text": "Is always so fast that a rate limit catches it", "why": "It can move slowly and in bursts, pausing between rounds, so speed alone is a weak signal." }
+        ]
+      },
+      "remember": "Signatures and IP lists age fast; an autonomous agent is spotted by its behaviour: tireless, adaptive and chained."
+    }
+  ],
+  "finale": {
+    "name": "Range Briefing",
+    "lead": "Exercise day. Mira's team asks the questions they will face on the range. Answer each one with what the islands taught you.",
+    "questions": [
+      {
+        "question": "A teammate calls ARTEX \"just a smarter scanner\". What is the biggest difference?",
+        "options": [
+          { "text": "It decides each next step from what it just learned, and keeps going until the goal is proven", "correct": true },
+          { "text": "It has a much longer checklist", "why": "It has no fixed checklist at all: the planner chooses directions from results." },
+          { "text": "It only works when a person types each command", "why": "That describes a chatbot with tools. ARTEX's loop runs on its own." }
+        ],
+        "okText": "Right: a scanner follows a list; ARTEX plans from results."
+      },
+      {
+        "question": "In last night's run a worker examined the staging login page. Who decided that should happen?",
+        "options": [
+          { "text": "The planner, by writing a work order", "correct": true },
+          { "text": "The worker itself, on a hunch", "why": "Workers carry out work orders; they do not create new directions." },
+          { "text": "The main agent", "why": "The main agent talks to people. It can pass on a hint or push urgent work, but the planner is the decider." }
+        ],
+        "okText": "Right: the planner is the only one that decides what to try next."
+      },
+      {
+        "question": "Every time the planner wakes up it starts a brand-new conversation. How does it know what has already happened?",
+        "options": [
+          { "text": "It reads the two shared maps and its to-do list", "correct": true },
+          { "text": "It replays all of its earlier conversations", "why": "Each wake starts fresh on purpose. Memory lives in the maps and the to-do list, not in old chats." },
+          { "text": "A worker briefs it out loud", "why": "Workers write their results into the maps; that record is what the planner reads." }
+        ],
+        "okText": "Right: the memory lives outside the model."
+      },
+      {
+        "question": "A worker finishes its work order and records a fact. With no human around, what happens next?",
+        "options": [
+          { "text": "The planner wakes, reviews everything and may write new work orders, or none", "correct": true },
+          { "text": "Nothing until the next scheduled run", "why": "A timer only wakes the planner as a backstop after a quiet spell. The new fact itself wakes the planner right away." },
+          { "text": "The worker picks its own next target", "why": "A worker stops after its one work order. Deciding is the planner's job." }
+        ],
+        "okText": "Right: results drive the loop."
+      },
+      {
+        "question": "Worker B needs a detail that worker A noticed an hour ago but never recorded as a fact. What is the smart move?",
+        "options": [
+          { "text": "Search the other workers' notes for it", "correct": true },
+          { "text": "Redo worker A's whole job", "why": "That wastes time and sends more traffic to the target. The notes are already there to search." },
+          { "text": "Give up, because only formal facts count", "why": "Workers can read each other's notes, precisely so details like this are not lost." }
+        ],
+        "okText": "Right: workers share notes, so nothing is learned twice."
+      },
+      {
+        "question": "A defender's exact-match signature rule never fired during the exercise. Does that mean ARTEX never ran?",
+        "options": [
+          { "text": "No: its requests vary, so watch for behaviour such as tireless, adaptive, chained activity", "correct": true },
+          { "text": "Yes: no signature hit means no attack", "why": "The AI writes requests from context, so they change. A quiet signature proves very little." },
+          { "text": "Yes, because a rate limit would have caught it anyway", "why": "It can move slowly and in bursts, and spread its work across several workers." }
+        ],
+        "okText": "Right: behaviour is the tell."
+      }
+    ]
+  },
+  "report": {
+    "heading": "Mira is ready for the range!",
+    "tiers": {
+      "perfect": "Every island on the first try. You could give this briefing yourself.",
+      "great": "A strong grasp of how ARTEX works. Revisit any island where you lost stars.",
+      "pass": "You have walked the whole archipelago. A second lap will make it stick."
+    },
+    "lessons": [
+      "ARTEX is a self-driving AI pentest team: it plans from results instead of following a checklist.",
+      "One planner decides, several workers do one work order each, the goals agent sets the brief, the main agent talks to people.",
+      "Memory lives outside the models, in two linked maps: what exists, and what was tried and why.",
+      "Results drive the loop: a new fact wakes the planner, which may write new work, until every goal is proven.",
+      "A to-do list that survives between wakes releases dependent steps one at a time, so long chains finish in order.",
+      "People can chat, hint, push urgent work and approve risky commands; workers share notes with each other.",
+      "Defenders spot it by behaviour, not signatures: tireless, adaptive and chained."
+    ],
+    "glossaryIntro": "The friendly words in the game, and what ARTEX itself calls them.",
+    "glossaryColumns": ["In this game", "In ARTEX"],
+    "glossary": [
+      { "term": "Crew lead", "meaning": "Planner: the only agent that produces intents" },
+      { "term": "Work order", "meaning": "Intent: one direction for one worker to explore" },
+      { "term": "Testers", "meaning": "Workers: each executes a single intent with real tools" },
+      { "term": "Brief reader", "meaning": "Goals agent: goal decomposition and scope" },
+      { "term": "The one you chat with", "meaning": "Main agent: the human-in-the-loop point" },
+      { "term": "Map of what exists", "meaning": "Asset graph, shared across tasks" },
+      { "term": "Exploration notebook", "meaning": "Exploration graph: goal, intent, fact, finding, hint" },
+      { "term": "Pins between the maps", "meaning": "Anchors linking exploration nodes to assets" },
+      { "term": "To-do list", "meaning": "The planner's shared todolist, kept across wakes" },
+      { "term": "Workers' notes", "meaning": "Worker traces, searchable by other workers" },
+      { "term": "Approval gate", "meaning": "Guard and intercept rules on tool calls" }
+    ],
+    "source": {
+      "label": "jiwoochris/artex-global: README (system architecture) and docs/defense-en.md",
+      "url": "https://github.com/jiwoochris/artex-global",
+      "note": "For learning and defence only. Use ARTEX solely against systems you own or are authorized in writing to test."
+    }
+  }
+}

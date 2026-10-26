@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "title": "How ARTEX Fits Together",
+  "subtitle": "An AI team that plans, tests, remembers and finishes a penetration test with little human help",
+  "theme": "nebula",
+  "intro": [
+    "ARTEX runs a **penetration test** (an authorized security test of someone's systems) on its own. You give it a target and a goal in plain words. A small team of AI agents then decides what to try, runs real security tools, learns from every result and keeps going until it can prove the goal.",
+    "What makes it interesting is not any single trick but how the pieces fit: who decides, who does the work, where the memory lives, and what keeps the whole thing moving without a person pushing it. First you will tour the map; then it comes apart and you rebuild it from memory."
+  ],
+  "root": "artex",
+  "clusters": [
+    { "id": "team", "name": "The agent team", "color": "violet", "description": "The AI roles. Each has one job, which keeps decisions coherent and work parallel." },
+    { "id": "work", "name": "The work", "color": "gold", "description": "The pieces of reasoning the team produces: goals, work orders, facts and findings." },
+    { "id": "memory", "name": "Shared memory", "color": "teal", "description": "Where everything the team knows is kept, outside any single AI conversation." },
+    { "id": "hands", "name": "Brains and hands", "color": "blue", "description": "What the agents think with (language models) and act with (real tools)." },
+    { "id": "humans", "name": "Humans and guard rails", "color": "red", "description": "Where people come in: giving the job, chatting, and approving risky actions." },
+    { "id": "contrast", "name": "Compared with", "color": "orange", "description": "The two things people most often mistake ARTEX for." }
+  ],
+  "nodes": [
+    { "id": "artex", "label": "ARTEX", "cluster": "team", "definition": "An autonomous AI penetration-testing system: a team of language-model agents that plans, tests and records findings with little human input.", "note": "It began as a Chinese open-source project. artex-global is a translated edition, published so defenders can study how autonomous AI attacks work after reports that the original was misused. It must only ever be pointed at systems you own or have written permission to test." },
+    { "id": "goals-agent", "label": "Goals agent", "cluster": "team", "definition": "Reads your request once, at the start, and turns it into concrete end goals, rules to follow and a narrow scope.", "note": "Goals are outcomes (\"show whether customer data can be reached without logging in\"), not steps (\"scan the site\"). How to get there is left to the planner.", "example": "You type one sentence; it writes two goals, one rule (\"don't touch the payments service\") and one host to stay on." },
+    { "id": "planner", "label": "Planner", "cluster": "team", "definition": "The team lead and the only agent that decides what to try next. It reads everything known so far and writes work orders; it never does the work itself.", "note": "The planner wakes up whenever something new is learned. Most of the time it decides there is nothing new worth doing and goes back to sleep. Each wake-up is a fresh conversation: it remembers nothing by itself and relies on the shared memory." },
+    { "id": "workers", "label": "Workers", "cluster": "team", "definition": "The testers. Each picks up one waiting work order, runs real tools to carry it out, writes down what it found, then stops.", "note": "Three work in parallel by default. A worker can't create new work orders, so it can never widen its own job; anything it discovers goes back to the planner through the shared memory." },
+    { "id": "main-agent", "label": "Main agent", "cluster": "team", "definition": "The agent you chat with. It explains progress, passes your hints to the planner and can add an urgent work order.", "note": "It does not run the test. The loop of planner and workers runs whether or not anyone is chatting." },
+    { "id": "goal", "label": "Goal", "cluster": "work", "definition": "A result the task must prove, such as showing a weakness exists. The task is done when every goal is proven with evidence." },
+    { "id": "intent", "label": "Work order (intent)", "cluster": "work", "definition": "One focused job written by the planner, such as \"find out what this login page reveals when it fails\". ARTEX calls these intents.", "note": "Work orders are small on purpose: one worker, one job, a time limit. That makes them easy to run in parallel and easy to trace later." },
+    { "id": "fact", "label": "Fact", "cluster": "work", "definition": "Something a worker observed and recorded, such as a new page, an unusual error or a software version.", "note": "Facts are what the next round of thinking builds on. A new work order is often \"derived from\" an earlier fact, which is how a chain of reasoning forms." },
+    { "id": "finding", "label": "Finding", "cluster": "work", "definition": "A confirmed security weakness, with a severity and the evidence that proves it.", "example": "\"Order details for other customers can be read by changing a number in the address\", with the request and response that show it." },
+    { "id": "exploration-graph", "label": "Exploration graph", "cluster": "memory", "definition": "The task's notebook of reasoning: goals, work orders, facts and findings, connected in the order one led to another.", "note": "Because every node records where it came from, any finding can be traced back step by step to the goal and the facts that led to it. This graph belongs to one task." },
+    { "id": "asset-graph", "label": "Asset graph", "cluster": "memory", "definition": "A map of what exists on the target, such as domains, sub-sites, servers, services and pages, shared by every task.", "note": "Agents only report raw observations; the system itself works out where each one fits in the map and removes duplicates. Ideas in the exploration graph are pinned to places on this map." },
+    { "id": "todolist", "label": "Planner's todolist", "cluster": "memory", "definition": "The planner's running plan for a multi-step chain, kept between wake-ups so steps are released one at a time, in order.", "note": "Real attacks are chains: each step needs the result of the one before. The planner writes the chain once, then on each wake-up releases only the next step whose prerequisite fact now exists." },
+    { "id": "worker-notes", "label": "Worker notes", "cluster": "memory", "definition": "The step-by-step record of everything each worker did and saw, which other workers can search.", "note": "Useful observations often never become formal facts. Searching another worker's notes lets a later worker build on them instead of repeating the work." },
+    { "id": "tools", "label": "Real security tools", "cluster": "hands", "definition": "The ordinary command-line and web tools a human tester would use. Workers run them for real; nothing is simulated.", "note": "Because the language model writes each command after reading the last result, the requests vary from one situation to the next. That is one reason fixed detection signatures struggle." },
+    { "id": "llm", "label": "Language models", "cluster": "hands", "definition": "The AI models that do the thinking for every agent, from a frontier model to any compatible provider, with automatic fallback.", "note": "The global edition keeps the agents' internal instructions in their original language, to preserve tested behaviour, and only translates what humans read." },
+    { "id": "recorder", "label": "Traffic recorder", "cluster": "hands", "definition": "Captures every web request and response the workers make, so evidence and earlier responses can be looked up later." },
+    { "id": "operator", "label": "You, the operator", "cluster": "humans", "definition": "The person who starts a task, can chat with it, approve risky steps and read the final report." },
+    { "id": "approval-gate", "label": "Approval gate", "cluster": "humans", "definition": "Checks each command before it runs; it can allow it, block it, or pause and ask a human.", "note": "A block is presented to the agent as a platform rule, not as the target defending itself, so the agent picks a different direction instead of trying to get round it. The rules are settings an operator can change." },
+    { "id": "scope", "label": "Authorized scope", "cluster": "humans", "definition": "The hosts and rules the task is allowed to work within, set from your request at the start.", "note": "Scope reaches the agents as instructions they are told to treat as their highest priority. Instructions guide a model; they do not physically stop it. Hard limits come from the approval gate's rules and from network controls outside ARTEX." },
+    { "id": "scanner", "label": "Classic scanner", "cluster": "contrast", "definition": "A traditional tool that runs a fixed checklist of tests in order and then stops.", "note": "A scanner's next request does not depend on the reply to its last one. ARTEX's does." },
+    { "id": "chatbot", "label": "One chatbot with tools", "cluster": "contrast", "definition": "A single AI conversation given access to tools and asked to do everything itself.", "note": "One long conversation gets crowded, forgets early details and does one thing at a time. ARTEX splits the roles and keeps its memory in graphs instead." }
+  ],
+  "edges": [
+    { "id": "e-artex-goals", "from": "artex", "to": "goals-agent", "relation": "starts each task with", "explanation": "Before any testing, the goals agent turns a plain-language request into goals, rules and scope. Everything afterwards is aimed at those goals." },
+    { "id": "e-artex-scanner", "from": "artex", "to": "scanner", "relation": "contrasts with", "explanation": "A scanner follows a fixed list and stops. ARTEX chooses each next step from what it has just learned, and keeps going until the goals are proven." },
+    { "id": "e-artex-chatbot", "from": "artex", "to": "chatbot", "relation": "contrasts with", "explanation": "Instead of one agent doing everything in one conversation, ARTEX separates deciding from doing and stores what it knows outside any conversation." },
+    { "id": "e-operator-goals", "from": "operator", "to": "goals-agent", "relation": "briefs", "explanation": "You describe the target and what you want shown, in your own words. That brief is the only instruction the team strictly needs." },
+    { "id": "e-goals-goal", "from": "goals-agent", "to": "goal", "relation": "writes", "explanation": "It writes goals as results to prove, not steps to take, so the planner stays free to choose the route." },
+    { "id": "e-goals-scope", "from": "goals-agent", "to": "scope", "relation": "sets", "explanation": "It records the narrowest scope that fits the request, such as one exact host rather than a whole company." },
+    { "id": "e-planner-goal", "from": "planner", "to": "goal", "relation": "works toward", "explanation": "Every work order the planner writes is meant to move one of the goals closer to proof." },
+    { "id": "e-planner-intent", "from": "planner", "to": "intent", "relation": "writes", "explanation": "The planner is the only agent that turns thinking into new work. Keeping one decider keeps the strategy coherent." },
+    { "id": "e-workers-intent", "from": "workers", "to": "intent", "relation": "pick up", "explanation": "No one hands out jobs. Each free worker takes the next waiting work order by priority, carries it out and stops." },
+    { "id": "e-workers-tools", "from": "workers", "to": "tools", "relation": "run", "explanation": "Workers execute real commands and web requests, adapting each one to what the previous one returned." },
+    { "id": "e-workers-fact", "from": "workers", "to": "fact", "relation": "record", "explanation": "A worker's output is what it observed, written down as facts the rest of the team can use." },
+    { "id": "e-workers-finding", "from": "workers", "to": "finding", "relation": "report", "explanation": "When a worker confirms a weakness, it reports a finding with its severity and evidence." },
+    { "id": "e-workers-asset", "from": "workers", "to": "asset-graph", "relation": "add to", "explanation": "New domains, services and pages a worker discovers are added to the map of the target." },
+    { "id": "e-fact-intent", "from": "fact", "to": "intent", "relation": "inspires the next", "explanation": "A fresh fact often suggests a new direction, so the planner's next work order is built on it. Chains of reasoning grow one link at a time this way." },
+    { "id": "e-fact-explo", "from": "fact", "to": "exploration-graph", "relation": "lands in", "explanation": "Every fact is stored in the task's notebook, linked to the work order that produced it." },
+    { "id": "e-explo-planner", "from": "exploration-graph", "to": "planner", "relation": "wakes when it changes", "explanation": "New entries in the notebook wake the planner for another round. That is the self-driving loop: work creates facts, and facts create the next round of work." },
+    { "id": "e-planner-explo", "from": "planner", "to": "exploration-graph", "relation": "reads", "explanation": "Each wake-up starts with a summary of the notebook, which is how a fresh conversation knows where the task stands." },
+    { "id": "e-finding-goal", "from": "finding", "to": "goal", "relation": "proves", "explanation": "A goal is met when evidence proves it. When the last goal is proven, the task finishes by itself and stops any workers still running." },
+    { "id": "e-finding-operator", "from": "finding", "to": "operator", "relation": "is reported to", "explanation": "Findings appear on the dashboard as they are confirmed and end up in a written report, in the language you chose." },
+    { "id": "e-asset-explo", "from": "asset-graph", "to": "exploration-graph", "relation": "contrasts with", "explanation": "The asset graph says what exists; the exploration graph says what has been tried and why. Keeping them apart lets many tasks share one map while each keeps its own reasoning." },
+    { "id": "e-explo-asset", "from": "exploration-graph", "to": "asset-graph", "relation": "is pinned to", "explanation": "Work orders, facts and findings are linked to the exact places on the map they concern, so you can ask both \"what was tried here?\" and \"where was this tried?\"" },
+    { "id": "e-planner-todolist", "from": "planner", "to": "todolist", "relation": "keeps its plan in", "explanation": "Because each wake-up is a fresh conversation, the plan for a long chain lives in the todolist, not in the planner's head." },
+    { "id": "e-todolist-intent", "from": "todolist", "to": "intent", "relation": "releases in order", "explanation": "Only the next step whose prerequisite fact exists becomes a work order. Steps never run early or twice, so long chains finish without derailing." },
+    { "id": "e-workers-notes", "from": "workers", "to": "worker-notes", "relation": "leave", "explanation": "Every command a worker runs and every reply it reads is kept as a step-by-step record." },
+    { "id": "e-notes-workers", "from": "worker-notes", "to": "workers", "relation": "help", "explanation": "A worker can search what other workers saw, reusing an odd error or a hidden detail that nobody wrote up as a fact." },
+    { "id": "e-operator-main", "from": "operator", "to": "main-agent", "relation": "chats with", "explanation": "You can ask what is happening, why, and what was found, while the test keeps running." },
+    { "id": "e-main-planner", "from": "main-agent", "to": "planner", "relation": "passes hints to", "explanation": "Your hint is added to the shared memory and read by the planner on its next round. You steer by adding information, not by taking over." },
+    { "id": "e-main-intent", "from": "main-agent", "to": "intent", "relation": "can add urgent", "explanation": "For \"check this now\", the main agent adds a high-priority work order that a worker picks up next." },
+    { "id": "e-llm-planner", "from": "llm", "to": "planner", "relation": "powers", "explanation": "The planner's judgement is a language model reading the situation, so a more capable model makes better plans." },
+    { "id": "e-llm-workers", "from": "llm", "to": "workers", "relation": "powers", "explanation": "Each worker is its own model conversation. If one model provider fails, the system falls back to another." },
+    { "id": "e-workers-recorder", "from": "workers", "to": "recorder", "relation": "send web traffic through", "explanation": "All of a worker's web requests pass through the recorder, so the exact exchange behind any finding can be shown later." },
+    { "id": "e-gate-workers", "from": "approval-gate", "to": "workers", "relation": "checks commands of", "explanation": "Before a command runs, the gate applies its rules and, optionally, an AI judge; it can allow, block or ask a human." },
+    { "id": "e-gate-operator", "from": "approval-gate", "to": "operator", "relation": "asks", "explanation": "For commands a rule marks as risky, the gate pauses the worker until a person approves or denies. If nobody answers in time, it can be set to deny." },
+    { "id": "e-scope-workers", "from": "scope", "to": "workers", "relation": "guides", "explanation": "Scope and rules are written into the agents' instructions as top priority. They guide the model; only the approval gate's rules and outside network controls can actually stop a command." }
+  ],
+  "tour": [
+    { "title": "Not a scanner, not a chatbot", "text": "**ARTEX** is a team of AI agents that runs a security test on its own. Unlike a scanner it chooses each step from what it just learned; unlike a single chatbot it splits the work into roles and keeps its memory outside the conversation.", "focus": ["artex", "scanner", "chatbot", "goals-agent", "e-artex-scanner", "e-artex-chatbot", "e-artex-goals"] },
+    { "title": "The team", "text": "You brief the **goals agent**, which writes the goals and scope. The planner is the only one who decides; workers pick up its work orders; the main agent is your chat window into all of it.", "focus": ["operator", "goals-agent", "goal", "scope", "planner", "intent", "workers", "main-agent", "e-operator-goals", "e-goals-goal", "e-goals-scope", "e-planner-intent", "e-workers-intent", "e-operator-main", "e-main-planner", "e-main-intent"] },
+    { "title": "From goal to finding", "text": "The planner works toward a **goal** by writing work orders. Workers record facts, facts inspire the next work orders, and a confirmed finding proves the goal and lands in your report.", "focus": ["goal", "intent", "fact", "finding", "planner", "workers", "operator", "e-planner-goal", "e-workers-fact", "e-fact-intent", "e-workers-finding", "e-finding-goal", "e-finding-operator"] },
+    { "title": "The self-driving loop", "text": "Every new fact lands in the **exploration graph**, and that change wakes the planner for another round. Nobody pushes the task forward: results create the next round of work until the goals are proven.", "focus": ["planner", "intent", "workers", "fact", "exploration-graph", "e-planner-intent", "e-workers-intent", "e-workers-fact", "e-fact-explo", "e-explo-planner", "e-planner-explo"] },
+    { "title": "Memory outside the models", "text": "Each planner wake-up is a fresh conversation, so memory lives in shared stores: the **asset graph** of what exists, the exploration graph of what was tried, the todolist that releases a long chain step by step, and notes workers can search.", "focus": ["asset-graph", "exploration-graph", "todolist", "worker-notes", "planner", "workers", "intent", "e-asset-explo", "e-explo-asset", "e-planner-todolist", "e-todolist-intent", "e-workers-notes", "e-notes-workers", "e-workers-asset"] },
+    { "title": "Brains, hands and guard rails", "text": "Language models do the thinking; real tools do the work, with every web exchange recorded. The **approval gate** checks commands and can ask you first, while the scope guides the agents.", "focus": ["llm", "tools", "recorder", "approval-gate", "scope", "operator", "workers", "planner", "e-llm-planner", "e-llm-workers", "e-workers-tools", "e-workers-recorder", "e-gate-workers", "e-gate-operator", "e-scope-workers"] }
+  ],
+  "rebuild": {
+    "intro": "Three ideas have drifted out of their clusters, the loop has lost its order, some labels have gone blank, one link has vanished and one now says something false. Rebuild the map from memory.",
+    "tasks": [
+      { "id": "place-three", "type": "place", "nodes": ["todolist", "approval-gate", "recorder"], "hint": "Ask what each one is for: remembering, keeping people in control, or doing and capturing the work?", "why": "The todolist is memory: it carries the planner's plan between wake-ups. The approval gate is a guard rail that can stop a command or ask a human. The traffic recorder is part of the hands: it captures what workers' tools sent and received." },
+      { "id": "order-loop", "type": "order", "prompt": "Put one turn of the self-driving loop in order, starting with the agent that decides.", "nodes": ["planner", "intent", "workers", "fact", "exploration-graph"], "hint": "Someone decides, a job is written, someone does it, something is learned, and the place it is stored wakes the decider again.", "why": "The planner writes a work order; a worker picks it up and records a fact; the fact lands in the exploration graph; the change wakes the planner for the next round. Nothing outside this loop is needed to keep the test moving." },
+      { "id": "rel-pickup", "type": "relation", "edge": "e-workers-intent", "hint": "Does anyone hand out the jobs?", "why": "Workers take the next waiting work order themselves. The planner only writes work orders and never assigns them, so a free worker never waits for a decision.",
+        "options": [
+          { "label": "pick up", "correct": true },
+          { "label": "are assigned", "why": "A manager handing out tasks is the natural picture, but in ARTEX nobody assigns: each free worker takes the next waiting order by priority." },
+          { "label": "write", "why": "Only the planner writes work orders (the main agent can add an urgent one for you). Workers can't create work, so they can't widen their own job." },
+          { "label": "contrasts with", "why": "They are directly linked: a work order exists to be carried out by a worker." }
+        ] },
+      { "id": "connect-proves", "type": "connect", "edge": "e-finding-goal", "prompt": "One arrow that tells the task when to stop has vanished. Draw it.", "hint": "What has to exist before a goal counts as met?", "why": "A goal is met only when evidence proves it, and that evidence is a finding. When the last goal is proven, the task ends by itself; it doesn't run until a timer expires or a human says stop." },
+      { "id": "spot-scanner", "type": "spot", "edge": "e-artex-scanner", "wrongRelation": "is a kind of", "candidates": ["e-artex-scanner", "e-artex-chatbot", "e-artex-goals", "e-llm-planner"], "hint": "Does a scanner choose its next test based on the last reply?", "why": "ARTEX contrasts with a classic scanner. A scanner runs a fixed checklist and stops; ARTEX reads each result and decides what to try next, chaining steps until the goals are proven. That difference is why defenders treat it as a new kind of threat." },
+      { "id": "label-main", "type": "label", "node": "main-agent", "hint": "It is the one you talk to, and it can add an urgent work order, but it doesn't run the test.", "why": "The main agent is the human-facing role: it explains, passes hints to the planner and can inject urgent work. The planner/worker loop runs with or without it.",
+        "options": [
+          { "label": "Main agent", "correct": true },
+          { "label": "Planner", "why": "The planner decides what happens next, but you don't chat with it; it wakes on new facts and talks only through work orders." },
+          { "label": "Goals agent", "why": "The goals agent runs once at the start to read your brief. It isn't there to chat afterwards." },
+          { "label": "Workers", "why": "Workers each carry out one work order with tools. They don't talk to you." }
+        ] },
+      { "id": "rel-todolist", "type": "relation", "edge": "e-planner-todolist", "hint": "Each wake-up starts a brand-new conversation. So where does a five-step plan survive?", "why": "The planner's conversation is thrown away after every wake-up; its plan is not. It writes a chain once into the todolist and releases one step per round, only when the previous step's fact exists.",
+        "options": [
+          { "label": "keeps its plan in", "correct": true },
+          { "label": "replays its chat from", "why": "There is no old chat to replay: each wake-up is fresh on purpose, so the conversation never grows stale or overcrowded." },
+          { "label": "hands work to", "why": "The todolist isn't a worker. The planner turns its next step into a work order, and a worker picks that up." }
+        ] },
+      { "id": "label-assets", "type": "label", "node": "asset-graph", "hint": "It answers \"what exists?\", and every task shares it.", "why": "The asset graph is the shared map of the target. The exploration graph is one task's reasoning. Telling them apart is the key to how ARTEX remembers.",
+        "options": [
+          { "label": "Asset graph", "correct": true },
+          { "label": "Exploration graph", "why": "The exploration graph records what one task tried and why: goals, work orders, facts and findings. It is pinned to the map but isn't the map." },
+          { "label": "Worker notes", "why": "Worker notes are a log of what each worker did. They aren't an organised map of the target." },
+          { "label": "Planner's todolist", "why": "The todolist holds the order of planned steps, not what exists on the target." }
+        ] },
+      { "id": "rel-scope", "type": "relation", "edge": "e-scope-workers", "hint": "Scope reaches the agents as written instructions. Can words physically stop a command?", "why": "Scope guides the agents: it is written into their instructions as top priority. A model can still misread or ignore instructions, so real limits come from the approval gate's rules and from network controls outside ARTEX.",
+        "options": [
+          { "label": "guides", "correct": true },
+          { "label": "hard-blocks", "why": "It sounds like scope should be a wall, but in ARTEX it is instructions to the model. Only the approval gate (or the network) can actually block a command." },
+          { "label": "is ignored by", "why": "Not ignored: the agents are told to treat it as their highest priority, and normally follow it. It is guidance, though, not enforcement." }
+        ] }
+    ]
+  },
+  "reflection": {
+    "prompt": "If you could keep only three links from this map, which would they be?",
+    "keyEdges": [
+      { "edge": "e-planner-intent", "why": "One decider. Because only the planner turns thinking into work, the team's strategy stays coherent while many workers act in parallel." },
+      { "edge": "e-explo-planner", "why": "The self-driving loop. New facts wake the planner, so the test moves forward on its own until the goals are proven." },
+      { "edge": "e-todolist-intent", "why": "Long chains. Releasing one step at a time, only when its prerequisite exists, is what lets ARTEX finish multi-step attacks instead of wandering." }
+    ],
+    "candidates": ["e-planner-intent", "e-explo-planner", "e-todolist-intent", "e-workers-intent", "e-fact-intent", "e-finding-goal", "e-artex-scanner", "e-asset-explo", "e-notes-workers", "e-gate-workers", "e-main-planner", "e-scope-workers"],
+    "closing": "Decide, loop, chain: those three links are what turn a set of AI conversations into a team that finishes a security test by itself."
+  },
+  "glossary": [
+    { "term": "Penetration test", "meaning": "An authorized attempt to break into systems in order to find weaknesses before real attackers do." },
+    { "term": "Agent", "meaning": "An AI model given a role, instructions and tools, which acts step by step towards a task." },
+    { "term": "Language model (LLM)", "meaning": "The AI that reads text and writes text; here it does all the agents' thinking." },
+    { "term": "Work order (intent)", "meaning": "One focused job the planner writes for a single worker to carry out." },
+    { "term": "Fact", "meaning": "An observation a worker records, which later work can build on." },
+    { "term": "Finding", "meaning": "A confirmed weakness, with severity and evidence." },
+    { "term": "Graph", "meaning": "Items connected by labelled links, such as \"this fact led to that work order\"." },
+    { "term": "Scope", "meaning": "The systems and rules a test is authorized to work within." },
+    { "term": "Human-in-the-loop", "meaning": "A design where people can watch, guide or approve an automated process while it runs." }
+  ],
+  "summary": {
+    "heading": "The map, rebuilt",
+    "paragraphs": [
+      "ARTEX turns a one-sentence brief into goals, then runs a loop: a single planner writes small work orders, workers pick them up and record what they find, and every new fact wakes the planner again. The loop ends when findings prove every goal.",
+      "Its memory lives outside the models: a shared map of what exists, a per-task notebook of what was tried and why, a todolist that releases long chains one step at a time, and notes workers can search. People stay in the loop through chat, hints and an approval gate, but the test can run all night without them."
+    ]
+  }
+}

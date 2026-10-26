@@ -1,0 +1,298 @@
+{
+  "schemaVersion": 1,
+  "title": "Response Archipelago",
+  "subtitle": "Seven islands of incident response, from the first alert to the regulator's clock, in IT and in the plant",
+  "theme": "aurora",
+  "companion": { "name": "Nia" },
+  "coins": 10,
+  "intro": {
+    "paragraphs": [
+      "**Nia** has just joined the incident response team at Kestrel Industries, a fictional company with offices, a cloud platform and two factories. Her first on-call week starts on Monday, and she wants to understand the whole job before her pager goes off.",
+      "So you're walking her through it. Seven islands, one big idea each: the lifecycle, the people, detection, containment and evidence, what changes in a plant, recovery, and the legal clocks. You walk ahead; Nia follows."
+    ],
+    "steps": [
+      "Press **Walk me there** or follow the arrow. Pick up coins on the causeways.",
+      "On each island read the short lesson, then do the activity. Some are played on foot: step on pads in order, or find the right part of the model.",
+      "Each wrong try costs a coin; right first time earns 3 stars. Finish all seven to open Nia's on-call questions at the hub."
+    ],
+    "note": "Kestrel Industries is fictional. Real incidents are described at a high level from public reporting. Notification rules apply only to certain organisations and incidents; check the current rules for your own."
+  },
+  "islands": [
+    {
+      "id": "lifecycle",
+      "name": "The Lifecycle",
+      "theme": "hall",
+      "lead": "Most teams describe incident response as a cycle. The classic SANS version has six steps: **Preparation**, **Identification**, **Containment**, **Eradication**, **Recovery** and **Lessons learned**. It is a cycle because the lessons from one incident become the preparation for the next.",
+      "body": [
+        "The US standards body NIST rewrote its incident response guide in April 2025. SP 800-61 Revision 3 no longer treats response as a separate four-phase process; it folds it into the six functions of its Cybersecurity Framework 2.0: Govern, Identify, Protect, Detect, Respond and Recover. The message: response isn't a fire drill bolted on at the end, it's part of how the whole organisation manages risk."
+      ],
+      "activity": {
+        "type": "order",
+        "title": "Six steps",
+        "prompt": "Put the SANS incident response steps in order, first to last.",
+        "items": [
+          { "text": "Preparation", "note": "Plans, playbooks, contacts, tools and practice, before anything happens." },
+          { "text": "Identification", "note": "Spot something wrong, confirm it is a real incident and judge how serious it is." },
+          { "text": "Containment", "note": "Stop it spreading, short term first, then for the longer haul." },
+          { "text": "Eradication", "note": "Remove the attacker's foothold and fix the way they got in." },
+          { "text": "Recovery", "note": "Bring systems back carefully, and watch for the attacker returning." },
+          { "text": "Lessons learned", "note": "A blameless review that feeds back into preparation." }
+        ]
+      },
+      "remember": "Prepare, identify, contain, eradicate, recover, learn, and feed the lessons back into preparation."
+    },
+    {
+      "id": "roles",
+      "name": "Who's in the Room",
+      "theme": "arena",
+      "lead": "A serious incident is a team sport, and most of the team isn't technical. One **incident commander** runs the response and makes the calls, so that twenty people don't each decide something different. Around them: security analysts, IT operations, plant engineers, legal, communications and the executives who own the business decisions.",
+      "body": [
+        "Outside help matters too: an incident response firm on retainer, the insurer, law enforcement and regulators. Teams also plan **out-of-band** communication, such as phones or a separate chat system, because if email or chat is compromised, the attacker may be reading the response."
+      ],
+      "activity": {
+        "type": "match",
+        "title": "Who does what?",
+        "prompt": "Match each role to its main job during an incident.",
+        "pairs": [
+          { "left": "Incident commander", "right": "Runs the response and makes the calls" },
+          { "left": "SOC analysts", "right": "Triage alerts and investigate what happened" },
+          { "left": "Plant (OT) engineers", "right": "Keep the physical process safe" },
+          { "left": "Legal counsel", "right": "Notification duties, contracts and privilege" },
+          { "left": "Communications", "right": "Messages to staff, customers and the press" },
+          { "left": "Retainer IR firm", "right": "Extra forensic experts on call" }
+        ]
+      },
+      "remember": "One incident commander, a mostly non-technical team, outside help on call, and a way to talk the attacker can't read."
+    },
+    {
+      "id": "detect",
+      "name": "Signal and Noise",
+      "theme": "tower",
+      "lead": "Detection starts with alerts from security tools watching computers, networks and logins. The trap is volume: a team buried in thousands of untuned alerts looks at each one less carefully, and the real intrusion slips through. Tuning detections so each alert means something beats adding more of them.",
+      "body": [
+        "Speed matters because intruders keep working while nobody has noticed. The time between getting in and being discovered is called **dwell time**, and every hour of it is time to spread further."
+      ],
+      "activity": {
+        "type": "estimate",
+        "title": "How long do intruders go unnoticed?",
+        "question": "Mandiant's M-Trends 2026 report covers its 2025 investigations. What was the global median dwell time, in days?",
+        "min": 0,
+        "max": 60,
+        "answer": 14,
+        "tolerance": 5,
+        "unit": "days",
+        "reveal": "About two weeks: 14 days, up from 11 the year before. Median means half of intrusions went unnoticed even longer."
+      },
+      "findings": {
+        "caption": "Global median dwell time, in days (Mandiant M-Trends)",
+        "rows": [
+          { "label": "2024 investigations", "value": 11, "show": "11 days", "style": "grey" },
+          { "label": "2025 investigations", "value": 14, "show": "14 days" }
+        ],
+        "text": "Two weeks is a long time for an intruder to explore. Faster detection shrinks how far they get before anyone responds.",
+        "after": true
+      },
+      "remember": "Detection quality beats alert quantity, and intruders typically go unnoticed for about two weeks."
+    },
+    {
+      "id": "contain",
+      "name": "Freeze the Evidence",
+      "theme": "workshop",
+      "lead": "Containment means stopping the spread, and it has to be fast. Good teams agree in advance which actions an on-call analyst may take without waiting for a manager, such as cutting an infected laptop off the network. The catch: containing must not destroy the evidence you will need to understand what happened.",
+      "body": [
+        "So you isolate rather than switch off, and you collect evidence in the **order of volatility** (from RFC 3227): the most fleeting first. What's in memory, such as running programs and open network connections, vanishes when a machine restarts; temporary files go next; the disk lasts longer; logs stored elsewhere and archived backups last longest."
+      ],
+      "activity": {
+        "type": "steps",
+        "title": "Most fleeting first",
+        "prompt": "Step on the pads in the order you should collect evidence: from the most fleeting (gone at a restart) to the longest-lasting (archived backups).",
+        "items": [
+          { "id": "memory", "label": "Memory" },
+          { "id": "temp", "label": "Temp files" },
+          { "id": "disk", "label": "Disk" },
+          { "id": "logs", "label": "Remote logs" },
+          { "id": "archives", "label": "Archives" }
+        ]
+      },
+      "aside": {
+        "title": "Why not just reboot?",
+        "text": "Restarting or wiping a machine feels like the quickest fix, but it erases memory and can overwrite the very traces that show how the attacker got in, and whether they are still there. Image first, then rebuild."
+      },
+      "remember": "Contain fast with pre-approved actions, isolate rather than switch off, and collect the most fleeting evidence first."
+    },
+    {
+      "id": "ot-different",
+      "name": "The Plant Floor",
+      "theme": "plain",
+      "lead": "In **OT**, the operational technology that runs factories, pipelines and power grids, priorities flip. In office IT, protecting data usually comes first. In a plant, **safety** and keeping the process running safely come first, because a wrong move can hurt people or equipment. You can't simply reboot a controller mid-process or cut a plant off its network without the operators.",
+      "body": [
+        "Plants are usually drawn as layers in the **Purdue model**: field devices and controllers at the bottom (levels 0 to 2), site operations at level 3, business IT at levels 4 and 5, and a buffer zone, the IT/OT DMZ, often called level 3.5, in between. The standard IEC 62443 groups systems into **zones** and controls the **conduits** between them.",
+        "Real cases show why. In Ukraine in December 2015, attackers cut power to about 225,000 customers and operators restored it by switching to manual control. The 2017 TRITON malware targeted a safety system at a petrochemical plant. And in 2021 Colonial Pipeline halted its pipeline as a precaution after ransomware hit its business IT."
+      ],
+      "activity": {
+        "type": "hotspot",
+        "title": "Find the buffer",
+        "prompt": "Click the layer whose whole job is to sit between the business network and the plant, so nothing passes straight from one to the other.",
+        "parts": [
+          { "id": "field", "label": "L0–1 Field", "hint": "Sensors, pumps and the controllers that drive them: the physical process itself." },
+          { "id": "control", "label": "L2 Control", "hint": "Operator screens and supervisory control for one area of the plant." },
+          { "id": "site", "label": "L3 Site ops", "hint": "Plant-wide systems such as the historian. Still inside the plant." },
+          { "id": "dmz", "label": "L3.5 IT/OT DMZ" },
+          { "id": "business", "label": "L4–5 Business", "hint": "Email, ERP and the office network: business IT, not a buffer." }
+        ],
+        "answer": "dmz"
+      },
+      "remember": "In OT, safety comes first; layers, zones and a DMZ between IT and the plant limit what one breach can reach."
+    },
+    {
+      "id": "recover",
+      "name": "Rebuild and Learn",
+      "theme": "grove",
+      "lead": "Recovery has an order. **Identity** systems, which decide who can log in and what they can do, come first, because almost everything else depends on them. **Offline backups** matter because attackers go after anything reachable from the network, including backups.",
+      "body": [
+        "In 2019 the aluminium maker Norsk Hydro was hit by ransomware. It switched units to manual operation, gave frequent public updates and did not pay. Afterwards, the **lessons-learned** review should be blameless: the aim is to fix the systems and habits that let it happen, not to find someone to punish, or people will hide the next mistake."
+      ],
+      "activity": {
+        "type": "predict",
+        "title": "Maersk's lucky break",
+        "question": "In 2017 the NotPetya attack wiped shipping giant Maersk's network, including every online copy of its identity system. How did Maersk get its logins back?",
+        "options": [
+          { "text": "It paid the attackers for a key", "why": "NotPetya destroyed data rather than holding it hostage, so paying was no route back." },
+          { "text": "From one domain controller in its Ghana office that happened to be offline in a power cut", "correct": true },
+          { "text": "From a cloud backup, within an hour", "why": "Recovery took around ten days and thousands of reinstalled servers and PCs." }
+        ],
+        "runLabel": "Watch the recovery",
+        "frames": [
+          "The attack spreads through Maersk's network in hours.",
+          "Every connected domain controller, the servers that hold the company's logins, is wiped.",
+          "Engineers find one in the Ghana office that was offline during a power cut when the attack hit.",
+          "Its copy of the directory becomes the seed for rebuilding the company's identity system, while thousands of servers and PCs are reinstalled."
+        ],
+        "result": "One offline copy saved Maersk's identity system. Keeping tested, offline backups of identity systems is now a standard lesson."
+      },
+      "remember": "Recover identity first, keep backups offline and tested, and run a blameless review afterwards."
+    },
+    {
+      "id": "clocks",
+      "name": "The Clocks",
+      "theme": "clock",
+      "lead": "Regulators set deadlines, and most start when you become aware of the incident, not when the investigation ends. India's CERT-In directions (28 April 2022) require covered organisations to report listed incidents within **6 hours** and keep logs for 180 days. The EU's NIS2 wants an early warning within 24 hours, a notification within 72 hours and a final report within a month. GDPR gives 72 hours to tell the data protection authority about a personal-data breach.",
+      "body": [
+        "US-listed companies file an SEC Form 8-K within four business days of deciding an incident is material. Some rules aren't in force yet: India's DPDP Act breach duties apply from 13 May 2027, and the US CIRCIA reporting rule (72 hours, or 24 hours after a ransom payment) is still only proposed.",
+        "Paying a ransom has its own risk: the US Treasury's OFAC warns that paying a sanctioned group can bring penalties, and counts prompt reporting and cooperation with authorities in a company's favour."
+      ],
+      "activity": {
+        "type": "rank",
+        "title": "Shortest clock first",
+        "prompt": "Rank these first deadlines from shortest (top) to longest.",
+        "items": [
+          { "text": "India: CERT-In incident report", "value": 1, "show": "6 h" },
+          { "text": "EU: NIS2 early warning", "value": 3, "show": "24 h" },
+          { "text": "EU: GDPR notice to the authority", "value": 10, "show": "72 h" },
+          { "text": "US: SEC 8-K, after deciding it is material", "value": 13, "show": "4 bus. days" },
+          { "text": "EU: NIS2 final report", "value": 100, "show": "1 month" }
+        ],
+        "caption": "Bars scaled so one month = 100. Each rule covers only certain organisations; the SEC clock starts at the materiality decision, not at discovery."
+      },
+      "remember": "Know your clocks before an incident: some are as short as 6 hours, and they start at awareness."
+    }
+  ],
+  "finale": {
+    "name": "Nia's On-Call Questions",
+    "lead": "It's Sunday night and Nia's first on-call week starts tomorrow. She has six what-would-you-do questions. Answer each with what the islands taught you.",
+    "questions": [
+      {
+        "question": "Ransomware is spreading from one laptop. The playbook lets on-call staff isolate machines, but the manager isn't answering. What should Nia do?",
+        "options": [
+          { "text": "Isolate the laptop now, as the playbook allows, then keep trying the manager", "correct": true },
+          { "text": "Wait for the manager's approval before touching anything", "why": "Pre-approved containment exists for exactly this: every minute of waiting lets it spread further." },
+          { "text": "Switch the laptop off to stop it immediately", "why": "Isolating stops the spread too, without wiping the memory evidence that a power-off destroys." }
+        ],
+        "okText": "Right: pre-approved containment, acted on fast."
+      },
+      {
+        "question": "An infected server needs rebuilding. What comes first?",
+        "options": [
+          { "text": "Capture its memory and image the disk", "correct": true },
+          { "text": "Reboot it to see if the problem clears", "why": "A reboot erases memory, the most fleeting evidence." },
+          { "text": "Wipe it straight away so the attacker can't use it", "why": "Isolate it instead; wiping destroys the evidence of how they got in." }
+        ],
+        "okText": "Right: most fleeting evidence first, then rebuild."
+      },
+      {
+        "question": "Ransomware has hit Kestrel's office network. A factory system shares a server with the office, and nobody can yet rule out spread. What's the right move?",
+        "options": [
+          { "text": "Plant and IT leads decide together, and consider a controlled, precautionary stop or manual operation", "correct": true },
+          { "text": "IT immediately unplugs the plant network without telling operations", "why": "Abrupt changes in a plant can create safety problems of their own; operators must be part of the decision." },
+          { "text": "Ignore the plant: the attack is only in IT", "why": "Shared systems are exactly how IT incidents reach OT; Colonial Pipeline stopped as a precaution for this reason." }
+        ],
+        "okText": "Right: safety first, and OT decisions are made with operations."
+      },
+      {
+        "question": "Recovery is starting after a company-wide outage. What should be restored first?",
+        "options": [
+          { "text": "Identity: the systems that control who can log in", "correct": true },
+          { "text": "Email, because everyone is asking for it", "why": "Email depends on identity; restore the foundation first." },
+          { "text": "Whatever the loudest department wants", "why": "Recovery follows dependencies and business priorities agreed in advance, not volume." }
+        ],
+        "okText": "Right: identity first, because everything else depends on it."
+      },
+      {
+        "question": "An Indian company covered by the CERT-In directions notices a listed incident at 09:00. By when must it report to CERT-In?",
+        "options": [
+          { "text": "By 15:00 the same day", "correct": true },
+          { "text": "Within 72 hours, like GDPR", "why": "CERT-In's clock is 6 hours from noticing; 72 hours is GDPR's." },
+          { "text": "Only once the investigation is finished", "why": "Clocks start at awareness, and an initial report can be partial." }
+        ],
+        "okText": "Right: six hours, and a first report can be partial."
+      },
+      {
+        "question": "The attackers demand a ransom. What should Nia's team keep in mind?",
+        "options": [
+          { "text": "Paying a sanctioned group can bring penalties; involve legal and law enforcement, and recover from backups where possible", "correct": true },
+          { "text": "Pay quickly: it's always the cheapest option", "why": "Paying carries sanctions risk, doesn't guarantee recovery, and Norsk Hydro showed a company can recover without paying." },
+          { "text": "Paying is always illegal everywhere", "why": "Not always, but OFAC warns of penalties when the payee is sanctioned, and strongly discourages paying." }
+        ],
+        "okText": "Right. Nia's ready for Monday."
+      }
+    ]
+  },
+  "report": {
+    "heading": "Nia is ready for on-call!",
+    "tiers": {
+      "perfect": "Every island on the first try. You could run the incident bridge yourself.",
+      "great": "A strong grasp of the whole response. Revisit any island where you lost stars.",
+      "pass": "You've walked every island. A second lap will make it stick."
+    },
+    "lessons": [
+      "Prepare, identify, contain, eradicate, recover, learn, and feed the lessons back into preparation.",
+      "One incident commander, a mostly non-technical team, outside help on call, and out-of-band communication.",
+      "Detection quality beats alert quantity; intruders typically go unnoticed for about two weeks.",
+      "Contain fast with pre-approved actions, isolate rather than switch off, collect the most fleeting evidence first.",
+      "In OT safety comes first; layers, zones and an IT/OT DMZ limit what a breach can reach.",
+      "Recover identity first, keep backups offline and tested, and review without blame.",
+      "Know your notification clocks in advance: some are as short as 6 hours."
+    ],
+    "glossaryIntro": "Words from the islands, and what they mean.",
+    "glossaryColumns": ["Word", "Meaning"],
+    "glossary": [
+      { "term": "Incident commander", "meaning": "The one person who runs the response and makes the calls" },
+      { "term": "SOC", "meaning": "Security Operations Centre: the team that watches alerts and investigates" },
+      { "term": "Dwell time", "meaning": "How long an intruder goes unnoticed" },
+      { "term": "Containment", "meaning": "Stopping an incident from spreading" },
+      { "term": "Order of volatility", "meaning": "Collect the most fleeting evidence first (RFC 3227)" },
+      { "term": "OT", "meaning": "Operational technology: systems that run physical processes" },
+      { "term": "Purdue model", "meaning": "Layers from field devices (level 0) up to business IT (levels 4–5)" },
+      { "term": "IT/OT DMZ", "meaning": "The buffer zone between business IT and the plant, often called level 3.5" },
+      { "term": "Safety instrumented system", "meaning": "An independent layer that shuts a process down if limits are crossed" },
+      { "term": "Out-of-band", "meaning": "A communication channel separate from possibly compromised systems" },
+      { "term": "Material", "meaning": "Important enough that investors would want to know (SEC rule)" },
+      { "term": "Blameless review", "meaning": "A lessons-learned review that fixes systems, not people" }
+    ],
+    "source": {
+      "label": "NIST SP 800-61 Rev. 3 (2025); RFC 3227; CERT-In Directions (2022); EU NIS2 and GDPR; SEC Form 8-K Item 1.05; OFAC ransomware advisory (2021); public reporting on the incidents named",
+      "url": "https://csrc.nist.gov/pubs/sp/800/61/r3/final",
+      "note": "Rules change and apply only to certain organisations; check the current text before relying on any deadline."
+    }
+  }
+}

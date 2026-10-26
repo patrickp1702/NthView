@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "title": "The First 24 Hours",
+  "subtitle": "Ten decisions in a ransomware response, from the 2:40 a.m. call to the lessons-learned review",
+  "theme": "ember",
+  "scenario": {
+    "heading": "The scenario",
+    "setting": [
+      "**Kaveri Components** is a fictional mid-sized manufacturer: headquarters and data centre in Chennai, a factory in Hosur, 3,000 employees, and customers across India and the EU. It is not listed in the US. The factory's control systems connect to the business network through a DMZ so that orders and production plans can flow between them.",
+      "At 02:40 on a Tuesday the night-shift SOC analyst calls: ransom notes have appeared on three file servers, and files are being encrypted on more. The CISO is on a long-haul flight with no wifi. The incident response plan names a deputy as incident commander when the CISO can't be reached."
+    ],
+    "role": {
+      "title": "You are the head of security operations, and tonight you are the incident commander",
+      "description": "You know the network well, and you are tempted to dive into the technical work yourself. Your job tonight is different: lead, decide, coordinate. Around you: the SOC team, IT operations, the Hosur plant manager, the company's lawyer, the communications head and the CEO."
+    },
+    "goal": "Limit the damage, keep people and the plant safe, meet legal duties and get the business back without making things worse."
+  },
+  "questions": [
+    {
+      "id": "first-move",
+      "situation": "02:42. The analyst is still on the phone. Encryption is spreading, and you know exactly which servers to look at.",
+      "prompt": "What is your first move?",
+      "options": [
+        { "text": "Log in and start investigating yourself: you're the most experienced person available.", "trap": true, "tempting": "You probably are the best technician awake, and every minute feels precious.", "why": "If the commander disappears into a terminal, nobody coordinates: no one calls legal, the plant or the CEO, and people take conflicting actions. Lead first; let specialists dig." },
+        { "text": "Declare a major incident, take the commander role, open the response bridge, start a timeline and call in the people the plan names.", "correct": true, "why": "Declaring the incident activates the plan: roles, playbooks, pre-approved actions and contacts. A written timeline from minute one also feeds the legal reports and the later review." },
+        { "text": "Ask the analyst to keep watching, and decide in the morning when everyone is in.", "tempting": "Waking a dozen people for what might be a false alarm feels like overreacting.", "why": "Ransom notes on servers are not a maybe. Ransomware can spread through a network in hours, and some legal clocks start now." },
+        { "text": "Email all staff telling them not to open attachments.", "tempting": "Warning people quickly sounds responsible.", "why": "It doesn't stop what is already running, and if the attacker controls email they'll read it too. Communication comes, but through the plan and the right channel." }
+      ],
+      "takeaway": "The commander's first job is to activate the plan and coordinate, not to do the technical work personally."
+    },
+    {
+      "id": "channel",
+      "situation": "03:00. Your company email and chat both run on the same identity system the attacker seems to have reached.",
+      "prompt": "Where does the response team talk?",
+      "options": [
+        { "text": "On corporate email and chat, marked confidential.", "trap": true, "tempting": "It's where everyone already is, and the messages are internal.", "why": "If the attacker has the identity system, they may read the response team's plans, or lock you out of the channel mid-incident. A confidential label doesn't stop them." },
+        { "text": "On the out-of-band channel prepared in advance: a separate conference line and messaging space that doesn't depend on company systems.", "correct": true, "why": "Mature plans set up and test an independent channel, with a contact list kept offline, precisely for this moment." },
+        { "text": "Whatever personal messaging groups people already use.", "tempting": "It is out of band, and it is fast.", "why": "Right instinct, poor execution: ad hoc groups leak, miss people and leave no proper record. The channel should be planned, not improvised." },
+        { "text": "Only by phone, one-to-one.", "tempting": "Phones avoid compromised systems entirely.", "why": "Phones help, but one-to-one calls fragment the picture. The team needs one shared space and one timeline." }
+      ],
+      "takeaway": "Assume the attacker can read normal channels; use a pre-arranged out-of-band one."
+    },
+    {
+      "id": "contain",
+      "situation": "03:10. Encryption has reached a dozen servers. The playbook pre-approves isolating affected servers and disabling compromised accounts. Cutting the whole company off the internet would also stop the factory's ordering system.",
+      "prompt": "What do you do?",
+      "options": [
+        { "text": "Isolate the affected servers and disable the compromised accounts now, as the playbook allows; escalate the bigger internet cut to the CEO within the hour.", "correct": true, "why": "Pre-approved containment exists so the obvious moves don't wait for a meeting. Decisions with big business impact go up fast, but they don't hold up the urgent ones." },
+        { "text": "Wait until you understand the full scope before containing anything.", "trap": true, "tempting": "Acting on half a picture can feel reckless, and you don't want to tip off the attacker.", "why": "Encryption spreads while you study it, and every few minutes more machines are lost. Contain what you know now and keep investigating." },
+        { "text": "Power off every server in the data centre.", "tempting": "It's the fastest way to stop all encryption at once.", "why": "It stops spread but destroys memory evidence, can corrupt systems mid-write and takes down everything, including healthy services. Isolation is more precise." },
+        { "text": "Cut the internet for the whole company yourself, right now.", "tempting": "It might stop data leaving.", "why": "It may be the right call soon, but it stops the factory and every customer system. That trade-off belongs with the CEO, quickly, not with you alone at 3 a.m." }
+      ],
+      "takeaway": "Take pre-approved containment steps at once; escalate the high-impact ones fast."
+    },
+    {
+      "id": "evidence",
+      "situation": "04:30. IT operations wants to wipe and reinstall the infected servers immediately to get file shares back before staff arrive.",
+      "prompt": "How do you respond?",
+      "options": [
+        { "text": "Go ahead: getting the business back is what matters.", "trap": true, "tempting": "The pressure to restore is real, and wiping feels like cleaning up.", "why": "Wiping now destroys the evidence of how the attacker got in and what they touched, and you'd be rebuilding into a network they may still control. Legal also needs that evidence to judge what must be reported." },
+        { "text": "Not yet: capture memory and disk images of affected servers and preserve logs first, then rebuild once the attacker is out.", "correct": true, "why": "Collect the most volatile evidence first (memory before disk, per RFC 3227), record chain of custody, then rebuild. The order is contain, preserve, eradicate, recover." },
+        { "text": "Reconnect them to the network so you can watch what the attacker does.", "tempting": "Watching an intruder can reveal their tools and goals.", "why": "Deliberately letting active ransomware back onto the network risks more encryption. Observation belongs to the investigation, done safely, not to live production." },
+        { "text": "Leave them exactly as they are and touch nothing for a week.", "tempting": "Perfect preservation sounds ideal for forensics.", "why": "Evidence can be captured in hours. Freezing everything for a week is an outage you don't need." }
+      ],
+      "takeaway": "Isolate, capture evidence, then rebuild: wiping first erases the answers."
+    },
+    {
+      "id": "plant",
+      "situation": "05:15. No sign of the attacker in the Hosur plant yet. But the plant's systems talk to the business network through the DMZ, and you can't yet rule out that the intruder reached it.",
+      "prompt": "What do you do about the plant?",
+      "options": [
+        { "text": "Nothing: there's no evidence it reached the plant.", "trap": true, "tempting": "Not acting on what you can't see feels reasonable, and stopping a factory is expensive.", "why": "No evidence of spread is not evidence of no spread. Colonial Pipeline halted its pipeline in 2021 as a precaution after ransomware hit its IT network, because it couldn't yet rule out the risk." },
+        { "text": "With the plant manager, cut or tightly restrict the IT/OT connections at the DMZ and decide together whether the plant can run safely on its own or should stop.", "correct": true, "why": "In OT the people who run the process decide what is safe. Severing the IT/OT conduits protects the plant, and the run-or-stop decision weighs safety, uncertainty and cost." },
+        { "text": "Order the plant to shut down immediately.", "tempting": "Stopping everything sounds like the safest option.", "why": "It might be right, but an abrupt, uncoordinated stop can itself be unsafe for some processes. Make the call with operations, not over their heads." },
+        { "text": "Install your IT security agents on all plant computers tonight.", "tempting": "More visibility in the plant sounds good.", "why": "Many control systems can't safely run such software, and untested changes in a plant during an incident create new risks. OT teams rely more on passive network monitoring." }
+      ],
+      "takeaway": "Protect OT by cutting IT/OT links and deciding run-or-stop with operations; absence of evidence is not safety."
+    },
+    {
+      "id": "clocks",
+      "situation": "07:00. More than four hours since the 02:40 call. Your lawyer asks what has to be reported, to whom, and when.",
+      "prompt": "What's the right approach?",
+      "options": [
+        { "text": "Wait until the investigation is complete, so the report is accurate.", "trap": true, "tempting": "Reporting half-understood facts feels risky, and accuracy matters to regulators.", "why": "Many clocks don't wait. India's CERT-In directions require reporting covered incidents within 6 hours of noticing them, and partial information is allowed, to be updated later." },
+        { "text": "File an initial CERT-In report before 08:40 with what you know, and start the clocks for the EU: NIS2 if the company is in scope, and GDPR's 72 hours if EU customers' personal data was affected.", "correct": true, "why": "Report early with what you know, then update. Legal keeps the list of which rules apply and their deadlines. India's DPDP breach duties only take effect from 13 May 2027, and the SEC rule doesn't apply to a company not listed in the US." },
+        { "text": "Report only if customer data turns out to have been stolen.", "tempting": "Privacy laws are about personal data, so data theft seems to be the trigger.", "why": "Some rules, such as CERT-In's and NIS2's, cover incidents themselves (ransomware included), not just data breaches." },
+        { "text": "Let the CERT-In report wait until the CISO lands.", "tempting": "A report to a regulator feels like the CISO's call.", "why": "The plan should name who can file in the CISO's absence. The clock doesn't stop for a flight." }
+      ],
+      "takeaway": "Notification clocks start at awareness: report early with what you know, then update."
+    },
+    {
+      "id": "ransom",
+      "situation": "09:30. A note demands payment and claims the attackers copied customer and design files. It gives a chat link to \"negotiate\".",
+      "prompt": "What do you do with the demand?",
+      "options": [
+        { "text": "Recommend paying quickly to end the outage.", "trap": true, "tempting": "The business is losing money every hour, and paying looks like the fastest way back.", "why": "Payment guarantees nothing: decryptors can be slow or broken, and stolen data may still leak. Paying a sanctioned group can also bring penalties, as the US Treasury's OFAC warns. It is a leadership and legal decision, not a quick fix." },
+        { "text": "Take it to leadership and legal: check backups and what really was taken, involve law enforcement and CERT-In, check sanctions risk, and decide deliberately.", "correct": true, "why": "This is a business, legal and ethical decision. Good backups, verified facts about what was stolen and early contact with authorities all improve it, and prompt reporting counts in your favour with regulators." },
+        { "text": "Open the chat link yourself and start negotiating for a lower price.", "tempting": "Engaging early might buy time or reveal information.", "why": "Ad hoc contact can leak information, set expectations and create legal problems. If contact is ever made, it is planned with counsel and often handled by specialists." },
+        { "text": "Treat it as a bluff and ignore the claim of stolen data.", "tempting": "Attackers do exaggerate.", "why": "They also often do steal data. Verify from your own evidence what left the network; that decides who must be notified." }
+      ],
+      "takeaway": "A ransom is a leadership and legal decision informed by backups, evidence and authorities, never a 3 a.m. reflex."
+    },
+    {
+      "id": "recovery-order",
+      "situation": "Day 2. The attacker's access is removed. The online backup server was encrypted too, but last week's offline copies survived. The identity system (who can log in) was compromised.",
+      "prompt": "In what order do you restore?",
+      "options": [
+        { "text": "File shares first: that's what staff are complaining about.", "trap": true, "tempting": "Visible progress calms everyone, and file shares are what people use every day.", "why": "Everything depends on identity. Restore file servers onto a compromised identity system and the attacker may simply walk back in." },
+        { "text": "Rebuild identity from a clean source first, then core infrastructure, then business applications by priority, such as orders and the plant interface.", "correct": true, "why": "Identity first, then the things everything depends on, then priorities. Maersk's 2017 NotPetya recovery hinged on one surviving copy of its domain controller in Ghana, offline thanks to a power cut." },
+        { "text": "Restore everything at once in parallel to finish faster.", "tempting": "Parallel work is usually faster.", "why": "Without identity and core services in place, parallel restores fail or have to be redone. Some steps are serial by nature." },
+        { "text": "Wait for a vendor to rebuild everything from scratch.", "tempting": "A clean slate sounds safest.", "why": "You have clean offline copies; ignoring them adds weeks. Rebuild what's compromised and restore the rest." }
+      ],
+      "takeaway": "Restore identity first, then core infrastructure, then business priorities."
+    },
+    {
+      "id": "statement",
+      "situation": "Day 2, noon. A journalist calls, and two big EU customers ask whether their data is safe. The investigation isn't finished.",
+      "prompt": "What do you say?",
+      "options": [
+        { "text": "\"No customer data was affected.\"", "trap": true, "tempting": "It reassures customers, and you hope it's true.", "why": "You don't know yet, and the attackers claim theft. A confident denial that later proves false damages trust far more than the incident itself." },
+        { "text": "A short, honest holding statement agreed by communications and legal: what happened, what you're doing, what you don't know yet, and when you'll update.", "correct": true, "why": "Facts only, no speculation, and a regular update rhythm. Norsk Hydro was widely praised for its open communication during its 2019 ransomware attack." },
+        { "text": "\"No comment\" until the investigation is over.", "tempting": "Saying nothing avoids saying something wrong.", "why": "Silence lets rumours fill the gap, and customers with contracts may be owed notice. You can be honest without being speculative." },
+        { "text": "Let each team answer the questions they receive.", "tempting": "It's quicker than routing everything through one team.", "why": "Different answers from different people are how mixed messages and leaks happen. One voice, coordinated with the commander." }
+      ],
+      "takeaway": "Communicate early, honestly and with one voice; never claim what you don't yet know."
+    },
+    {
+      "id": "lessons",
+      "situation": "Two weeks later. The investigation finds the attacker got in through an old VPN account that had no multi-factor authentication, still active after its owner left: the same kind of gap behind the 2021 Colonial Pipeline attack.",
+      "prompt": "How do you run the lessons-learned review?",
+      "options": [
+        { "text": "Find out who left the account active and discipline them.", "trap": true, "tempting": "Accountability feels necessary after a costly incident.", "why": "Blame makes people hide problems next time. The real question is why the system allowed an old, single-factor account to survive." },
+        { "text": "A blameless review: trace why the gap existed, fix the root causes (MFA everywhere, retire stale accounts), update the playbooks and test them in a tabletop.", "correct": true, "why": "Lessons learned feed back into preparation. Fixing the process, not punishing a person, is what makes the next incident smaller." },
+        { "text": "Buy a new security product and move on.", "tempting": "New tools feel like decisive action.", "why": "A tool doesn't fix a stale account process or an untested playbook. Understand the gaps first, then decide what to buy, if anything." },
+        { "text": "Skip it: everyone is exhausted and the systems are back.", "tempting": "The team has earned a rest.", "why": "Rest, yes, but then hold the review while memories are fresh. Skipping it means paying for the same lesson twice." }
+      ],
+      "takeaway": "Run a blameless review and turn its findings into better preparation."
+    }
+  ],
+  "summary": {
+    "heading": "What you've learned",
+    "closing": [
+      "A good response starts with leadership, not keyboards: declare the incident, take command, move the team to a safe channel and use the playbook's pre-approved containment. Preserve evidence before you rebuild, protect the plant by cutting IT/OT links with the people who run it, and start the legal clocks the moment you know.",
+      "The hard calls (shutting down, paying, what to say publicly) go to leadership with facts from the investigation and advice from legal. Recovery follows dependencies, identity first. And the review that follows is blameless, because the goal is a smaller incident next time."
+    ]
+  }
+}

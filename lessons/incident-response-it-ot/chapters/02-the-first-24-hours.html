@@ -1,0 +1,1129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>The First 24 Hours — NthView</title>
+</head>
+<body>
+  <div id="app"></div>
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Inter:wght@400;600;700&family=Lora:wght@400;600;700&family=Nunito:wght@500;700;900&family=Space+Grotesk:wght@500;700&display=swap">
+
+  <script type="application/json" id="nthview-data">
+{
+  "schemaVersion": 1,
+  "title": "The First 24 Hours",
+  "subtitle": "Ten decisions in a ransomware response, from the 2:40 a.m. call to the lessons-learned review",
+  "theme": "ember",
+  "scenario": {
+    "heading": "The scenario",
+    "setting": [
+      "**Kaveri Components** is a fictional mid-sized manufacturer: headquarters and data centre in Chennai, a factory in Hosur, 3,000 employees, and customers across India and the EU. It is not listed in the US. The factory's control systems connect to the business network through a DMZ so that orders and production plans can flow between them.",
+      "At 02:40 on a Tuesday the night-shift SOC analyst calls: ransom notes have appeared on three file servers, and files are being encrypted on more. The CISO is on a long-haul flight with no wifi. The incident response plan names a deputy as incident commander when the CISO can't be reached."
+    ],
+    "role": {
+      "title": "You are the head of security operations, and tonight you are the incident commander",
+      "description": "You know the network well, and you are tempted to dive into the technical work yourself. Your job tonight is different: lead, decide, coordinate. Around you: the SOC team, IT operations, the Hosur plant manager, the company's lawyer, the communications head and the CEO."
+    },
+    "goal": "Limit the damage, keep people and the plant safe, meet legal duties and get the business back without making things worse."
+  },
+  "questions": [
+    {
+      "id": "first-move",
+      "situation": "02:42. The analyst is still on the phone. Encryption is spreading, and you know exactly which servers to look at.",
+      "prompt": "What is your first move?",
+      "options": [
+        {
+          "text": "Log in and start investigating yourself: you're the most experienced person available.",
+          "trap": true,
+          "tempting": "You probably are the best technician awake, and every minute feels precious.",
+          "why": "If the commander disappears into a terminal, nobody coordinates: no one calls legal, the plant or the CEO, and people take conflicting actions. Lead first; let specialists dig."
+        },
+        {
+          "text": "Declare a major incident, take the commander role, open the response bridge, start a timeline and call in the people the plan names.",
+          "correct": true,
+          "why": "Declaring the incident activates the plan: roles, playbooks, pre-approved actions and contacts. A written timeline from minute one also feeds the legal reports and the later review."
+        },
+        {
+          "text": "Ask the analyst to keep watching, and decide in the morning when everyone is in.",
+          "tempting": "Waking a dozen people for what might be a false alarm feels like overreacting.",
+          "why": "Ransom notes on servers are not a maybe. Ransomware can spread through a network in hours, and some legal clocks start now."
+        },
+        {
+          "text": "Email all staff telling them not to open attachments.",
+          "tempting": "Warning people quickly sounds responsible.",
+          "why": "It doesn't stop what is already running, and if the attacker controls email they'll read it too. Communication comes, but through the plan and the right channel."
+        }
+      ],
+      "takeaway": "The commander's first job is to activate the plan and coordinate, not to do the technical work personally."
+    },
+    {
+      "id": "channel",
+      "situation": "03:00. Your company email and chat both run on the same identity system the attacker seems to have reached.",
+      "prompt": "Where does the response team talk?",
+      "options": [
+        {
+          "text": "On corporate email and chat, marked confidential.",
+          "trap": true,
+          "tempting": "It's where everyone already is, and the messages are internal.",
+          "why": "If the attacker has the identity system, they may read the response team's plans, or lock you out of the channel mid-incident. A confidential label doesn't stop them."
+        },
+        {
+          "text": "On the out-of-band channel prepared in advance: a separate conference line and messaging space that doesn't depend on company systems.",
+          "correct": true,
+          "why": "Mature plans set up and test an independent channel, with a contact list kept offline, precisely for this moment."
+        },
+        {
+          "text": "Whatever personal messaging groups people already use.",
+          "tempting": "It is out of band, and it is fast.",
+          "why": "Right instinct, poor execution: ad hoc groups leak, miss people and leave no proper record. The channel should be planned, not improvised."
+        },
+        {
+          "text": "Only by phone, one-to-one.",
+          "tempting": "Phones avoid compromised systems entirely.",
+          "why": "Phones help, but one-to-one calls fragment the picture. The team needs one shared space and one timeline."
+        }
+      ],
+      "takeaway": "Assume the attacker can read normal channels; use a pre-arranged out-of-band one."
+    },
+    {
+      "id": "contain",
+      "situation": "03:10. Encryption has reached a dozen servers. The playbook pre-approves isolating affected servers and disabling compromised accounts. Cutting the whole company off the internet would also stop the factory's ordering system.",
+      "prompt": "What do you do?",
+      "options": [
+        {
+          "text": "Isolate the affected servers and disable the compromised accounts now, as the playbook allows; escalate the bigger internet cut to the CEO within the hour.",
+          "correct": true,
+          "why": "Pre-approved containment exists so the obvious moves don't wait for a meeting. Decisions with big business impact go up fast, but they don't hold up the urgent ones."
+        },
+        {
+          "text": "Wait until you understand the full scope before containing anything.",
+          "trap": true,
+          "tempting": "Acting on half a picture can feel reckless, and you don't want to tip off the attacker.",
+          "why": "Encryption spreads while you study it, and every few minutes more machines are lost. Contain what you know now and keep investigating."
+        },
+        {
+          "text": "Power off every server in the data centre.",
+          "tempting": "It's the fastest way to stop all encryption at once.",
+          "why": "It stops spread but destroys memory evidence, can corrupt systems mid-write and takes down everything, including healthy services. Isolation is more precise."
+        },
+        {
+          "text": "Cut the internet for the whole company yourself, right now.",
+          "tempting": "It might stop data leaving.",
+          "why": "It may be the right call soon, but it stops the factory and every customer system. That trade-off belongs with the CEO, quickly, not with you alone at 3 a.m."
+        }
+      ],
+      "takeaway": "Take pre-approved containment steps at once; escalate the high-impact ones fast."
+    },
+    {
+      "id": "evidence",
+      "situation": "04:30. IT operations wants to wipe and reinstall the infected servers immediately to get file shares back before staff arrive.",
+      "prompt": "How do you respond?",
+      "options": [
+        {
+          "text": "Go ahead: getting the business back is what matters.",
+          "trap": true,
+          "tempting": "The pressure to restore is real, and wiping feels like cleaning up.",
+          "why": "Wiping now destroys the evidence of how the attacker got in and what they touched, and you'd be rebuilding into a network they may still control. Legal also needs that evidence to judge what must be reported."
+        },
+        {
+          "text": "Not yet: capture memory and disk images of affected servers and preserve logs first, then rebuild once the attacker is out.",
+          "correct": true,
+          "why": "Collect the most volatile evidence first (memory before disk, per RFC 3227), record chain of custody, then rebuild. The order is contain, preserve, eradicate, recover."
+        },
+        {
+          "text": "Reconnect them to the network so you can watch what the attacker does.",
+          "tempting": "Watching an intruder can reveal their tools and goals.",
+          "why": "Deliberately letting active ransomware back onto the network risks more encryption. Observation belongs to the investigation, done safely, not to live production."
+        },
+        {
+          "text": "Leave them exactly as they are and touch nothing for a week.",
+          "tempting": "Perfect preservation sounds ideal for forensics.",
+          "why": "Evidence can be captured in hours. Freezing everything for a week is an outage you don't need."
+        }
+      ],
+      "takeaway": "Isolate, capture evidence, then rebuild: wiping first erases the answers."
+    },
+    {
+      "id": "plant",
+      "situation": "05:15. No sign of the attacker in the Hosur plant yet. But the plant's systems talk to the business network through the DMZ, and you can't yet rule out that the intruder reached it.",
+      "prompt": "What do you do about the plant?",
+      "options": [
+        {
+          "text": "Nothing: there's no evidence it reached the plant.",
+          "trap": true,
+          "tempting": "Not acting on what you can't see feels reasonable, and stopping a factory is expensive.",
+          "why": "No evidence of spread is not evidence of no spread. Colonial Pipeline halted its pipeline in 2021 as a precaution after ransomware hit its IT network, because it couldn't yet rule out the risk."
+        },
+        {
+          "text": "With the plant manager, cut or tightly restrict the IT/OT connections at the DMZ and decide together whether the plant can run safely on its own or should stop.",
+          "correct": true,
+          "why": "In OT the people who run the process decide what is safe. Severing the IT/OT conduits protects the plant, and the run-or-stop decision weighs safety, uncertainty and cost."
+        },
+        {
+          "text": "Order the plant to shut down immediately.",
+          "tempting": "Stopping everything sounds like the safest option.",
+          "why": "It might be right, but an abrupt, uncoordinated stop can itself be unsafe for some processes. Make the call with operations, not over their heads."
+        },
+        {
+          "text": "Install your IT security agents on all plant computers tonight.",
+          "tempting": "More visibility in the plant sounds good.",
+          "why": "Many control systems can't safely run such software, and untested changes in a plant during an incident create new risks. OT teams rely more on passive network monitoring."
+        }
+      ],
+      "takeaway": "Protect OT by cutting IT/OT links and deciding run-or-stop with operations; absence of evidence is not safety."
+    },
+    {
+      "id": "clocks",
+      "situation": "07:00. More than four hours since the 02:40 call. Your lawyer asks what has to be reported, to whom, and when.",
+      "prompt": "What's the right approach?",
+      "options": [
+        {
+          "text": "Wait until the investigation is complete, so the report is accurate.",
+          "trap": true,
+          "tempting": "Reporting half-understood facts feels risky, and accuracy matters to regulators.",
+          "why": "Many clocks don't wait. India's CERT-In directions require reporting covered incidents within 6 hours of noticing them, and partial information is allowed, to be updated later."
+        },
+        {
+          "text": "File an initial CERT-In report before 08:40 with what you know, and start the clocks for the EU: NIS2 if the company is in scope, and GDPR's 72 hours if EU customers' personal data was affected.",
+          "correct": true,
+          "why": "Report early with what you know, then update. Legal keeps the list of which rules apply and their deadlines. India's DPDP breach duties only take effect from 13 May 2027, and the SEC rule doesn't apply to a company not listed in the US."
+        },
+        {
+          "text": "Report only if customer data turns out to have been stolen.",
+          "tempting": "Privacy laws are about personal data, so data theft seems to be the trigger.",
+          "why": "Some rules, such as CERT-In's and NIS2's, cover incidents themselves (ransomware included), not just data breaches."
+        },
+        {
+          "text": "Let the CERT-In report wait until the CISO lands.",
+          "tempting": "A report to a regulator feels like the CISO's call.",
+          "why": "The plan should name who can file in the CISO's absence. The clock doesn't stop for a flight."
+        }
+      ],
+      "takeaway": "Notification clocks start at awareness: report early with what you know, then update."
+    },
+    {
+      "id": "ransom",
+      "situation": "09:30. A note demands payment and claims the attackers copied customer and design files. It gives a chat link to \"negotiate\".",
+      "prompt": "What do you do with the demand?",
+      "options": [
+        {
+          "text": "Recommend paying quickly to end the outage.",
+          "trap": true,
+          "tempting": "The business is losing money every hour, and paying looks like the fastest way back.",
+          "why": "Payment guarantees nothing: decryptors can be slow or broken, and stolen data may still leak. Paying a sanctioned group can also bring penalties, as the US Treasury's OFAC warns. It is a leadership and legal decision, not a quick fix."
+        },
+        {
+          "text": "Take it to leadership and legal: check backups and what really was taken, involve law enforcement and CERT-In, check sanctions risk, and decide deliberately.",
+          "correct": true,
+          "why": "This is a business, legal and ethical decision. Good backups, verified facts about what was stolen and early contact with authorities all improve it, and prompt reporting counts in your favour with regulators."
+        },
+        {
+          "text": "Open the chat link yourself and start negotiating for a lower price.",
+          "tempting": "Engaging early might buy time or reveal information.",
+          "why": "Ad hoc contact can leak information, set expectations and create legal problems. If contact is ever made, it is planned with counsel and often handled by specialists."
+        },
+        {
+          "text": "Treat it as a bluff and ignore the claim of stolen data.",
+          "tempting": "Attackers do exaggerate.",
+          "why": "They also often do steal data. Verify from your own evidence what left the network; that decides who must be notified."
+        }
+      ],
+      "takeaway": "A ransom is a leadership and legal decision informed by backups, evidence and authorities, never a 3 a.m. reflex."
+    },
+    {
+      "id": "recovery-order",
+      "situation": "Day 2. The attacker's access is removed. The online backup server was encrypted too, but last week's offline copies survived. The identity system (who can log in) was compromised.",
+      "prompt": "In what order do you restore?",
+      "options": [
+        {
+          "text": "File shares first: that's what staff are complaining about.",
+          "trap": true,
+          "tempting": "Visible progress calms everyone, and file shares are what people use every day.",
+          "why": "Everything depends on identity. Restore file servers onto a compromised identity system and the attacker may simply walk back in."
+        },
+        {
+          "text": "Rebuild identity from a clean source first, then core infrastructure, then business applications by priority, such as orders and the plant interface.",
+          "correct": true,
+          "why": "Identity first, then the things everything depends on, then priorities. Maersk's 2017 NotPetya recovery hinged on one surviving copy of its domain controller in Ghana, offline thanks to a power cut."
+        },
+        {
+          "text": "Restore everything at once in parallel to finish faster.",
+          "tempting": "Parallel work is usually faster.",
+          "why": "Without identity and core services in place, parallel restores fail or have to be redone. Some steps are serial by nature."
+        },
+        {
+          "text": "Wait for a vendor to rebuild everything from scratch.",
+          "tempting": "A clean slate sounds safest.",
+          "why": "You have clean offline copies; ignoring them adds weeks. Rebuild what's compromised and restore the rest."
+        }
+      ],
+      "takeaway": "Restore identity first, then core infrastructure, then business priorities."
+    },
+    {
+      "id": "statement",
+      "situation": "Day 2, noon. A journalist calls, and two big EU customers ask whether their data is safe. The investigation isn't finished.",
+      "prompt": "What do you say?",
+      "options": [
+        {
+          "text": "\"No customer data was affected.\"",
+          "trap": true,
+          "tempting": "It reassures customers, and you hope it's true.",
+          "why": "You don't know yet, and the attackers claim theft. A confident denial that later proves false damages trust far more than the incident itself."
+        },
+        {
+          "text": "A short, honest holding statement agreed by communications and legal: what happened, what you're doing, what you don't know yet, and when you'll update.",
+          "correct": true,
+          "why": "Facts only, no speculation, and a regular update rhythm. Norsk Hydro was widely praised for its open communication during its 2019 ransomware attack."
+        },
+        {
+          "text": "\"No comment\" until the investigation is over.",
+          "tempting": "Saying nothing avoids saying something wrong.",
+          "why": "Silence lets rumours fill the gap, and customers with contracts may be owed notice. You can be honest without being speculative."
+        },
+        {
+          "text": "Let each team answer the questions they receive.",
+          "tempting": "It's quicker than routing everything through one team.",
+          "why": "Different answers from different people are how mixed messages and leaks happen. One voice, coordinated with the commander."
+        }
+      ],
+      "takeaway": "Communicate early, honestly and with one voice; never claim what you don't yet know."
+    },
+    {
+      "id": "lessons",
+      "situation": "Two weeks later. The investigation finds the attacker got in through an old VPN account that had no multi-factor authentication, still active after its owner left: the same kind of gap behind the 2021 Colonial Pipeline attack.",
+      "prompt": "How do you run the lessons-learned review?",
+      "options": [
+        {
+          "text": "Find out who left the account active and discipline them.",
+          "trap": true,
+          "tempting": "Accountability feels necessary after a costly incident.",
+          "why": "Blame makes people hide problems next time. The real question is why the system allowed an old, single-factor account to survive."
+        },
+        {
+          "text": "A blameless review: trace why the gap existed, fix the root causes (MFA everywhere, retire stale accounts), update the playbooks and test them in a tabletop.",
+          "correct": true,
+          "why": "Lessons learned feed back into preparation. Fixing the process, not punishing a person, is what makes the next incident smaller."
+        },
+        {
+          "text": "Buy a new security product and move on.",
+          "tempting": "New tools feel like decisive action.",
+          "why": "A tool doesn't fix a stale account process or an untested playbook. Understand the gaps first, then decide what to buy, if anything."
+        },
+        {
+          "text": "Skip it: everyone is exhausted and the systems are back.",
+          "tempting": "The team has earned a rest.",
+          "why": "Rest, yes, but then hold the review while memories are fresh. Skipping it means paying for the same lesson twice."
+        }
+      ],
+      "takeaway": "Run a blameless review and turn its findings into better preparation."
+    }
+  ],
+  "summary": {
+    "heading": "What you've learned",
+    "closing": [
+      "A good response starts with leadership, not keyboards: declare the incident, take command, move the team to a safe channel and use the playbook's pre-approved containment. Preserve evidence before you rebuild, protect the plant by cutting IT/OT links with the people who run it, and start the legal clocks the moment you know.",
+      "The hard calls (shutting down, paying, what to say publicly) go to leadership with facts from the investigation and advice from legal. Recovery follows dependencies, identity first. And the review that follows is blameless, because the goal is a smaller incident next time."
+    ]
+  }
+}
+  </script>
+
+  <script>
+/* NthView — scenario-quiz validator — schemaVersion 1
+ * Usage (Node): node validate.js data.json
+ * Browser: defines window.NthView.validate
+ */
+(function (root, factory) {
+  var api = factory();
+  root.NthView = root.NthView || {};
+  root.NthView.validate = api.validate;
+  root.NthView.SUPPORTED_VERSIONS = api.SUPPORTED_VERSIONS;
+  if (typeof module !== "undefined" && module.exports) {
+    module.exports = api;
+  }
+})(typeof globalThis !== "undefined" ? globalThis : this, function () {
+  "use strict";
+
+  var SUPPORTED_VERSIONS = [1];
+  var KEBAB = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+  var THEMES = ["midnight", "sunrise", "forest", "paper", "neon", "ocean", "ember", "lavender"];
+
+  function validate(data) {
+    var errors = [];
+    var warnings = [];
+    function error(path, message) { errors.push({ path: path, message: message }); }
+    function warn(path, message) { warnings.push({ path: path, message: message }); }
+
+    if (data === null || typeof data !== "object" || Array.isArray(data)) {
+      error("$", "expected an object, got " + describe(data));
+      return result();
+    }
+    if (SUPPORTED_VERSIONS.indexOf(data.schemaVersion) === -1) {
+      error("schemaVersion", "expected " + SUPPORTED_VERSIONS.join(" or ") +
+        ", got " + describe(data.schemaVersion) +
+        " (this validator understands version " + SUPPORTED_VERSIONS.join(", ") + ")");
+      return result();
+    }
+
+    checkRoot(data, error, warn);
+    return result();
+
+    function result() {
+      return { valid: errors.length === 0, errors: errors, warnings: warnings };
+    }
+  }
+
+  // ---- view-specific rules: mirror references/schema.md exactly ----------
+  function checkRoot(data, error, warn) {
+    requireString(data, "title", "$", 1, 80, error);
+    optionalString(data, "subtitle", "$", 200, error);
+    if (data.theme !== undefined && THEMES.indexOf(data.theme) === -1) {
+      error("theme", "must be one of " + THEMES.join(", ") + "; got " + describe(data.theme) + " (or omit it to derive one from the title)");
+    }
+
+    if (requireObject(data, "scenario", "$", error)) {
+      var sc = data.scenario;
+      optionalString(sc, "heading", "scenario", 60, error);
+      requireStringArray(sc, "setting", "scenario", 1, 6, 600, error);
+      if (requireObject(sc, "role", "scenario", error)) {
+        requireString(sc.role, "title", "scenario.role", 1, 120, error);
+        optionalString(sc.role, "description", "scenario.role", 600, error);
+      }
+      optionalString(sc, "goal", "scenario", 300, error);
+    }
+
+    if (requireArray(data, "questions", "$", 1, 40, error)) {
+      var ids = [], anyTrap = false;
+      data.questions.forEach(function (q, i) {
+        if (checkQuestion(q, "questions[" + i + "]", ids, error, warn)) anyTrap = true;
+      });
+      if (data.questions.length < 4) warn("questions", "only " + data.questions.length + " question(s); 6–12 give a scenario room to teach");
+      if (!anyTrap && data.questions.length) warn("questions", "no option is marked \"trap\": true; marking the common wrong answer is the most instructive part");
+    }
+
+    if (requireObject(data, "summary", "$", error)) {
+      optionalString(data.summary, "heading", "summary", 80, error);
+      requireStringArray(data.summary, "closing", "summary", 1, 5, 600, error);
+      optionalStringArray(data.summary, "takeaways", "summary", 0, 20, 200, error);
+    }
+  }
+
+  function checkQuestion(q, path, ids, error, warn) {
+    if (!isObject(q, path, error)) return false;
+    if (requireString(q, "id", path, 1, 40, error)) {
+      if (!KEBAB.test(q.id)) error(path + ".id", "must be kebab-case (lowercase letters, digits, single hyphens), got " + describe(q.id));
+      else if (ids.indexOf(q.id) !== -1) error(path + ".id", "duplicate question id " + describe(q.id) + "; ids must be unique");
+      else ids.push(q.id);
+    }
+    optionalString(q, "situation", path, 900, error);
+    requireString(q, "prompt", path, 1, 400, error);
+    requireString(q, "takeaway", path, 1, 300, error);
+    var hasTrap = false;
+    if (requireArray(q, "options", path, 2, 8, error)) {
+      var correct = 0, traps = 0, texts = [];
+      q.options.forEach(function (o, i) {
+        var p = path + ".options[" + i + "]";
+        if (!isObject(o, p, error)) return;
+        requireString(o, "text", p, 1, 240, error);
+        optionalBool(o, "correct", p, error);
+        requireString(o, "why", p, 1, 600, error);
+        optionalString(o, "tempting", p, 400, error);
+        optionalBool(o, "trap", p, error);
+        if (o.correct === true) correct++;
+        if (o.trap === true) {
+          traps++;
+          if (o.correct === true) error(p + ".trap", "the trap must be a wrong option, but this option is marked correct");
+          if (o.tempting === undefined) error(p + ".tempting", "is required on the trap option (say what makes people pick it)");
+        } else if (o.correct !== true && o.tempting === undefined) {
+          warn(p, "wrong option has no \"tempting\" note; acknowledging why people pick it teaches better");
+        }
+        if (typeof o.text === "string") {
+          var key = o.text.trim().toLowerCase();
+          if (texts.indexOf(key) !== -1) warn(p + ".text", "duplicate option text " + describe(o.text));
+          texts.push(key);
+        }
+      });
+      if (correct !== 1) error(path + ".options", "exactly one option must have \"correct\": true, found " + correct);
+      if (traps > 1) error(path + ".options", "at most one option may have \"trap\": true, found " + traps);
+      hasTrap = traps === 1;
+      if (q.options.length === 2) warn(path + ".options", "only 2 options; 3–6 make the wrong answers more instructive");
+    }
+    return hasTrap;
+  }
+
+  // ---- shared helpers (identical in every view) --------------------------
+  function describe(v) {
+    if (v === null) return "null";
+    if (v === undefined) return "undefined (missing)";
+    if (Array.isArray(v)) return "array";
+    if (typeof v === "string") return JSON.stringify(v);
+    if (typeof v === "object") return "object";
+    return String(v);
+  }
+  function join(parent, key) {
+    return parent === "$" ? key : parent + "." + key;
+  }
+  function isObject(v, path, error) {
+    if (v === null || typeof v !== "object" || Array.isArray(v)) { error(path, "must be an object, got " + describe(v)); return false; }
+    return true;
+  }
+  function checkStr(v, path, min, max, error) {
+    if (typeof v !== "string") { error(path, "must be a string, got " + describe(v)); return false; }
+    if (v.trim().length < min) { error(path, "must be a non-empty string"); return false; }
+    if (v.length > max) { error(path, "must be at most " + max + " characters, got " + v.length); return false; }
+    return true;
+  }
+  function requireString(obj, key, parent, min, max, error) {
+    return checkStr(obj[key], join(parent, key), min, max, error);
+  }
+  function optionalString(obj, key, parent, max, error) {
+    if (obj[key] === undefined) return true;
+    return checkStr(obj[key], join(parent, key), 1, max, error);
+  }
+  function requireObject(obj, key, parent, error) {
+    return isObject(obj[key], join(parent, key), error);
+  }
+  function requireArray(obj, key, parent, min, max, error) {
+    var path = join(parent, key), v = obj[key];
+    if (!Array.isArray(v)) { error(path, "must be an array, got " + describe(v)); return false; }
+    if (v.length < min) { error(path, "must have at least " + min + " item(s), got " + v.length); return false; }
+    if (max !== null && v.length > max) { error(path, "must have at most " + max + " item(s), got " + v.length); return false; }
+    return true;
+  }
+  function requireStringArray(obj, key, parent, min, max, maxChars, error) {
+    if (!requireArray(obj, key, parent, min, max, error)) return false;
+    var ok = true;
+    obj[key].forEach(function (s, i) { if (!checkStr(s, join(parent, key) + "[" + i + "]", 1, maxChars, error)) ok = false; });
+    return ok;
+  }
+  function optionalStringArray(obj, key, parent, min, max, maxChars, error) {
+    if (obj[key] === undefined) return true;
+    return requireStringArray(obj, key, parent, min, max, maxChars, error);
+  }
+  function optionalBool(obj, key, parent, error) {
+    if (obj[key] === undefined) return true;
+    if (typeof obj[key] !== "boolean") { error(join(parent, key), "must be true or false, got " + describe(obj[key])); return false; }
+    return true;
+  }
+
+  return { validate: validate, SUPPORTED_VERSIONS: SUPPORTED_VERSIONS };
+});
+
+/* ---- Node CLI (skipped in the browser) ---------------------------------- */
+if (typeof require !== "undefined" && typeof module !== "undefined" && require.main === module) {
+  var fs = require("fs");
+  var file = process.argv[2];
+  if (!file) {
+    console.error("usage: node validate.js <data.json>");
+    process.exit(2);
+  }
+  var parsed;
+  try {
+    parsed = JSON.parse(fs.readFileSync(file, "utf8"));
+  } catch (e) {
+    console.error("$: could not read or parse JSON (" + e.message + ")");
+    process.exit(1);
+  }
+  var r = module.exports.validate(parsed);
+  r.errors.forEach(function (e) { console.error("error    " + e.path + ": " + e.message); });
+  r.warnings.forEach(function (w) { console.error("warning  " + w.path + ": " + w.message); });
+  console.log(r.valid ? "valid" : "invalid: " + r.errors.length + " error(s)");
+  process.exit(r.valid ? 0 : 1);
+}
+  </script>
+  <script>
+/* NthView — scenario-quiz renderer — schemaVersion 1
+ * Requires scripts/validate.js to be loaded first. Fonts come from Google Fonts (see NthView.libs).
+ */
+(function (root) {
+  "use strict";
+  var NthView = root.NthView = root.NthView || {};
+  var STYLE_ID = "nthview-style";
+
+  var THEMES = ["midnight", "sunrise", "forest", "paper", "neon", "ocean", "ember", "lavender"];
+
+  /* Each theme: native palette, then the variant for the other colour scheme. */
+  var PALETTES = {
+    midnight: { dark: true,
+      base: "--bg1:#0b1022;--bg2:#1a1f4a;--blob1:#4338ca;--blob2:#0e7490;--blob3:#9d174d;--surface:rgba(16,20,44,.62);--surface-2:rgba(22,27,56,.88);--line:rgba(255,255,255,.16);--ink:#fafbff;--muted:#c3c8e8;--accent:#8b7cff;--accent-2:#22d3ee;--on-accent:#0b1022;--ok:#4ade80;--no:#fb7185;--warn:#fbbf24;--display:'Space Grotesk',system-ui,sans-serif;--body:'Inter',system-ui,sans-serif;--radius:1.25rem",
+      alt: "--blob1:#c7d2fe;--blob2:#bae6fd;--blob3:#fbcfe8;--bg1:#eef0ff;--bg2:#dfe4ff;--surface:rgba(255,255,255,.88);--surface-2:rgba(255,255,255,.97);--line:rgba(20,30,80,.14);--ink:#111318;--muted:#3f4670;--accent:#5b4df0;--accent-2:#0891b2;--on-accent:#fff;--ok:#15803d;--no:#be123c;--warn:#a16207" },
+    sunrise: { dark: false,
+      base: "--bg1:#fff4e6;--bg2:#ffd9c2;--blob1:#ffd4b8;--blob2:#ffe6a8;--blob3:#ffc2d9;--surface:rgba(255,252,247,.9);--surface-2:rgba(255,255,255,.98);--line:rgba(120,60,20,.14);--ink:#111318;--muted:#5f3f2e;--accent:#ff6b35;--accent-2:#ffb347;--on-accent:#fff;--ok:#2e8b57;--no:#c0392b;--warn:#b7791f;--display:'Fraunces',Georgia,serif;--body:'Inter',system-ui,sans-serif;--radius:1.25rem",
+      alt: "--blob1:#9a3412;--blob2:#a16207;--blob3:#9f1239;--bg1:#2a1510;--bg2:#4a2418;--surface:rgba(40,18,12,.64);--surface-2:rgba(52,24,16,.88);--line:rgba(255,255,255,.16);--ink:#fafbff;--muted:#e2c6b6;--accent:#ff8c5a;--accent-2:#ffc46b;--on-accent:#2a1510;--ok:#6fd39b;--no:#ff8a80;--warn:#f6c768" },
+    forest: { dark: true,
+      base: "--bg1:#0f1f1a;--bg2:#1d3a2f;--blob1:#0f766e;--blob2:#3f6212;--blob3:#92400e;--surface:rgba(12,30,24,.64);--surface-2:rgba(18,40,32,.88);--line:rgba(255,255,255,.15);--ink:#fafbff;--muted:#bcd8ca;--accent:#34d399;--accent-2:#a3e635;--on-accent:#0f1f1a;--ok:#4ade80;--no:#fb7185;--warn:#fbbf24;--display:'Lora',Georgia,serif;--body:'Inter',system-ui,sans-serif;--radius:1.1rem",
+      alt: "--blob1:#bbf7d0;--blob2:#d9f99d;--blob3:#fde68a;--bg1:#eef7f1;--bg2:#d6ecdd;--surface:rgba(255,255,255,.9);--surface-2:rgba(255,255,255,.98);--line:rgba(10,60,40,.14);--ink:#111318;--muted:#2f5a48;--accent:#0f8a5f;--accent-2:#65a30d;--on-accent:#fff;--ok:#15803d;--no:#b91c1c;--warn:#a16207" },
+    paper: { dark: false,
+      base: "--bg1:#f7f3ea;--bg2:#ebe4d4;--blob1:#e9e1cf;--blob2:#f1d3c6;--blob3:#d6dfe9;--surface:rgba(255,253,248,.94);--surface-2:#fff;--line:rgba(40,30,10,.16);--ink:#111318;--muted:#55503f;--accent:#b4231f;--accent-2:#d97706;--on-accent:#fff;--ok:#2f6f4f;--no:#b4231f;--warn:#8a5a00;--display:'Fraunces',Georgia,serif;--body:'Lora',Georgia,serif;--radius:.6rem",
+      alt: "--blob1:#44403c;--blob2:#7c2d12;--blob3:#334155;--bg1:#1b1813;--bg2:#2a251c;--surface:rgba(28,24,18,.7);--surface-2:rgba(38,33,25,.9);--line:rgba(255,255,255,.14);--ink:#fafbff;--muted:#cfc5b2;--accent:#f0655f;--accent-2:#f3a53a;--on-accent:#1b1813;--ok:#7fcfa2;--no:#f08a86;--warn:#e3b654" },
+    neon: { dark: true,
+      base: "--bg1:#05060f;--bg2:#120a2a;--blob1:#0e7490;--blob2:#9d174d;--blob3:#4c1d95;--surface:rgba(8,10,28,.68);--surface-2:rgba(14,16,40,.9);--line:rgba(0,229,255,.3);--ink:#fafbff;--muted:#b3c0dc;--accent:#00e5ff;--accent-2:#ff2bd6;--on-accent:#05060f;--ok:#39ff88;--no:#ff4d6d;--warn:#ffd400;--display:'Space Grotesk',system-ui,sans-serif;--body:'Space Grotesk',system-ui,sans-serif;--radius:.9rem",
+      alt: "--blob1:#a5f3fc;--blob2:#fbcfe8;--blob3:#ddd6fe;--bg1:#f0f4ff;--bg2:#e4e9ff;--surface:rgba(255,255,255,.9);--surface-2:#fff;--line:rgba(60,20,140,.16);--ink:#111318;--muted:#4b4a68;--accent:#7c3aed;--accent-2:#db2777;--on-accent:#fff;--ok:#15803d;--no:#be123c;--warn:#a16207" },
+    ocean: { dark: false,
+      base: "--bg1:#e9f6ff;--bg2:#cfe8ff;--blob1:#bcd8ff;--blob2:#b9f1f7;--blob3:#d9ccff;--surface:rgba(255,255,255,.9);--surface-2:rgba(255,255,255,.98);--line:rgba(10,50,100,.14);--ink:#111318;--muted:#3a5270;--accent:#0a7cff;--accent-2:#22b8cf;--on-accent:#fff;--ok:#0f9d58;--no:#d93025;--warn:#b06000;--display:'Inter',system-ui,sans-serif;--body:'Inter',system-ui,sans-serif;--radius:1.4rem",
+      alt: "--blob1:#1e3a8a;--blob2:#155e75;--blob3:#4c1d95;--bg1:#061a2e;--bg2:#0c2f4f;--surface:rgba(8,30,52,.64);--surface-2:rgba(12,40,66,.88);--line:rgba(255,255,255,.16);--ink:#fafbff;--muted:#b7cce0;--accent:#4da3ff;--accent-2:#4dd4e8;--on-accent:#061a2e;--ok:#5ad186;--no:#ff7b72;--warn:#f2c14e" },
+    ember: { dark: true,
+      base: "--bg1:#140b08;--bg2:#2e1410;--blob1:#9a3412;--blob2:#a16207;--blob3:#881337;--surface:rgba(30,14,10,.66);--surface-2:rgba(42,20,14,.88);--line:rgba(255,255,255,.15);--ink:#fafbff;--muted:#dcbdaf;--accent:#ff6a2b;--accent-2:#ffb020;--on-accent:#140b08;--ok:#6fd39b;--no:#ff6b6b;--warn:#ffc857;--display:'Space Grotesk',system-ui,sans-serif;--body:'Inter',system-ui,sans-serif;--radius:1rem",
+      alt: "--blob1:#fed7aa;--blob2:#fde68a;--blob3:#fecdd3;--bg1:#fff1ea;--bg2:#ffdccd;--surface:rgba(255,252,249,.9);--surface-2:rgba(255,255,255,.98);--line:rgba(90,30,10,.15);--ink:#111318;--muted:#623a2c;--accent:#d94a12;--accent-2:#d9870f;--on-accent:#fff;--ok:#1f7a4d;--no:#b3261e;--warn:#9a6700" },
+    lavender: { dark: false,
+      base: "--bg1:#f6f1ff;--bg2:#ffe6f3;--blob1:#e2d9ff;--blob2:#ffd3e8;--blob3:#d6f7fb;--surface:rgba(255,255,255,.9);--surface-2:rgba(255,255,255,.98);--line:rgba(80,40,120,.14);--ink:#111318;--muted:#584874;--accent:#7c5cff;--accent-2:#ff6fb5;--on-accent:#fff;--ok:#22a06b;--no:#e5484d;--warn:#b7791f;--display:'Nunito',system-ui,sans-serif;--body:'Nunito',system-ui,sans-serif;--radius:1.6rem",
+      alt: "--blob1:#4c1d95;--blob2:#9d174d;--blob3:#155e75;--bg1:#1a1230;--bg2:#2a1a3e;--surface:rgba(30,20,52,.66);--surface-2:rgba(40,28,66,.88);--line:rgba(255,255,255,.16);--ink:#fafbff;--muted:#cdbfe6;--accent:#a78bfa;--accent-2:#f9a8d4;--on-accent:#1a1230;--ok:#6ee7b7;--no:#fb7185;--warn:#fcd34d" }
+  };
+
+  function themeCss() {
+    var out = [];
+    THEMES.forEach(function (t) {
+      var p = PALETTES[t];
+      out.push(".nthview-scenario-quiz[data-theme=" + t + "]{" + p.base + "}");
+      out.push("@media (prefers-color-scheme:" + (p.dark ? "light" : "dark") + "){.nthview-scenario-quiz[data-theme=" + t + "]{" + p.alt + "}}");
+    });
+    return out.join("\n");
+  }
+
+  var GRAIN = "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 .6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>\")";
+
+  var CSS = [
+    ".nthview{--nv-bg:#fff;--nv-fg:#111;--nv-muted:#555;--nv-accent:#2563eb;--nv-border:#ddd;--nv-error:#b91c1c;",
+    "  color-scheme:light dark;background:var(--nv-bg);color:var(--nv-fg);",
+    "  font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:60rem;margin:0 auto;padding:1rem;box-sizing:border-box}",
+    "@media (prefers-color-scheme:dark){.nthview{--nv-bg:#111;--nv-fg:#eee;--nv-muted:#aaa;--nv-accent:#60a5fa;--nv-border:#333;--nv-error:#f87171}}",
+    ".nthview *{box-sizing:border-box}",
+    ".nthview :focus-visible{outline:3px solid var(--nv-accent);outline-offset:2px}",
+    ".nthview-error-panel{border:2px solid var(--nv-error);border-radius:.5rem;padding:1rem}",
+    ".nthview-error-panel h2{margin:0 0 .5rem;color:var(--nv-error)}",
+    ".nthview-error-panel code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}",
+    /* ---- view-specific styles below, every class prefixed nthview- ---- */
+    themeCss(),
+    ".nthview.nthview-scenario-quiz{max-width:none;margin:0;padding:0;min-height:100vh;position:relative;isolation:isolate;background:var(--bg1);color:var(--ink);font-family:var(--body);line-height:1.55;--nv-accent:var(--accent)}",
+    "body:has(> .nthview-scenario-quiz){margin:0}",
+    ".nthview-scenario-quiz .nthview-backdrop{position:absolute;inset:0;z-index:-1;overflow:hidden;background:linear-gradient(160deg,var(--bg1),var(--bg2))}",
+    ".nthview-scenario-quiz .nthview-blob{position:absolute;width:58vmax;height:58vmax;border-radius:50%;filter:blur(80px);opacity:.5;animation:nthview-drift 30s ease-in-out infinite alternate;will-change:transform}",
+    ".nthview-scenario-quiz .nthview-blob:nth-child(1){background:var(--blob1);top:-22vmax;left:-16vmax}",
+    ".nthview-scenario-quiz .nthview-blob:nth-child(2){background:var(--blob2);top:20vmax;right:-14vmax;animation-duration:36s;animation-delay:-9s}",
+    ".nthview-scenario-quiz .nthview-blob:nth-child(3){background:var(--blob3);top:28vmax;left:38%;width:42vmax;height:42vmax;animation-duration:44s;animation-delay:-18s}",
+    ".nthview-scenario-quiz .nthview-blob:nth-child(4){background:var(--blob2);bottom:-20vmax;left:-14vmax;width:48vmax;height:48vmax;animation-duration:38s;animation-delay:-5s}",
+    ".nthview-scenario-quiz .nthview-blob:nth-child(5){background:var(--blob1);bottom:-24vmax;right:-10vmax;animation-duration:42s;animation-delay:-21s}",
+    ".nthview-scenario-quiz .nthview-grain{position:absolute;inset:0;opacity:.09;background-image:" + GRAIN + ";mix-blend-mode:overlay;pointer-events:none}",
+    "@keyframes nthview-drift{from{transform:translate(0,0) scale(1)}to{transform:translate(9vmax,7vmax) scale(1.18)}}",
+    ".nthview-scenario-quiz .nthview-frame{max-width:48rem;margin:0 auto;padding:clamp(1rem,4vw,2.5rem) 1rem 4rem}",
+    ".nthview-scenario-quiz .nthview-stage > section > p{background:var(--surface);border:1px solid var(--line);border-radius:calc(var(--radius) * .7);padding:.7rem 1rem;backdrop-filter:blur(14px)}",
+    ".nthview-scenario-quiz .nthview-stage > section > p.nthview-eyebrow{background:none;border:0;padding:0;backdrop-filter:none}",
+    ".nthview-scenario-quiz button{font:inherit;color:inherit;cursor:pointer}",
+    ".nthview-scenario-quiz button:disabled{cursor:default}",
+    ".nthview-scenario-quiz p{margin:.4rem 0 .9rem}",
+    ".nthview-scenario-quiz h1{font-family:var(--display);font-weight:800;font-size:clamp(2.2rem,6vw,3.6rem);line-height:1.02;letter-spacing:-.025em;margin:.2rem 0 .6rem;background:linear-gradient(135deg,var(--ink) 0%,var(--ink) 55%,var(--accent) 100%);-webkit-background-clip:text;background-clip:text;color:transparent}",
+    ".nthview-scenario-quiz h2{font-family:var(--display);font-weight:700;font-size:clamp(1.35rem,3.2vw,1.75rem);line-height:1.22;letter-spacing:-.01em;margin:.8rem 0 1rem}",
+    ".nthview-scenario-quiz h3{font-family:var(--display);font-size:1.1rem;margin:1rem 0 .4rem}",
+    ".nthview-scenario-quiz .nthview-muted{color:var(--muted)}",
+    ".nthview-scenario-quiz .nthview-small{font-size:.9rem}",
+    ".nthview-scenario-quiz .nthview-status{position:absolute;left:-9999px}",
+    /* stage + transitions */
+    ".nthview-scenario-quiz .nthview-stage{position:relative}",
+    ".nthview-scenario-quiz .nthview-screen{transition:opacity .36s ease,transform .42s cubic-bezier(.2,.8,.2,1),filter .36s ease}",
+    ".nthview-scenario-quiz .nthview-enter{opacity:0;transform:translateY(22px) scale(.985);filter:blur(6px)}",
+    ".nthview-scenario-quiz .nthview-leave{position:absolute;inset:0 0 auto 0;opacity:0;transform:translateY(-16px) scale(.99);filter:blur(4px);pointer-events:none}",
+    ".nthview-scenario-quiz .nthview-reveal{overflow:hidden;max-height:0;opacity:0;transform:translateY(10px);transition:max-height .55s ease,opacity .4s ease .08s,transform .45s ease .05s}",
+    ".nthview-scenario-quiz .nthview-reveal.nthview-open{max-height:120rem;opacity:1;transform:none}",
+    ".nthview-scenario-quiz .nthview-rise{animation:nthview-rise .55s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0)*70ms)}",
+    "@keyframes nthview-rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}",
+    "@keyframes nthview-pop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}",
+    "@keyframes nthview-draw{to{stroke-dashoffset:0}}",
+    "@keyframes nthview-pulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 45%,transparent)}50%{box-shadow:0 0 0 7px transparent}}",
+    "@keyframes nthview-fall{to{transform:translateY(110vh) rotate(720deg);opacity:0}}",
+    "@media (prefers-reduced-motion:reduce){.nthview-scenario-quiz .nthview-screen,.nthview-scenario-quiz .nthview-reveal,.nthview-scenario-quiz .nthview-bar,.nthview-scenario-quiz .nthview-opt{transition:none}.nthview-scenario-quiz .nthview-blob,.nthview-scenario-quiz .nthview-rise,.nthview-scenario-quiz .nthview-dot,.nthview-scenario-quiz .nthview-icon svg path,.nthview-scenario-quiz .nthview-icon{animation:none}}",
+    /* header */
+    ".nthview-scenario-quiz .nthview-top{display:flex;justify-content:space-between;align-items:center;gap:.8rem;flex-wrap:wrap;margin-bottom:.7rem}",
+    ".nthview-scenario-quiz .nthview-chip{display:inline-flex;align-items:center;gap:.4rem;background:var(--surface);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:999px;padding:.28rem .8rem;font-size:.82rem;font-weight:600;letter-spacing:.01em}",
+    ".nthview-scenario-quiz .nthview-chip .nthview-dotc{width:.5rem;height:.5rem;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-2))}",
+    ".nthview-scenario-quiz .nthview-eyebrow{font-size:.74rem;text-transform:uppercase;letter-spacing:.14em;color:var(--accent);font-weight:700;margin:0 0 .5rem}",
+    ".nthview-scenario-quiz .nthview-dots{display:flex;gap:.35rem;flex-wrap:wrap;margin:.4rem 0 .5rem}",
+    ".nthview-scenario-quiz .nthview-dot{width:.55rem;height:.55rem;border-radius:50%;background:var(--line);transition:background .3s,transform .3s}",
+    ".nthview-scenario-quiz .nthview-dot.nthview-done{background:var(--accent)}",
+    ".nthview-scenario-quiz .nthview-dot.nthview-now{background:var(--accent-2);transform:scale(1.35);animation:nthview-pulse 1.8s ease-out infinite}",
+    ".nthview-scenario-quiz .nthview-track{height:5px;border-radius:3px;background:var(--line);overflow:hidden;margin:.2rem 0 1.2rem}",
+    ".nthview-scenario-quiz .nthview-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:3px;transition:width .5s ease}",
+    /* cards */
+    ".nthview-scenario-quiz .nthview-card{position:relative;background:var(--surface);backdrop-filter:blur(18px) saturate(1.25);-webkit-backdrop-filter:blur(18px) saturate(1.25);border:1px solid var(--line);border-radius:var(--radius);padding:1.25rem 1.35rem;margin:.9rem 0;box-shadow:0 24px 60px -32px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.08)}",
+    ".nthview-scenario-quiz .nthview-label{font-size:.74rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin:0 0 .4rem;font-weight:700}",
+    ".nthview-scenario-quiz .nthview-scene{border-left:4px solid var(--accent);overflow:hidden}",
+    ".nthview-scenario-quiz .nthview-scene p:last-child{margin-bottom:0}",
+    ".nthview-scenario-quiz .nthview-scene .nthview-art{position:absolute;right:-1.5rem;top:-1.5rem;width:11rem;height:11rem;opacity:.16;pointer-events:none}",
+    ".nthview-scenario-quiz .nthview-art-intro{position:absolute;right:-2rem;bottom:-2.5rem;width:16rem;height:16rem;opacity:.14;pointer-events:none}",
+    /* role badge */
+    ".nthview-scenario-quiz .nthview-badge{display:flex;gap:1rem;align-items:center;background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 22%,var(--surface)),color-mix(in srgb,var(--accent-2) 18%,var(--surface)));backdrop-filter:blur(18px);border:1px solid var(--line);border-radius:var(--radius);padding:1rem 1.2rem;margin:1rem 0 1.2rem;box-shadow:0 24px 60px -32px rgba(0,0,0,.45)}",
+    ".nthview-scenario-quiz .nthview-avatar{flex:none;width:3.6rem;height:3.6rem;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:var(--on-accent);box-shadow:0 10px 30px -10px var(--accent)}",
+    ".nthview-scenario-quiz .nthview-avatar svg{width:2rem;height:2rem}",
+    ".nthview-scenario-quiz .nthview-badge b{display:block;font-family:var(--display);font-size:1.15rem;line-height:1.25}",
+    /* options */
+    ".nthview-scenario-quiz .nthview-opts{display:grid;gap:.6rem;margin:.4rem 0 1rem;padding:0;list-style:none}",
+    ".nthview-scenario-quiz .nthview-opt{position:relative;display:flex;gap:.9rem;align-items:flex-start;width:100%;text-align:left;background:var(--surface);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1.5px solid var(--line);border-radius:calc(var(--radius) * .8);padding:.9rem 1rem;line-height:1.42;transition:border-color .18s,background .18s,transform .18s,box-shadow .18s}",
+    ".nthview-scenario-quiz .nthview-opt:hover:not(:disabled),.nthview-scenario-quiz .nthview-opt:focus-visible{border-color:var(--accent);background:var(--surface-2);transform:translateY(-2px);box-shadow:0 16px 40px -22px var(--accent)}",
+    ".nthview-scenario-quiz .nthview-opt:disabled{opacity:.95}",
+    ".nthview-scenario-quiz .nthview-key{flex:none;width:1.9rem;height:1.9rem;border-radius:.6rem;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:.9rem;background:var(--surface-2);border:1px solid var(--line);transition:background .2s,color .2s}",
+    ".nthview-scenario-quiz .nthview-opt:hover:not(:disabled) .nthview-key{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:var(--on-accent);border-color:transparent}",
+    ".nthview-scenario-quiz .nthview-opt.nthview-right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 16%,var(--surface))}",
+    ".nthview-scenario-quiz .nthview-opt.nthview-right .nthview-key{background:var(--ok);color:#fff;border-color:transparent}",
+    ".nthview-scenario-quiz .nthview-opt.nthview-wrong{border-color:var(--no);background:color-mix(in srgb,var(--no) 16%,var(--surface))}",
+    ".nthview-scenario-quiz .nthview-opt.nthview-wrong .nthview-key{background:var(--no);color:#fff;border-color:transparent}",
+    ".nthview-scenario-quiz .nthview-opt.nthview-viewing{box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 55%,transparent),0 16px 40px -22px var(--accent)}",
+    ".nthview-scenario-quiz .nthview-hint{font-size:.9rem;color:var(--muted);margin:-.3rem 0 .9rem}",
+    ".nthview-scenario-quiz .nthview-tags{display:flex;gap:.4rem;flex-wrap:wrap;margin-left:auto;align-self:center}",
+    ".nthview-scenario-quiz .nthview-tag{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;border-radius:999px;padding:.15rem .55rem;white-space:nowrap}",
+    ".nthview-scenario-quiz .nthview-tag-you{background:var(--surface-2);border:1px solid var(--line)}",
+    ".nthview-scenario-quiz .nthview-tag-trap{background:color-mix(in srgb,var(--warn) 22%,transparent);color:var(--warn)}",
+    ".nthview-scenario-quiz .nthview-tag-ok{background:color-mix(in srgb,var(--ok) 20%,transparent);color:var(--ok)}",
+    /* feedback */
+    ".nthview-scenario-quiz .nthview-feedback{position:relative;border-radius:var(--radius);padding:1.2rem 1.3rem 1.2rem 1.3rem;border:1.5px solid var(--line);background:var(--surface);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 24px 60px -32px rgba(0,0,0,.45)}",
+    ".nthview-scenario-quiz .nthview-feedback.nthview-ok{border-color:color-mix(in srgb,var(--ok) 60%,transparent);background:color-mix(in srgb,var(--ok) 12%,var(--surface))}",
+    ".nthview-scenario-quiz .nthview-feedback.nthview-no{border-color:color-mix(in srgb,var(--no) 60%,transparent);background:color-mix(in srgb,var(--no) 12%,var(--surface))}",
+    ".nthview-scenario-quiz .nthview-fbhead{display:flex;align-items:center;gap:.8rem;margin-bottom:.6rem}",
+    ".nthview-scenario-quiz .nthview-fbhead h3{margin:0;font-size:1.3rem}",
+    ".nthview-scenario-quiz .nthview-ok .nthview-fbhead h3{color:var(--ok)}",
+    ".nthview-scenario-quiz .nthview-no .nthview-fbhead h3{color:var(--no)}",
+    ".nthview-scenario-quiz .nthview-icon{flex:none;width:2.4rem;height:2.4rem;border-radius:50%;display:grid;place-items:center;color:#fff;animation:nthview-pop .5s cubic-bezier(.2,.8,.2,1) both}",
+    ".nthview-scenario-quiz .nthview-ok .nthview-icon{background:var(--ok)}",
+    ".nthview-scenario-quiz .nthview-no .nthview-icon{background:var(--no)}",
+    ".nthview-scenario-quiz .nthview-icon svg{width:1.3rem;height:1.3rem}",
+    ".nthview-scenario-quiz .nthview-icon svg path{stroke-dasharray:40;stroke-dashoffset:40;animation:nthview-draw .5s ease .25s forwards}",
+    ".nthview-scenario-quiz .nthview-feedback p:last-child{margin-bottom:0}",
+    ".nthview-scenario-quiz .nthview-takeaway{position:relative;border-radius:var(--radius);padding:1rem 1.2rem 1rem 1.3rem;margin:.9rem 0;background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 18%,var(--surface)),color-mix(in srgb,var(--accent-2) 14%,var(--surface)));border:1px solid var(--line);backdrop-filter:blur(14px)}",
+    ".nthview-scenario-quiz .nthview-takeaway::before{content:'';position:absolute;left:0;top:14%;bottom:14%;width:4px;border-radius:2px;background:linear-gradient(var(--accent),var(--accent-2))}",
+    ".nthview-scenario-quiz .nthview-takeaway p{margin:0}",
+    ".nthview-scenario-quiz .nthview-takeaway p:not(.nthview-label){font-family:var(--display);font-size:1.08rem;font-weight:600}",
+    ".nthview-scenario-quiz details{margin:.9rem 0}",
+    ".nthview-scenario-quiz summary{cursor:pointer;font-weight:700;color:var(--accent);list-style:none;display:inline-flex;align-items:center;gap:.4rem}",
+    ".nthview-scenario-quiz summary::-webkit-details-marker{display:none}",
+    ".nthview-scenario-quiz summary::before{content:'';width:.5rem;height:.5rem;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .2s;margin-right:.2rem}",
+    ".nthview-scenario-quiz details[open] summary::before{transform:rotate(45deg)}",
+    ".nthview-scenario-quiz .nthview-explain{list-style:none;padding:0;margin:.7rem 0 0;display:grid;gap:.6rem}",
+    ".nthview-scenario-quiz .nthview-explain li{border:1px solid var(--line);border-radius:calc(var(--radius) * .8);padding:.8rem 1rem;background:var(--surface);backdrop-filter:blur(12px)}",
+    ".nthview-scenario-quiz .nthview-explain li.nthview-right{border-color:color-mix(in srgb,var(--ok) 60%,transparent);background:color-mix(in srgb,var(--ok) 10%,var(--surface))}",
+    ".nthview-scenario-quiz .nthview-explain .nthview-head{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin-bottom:.3rem}",
+    ".nthview-scenario-quiz .nthview-explain p{margin:.35rem 0 0;font-size:.95rem}",
+    /* buttons */
+    ".nthview-scenario-quiz .nthview-actions{display:flex;gap:.8rem;flex-wrap:wrap;align-items:center;margin-top:1.1rem}",
+    ".nthview-scenario-quiz .nthview-btn{position:relative;border:1.5px solid var(--accent);background:var(--surface);backdrop-filter:blur(12px);color:var(--accent);border-radius:999px;padding:.75rem 1.4rem;font-weight:800;letter-spacing:.01em;transition:transform .18s,box-shadow .18s,filter .18s}",
+    ".nthview-scenario-quiz .nthview-btn:hover{transform:translateY(-2px)}",
+    ".nthview-scenario-quiz .nthview-btn.nthview-primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:var(--on-accent);border-color:transparent;box-shadow:0 14px 34px -14px var(--accent)}",
+    ".nthview-scenario-quiz .nthview-btn.nthview-primary:hover{filter:brightness(1.06);box-shadow:0 18px 40px -14px var(--accent)}",
+    ".nthview-scenario-quiz .nthview-btn.nthview-ghost{border-color:transparent;background:transparent;backdrop-filter:none;color:var(--muted);padding-left:.5rem;padding-right:.5rem;font-weight:600}",
+    ".nthview-scenario-quiz .nthview-btn.nthview-ghost:hover{color:var(--ink);text-decoration:underline;transform:none}",
+    /* summary */
+    ".nthview-scenario-quiz .nthview-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(9.5rem,1fr));gap:.8rem;margin:1rem 0 1.4rem}",
+    ".nthview-scenario-quiz .nthview-tile{background:var(--surface);backdrop-filter:blur(16px);border:1px solid var(--line);border-radius:var(--radius);padding:1rem 1.1rem;box-shadow:0 24px 60px -32px rgba(0,0,0,.45)}",
+    ".nthview-scenario-quiz .nthview-tile b{display:block;font-family:var(--display);font-size:2.2rem;line-height:1;letter-spacing:-.02em;background:linear-gradient(135deg,var(--accent),var(--accent-2));-webkit-background-clip:text;background-clip:text;color:transparent}",
+    ".nthview-scenario-quiz .nthview-review{border-top:1px solid var(--line);padding-top:.8rem;margin-top:1.6rem}",
+    ".nthview-scenario-quiz .nthview-review .nthview-card{scroll-margin-top:1rem}",
+    ".nthview-scenario-quiz .nthview-confetti{position:fixed;inset:0;pointer-events:none;z-index:5;overflow:hidden}",
+    ".nthview-scenario-quiz .nthview-confetti i{position:absolute;top:-3vh;width:.6rem;height:.9rem;border-radius:.15rem;animation:nthview-fall linear forwards}",
+    ".nthview-scenario-quiz .nthview-ol{padding-left:1.3rem}",
+    ".nthview-scenario-quiz .nthview-ol li{margin:.45rem 0;padding-left:.2rem}",
+    ".nthview-scenario-quiz .nthview-ol li::marker{color:var(--accent);font-weight:800;font-family:var(--display)}"
+  ].join("\n");
+
+  function injectStyles() {
+    if (root.document.getElementById(STYLE_ID)) return;
+    var style = root.document.createElement("style");
+    style.id = STYLE_ID;
+    style.textContent = CSS;
+    root.document.head.appendChild(style);
+  }
+
+  function el(tag, attrs, children) {
+    var node = root.document.createElement(tag);
+    Object.keys(attrs || {}).forEach(function (k) {
+      if (k === "text") node.textContent = attrs[k];
+      else node.setAttribute(k, attrs[k]);
+    });
+    (children || []).forEach(function (c) { node.appendChild(c); });
+    return node;
+  }
+
+  function renderErrorPanel(container, result) {
+    var items = result.errors.map(function (e) {
+      return el("li", {}, [el("code", { text: e.path }), root.document.createTextNode(": " + e.message)]);
+    });
+    container.appendChild(el("div", { class: "nthview-error-panel", role: "alert" }, [
+      el("h2", { text: "This view could not be built" }),
+      el("p", { text: "The data has " + result.errors.length + " problem(s). Fix them and rebuild the file." }),
+      el("ul", {}, items)
+    ]));
+  }
+
+  // ---- view-specific rendering: data is already valid here ---------------
+  var LETTERS = "ABCDEFGH";
+  var SVG_NS = "http://www.w3.org/2000/svg";
+
+  function svg(viewBox, parts, attrs) {
+    var s = root.document.createElementNS(SVG_NS, "svg");
+    s.setAttribute("viewBox", viewBox); s.setAttribute("aria-hidden", "true"); s.setAttribute("focusable", "false");
+    Object.keys(attrs || {}).forEach(function (k) { s.setAttribute(k, attrs[k]); });
+    parts.forEach(function (pt) {
+      var n = root.document.createElementNS(SVG_NS, pt[0]);
+      Object.keys(pt[1]).forEach(function (k) { n.setAttribute(k, pt[1][k]); });
+      s.appendChild(n);
+    });
+    return s;
+  }
+  var ICONS = {
+    check: function () { return svg("0 0 24 24", [["path", { d: "M5 12.5l4.5 4.5L19 7.5", fill: "none", stroke: "currentColor", "stroke-width": "3", "stroke-linecap": "round", "stroke-linejoin": "round" }]]); },
+    cross: function () { return svg("0 0 24 24", [["path", { d: "M7 7l10 10M17 7L7 17", fill: "none", stroke: "currentColor", "stroke-width": "3", "stroke-linecap": "round" }]]); },
+    person: function () { return svg("0 0 24 24", [["path", { d: "M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9zm0 2c-4.4 0-8 2.5-8 5.5V21h16v-1.5c0-3-3.6-5.5-8-5.5z", fill: "currentColor" }]]); },
+    art: function () {
+      return svg("0 0 200 200", [
+        ["circle", { cx: "140", cy: "60", r: "58", fill: "none", stroke: "var(--accent)", "stroke-width": "10" }],
+        ["circle", { cx: "140", cy: "60", r: "34", fill: "none", stroke: "var(--accent-2)", "stroke-width": "8" }],
+        ["circle", { cx: "140", cy: "60", r: "10", fill: "var(--accent)" }],
+        ["path", { d: "M10 190 L70 110 L110 150 L190 70", fill: "none", stroke: "var(--accent-2)", "stroke-width": "10", "stroke-linecap": "round", "stroke-linejoin": "round" }],
+        ["circle", { cx: "70", cy: "110", r: "9", fill: "var(--accent)" }],
+        ["circle", { cx: "110", cy: "150", r: "9", fill: "var(--accent)" }]
+      ]);
+    }
+  };
+
+  function rich(text) {
+    var frag = root.document.createDocumentFragment();
+    String(text).split(/(\*\*[^*]+\*\*)/).forEach(function (part) {
+      if (!part) return;
+      if (/^\*\*[^*]+\*\*$/.test(part)) frag.appendChild(el("b", { text: part.slice(2, -2) }));
+      else frag.appendChild(root.document.createTextNode(part));
+    });
+    return frag;
+  }
+  function p(cls, text) { var n = el("p", cls ? { class: cls } : {}); n.appendChild(rich(text)); return n; }
+  function btn(label, cls, onClick) {
+    var b = el("button", { type: "button", class: "nthview-btn" + (cls ? " " + cls : ""), text: label });
+    b.addEventListener("click", onClick); return b;
+  }
+  function tag(cls, text) { return el("span", { class: "nthview-tag " + cls, text: text }); }
+  function pickTheme(data) {
+    if (data.theme && THEMES.indexOf(data.theme) !== -1) return data.theme;
+    var h = 0, s = String(data.title || "");
+    for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+    return THEMES[h % THEMES.length];
+  }
+
+  function render(container, data) {
+    var doc = root.document;
+    var reduceMotion = root.matchMedia && root.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var Q = data.questions, N = Q.length;
+    var state = { index: -1, answers: {}, screen: null, answered: false };
+    container.setAttribute("data-theme", pickTheme(data));
+
+    var backdrop = el("div", { class: "nthview-backdrop", "aria-hidden": "true" }, [el("div", { class: "nthview-blob" }), el("div", { class: "nthview-blob" }), el("div", { class: "nthview-blob" }), el("div", { class: "nthview-blob" }), el("div", { class: "nthview-blob" }), el("div", { class: "nthview-grain" })]);
+    var frame = el("div", { class: "nthview-frame" });
+    var stage = el("div", { class: "nthview-stage" });
+    var status = el("div", { class: "nthview-status", "aria-live": "polite" });
+    frame.appendChild(stage); container.appendChild(backdrop); container.appendChild(frame); container.appendChild(status);
+
+    /* ---------- screen transitions ---------- */
+    function show(screen, focusEl) {
+      var old = state.screen;
+      state.screen = screen;
+      screen.classList.add("nthview-screen", "nthview-enter");
+      stage.appendChild(screen);
+      if (old) {
+        old.classList.add("nthview-leave");
+        old.setAttribute("aria-hidden", "true");
+        setTimeout(function () { if (old.parentNode) old.parentNode.removeChild(old); }, reduceMotion ? 0 : 440);
+      }
+      /* force a style flush so the enter state is painted, then release it on a timer
+         (not an animation frame, which some embedded browsers throttle heavily) */
+      void screen.offsetWidth;
+      setTimeout(function () {
+        screen.classList.remove("nthview-enter");
+        if (focusEl) focusEl.focus({ preventScroll: true });
+        if (container.getBoundingClientRect().top < 0 || root.scrollY > 40) root.scrollTo({ top: Math.max(0, container.getBoundingClientRect().top + root.scrollY), behavior: reduceMotion ? "auto" : "smooth" });
+      }, 30);
+    }
+    function reveal(node) {
+      node.classList.add("nthview-reveal");
+      void node.offsetWidth;
+      setTimeout(function () { node.classList.add("nthview-open"); }, 30);
+    }
+    function rise(node, i) { node.classList.add("nthview-rise"); node.style.setProperty("--i", String(i)); return node; }
+    function countUp(node, to) {
+      if (reduceMotion || to === 0) { node.textContent = String(to); return; }
+      var t0 = null, dur = 900;
+      function step(ts) { if (!t0) t0 = ts; var k = Math.min(1, (ts - t0) / dur); k = 1 - Math.pow(1 - k, 3); node.textContent = String(Math.round(to * k)); if (k < 1) root.requestAnimationFrame(step); }
+      root.requestAnimationFrame(step);
+    }
+    function confetti() {
+      if (reduceMotion) return;
+      var box = el("div", { class: "nthview-confetti", "aria-hidden": "true" });
+      var colors = ["var(--accent)", "var(--accent-2)", "var(--ok)", "var(--warn)"];
+      for (var i = 0; i < 70; i++) {
+        var c = doc.createElement("i");
+        c.style.left = (Math.random() * 100) + "vw"; c.style.background = colors[i % colors.length];
+        c.style.animationDuration = (2.6 + Math.random() * 1.8) + "s"; c.style.animationDelay = (Math.random() * .6) + "s";
+        c.style.transform = "rotate(" + Math.random() * 360 + "deg)"; c.style.opacity = String(.7 + Math.random() * .3);
+        box.appendChild(c);
+      }
+      container.appendChild(box);
+      setTimeout(function () { if (box.parentNode) box.parentNode.removeChild(box); }, 5200);
+    }
+
+    /* ---------- pieces ---------- */
+    function roleBadge() {
+      var r = data.scenario.role;
+      var text = el("div"); text.appendChild(el("span", { class: "nthview-label", text: "Your role" })); text.appendChild(el("b", { text: r.title }));
+      if (r.description) { var d = el("span", { class: "nthview-small nthview-muted" }); d.appendChild(rich(r.description)); text.appendChild(d); }
+      return el("div", { class: "nthview-badge" }, [el("div", { class: "nthview-avatar" }, [ICONS.person()]), text]);
+    }
+    function chip(text, dot) { var c = el("span", { class: "nthview-chip" }); if (dot) c.appendChild(el("span", { class: "nthview-dotc", "aria-hidden": "true" })); c.appendChild(doc.createTextNode(text)); return c; }
+    function progress(i) {
+      var wrap = el("div");
+      if (N <= 20) {
+        var dots = el("div", { class: "nthview-dots", "aria-hidden": "true" });
+        for (var k = 0; k < N; k++) dots.appendChild(el("span", { class: "nthview-dot" + (k < i ? " nthview-done" : k === i ? " nthview-now" : "") }));
+        wrap.appendChild(dots);
+      }
+      var bar = el("div", { class: "nthview-bar" }); bar.style.width = Math.round((i / N) * 100) + "%";
+      wrap.appendChild(el("div", { class: "nthview-track", role: "progressbar", "aria-valuemin": "0", "aria-valuemax": String(N), "aria-valuenow": String(i), "aria-label": "Progress" }, [bar]));
+      return wrap;
+    }
+    function optionExplanation(q, o, i, picked) {
+      var li = el("li", { class: o.correct ? "nthview-right" : "" });
+      var head = el("div", { class: "nthview-head" }, [el("span", { class: "nthview-key", text: LETTERS[i] }), el("span", {}, [rich(o.text)])]);
+      var tags = el("span", { class: "nthview-tags" });
+      if (o.correct) tags.appendChild(tag("nthview-tag-ok", "Right answer"));
+      if (o.trap) tags.appendChild(tag("nthview-tag-trap", "Common pick"));
+      if (picked === i) tags.appendChild(tag("nthview-tag-you", "Your pick"));
+      head.appendChild(tags); li.appendChild(head);
+      if (o.tempting && !o.correct) li.appendChild(p("nthview-muted", "**Why it tempts:** " + o.tempting));
+      li.appendChild(p("", (o.correct ? "**Why it's right:** " : "**Why not:** ") + o.why));
+      return li;
+    }
+    function allOptions(q, picked) {
+      return el("ul", { class: "nthview-explain" }, q.options.map(function (o, i) { return optionExplanation(q, o, i, picked); }));
+    }
+    function takeawayBox(text) { var tk = el("div", { class: "nthview-takeaway" }, [el("p", { class: "nthview-label", text: "Remember" })]); tk.appendChild(p("", text)); return tk; }
+
+    /* ---------- intro ---------- */
+    function introScreen() {
+      var s = el("section", { "aria-label": "Scenario" });
+      s.appendChild(rise(el("p", { class: "nthview-eyebrow", text: "Scenario quiz" }), 0));
+      var h1 = el("h1", { text: data.title, tabindex: "-1" }); s.appendChild(rise(h1, 1));
+      if (data.subtitle) s.appendChild(rise(p("nthview-muted", data.subtitle), 2));
+      var card = el("div", { class: "nthview-card" });
+      card.appendChild(el("p", { class: "nthview-label", text: data.scenario.heading || "The scenario" }));
+      data.scenario.setting.forEach(function (t) { card.appendChild(p("", t)); });
+      var art = ICONS.art(); art.setAttribute("class", "nthview-art-intro"); card.appendChild(art);
+      s.appendChild(rise(card, 3));
+      s.appendChild(rise(roleBadge(), 4));
+      if (data.scenario.goal) s.appendChild(rise(p("", "**Your goal:** " + data.scenario.goal), 5));
+      s.appendChild(rise(p("nthview-small nthview-muted", N + " decisions ahead. Pick what you would really do; every option explains itself, and nothing is scored. Keys 1–8 choose, Enter continues."), 6));
+      s.appendChild(rise(el("div", { class: "nthview-actions" }, [btn("Begin", "nthview-primary", function () { go(0); })]), 7));
+      return { node: s, focus: h1 };
+    }
+
+    /* ---------- question ---------- */
+    function questionScreen(i) {
+      var q = Q[i];
+      var s = el("section", { "aria-label": "Question " + (i + 1) + " of " + N });
+      s.appendChild(el("div", { class: "nthview-top" }, [chip("Decision " + (i + 1) + " of " + N, true), chip(data.scenario.role.title)]));
+      s.appendChild(progress(i));
+      var k = 0;
+      if (q.situation) {
+        var scene = el("div", { class: "nthview-card nthview-scene" }, [el("p", { class: "nthview-label", text: "The situation" })]);
+        scene.appendChild(p("", q.situation)); var art = ICONS.art(); art.setAttribute("class", "nthview-art"); scene.appendChild(art);
+        s.appendChild(rise(scene, k++));
+      }
+      var h2 = el("h2", { tabindex: "-1" }); h2.appendChild(rich(q.prompt)); s.appendChild(rise(h2, k++));
+      var list = el("ul", { class: "nthview-opts", role: "list" });
+      var buttons = q.options.map(function (o, j) {
+        var b = el("button", { type: "button", class: "nthview-opt", "aria-label": LETTERS[j] + ". " + o.text }, [el("span", { class: "nthview-key", "aria-hidden": "true", text: LETTERS[j] }), el("span", {}, [rich(o.text)])]);
+        b.addEventListener("click", function () { choose(j); });
+        list.appendChild(rise(el("li", {}, [b]), k + j)); return b;
+      });
+      s.appendChild(list); k += q.options.length;
+      var skip = btn("Skip, I know this one", "nthview-ghost", function () { state.answers[q.id] = { skipped: true }; status.textContent = "Skipped."; go(i + 1); });
+      var actions = el("div", { class: "nthview-actions" }, [skip]);
+      s.appendChild(rise(actions, k));
+      var after = el("div"); s.appendChild(after);
+      state.answered = false;
+
+      var correctIdx = -1; q.options.forEach(function (x, m) { if (x.correct) correctIdx = m; });
+      var fb = null, h3 = null, firstPick = -1;
+
+      /* fill the feedback panel with option m's explanation */
+      function explain(m) {
+        var o = q.options[m], isFirst = m === firstPick;
+        fb.className = "nthview-feedback " + (o.correct ? "nthview-ok" : "nthview-no");
+        fb.textContent = "";
+        var heading = o.correct ? (isFirst ? "Correct" : LETTERS[m] + " is the right one") : (isFirst ? "Not this one. " + LETTERS[correctIdx] + " is right." : LETTERS[m] + " is not right either");
+        h3 = el("h3", { tabindex: "-1", text: heading });
+        fb.appendChild(el("div", { class: "nthview-fbhead" }, [el("span", { class: "nthview-icon" }, [o.correct ? ICONS.check() : ICONS.cross()]), h3]));
+        if (o.correct) {
+          fb.appendChild(p("", o.why));
+          var trap = q.options.filter(function (x) { return x.trap; })[0];
+          if (trap && firstPick !== q.options.indexOf(trap)) fb.appendChild(p("nthview-small nthview-muted", "Most people pick \"" + trap.text + "\". Tap it to see why that goes wrong."));
+        } else {
+          if (o.tempting) fb.appendChild(p("", "**Why that seems right:** " + o.tempting));
+          fb.appendChild(p("", "**Why it isn't:** " + o.why));
+          fb.appendChild(p("nthview-small", "**The right answer is " + LETTERS[correctIdx] + ":** " + q.options[correctIdx].text + " Tap it to read why."));
+        }
+        buttons.forEach(function (b, k2) { b.classList.toggle("nthview-viewing", k2 === m); b.setAttribute("aria-pressed", String(k2 === m)); });
+        status.textContent = heading + " Explanation shown below.";
+      }
+
+      function choose(j) {
+        if (state.answered) { explain(j); setTimeout(function () { h3.focus({ preventScroll: true }); }, 50); return; }
+        state.answered = true; firstPick = j;
+        var o = q.options[j];
+        state.answers[q.id] = { picked: j, correct: !!o.correct };
+        buttons.forEach(function (b, m) {
+          if (m === correctIdx) b.classList.add("nthview-right");
+          else if (m === j) b.classList.add("nthview-wrong");
+          var tags = el("span", { class: "nthview-tags" });
+          if (m === j) tags.appendChild(tag("nthview-tag-you", "Your pick"));
+          if (q.options[m].trap) tags.appendChild(tag("nthview-tag-trap", "Common pick"));
+          if (tags.childNodes.length) b.appendChild(tags);
+          b.setAttribute("aria-label", LETTERS[m] + ". " + q.options[m].text + (m === correctIdx ? ". Right answer" : "") + (m === j ? ". Your pick" : ""));
+        });
+        actions.removeChild(skip);
+        var wrap = el("div");
+        wrap.appendChild(el("p", { class: "nthview-hint", text: "Tap any other option to see why it is right or wrong. Your first pick is what the review remembers." }));
+        fb = el("div", { class: "nthview-feedback" }); wrap.appendChild(fb);
+        explain(j);
+        wrap.appendChild(takeawayBox(q.takeaway));
+        var isLast = i === N - 1;
+        var next = btn(isLast ? "See the full review" : "Next decision", "nthview-primary", function () { go(i + 1); });
+        wrap.appendChild(el("div", { class: "nthview-actions" }, [next]));
+        after.appendChild(wrap); reveal(wrap);
+        setTimeout(function () { h3.focus({ preventScroll: true }); fb.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "nearest" }); }, reduceMotion ? 0 : 160);
+        state.nextBtn = next;
+      }
+      state.choose = choose;
+      return { node: s, focus: h2 };
+    }
+
+    /* ---------- summary ---------- */
+    function summaryScreen() {
+      var s = el("section", { "aria-label": "Summary" });
+      var right = 0, wrong = 0, skipped = 0;
+      Q.forEach(function (q) { var a = state.answers[q.id]; if (!a || a.skipped) skipped++; else if (a.correct) right++; else wrong++; });
+      s.appendChild(rise(el("p", { class: "nthview-eyebrow", text: "You made it through" }), 0));
+      var h1 = el("h1", { text: data.summary.heading || "What you've learned", tabindex: "-1" }); s.appendChild(rise(h1, 1));
+      var tiles = [[N, "decisions explored"], [right, "right first time"], [wrong, "learned the hard way"], [skipped, "skipped"]];
+      var tileRow = el("div", { class: "nthview-tiles" });
+      var counters = tiles.map(function (t, i) { var b = el("b", { text: "0" }); tileRow.appendChild(rise(el("div", { class: "nthview-tile" }, [b, el("span", { class: "nthview-small nthview-muted", text: t[1] })]), 2 + i)); return [b, t[0]]; });
+      s.appendChild(tileRow);
+      data.summary.closing.forEach(function (t, i) { s.appendChild(rise(p("", t), 6 + i)); });
+      var takeaways = data.summary.takeaways || Q.map(function (q) { return q.takeaway; });
+      if (takeaways.length) {
+        var card = el("div", { class: "nthview-card" }, [el("p", { class: "nthview-label", text: "The takeaways" })]);
+        card.appendChild(el("ol", { class: "nthview-ol" }, takeaways.map(function (t) { var li = el("li"); li.appendChild(rich(t)); return li; })));
+        s.appendChild(rise(card, 9));
+      }
+      var review = el("div", { class: "nthview-review" });
+      review.appendChild(el("h3", { text: "Every decision, every option" }));
+      review.appendChild(p("nthview-small nthview-muted", "Read why each choice is right, wrong, or tempting. The ones marked \"Common pick\" are what most people choose."));
+      Q.forEach(function (q, i) {
+        var a = state.answers[q.id] || { skipped: true };
+        var card = el("div", { class: "nthview-card", id: "nthview-review-" + q.id });
+        var top = el("div", { class: "nthview-top" }, [chip("Decision " + (i + 1), true)]);
+        top.appendChild(a.skipped ? tag("nthview-tag-you", "Skipped") : a.correct ? tag("nthview-tag-ok", "You got it") : tag("nthview-tag-trap", "You picked " + LETTERS[a.picked]));
+        card.appendChild(top);
+        if (q.situation) card.appendChild(p("nthview-muted", q.situation));
+        var h = el("h3"); h.appendChild(rich(q.prompt)); card.appendChild(h);
+        card.appendChild(allOptions(q, a.skipped ? -1 : a.picked));
+        card.appendChild(takeawayBox(q.takeaway));
+        review.appendChild(card);
+      });
+      s.appendChild(review);
+      s.appendChild(el("div", { class: "nthview-actions" }, [btn("Start again", "nthview-primary", function () { state.answers = {}; go(-1); }), btn("Back to top", "nthview-ghost", function () { root.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" }); h1.focus(); })]));
+      setTimeout(function () { counters.forEach(function (c) { countUp(c[0], c[1]); }); confetti(); }, reduceMotion ? 0 : 350);
+      return { node: s, focus: h1 };
+    }
+
+    /* ---------- navigation + keyboard ---------- */
+    function go(i) {
+      state.index = i; state.nextBtn = null; state.choose = null;
+      var scr = i < 0 ? introScreen() : i >= N ? summaryScreen() : questionScreen(i);
+      show(scr.node, scr.focus);
+    }
+    container.addEventListener("keydown", function (e) {
+      if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+      if (state.index < 0 || state.index >= N) return;
+      if (/^[1-8]$/.test(e.key) && state.choose) { var k = parseInt(e.key, 10) - 1; if (k < Q[state.index].options.length) { state.choose(k); e.preventDefault(); } }
+      else if (e.key === "Enter" && state.answered && state.nextBtn && e.target && e.target.tagName !== "BUTTON" && e.target.tagName !== "SUMMARY") { state.nextBtn.click(); e.preventDefault(); }
+    });
+    container.setAttribute("tabindex", "-1");
+    go(-1);
+  }
+
+  NthView.build = function (container, data) {
+    if (!container || typeof container.appendChild !== "function") {
+      throw new TypeError("NthView.build: container must be a DOM element");
+    }
+    container.innerHTML = "";
+    container.classList.add("nthview", "nthview-scenario-quiz");
+    injectStyles();
+
+    if (typeof NthView.validate !== "function") {
+      renderErrorPanel(container, { errors: [{ path: "$", message: "validate.js must be inlined before view.js" }] });
+      return { valid: false, errors: [], warnings: [] };
+    }
+    var result = NthView.validate(data);
+    if (!result.valid) {
+      renderErrorPanel(container, result);
+      return result;
+    }
+    render(container, data);
+    return result;
+  };
+
+  NthView.libs = [
+    { kind: "style", href: "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Inter:wght@400;600;700&family=Lora:wght@400;600;700&family=Nunito:wght@500;700;900&family=Space+Grotesk:wght@500;700&display=swap", name: "Google Fonts (Fraunces, Inter, Lora, Nunito, Space Grotesk)" }
+  ];
+  NthView.THEMES = THEMES;
+})(typeof globalThis !== "undefined" ? globalThis : window);
+  </script>
+  <script>
+    (function () {
+      var data = JSON.parse(document.getElementById("nthview-data").textContent);
+      NthView.build(document.getElementById("app"), data);
+    })();
+  </script>
+
+  <!-- NthView lesson bar: added by scripts/build-lesson.js; the view above is untouched -->
+  <nav class="nthview-lesson-bar" aria-label="Lesson navigation" data-chapter="2" data-of="5">
+    <button type="button" class="nthview-lesson-toggle" aria-expanded="false" aria-controls="nthview-lesson-menu" title="Incident Response in IT and OT">2<small>/5</small></button>
+    <div class="nthview-lesson-menu" id="nthview-lesson-menu">
+      <span class="nthview-lesson-title"><b>Incident Response in IT and OT</b> · Chapter 2 of 5: The First 24 Hours</span>
+      <span class="nthview-lesson-links">
+        <a href="01-the-incident-response-map.html">‹ Previous</a>
+        <a href="../index.html">Contents</a>
+        <a class="nthview-lesson-next" href="03-the-night-shift-anomaly.html">Next chapter ›</a>
+      </span>
+    </div>
+  </nav>
+  <style>
+    .nthview-lesson-bar{position:fixed;right:14px;bottom:14px;z-index:2147483000;display:flex;align-items:center;gap:.5rem;font:14px/1.3 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color-scheme:light dark}
+    .nthview-lesson-toggle{width:46px;height:46px;border-radius:50%;border:1.5px solid rgba(127,127,127,.4);background:rgba(255,255,255,.9);color:#111;font:700 15px/1 system-ui,sans-serif;cursor:pointer;box-shadow:0 10px 30px -12px rgba(0,0,0,.5);backdrop-filter:blur(10px)}
+    .nthview-lesson-toggle small{font-size:10px;font-weight:600;opacity:.7}
+    .nthview-lesson-menu{display:none;align-items:center;gap:.9rem;padding:.55rem .9rem;border-radius:999px;border:1.5px solid rgba(127,127,127,.4);background:rgba(255,255,255,.94);color:#111;box-shadow:0 14px 40px -16px rgba(0,0,0,.55);backdrop-filter:blur(12px);max-width:min(78vw,40rem)}
+    .nthview-lesson-bar.nthview-lesson-open .nthview-lesson-menu,.nthview-lesson-bar:focus-within .nthview-lesson-menu,.nthview-lesson-bar:hover .nthview-lesson-menu{display:flex}
+    .nthview-lesson-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:22rem}
+    .nthview-lesson-links{display:flex;gap:.6rem;flex:none}
+    .nthview-lesson-links a{color:#1d4ed8;text-decoration:none;font-weight:600;white-space:nowrap}
+    .nthview-lesson-links a:hover{text-decoration:underline}
+    .nthview-lesson-links a.nthview-lesson-next{background:#1d4ed8;color:#fff;padding:.25rem .7rem;border-radius:999px}
+    .nthview-lesson-bar :focus-visible{outline:3px solid #1d4ed8;outline-offset:2px}
+    @media (prefers-color-scheme:dark){.nthview-lesson-toggle,.nthview-lesson-menu{background:rgba(24,26,36,.92);color:#f3f4f8}.nthview-lesson-links a{color:#9db4ff}.nthview-lesson-links a.nthview-lesson-next{background:#4d7cff;color:#0b1020}}
+    @media (max-width:640px){.nthview-lesson-bar{flex-direction:column-reverse;align-items:flex-end}.nthview-lesson-menu{flex-direction:column;align-items:flex-start;border-radius:1rem;max-width:calc(100vw - 28px)}.nthview-lesson-title{white-space:normal;max-width:none}}
+    @media print{.nthview-lesson-bar{display:none}}
+  </style>
+  <script>
+    (function () {
+      var bar = document.querySelector(".nthview-lesson-bar"), btn = bar.querySelector(".nthview-lesson-toggle");
+      btn.addEventListener("click", function () { var open = bar.classList.toggle("nthview-lesson-open"); btn.setAttribute("aria-expanded", String(open)); });
+      document.addEventListener("keydown", function (e) { if (e.key === "Escape" && bar.classList.contains("nthview-lesson-open")) { bar.classList.remove("nthview-lesson-open"); btn.setAttribute("aria-expanded", "false"); btn.focus(); } });
+    })();
+  </script>
+</body>
+</html>

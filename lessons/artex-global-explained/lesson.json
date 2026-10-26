@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "title": "ARTEX Explained: An AI Team That Pentests on Its Own",
+  "description": "What ARTEX is, what makes it different from a scanner or a single chatbot, and how its team of AI agents plans, works, remembers and finishes a security test with little human help.",
+  "audience": "Anyone curious how an autonomous multi-agent AI system works, no code reading needed.",
+  "chapters": [
+    {
+      "file": "01-how-artex-fits-together",
+      "title": "How ARTEX Fits Together",
+      "view": "nthview-concept-map",
+      "summary": "Tour the agent team, the work it produces, its shared memory and its guard rails, then rebuild the map from memory."
+    },
+    {
+      "file": "02-you-are-the-planner",
+      "title": "You Are the Planner",
+      "view": "nthview-scenario-quiz",
+      "summary": "Step into the team lead's shoes: ten wake-ups, ten decisions about what the agent team should do next."
+    },
+    {
+      "file": "03-the-stalled-task",
+      "title": "The Stalled Task",
+      "view": "nthview-detective",
+      "summary": "A lab task stopped making progress overnight. Use the team's own records to work out which part of the agent loop was waiting, and why."
+    },
+    {
+      "file": "04-artex-archipelago",
+      "title": "ARTEX Archipelago",
+      "view": "nthview-island-quest",
+      "summary": "One island per big idea, hands-on activities, then a final exam over the whole system."
+    }
+  ]
+}

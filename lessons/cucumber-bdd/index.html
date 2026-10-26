@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Cucumber and BDD: Specs Everyone Can Read — NthView lesson</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Inter:wght@400;500;700&display=swap">
+  <style>
+    :root{--bg1:#f7f3ec;--bg2:#ece6f6;--ink:#111318;--muted:#5b5a66;--line:rgba(20,20,40,.12);--surface:rgba(255,255,255,.84);--accent:#6d4aff;--accent-2:#ff6a8a;color-scheme:light dark}
+    @media (prefers-color-scheme:dark){:root{--bg1:#0d0f1a;--bg2:#1a1530;--ink:#fafbff;--muted:#b3b6cc;--line:rgba(255,255,255,.14);--surface:rgba(22,24,44,.7);--accent:#9d8bff;--accent-2:#ff8fa8}}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:linear-gradient(160deg,var(--bg1),var(--bg2));color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif}
+    main{max-width:50rem;margin:0 auto;padding:clamp(1rem,4vw,2.5rem) 1rem 4rem}
+    .eyebrow{font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:var(--accent);margin:0 0 .5rem}
+    h1{font-family:Fraunces,Georgia,serif;font-weight:800;font-size:clamp(2.2rem,6vw,3.6rem);line-height:1;letter-spacing:-.03em;margin:0 0 .8rem;background:linear-gradient(120deg,var(--ink) 55%,var(--accent) 85%,var(--accent-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+    .lede{font-size:1.1rem;color:var(--muted);margin:0 0 .6rem}.aud{font-size:.95rem;color:var(--muted);margin:0 0 1.6rem}
+    ol{list-style:none;padding:0;margin:0;display:grid;gap:.8rem}
+    .ch a{display:flex;gap:1rem;align-items:center;text-decoration:none;color:inherit;background:var(--surface);backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:1.2rem;padding:1rem 1.2rem;box-shadow:0 24px 60px -32px rgba(0,0,0,.45);transition:transform .2s,box-shadow .2s}
+    .ch a:hover{transform:translateY(-3px);box-shadow:0 34px 70px -30px rgba(0,0,0,.55)}
+    .num{font-family:Fraunces,Georgia,serif;font-weight:800;font-size:2rem;line-height:1;background:linear-gradient(135deg,var(--accent),var(--accent-2));-webkit-background-clip:text;background-clip:text;color:transparent;flex:none;width:3rem}
+    .body{flex:1;min-width:0}.view{display:inline-block;font-size:.7rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:.2rem}.body b{display:block;font-family:Fraunces,Georgia,serif;font-size:1.25rem;line-height:1.2}.body p{margin:.3rem 0 0;color:var(--muted);font-size:.95rem}
+    .go{font-size:1.8rem;color:var(--muted)}
+    .foot{display:flex;gap:.8rem;flex-wrap:wrap;margin-top:2rem;align-items:center}.btn{display:inline-block;padding:.65rem 1.2rem;border-radius:999px;font-weight:700;text-decoration:none;border:1.5px solid var(--accent);color:var(--accent)}.btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;border-color:transparent}
+    .back{color:var(--muted);text-decoration:none;font-size:.9rem}.back:hover{text-decoration:underline}
+  </style>
+</head>
+<body>
+  <main>
+    <a class="back" href="../../index.html">‹ All views and lessons</a>
+    <p class="eyebrow" style="margin-top:1.2rem">Lesson · 5 chapters</p>
+    <h1>Cucumber and BDD: Specs Everyone Can Read</h1>
+    <p class="lede">What Behaviour-Driven Development is, how Cucumber turns plain-language Gherkin scenarios into automated tests, and how to keep a Cucumber suite readable, fast and trustworthy.</p>
+    <p class="aud"><b>For:</b> Developers and testers new to BDD; examples use Java with Cucumber-JVM and JUnit 5.</p>
+    <ol aria-label="Chapters">
+      <li class="ch"><a href="chapters/01-how-cucumber-fits-together.html"><span class="num">01</span><span class="body"><span class="view">Concept Map</span><b>How Cucumber Fits Together</b><p>From the BDD conversation to Gherkin, step definitions, the runner, hooks and reports, on one map you rebuild from memory.</p></span><span class="go" aria-hidden="true">›</span></a></li>
+      <li class="ch"><a href="chapters/02-writing-good-scenarios.html"><span class="num">02</span><span class="body"><span class="view">Scenario Quiz</span><b>Writing Good Scenarios</b><p>Ten review decisions on real-looking scenarios: declarative steps, one behaviour each, Backgrounds, Outlines, tags and shared state.</p></span><span class="go" aria-hidden="true">›</span></a></li>
+      <li class="ch"><a href="chapters/03-why-our-bdd-failed.html"><span class="num">03</span><span class="body"><span class="view">Detective</span><b>Why Our BDD Failed</b><p>A team adopted Cucumber and got slow, brittle tests nobody reads. Find out what really went wrong.</p></span><span class="go" aria-hidden="true">›</span></a></li>
+      <li class="ch"><a href="chapters/04-suite-maths.html"><span class="num">04</span><span class="body"><span class="view">Explorable</span><b>Suite Maths</b><p>Play with flaky odds, retries, UI versus API steps, parallel runs and exploding Scenario Outlines.</p></span><span class="go" aria-hidden="true">›</span></a></li>
+      <li class="ch"><a href="chapters/05-cucumber-archipelago.html"><span class="num">05</span><span class="body"><span class="view">Island Quest</span><b>Cucumber Archipelago</b><p>One island per big idea, hands-on activities, then a final exam.</p></span><span class="go" aria-hidden="true">›</span></a></li>
+    </ol>
+    <div class="foot"><a class="btn primary" href="chapters/01-how-cucumber-fits-together.html">Start chapter 1 ›</a></div>
+  </main>
+</body>
+</html>

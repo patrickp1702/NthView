@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "title": "Krishnamurti and Osho: Two Teachers of Freedom",
+  "description": "What J. Krishnamurti and Osho taught about freedom, awareness, thought, love and meditation, where their teachings meet, and where they sharply part.",
+  "audience": "Curious beginners. No background in philosophy or spirituality needed.",
+  "chapters": [
+    { "file": "01-two-teachers-one-map", "title": "Two Teachers, One Map", "view": "nthview-concept-map", "summary": "Tour the core ideas of both teachers and how they connect, then rebuild the map from memory." },
+    { "file": "02-the-pathless-land-case", "title": "The Pathless Land Case", "view": "nthview-detective", "summary": "Why did the young man raised to be a 'World Teacher' walk away in 1929? Crack the case and find what Krishnamurti taught instead." },
+    { "file": "03-zorba-the-buddha", "title": "Zorba the Buddha", "view": "nthview-scenario-quiz", "summary": "Everyday situations seen through Osho's teaching: meditation, desire, love, religion and celebration." },
+    { "file": "04-krishnamurti-or-osho", "title": "Krishnamurti or Osho?", "view": "nthview-scenario-quiz", "summary": "Ten situations, two teachers: work out how each would respond, and why they differ." },
+    { "file": "05-islands-of-awareness", "title": "Islands of Awareness", "view": "nthview-island-quest", "summary": "One island per big idea from both teachers, hands-on activities, then a final exam." }
+  ]
+}
