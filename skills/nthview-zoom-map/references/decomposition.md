@@ -120,7 +120,7 @@ Rules of thumb:
 
 - One or two snippets per concept, under 15 lines each, taken from the
   subject itself. `label` names the file or context ("what you write ·
-  sales.floboard.md"). `lang` drives light highlighting (`js`, `json`, `md`,
+  a Navigator layer · lsass-coverage.json"). `lang` drives light highlighting (`js`, `json`, `md`,
   `bash`, `html`, `text`).
 - Use `result` for a before/after: the code on the left, what it produces on
   the right, an arrow between. `resultLabel` names the right panel ("what a
@@ -156,10 +156,10 @@ the leaf card and in the doc section, and collects them all on the file-map
 rung as a table (File, What it does, Concept) with a "Show on map" button per
 row.
 
-- Paths are free text: `lint/{index.ts, codes.ts}` and `fixtures/*.floboard.md`
+- Paths are free text: `lint/{index.ts, codes.ts}` and `attack.mitre.org/techniques/T1566`
   are fine when that is how the reader would say it.
 - Set `group` on every file when the subject has packages
-  ("packages/floboard/js · the engine"); the file map is then grouped by
+  ("packages/core/js · the engine"); the file map is then grouped by
   package. When no file has a group, it is grouped by pillar.
 - Keep it under about 60 files for a readable map; the validator allows 500.
 

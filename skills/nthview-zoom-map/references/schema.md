@@ -122,7 +122,7 @@ Nodes, levels and pipelines share these optional fields.
 | :- | :- | :- | :- | :- |
 | `code` | string | yes | 1–5000 chars | The code, shown verbatim with light highlighting |
 | `lang` | string | no | ≤20 chars, lowercase letters, digits, `+`, `#`, `-` | Language hint (`js`, `json`, `md`, `bash`, `text`) |
-| `label` | string | no | ≤100 chars | Panel heading ("what you write · sales.floboard.md") |
+| `label` | string | no | ≤100 chars | Panel heading ("a Navigator layer · lsass-coverage.json") |
 | `caption` | string | no | ≤400 chars, mark-up | A line under the panel |
 | `result` | string | no | ≤1500 chars, mark-up | What the code produces; drawn beside the code with an arrow |
 | `resultLabel` | string | no | ≤100 chars | Heading of the result panel, default "result" |
@@ -177,7 +177,7 @@ children.
 | :- | :- | :- | :- | :- |
 | `path` | string | yes | 1–200 chars, free text | The file path, shown in monospace (`scripts/validate.js`, `lint/{index.ts, codes.ts}`) |
 | `role` | string | yes | 1–300 chars, mark-up | What the file does |
-| `group` | string | no | ≤80 chars | Groups the file map ("packages/floboard/js · the engine"). When no file has a group, the map is grouped by pillar |
+| `group` | string | no | ≤80 chars | Groups the file map ("Technique & tactic pages", "attack.mitre.org · pages"). When no file has a group, the map is grouped by pillar |
 
 ## Pipeline object
 An ordered flow drawn as a numbered step strip in doc mode and as numbered
@@ -267,783 +267,551 @@ different pillars shows as a link between those pillars at the overview.
 - A level with nothing on it (no node, pipeline, content or file map).
 
 ## Complete example
-The "How NthView works" map: this repository explained as a ladder. It is the exact data in `examples/example.html` (`node scripts/build-html.js skills/nthview-zoom-map --example …`).
+The MITRE ATT&CK framework explained as a ladder: the public knowledge base of adversary tactics and techniques (attack.mitre.org). It is the exact data in `examples/example.html` (`node scripts/build-html.js skills/nthview-zoom-map --example …`).
 
 ```json
 {
   "schemaVersion": 1,
-  "title": "How NthView works",
-  "subtitle": "The repository, explained as a ladder",
-  "theme": "aurora",
+  "title": "MITRE ATT&CK, explained",
+  "subtitle": "The adversary playbook, read top down",
+  "theme": "graphite",
   "levels": [
     {
       "label": "L0",
-      "name": "The big idea",
-      "meaning": "What NthView is, in one sentence and one example."
+      "name": "The framework",
+      "meaning": "What ATT&CK is, the three matrices, and who turns it into defence."
     },
     {
       "label": "L1",
-      "name": "Five pillars",
-      "heading": "The five things that make it work",
-      "meaning": "Everything in the repository is one of five ideas. Learn these names and the rest is detail."
+      "name": "Intrusion phases",
+      "heading": "Five phases every intrusion moves through",
+      "meaning": "The 14 Enterprise tactics group into five phases of an attack. Learn the phases and the tactics slot in."
     },
     {
       "label": "L2",
-      "name": "From concept to file",
-      "meaning": "The fixed path every piece of content travels, from a request to a file the learner opens."
+      "name": "A ransomware intrusion",
+      "meaning": "One real-shaped attack chain walked tactic by tactic, from a phishing email to encrypted disks."
     },
     {
       "label": "L3",
-      "name": "Concepts",
-      "meaning": "One section per concept: what it is, the rules that shape it and the mechanism behind it."
+      "name": "Tactics & techniques",
+      "meaning": "One section per tactic, with its goal, a representative technique, its sub-techniques and how groups use it."
     },
     {
       "label": "L4",
       "name": "Under the hood",
-      "heading": "Under the hood — how the pieces fit",
-      "meaning": "The repository is layered: what the learner opens, the views, the contract they follow, and the tooling that assembles them.",
-      "summary": "Each layer only depends on the ones beneath it. The learner's file at the top contains everything it needs; the tooling at the bottom is used only when a file is produced, never when it is opened.",
+      "heading": "Under the hood — the data model",
+      "meaning": "ATT&CK is data: tactics, techniques and sub-techniques as STIX objects, shared through bundles and the Navigator.",
+      "summary": "ATT&CK is not prose, it is a graph of typed objects. The matrix you read is a projection of that graph: tactics are columns, techniques are cells, and everything links to mitigations, ((data source))s, ((group))s and ((software)). Each layer only adds detail to the one above it, so a defender can stop at the rung that answers the question in front of them.",
       "stack": [
         {
-          "name": "What the learner opens",
-          "caption": "one file each, no server",
+          "name": "Matrices",
+          "caption": "one per technology domain",
           "items": [
-            "index.html (gallery)",
-            "docs/<slug>-<view>.html",
-            "lessons/<slug>/index.html",
-            "lessons/<slug>/chapters/NN-<slug>.html"
+            "Enterprise (Windows, macOS, Linux, cloud)",
+            "Mobile (Android, iOS)",
+            "ICS (industrial control systems)"
           ]
         },
         {
-          "name": "The views",
-          "caption": "one folder per way of seeing",
+          "name": "Tactics",
+          "caption": "the adversary's goal — the why",
           "items": [
-            "assets/view.js",
-            "scripts/validate.js",
-            "references/schema.md",
-            "SKILL.md",
-            "examples/example.html"
+            "TA0001 Initial Access … TA0040 Impact",
+            "columns of the matrix"
           ]
         },
         {
-          "name": "The contract",
-          "caption": "fixed so every view behaves the same",
+          "name": "Techniques & sub-techniques",
+          "caption": "how the goal is met",
           "items": [
-            "AGENTS.md",
-            "SKILL.md template (§4)",
-            "schema template (§5.1)",
-            "validator skeleton (§5.2)",
-            "renderer skeleton (§5.3)",
-            "HTML template (§6)"
+            "T1566 Phishing",
+            "T1566.001 Spearphishing Attachment",
+            "T1003.001 LSASS Memory"
           ]
         },
         {
-          "name": "Repo tooling",
-          "caption": "plain Node, no packages",
+          "name": "Objects that give context",
+          "caption": "who, with what, and how to stop it",
           "items": [
-            "scripts/build-html.js",
-            "scripts/build-lesson.js",
-            "scripts/build-registry.js"
+            "Groups (G-ids)",
+            "Software (S-ids)",
+            "Mitigations (M-ids)",
+            "Data sources & components (DS-ids)"
           ]
         },
         {
-          "name": "The outside world",
-          "caption": "the only things fetched at runtime",
+          "name": "Formats and tooling",
+          "caption": "how the graph travels",
           "items": [
-            "fonts.googleapis.com",
-            "fonts.gstatic.com",
-            "cdnjs.cloudflare.com",
-            "cdn.jsdelivr.net",
-            "unpkg.com"
+            "STIX 2.1 bundles",
+            "ATT&CK Navigator layers (JSON)",
+            "the TAXII / GitHub distribution"
           ]
         }
       ],
       "facts": [
         {
-          "label": "Why one file",
-          "text": "A learner should be able to open the result from disk, mail it, or drop it on any static host. So the data, the validator and the renderer travel together in one HTML file, and the only things fetched at runtime are pinned libraries and fonts from five allowed hosts."
+          "label": "One object model",
+          "text": "Every tactic, technique, group, piece of software and mitigation is a STIX object with a stable ID. A ((Navigator)) layer is just a list of those IDs with colours and scores, which is why one export opens in anyone's browser."
         },
         {
-          "label": "Why no build step",
-          "text": "There is no `package.json`, bundler or transpiler anywhere. Views are ES2018 scripts with no module syntax, so they can be inlined verbatim, and Node is used only to run the three repo scripts. The output never depends on Node."
-        },
-        {
-          "label": "Why independence beats DRY",
-          "text": "Two views that need the same helper each carry their own copy. A view folder must install alone (copied into `.claude/skills/`), so nothing in one view may import, read or depend on another."
+          "label": "Why sub-techniques exist",
+          "text": "A technique like `T1059` was once a bag of unrelated behaviours. Sub-techniques (`T1059.001` PowerShell, `T1059.003` Windows Command Shell) split it so detections and ((mitigation))s can be precise without multiplying the top-level list."
         }
-      ]
+      ],
+      "note": "**The matrix is a map, not a checklist.** No intrusion uses every cell, and defending every cell is impossible. ATT&CK is for reasoning about *which* behaviours matter to you, given the ((group))s and ((software)) that target your sector."
     },
     {
       "label": "L5",
-      "name": "File map",
-      "heading": "The complete file map",
-      "meaning": "Every file in the repository, what it does and the concept it belongs to.",
+      "name": "Artefacts",
+      "heading": "The pages and files you actually open",
+      "meaning": "Every ATT&CK artefact — matrix, technique page, group page, mitigation page, data source page, Navigator layer, STIX bundle — and what it is for.",
       "fileMap": true
     }
   ],
   "root": {
-    "id": "nthview",
-    "title": "NthView",
+    "id": "attack",
+    "title": "MITRE ATT&CK",
     "kind": "system",
-    "oneLiner": "Learn anything, in the nth view that suits you.",
-    "summary": "NthView is a ((kaleidoscope)) for learning. The same content — a topic, a pasted text, a paper, a codebase — can be turned into a quiz, a game, a concept map, an explorable model or a zoomable map, and the learner picks the one that suits them. Each way of seeing is a ((view)): a separate, self-contained agent ((skill)) that turns content into one ((standalone file)) the learner opens in a browser.\n\nThis guide explains the repository itself as a ladder. L0 is the idea, L1 the five pillars, L2 the path from a request to a file, L3 one section per concept, L4 how the layers fit and L5 the complete file map. Stop wherever it clicks.",
+    "oneLiner": "A public, evidence-based catalogue of how real attackers behave after they get in.",
+    "summary": "**ATT&CK** (Adversarial Tactics, Techniques, and Common Knowledge) is a free knowledge base, published by MITRE at attack.mitre.org, that names the things attackers *do*. Its spine is a ((matrix)): the columns are ((tactic))s — the attacker's goals, such as Initial Access or Exfiltration — and the cells are ((technique))s — the ways those goals are met, each with a stable ID like `T1566`.\n\nIt is built from reported, real-world intrusions, so every technique links to the ((group))s and ((software)) seen using it and to the ((mitigation))s and ((data source))s that counter and reveal it. Defenders use it as a shared language: to map their coverage, drive detections, plan red-team exercises and tag ((CTI)) reports.\n\nThis map reads ATT&CK top down. L0 is the idea, L1 the five phases of an intrusion, L2 one attack walked end to end, L3 the tactics and their techniques, L4 the data model, and L5 the artefacts you open. Stop at the rung that answers your question.",
     "facts": [
-      "one concept, many views",
-      "one view at a time",
-      "one standalone HTML file",
-      "validated before it renders"
+      "built from real, reported intrusions",
+      "14 Enterprise tactics",
+      "about 200 techniques, 400+ sub-techniques",
+      "free and openly licensed"
     ],
     "snippet": {
-      "label": "what the agent writes · docs/greenhouse-effect-concept-map.json",
+      "label": "a Navigator layer · lsass-coverage.json",
       "lang": "json",
-      "code": "{\n  \"schemaVersion\": 1,\n  \"title\": \"The greenhouse effect\",\n  \"theme\": \"paper\",\n  \"nodes\": [ { \"id\": \"co2\", \"label\": \"CO₂\" }, … ],\n  \"edges\": [ { \"from\": \"co2\", \"to\": \"warming\", \"relation\": \"traps heat, causing\" }, … ]\n}",
-      "resultLabel": "what the learner opens",
-      "result": "**greenhouse-effect-concept-map.html** — one file with the data, the validator and the renderer inlined. It opens from disk, follows light or dark mode, works at phone width and needs the network only for its fonts.",
-      "caption": "Ask for the same topic as a quiz or a game and a second file is built from the same content. Never two views in one file."
+      "code": "{\n  \"name\": \"EDR coverage — credential access\",\n  \"domain\": \"enterprise-attack\",\n  \"versions\": { \"attack\": \"15\", \"navigator\": \"4.9\" },\n  \"techniques\": [\n    { \"techniqueID\": \"T1003.001\", \"score\": 100,\n      \"color\": \"#2e7d32\", \"comment\": \"LSASS access alert live\" },\n    { \"techniqueID\": \"T1003.002\", \"score\": 0,\n      \"color\": \"#c62828\", \"comment\": \"SAM dumping — no detection yet\" }\n  ]\n}",
+      "resultLabel": "what an analyst sees",
+      "result": "The **ATT&CK Navigator** paints those two cells of the matrix green and red over the grey of every other technique — a one-glance heat-map of *where detection exists and where it does not*. The same file opens in anyone's browser with no account.",
+      "caption": "A layer is only a list of technique IDs with colours, scores and notes; the matrix underneath is ATT&CK's own."
     },
+    "table": {
+      "columns": [
+        "Tactic",
+        "ID",
+        "The attacker's goal"
+      ],
+      "rows": [
+        ["Reconnaissance", "`TA0043`", "Gather information to plan the operation"],
+        ["Resource Development", "`TA0042`", "Build or buy the infrastructure and tools"],
+        ["Initial Access", "`TA0001`", "Get the first foothold inside"],
+        ["Execution", "`TA0002`", "Run attacker-controlled code"],
+        ["Persistence", "`TA0003`", "Keep the foothold across reboots and logins"],
+        ["Privilege Escalation", "`TA0004`", "Gain higher permissions"],
+        ["Defense Evasion", "`TA0005`", "Avoid being detected"],
+        ["Credential Access", "`TA0006`", "Steal account names and passwords"],
+        ["Discovery", "`TA0007`", "Learn the environment"],
+        ["Lateral Movement", "`TA0008`", "Move to other systems"],
+        ["Collection", "`TA0009`", "Gather the data of interest"],
+        ["Command and Control", "`TA0011`", "Talk to the compromised systems"],
+        ["Exfiltration", "`TA0010`", "Steal the data out"],
+        ["Impact", "`TA0040`", "Manipulate, interrupt or destroy"]
+      ],
+      "caption": "The 14 Enterprise tactics, in roughly the order an intrusion meets them. This map groups them into the five phases at [[L1|get-in]]."
+    },
+    "files": [
+      { "path": "attack.mitre.org/matrices/enterprise", "role": "the Enterprise matrix: every tactic and technique for Windows, macOS, Linux and cloud", "group": "Matrices" },
+      { "path": "attack.mitre.org/matrices/mobile", "role": "the Mobile matrix (Android, iOS)", "group": "Matrices" },
+      { "path": "attack.mitre.org/matrices/ics", "role": "the ICS matrix for industrial control systems", "group": "Matrices" },
+      { "path": "mitre-attack/attack-stix-data (GitHub)", "role": "the whole knowledge base as STIX 2.1 bundles, the machine-readable source of truth", "group": "Tooling (STIX, Navigator)" },
+      { "path": "mitre-attack.github.io/attack-navigator", "role": "the Navigator web app that renders coloured, scored layers over the matrix", "group": "Tooling (STIX, Navigator)" }
+    ],
     "children": [
       {
-        "id": "the-contract",
-        "title": "The view contract",
+        "id": "get-in",
+        "title": "Getting a foothold",
         "kind": "pillar",
-        "tag": "Rulebook",
+        "tag": "Recon to access",
         "color": "teal",
-        "oneLiner": "AGENTS.md fixes five files, one global object and one HTML template, so every view behaves identically.",
-        "summary": "`AGENTS.md` is the rulebook every agent reads first. It fixes the folder layout of a view, the shape of its validator and renderer, the data conventions and the output template. The structure is not a suggestion: a view that deviates is rejected by the registry builder even if it works. If a rule needs to change, the file changes first, in its own commit, and every existing view follows.",
+        "oneLiner": "Before any code runs on your network, the attacker researches you, builds tooling and finds a way in.",
+        "summary": "The first phase covers everything up to and including the first foothold: the pre-compromise ((tactic))s **Reconnaissance** and **Resource Development**, which happen on the attacker's own systems, and **Initial Access**, the moment a technique first touches yours. Phishing is the workhorse here, which is why so much defensive effort sits in email filtering and user training.",
         "children": [
           {
-            "id": "five-files",
-            "title": "Five files per view",
+            "id": "reconnaissance",
+            "title": "Reconnaissance",
             "kind": "concept",
             "level": 3,
-            "oneLiner": "A view is a folder skills/nthview-<view>/ holding exactly five files with fixed names and roles.",
-            "summary": "Fixing the names means an agent that has seen one view can work on any other without reading the folder first. The Agent Skills specification defines three optional folders and each is used for its intended purpose: `scripts/` for executable code, `references/` for documentation loaded on demand, `assets/` for resources that end up in the output. `examples/` is an NthView addition.",
-            "table": {
-              "columns": [
-                "Path",
-                "Role",
-                "Public surface"
-              ],
-              "rows": [
-                [
-                  "`SKILL.md`",
-                  "The procedure the agent follows to turn content into this view, in a fixed section order, under 500 lines",
-                  "frontmatter `name`, `description`"
-                ],
-                [
-                  "`references/schema.md`",
-                  "The single source of truth for the view's JSON: field tables, cross-field rules, warnings and the complete example",
-                  "the documented fields"
-                ],
-                [
-                  "`scripts/validate.js`",
-                  "Implements every rule in schema.md and nothing more; Node CLI and browser",
-                  "`NthView.validate(data)`"
-                ],
-                [
-                  "`assets/view.js`",
-                  "Renders the view; all CSS inside, every class prefixed `nthview-`",
-                  "`NthView.build(container, data)`"
-                ],
-                [
-                  "`examples/example.html`",
-                  "The schema's complete example built with the output template; opens from disk with no console errors",
-                  "none"
-                ]
-              ],
-              "caption": "Permitted additions: extra `.md` files in `references/` linked from SKILL.md, and extra samples `examples/example-<topic>.html`. Nothing else."
-            },
-            "note": "**Forbidden inside a view:** any other folder (`src/`, `lib/`, `css/`, `tests/`), any file that is not `.md`, `.js` or `.html`, shared code between views, `import`/`export`, a `package.json` or a build step. `scripts/build-registry.js` refuses the folder otherwise.",
-            "files": [
-              {
-                "path": "AGENTS.md",
-                "role": "the rulebook: the five-file contract (§3), the templates and skeletons (§4–6), the registry (§7) and the checklist for a new view (§11)",
-                "group": "repo root"
-              }
-            ]
-          },
-          {
-            "id": "nthview-global",
-            "title": "One global, two functions",
-            "kind": "concept",
-            "level": 3,
-            "oneLiner": "Every view exposes NthView.validate(data) and NthView.build(container, data), and nothing else public.",
-            "summary": "The validator and the renderer are two plain scripts that extend one global object, `NthView`, never replace it. The only other permitted properties are `SUPPORTED_VERSIONS`, `libs` (the view's CDN resources) and `THEMES` (when the view has themes). Helpers stay inside each script's closure.",
-            "snippet": {
-              "label": "assets/view.js · the fixed entry point",
-              "lang": "js",
-              "code": "NthView.build = function (container, data) {\n  container.innerHTML = \"\";\n  container.classList.add(\"nthview\", \"nthview-<view>\");\n  injectStyles();                       // once, into <head>\n  var result = NthView.validate(data);  // always first\n  if (!result.valid) { renderErrorPanel(container, result); return result; }\n  render(container, data);              // data is valid here\n  return result;\n};",
-              "caption": "`build` validates first, clears the container, injects styles once and returns the validation result. Re-running it replaces the previous render."
-            },
-            "deeper": {
-              "title": "what build() guarantees",
-              "text": "The renderer skeleton in AGENTS.md §5.3 fixes everything around `render`: the `el()` helper that builds DOM with `textContent` (never `innerHTML` from data, so content cannot inject markup), the `CSS` string with every colour read from `--nv-*` custom properties so light and dark mode share one rule set, the `:focus-visible` rule for keyboard users, and the standard ((error panel)).\n\nWhen the view declares libraries in `NthView.libs`, `build()` also checks that each script's global exists and, if one did not load, renders the error panel with a single message naming the library and the URL — never a blank screen or a broken scene.\n\nA view must be responsive from 320px, keyboard operable (real buttons, links and inputs, or `tabindex=\"0\"` with a key handler), and must not call `fetch`, `XMLHttpRequest` or `import`."
-            },
-            "files": [
-              {
-                "path": "skills/nthview-<view>/assets/view.js",
-                "role": "the renderer: `NthView.build`, the `CSS` string, `render` and the view's helpers",
-                "group": "skills/ · the views"
-              },
-              {
-                "path": "skills/nthview-<view>/scripts/validate.js",
-                "role": "the validator: `NthView.validate`, `SUPPORTED_VERSIONS`, the Node CLI",
-                "group": "skills/ · the views"
-              }
-            ]
-          },
-          {
-            "id": "schema-md",
-            "title": "schema.md, the source of truth",
-            "kind": "concept",
-            "heading": "schema.md — the single source of truth",
-            "level": 3,
-            "oneLiner": "Every field in a five-column table, the cross-field rules, the warnings and one complete example.",
-            "summary": "A view's data format lives in one place. `schemaVersion` (integer, required) is always the first field and `title` (string, required) is always at the root, so every view has a page heading. Cross-field problems — a dangling id, an out-of-range index — are errors; stylistic concerns are warnings. The validator implements the rules written here and nothing more: when the validator needs a rule, the schema gets it first.",
-            "facts": [
-              "Fixed headings: Overview, Root object, one table per nested type, Cross-field rules, Warnings, Complete example.",
-              "The complete example is the exact data in `examples/example.html`; `scripts/build-html.js --example` reads it from the fenced json block, so there is one copy.",
-              "`schemaVersion` is bumped only for breaking changes; the new number is added to `SUPPORTED_VERSIONS` and the old shape is handled in `render` when feasible."
-            ],
-            "files": [
-              {
-                "path": "skills/nthview-<view>/references/schema.md",
-                "role": "the view's JSON format and its complete example",
-                "group": "skills/ · the views"
-              }
-            ]
-          },
-          {
-            "id": "validation",
-            "title": "Validation before rendering",
-            "kind": "concept",
-            "level": 3,
-            "oneLiner": "The same validator runs as a Node CLI while the agent works and inside the page when the learner opens it.",
-            "summary": "`scripts/validate.js` is one file in two places. Its UMD wrapper defines `NthView.validate` in the browser and exports the same function for Node; a CLI block at the end reads a JSON file, prints every problem and exits `0` when valid, `1` when invalid or unreadable, `2` on a usage error. It prints exactly `valid` on success so a skill can grep for it.",
-            "snippet": {
-              "label": "terminal",
-              "lang": "bash",
-              "code": "node skills/nthview-concept-map/scripts/validate.js docs/greenhouse-effect-concept-map.json\n# error    edges[2].to: node id \"step-9\" is not defined in nodes\n# warning  nodes[4].label: is 41 characters; labels over 32 are clipped\n# invalid: 1 error(s)",
-              "resultLabel": "after the fix",
-              "result": "`valid`\n\nThe CLI prints the single word, exits `0`, and the build tool accepts the file."
-            },
-            "facts": [
-              {
-                "label": "Never throws",
-                "text": "Bad root input yields one error at `$`. An unknown `schemaVersion` is rejected before anything else is checked. All problems are reported in one pass."
-              },
-              {
-                "label": "path: message",
-                "text": "Paths run from the root with `.` and `[n]`, the root is `$`; one sentence says what is wrong and what was expected, with the actual value when it helps: `items[3].answer: index 4 is out of range (4 options, valid indexes are 0–3)`."
-              },
-              {
-                "label": "Errors block, warnings advise",
-                "text": "A blocking problem is never put in warnings. The in-page error panel shows the same strings the CLI prints."
-              }
-            ],
-            "deeper": {
-              "title": "how the error panel is reached",
-              "text": "`build()` calls `validate` first. On invalid data it renders a fixed block — `.nthview-error-panel[role=alert]` with an `h2` (\"This view could not be built\"), a `p` with the count, and a `ul` of `<code>path</code>: message` — and returns the result without touching `render`. That is why an NthView file never shows a half-broken view: either the data passed, or the learner sees exactly what the agent would have seen on the command line.\n\nThe build tools enforce the same gate from the outside: `scripts/build-html.js` validates before it writes and refuses to write an invalid file, and `scripts/build-lesson.js` does the same for every chapter."
-            }
-          },
-          {
-            "id": "skill-md",
-            "title": "SKILL.md, the procedure",
-            "kind": "concept",
-            "heading": "SKILL.md — the procedure the agent follows",
-            "level": 3,
-            "oneLiner": "A fixed template: Overview, When to use, a five-step Procedure, Content guidance, Common mistakes, Files.",
-            "summary": "The frontmatter `name` equals the folder name and the single-line `description` says, in the third person, what the view *produces* and *when* to use it, with the trigger words a user would actually say — and never summarises the procedure, because an agent may follow the description instead of the body. The gallery shows exactly this description, so it is written for both the agent and the human reader.",
-            "facts": [
-              "The five numbered steps are mandatory and ordered: Understand the content → Prepare the JSON → Validate → Build the HTML file → Deliver.",
-              "Under 500 lines; heavier guidance moves to `references/*.md` files linked from SKILL.md.",
-              "Each view carries its own copy of the procedure; nothing is shared."
-            ],
-            "files": [
-              {
-                "path": "skills/nthview-<view>/SKILL.md",
-                "role": "the view's procedure, frontmatter `name` and `description`",
-                "group": "skills/ · the views"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "id": "the-views",
-        "title": "The views",
-        "kind": "pillar",
-        "tag": "Kaleidoscope",
-        "color": "violet",
-        "oneLiner": "Six self-contained skills, each one way of seeing the same content; the learner picks one at a time.",
-        "summary": "Think of a kaleidoscope: the same content, turned, appears in a new form. Each view is a separate skill folder with its own validator, renderer, schema and example. Nothing in one view folder may import, read or depend on another, so each installs alone. The user picks **one** view; only that view is built. Another view of the same content is another file.",
-        "deeper": {
-          "title": "the kaleidoscope, mechanically",
-          "text": "The one-view-at-a-time principle is what keeps every view independent. Because a file is one view over one dataset, a view never has to know how another view shapes content, and the agent never has to merge two schemas. Turning the kaleidoscope means: take the same source content, follow a different `SKILL.md`, write a different JSON, validate it with that view's validator, and build a second file. Two angles on an idea inside a lesson are two chapters, never one.\n\nThemes follow the same discipline: every view carries its own palettes (light and dark for each), picks one from the root `theme` field or derives it from the title, and keeps every colour in CSS custom properties so the base error panel keeps the shared look."
-        },
-        "children": [
-          {
-            "id": "island-quest",
-            "title": "Island Quest",
-            "kind": "concept",
-            "level": 3,
-            "oneLiner": "A playable 3D island adventure: one lesson per island, 25 kinds of activity, a final exam and a report card.",
-            "summary": "Islands are laid out in rings (3 to 60), each holding one lesson with activities, in four world themes. It suits beginners, children, anyone asking for a game, a paper with separable findings, and consolidating several ideas at the end of a lesson.",
-            "files": [
-              {
-                "path": "skills/nthview-island-quest/",
-                "role": "the five files of the Island Quest view",
-                "group": "skills/ · the views"
-              }
-            ]
-          },
-          {
-            "id": "scenario-quiz",
-            "title": "Scenario Quiz",
-            "kind": "concept",
-            "level": 3,
-            "oneLiner": "A story-based decision quiz: a role, a run of choices, every option explained as right, wrong or tempting.",
-            "summary": "The learner is given a role in a scenario and faces a sequence of choices; the file ends with a full review. It suits judgement calls, rules, ethics and \"what would you do\" content.",
-            "files": [
-              {
-                "path": "skills/nthview-scenario-quiz/",
-                "role": "the five files of the Scenario Quiz view",
-                "group": "skills/ · the views"
-              }
-            ]
-          },
-          {
-            "id": "explorable",
-            "title": "Explorable Lab",
-            "kind": "concept",
-            "level": 3,
-            "oneLiner": "Learn by tinkering: live slider-driven models, predict-then-observe prompts and eleven visualisation kinds.",
-            "summary": "A guided sequence of models the learner can push on. It suits anything with numbers or a mechanism worth playing with, and building intuition in the middle of a lesson.",
-            "files": [
-              {
-                "path": "skills/nthview-explorable/",
-                "role": "the five files of the Explorable Lab view",
-                "group": "skills/ · the views"
-              }
-            ]
-          },
-          {
-            "id": "detective",
-            "title": "Detective Case",
-            "kind": "concept",
-            "level": 3,
-            "oneLiner": "Learn by deduction: the facts are clues, misconceptions are suspects, and the case is cracked on a board.",
-            "summary": "A puzzle with misconceptions to rule out and a story with a reveal; a strong opening chapter for a lesson.",
-            "files": [
-              {
-                "path": "skills/nthview-detective/",
-                "role": "the five files of the Detective Case view",
-                "group": "skills/ · the views"
-              }
-            ]
-          },
-          {
-            "id": "concept-map",
-            "title": "Concept Map",
-            "kind": "concept",
-            "level": 3,
-            "oneLiner": "Learn by structure: tour a living map of the idea, then rebuild it from memory with a hint for every slip.",
-            "summary": "Concepts as nodes in coloured clusters, labelled relationships as arrows, a guided tour, then six kinds of rebuild task. It suits systems of causes and effects and \"how it all fits together\".",
-            "files": [
-              {
-                "path": "skills/nthview-concept-map/",
-                "role": "the five files of the Concept Map view, plus `references/rebuild-tasks.md`",
-                "group": "skills/ · the views"
-              }
-            ]
-          },
-          {
-            "id": "zoom-map",
-            "title": "Zoom Map",
-            "kind": "concept",
-            "level": 3,
-            "oneLiner": "Learn top-down: a zoomable containment map and a ladder document over one tree of pillars, concepts and files.",
-            "summary": "The view you are reading now. Map mode zooms from the big idea into pillars, concepts and mechanisms down to file chips; doc mode is the same tree as a readable ladder with level badges, pipelines, tables, snippets, \"Go deeper\" accordions, a file map and a glossary. Every region links to its section and back. It suits codebases, architectures and \"how does this work\" questions.",
-            "files": [
-              {
-                "path": "skills/nthview-zoom-map/",
-                "role": "the five files of the Zoom Map view, plus `references/decomposition.md`",
-                "group": "skills/ · the views"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "id": "build-tools",
-        "title": "The build tools",
-        "kind": "pillar",
-        "tag": "Assembly line",
-        "color": "gold",
-        "oneLiner": "Three Node scripts turn validated JSON into standalone pages, lessons and the gallery registry.",
-        "summary": "The root `scripts/` folder holds repo tooling only, never view code. Each script runs on plain Node with no packages: one assembles a standalone page, one assembles a lesson, one checks every view folder against the contract and writes the registry.",
-        "children": [
-          {
-            "id": "build-html",
-            "title": "build-html.js",
-            "kind": "concept",
-            "heading": "build-html.js — the standalone template",
-            "level": 3,
-            "oneLiner": "Assembles the one-file output exactly as AGENTS.md §6 prescribes and refuses to write invalid data.",
-            "summary": "The output of every view, including each `examples/example.html`, is one fixed HTML template with four placeholders: the title, the view's CDN tags, the serialised JSON, and the two scripts inlined verbatim followed by a three-line bootstrap. The tool fills them exactly; building by hand is allowed but must produce the same file.",
-            "snippet": [
-              {
-                "label": "terminal",
-                "lang": "bash",
-                "code": "node scripts/build-html.js skills/nthview-concept-map docs/greenhouse-effect-concept-map.json docs/greenhouse-effect-concept-map.html\n# wrote docs/greenhouse-effect-concept-map.html (184210 bytes, 1 CDN library)\n\n# the view's own demo, from the example in references/schema.md\nnode scripts/build-html.js skills/nthview-concept-map --example skills/nthview-concept-map/examples/example.html"
-              },
-              {
-                "label": "the template · AGENTS.md §6",
-                "lang": "html",
-                "code": "<!doctype html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <meta name=\"color-scheme\" content=\"light dark\">\n  <title>{{title}} — NthView</title>\n</head>\n<body>\n  <div id=\"app\"></div>\n  {{one <link> or <script src> tag per entry in NthView.libs}}\n  <script type=\"application/json\" id=\"nthview-data\">{{JSON, every \"<\" as \\u003c}}</script>\n  <script>{{scripts/validate.js, verbatim}}</script>\n  <script>{{assets/view.js, verbatim}}</script>\n  <script>\n    (function () {\n      var data = JSON.parse(document.getElementById(\"nthview-data\").textContent);\n      NthView.build(document.getElementById(\"app\"), data);\n    })();\n  </script>\n</body>\n</html>",
-                "caption": "`id=\"nthview-data\"` and `id=\"app\"` are fixed names. The output file is named `<concept-slug>-<view>.html`."
-              }
-            ],
-            "deeper": {
-              "title": "why the JSON is escaped and the scripts are verbatim",
-              "text": "After serialising the data, every `<` becomes `\\u003c`. That is a valid JSON escape, so the data is unchanged after parsing, and it neutralises both `</script>` and `<!--`, which would otherwise end the script block early. (`<\\/script>` is not used: the matching trick for `<!--` is not valid JSON.)\n\nThe two scripts are copied byte for byte, validate.js first because view.js needs `NthView.validate` to exist. Never minified, edited or linked: the file must work when it is the only file on the machine, so the only `src=`, `href=` and `url(` values allowed are the CDN entries from `NthView.libs`, `data:` URIs and hyperlinks the view renders from its data.\n\nAs a module, `assemble(viewDir, data, { extraBody })` returns `{ html, errors, warnings, libs }`; `scripts/build-lesson.js` uses `extraBody` for the lesson bar."
-            },
+            "tag": "TA0043",
+            "oneLiner": "Gathering information — about people, systems and relationships — to plan the intrusion.",
+            "summary": "Reconnaissance is the attacker learning about the target before touching it. Much of it is passive and invisible: reading the company website, scraping staff names from social media, enumerating internet-facing hosts. Because it mostly happens off your network, it is rarely detected; the defence is reducing what you expose.",
             "children": [
               {
-                "id": "cdn-rules",
-                "title": "Libraries and fonts",
+                "id": "t1595",
+                "title": "T1595 Active Scanning",
                 "kind": "mechanism",
-                "heading": "External libraries — the only runtime fetches",
-                "oneLiner": "A view that needs a library or a web font declares it in NthView.libs, pinned, from one of five hosts.",
-                "summary": "A view that genuinely needs a library (3D, charts, maths typesetting) or a web font may load it from a CDN; the browser fetches it when the file opens, so the output stays one shareable file. `scripts/build-html.js` writes one tag per entry before the inlined scripts, and `build()` checks that every script's global exists.",
-                "table": {
-                  "columns": [
-                    "Rule",
-                    "Detail"
-                  ],
-                  "rows": [
-                    [
-                      "Allowed hosts",
-                      "`cdnjs.cloudflare.com`, `cdn.jsdelivr.net`, `unpkg.com`, `fonts.googleapis.com`, `fonts.gstatic.com`; always `https`"
-                    ],
-                    [
-                      "Pinned version",
-                      "`three.js/r128/`, `chart.js/4.4.1/`; never `latest`"
-                    ],
-                    [
-                      "Declared",
-                      "`NthView.libs = [{ kind: \"script\", src, global, name }, { kind: \"style\", href, name }]`, directly after `NthView.build`"
-                    ],
-                    [
-                      "Checked",
-                      "a missing script global renders the error panel: \"<name> did not load from <src>. This file needs internet access the first time it opens.\""
-                    ],
-                    [
-                      "Prefer none",
-                      "plain JavaScript and CSS when they do the job; a view without libraries omits `NthView.libs`"
-                    ]
-                  ]
+                "oneLiner": "Probing the target's infrastructure directly — scanning IP blocks, ports and web apps for weak points.",
+                "summary": "Unlike passive reconnaissance, active scanning sends traffic to the target: port scans, vulnerability scans and crawling of public web applications. It leaves faint traces in network and web logs, so it is one of the few pre-compromise behaviours a defender can sometimes see.",
+                "deeper": {
+                  "title": "what the data sources show",
+                  "text": "Active scanning surfaces in **Network Traffic** (unusual flows from a single source across many ports) and in web-server logs. It is noisy and common, so alerting on it alone is low value; it matters as *corroboration* when a later `T1190` exploit lands on a host that was scanned days before."
                 }
               }
-            ],
-            "files": [
+            ]
+          },
+          {
+            "id": "resource-development",
+            "title": "Resource Development",
+            "kind": "concept",
+            "level": 3,
+            "tag": "TA0042",
+            "oneLiner": "Building, buying or stealing the infrastructure and capabilities the operation will use.",
+            "summary": "Before the attack, the adversary stands up what it needs: domains, servers, email accounts, malware and exploits. Like reconnaissance, this happens off your network, but threat-intelligence teams track it — a newly registered look-alike domain is often the first warning of a campaign aimed at you.",
+            "children": [
               {
-                "path": "scripts/build-html.js",
-                "role": "assembles a standalone output file exactly as §6; `--example` reads the complete example from the view's schema.md",
-                "group": "scripts/ · repo tooling"
+                "id": "t1583",
+                "title": "T1583 Acquire Infrastructure",
+                "kind": "mechanism",
+                "oneLiner": "Registering domains and renting servers that will host phishing pages, payloads and command-and-control.",
+                "summary": "Attackers acquire the ((command and control)) and delivery infrastructure an operation needs: look-alike domains for phishing, virtual servers for payload hosting, and redirectors to hide the real C2. Intelligence feeds and certificate-transparency logs let defenders spot some of it early."
               }
             ]
           },
           {
-            "id": "build-lesson",
-            "title": "build-lesson.js",
+            "id": "initial-access",
+            "title": "Initial Access",
             "kind": "concept",
-            "heading": "build-lesson.js — chapters and the lesson bar",
             "level": 3,
-            "oneLiner": "Validates a lesson and every chapter, assembles each chapter page with a lesson bar, writes the contents page.",
-            "summary": "`node scripts/build-lesson.js lessons/<slug>` validates `lesson.json`, validates each chapter's JSON with its view's validator, assembles every chapter page exactly as [[build-html.js|build-html]] would, appends the lesson bar, writes the lesson's `index.html` contents page and regenerates the registry. `--all` rebuilds every lesson.",
-            "deeper": {
-              "title": "the lesson bar",
-              "text": "A lesson chapter may carry exactly one extra block after the bootstrap script: a `<nav class=\"nthview-lesson-bar\">` with its own `<style>` and `<script>`, every class prefixed `nthview-lesson-`. It shows the chapter number, and on hover or tap a menu with Previous, Contents and Next (or \"Next lesson\" when the manifest names one, or \"Finish\"). It is fixed to the bottom-right corner above everything else, follows light and dark mode, hides when printed and closes on Escape.\n\nIt never touches the ((view)): the view's scripts are unchanged, the bar only sits in the same page. This is the one addition the output template permits, which is why `build-html.js` exposes `extraBody`."
-            },
-            "files": [
+            "tag": "TA0001",
+            "heading": "Initial Access — the first foothold",
+            "oneLiner": "The techniques that get an attacker their first execution or account inside the target.",
+            "summary": "Initial Access is the doorway. Options include exploiting a public-facing application, abusing valid accounts, and — most commonly — **phishing**. This is the first tactic whose techniques actually touch your environment, so it is where detection becomes possible and where a layered defence pays off most.",
+            "children": [
               {
-                "path": "scripts/build-lesson.js",
-                "role": "validates `lesson.json`, builds every chapter with its view and the lesson bar, writes the contents page, regenerates the registry",
-                "group": "scripts/ · repo tooling"
-              }
-            ]
-          },
-          {
-            "id": "build-registry",
-            "title": "build-registry.js",
-            "kind": "concept",
-            "heading": "build-registry.js — the structure checker",
-            "level": 3,
-            "oneLiner": "Scans skills/, docs/ and lessons/, rejects any view folder that breaks the contract, and writes registry.js.",
-            "summary": "Registering a skill *is* running this script. It reads each `skills/<name>/SKILL.md` frontmatter, checks every `nthview-*` folder against AGENTS.md §3, scans `docs/*.html` and `lessons/<slug>/lesson.json`, and writes [[registry.js|registry-js]]. It exits non-zero and writes nothing if any folder breaks the rules, so it doubles as the structure checker; `--check` exits `1` when `registry.js` is stale.",
-            "table": {
-              "columns": [
-                "What it checks",
-                "Example rejection"
-              ],
-              "rows": [
-                [
-                  "The five required files exist",
-                  "`skills/nthview-quiz: missing required file examples/example.html`"
-                ],
-                [
-                  "Frontmatter `name` equals the folder, `description` is one line under 1024 characters",
-                  "`frontmatter name \"nthview-quizz\" does not match folder name \"nthview-quiz\"`"
-                ],
-                [
-                  "No forbidden runtime calls in view.js or the example",
-                  "`forbidden runtime call or import: fetch(\"data.json\")`"
-                ],
-                [
-                  "Every URL is on an allowed CDN host; the example has no local `src`, `href` or `url(`",
-                  "`URL is not on an allowed CDN host (...): https://example.com/lib.js`"
-                ],
-                [
-                  "Only `SKILL.md`, `assets/`, `scripts/`, `references/`, `examples/` inside the folder",
-                  "`unexpected entry \"src\" (only SKILL.md, assets/, scripts/, references/, examples/ are allowed)`"
-                ],
-                [
-                  "A lesson has its `index.html` and every chapter page",
-                  "`lessons/x/lesson.json chapters[1]: chapters/02-y.html is missing; run node scripts/build-lesson.js lessons/x`"
+                "id": "t1566",
+                "title": "T1566 Phishing",
+                "kind": "mechanism",
+                "oneLiner": "Tricking a person into opening a malicious attachment or link that delivers the first payload.",
+                "summary": "Phishing sends a crafted message that leads the recipient to run code or hand over credentials. It is the single most common way intrusions begin, which is why it anchors the attack chain walked at level L2.",
+                "snippet": {
+                  "label": "a Sigma-style detection sketch · suspicious-office-child.yml",
+                  "lang": "text",
+                  "code": "title: Office app spawns a script interpreter\nlogsource: { category: process_creation, product: windows }\ndetection:\n  parent:\n    ParentImage|endswith: ['\\\\WINWORD.EXE', '\\\\EXCEL.EXE']\n  child:\n    Image|endswith: ['\\\\powershell.exe', '\\\\wscript.exe', '\\\\cmd.exe']\n  condition: parent and child\nlevel: high",
+                  "caption": "Detections for phishing usually fire on what the lure *does* — here, a document spawning a script interpreter — not on the email itself."
+                },
+                "deeper": {
+                  "title": "the two sub-techniques you meet most",
+                  "text": "`T1566.001` **Spearphishing Attachment** delivers a weaponised file (a macro-enabled document, an ISO, a LNK). `T1566.002` **Spearphishing Link** sends a URL to a credential-harvesting page or a drive-by payload. A group such as ((group)) G0016 (APT29) has used targeted spearphishing links against specific victims. Mitigations: `M1017` User Training and `M1049` Antivirus/Antimalware; the richest ((data source)) is **Application Log** (email gateway) joined to **Process Creation** on the endpoint."
+                },
+                "files": [
+                  { "path": "attack.mitre.org/techniques/T1566", "role": "the Phishing technique page: sub-techniques, procedures, mitigations and detections", "group": "Technique & tactic pages" },
+                  { "path": "attack.mitre.org/groups/G0016", "role": "the APT29 group page, listing the techniques and software attributed to it", "group": "Groups & software" }
                 ]
-              ]
-            },
-            "files": [
-              {
-                "path": "scripts/build-registry.js",
-                "role": "the structure checker and registry writer; `--check` verifies registry.js is current",
-                "group": "scripts/ · repo tooling"
               }
             ]
           }
         ]
       },
       {
-        "id": "gallery",
-        "title": "The gallery and the registry",
+        "id": "run-and-stay",
+        "title": "Running code and staying",
         "kind": "pillar",
-        "tag": "Front door for people",
-        "color": "red",
-        "oneLiner": "index.html lists every view, doc and lesson from one generated file, registry.js, so it works from disk.",
-        "summary": "The gallery must work when opened straight from disk or from any static host, so it cannot scan folders itself. Instead it reads one generated file. The single source of truth is each skill's `SKILL.md` frontmatter: the gallery shows exactly the description written there.",
+        "tag": "Execution & footholds",
+        "color": "violet",
+        "oneLiner": "Once inside, the attacker runs code, survives reboots, grabs higher rights and hides from the defenders.",
+        "summary": "This phase turns a foothold into a durable, privileged, quiet presence. **Execution** runs the code, **Persistence** keeps it coming back, **Privilege Escalation** widens what it can do, and **Defense Evasion** — the largest tactic in ATT&CK — hides all of the above. These four tactics interleave rather than run in strict order.",
         "children": [
           {
-            "id": "registry-js",
-            "title": "registry.js, generated",
+            "id": "execution",
+            "title": "Execution",
             "kind": "concept",
-            "heading": "registry.js — generated, never edited",
             "level": 3,
-            "oneLiner": "SKILL.md frontmatter → build-registry.js → registry.js → index.html: one flow, one source of truth.",
-            "summary": "`registry.js` assigns `window.NthViewRegistry = { skills, docs, lessons }`. For every skill it records the name, a title derived from the folder name (`nthview-concept-map` → \"Concept Map\"), the kind (`view` for `nthview-*` folders, `skill` for the parent), the description, and the paths to its SKILL.md, schema and demo. The parent skill is recorded with `hidden: true` so it never appears as a card.",
-            "snippet": {
-              "label": "registry.js · one entry",
-              "lang": "js",
-              "code": "window.NthViewRegistry = { \"skills\": [\n  { \"name\": \"nthview-zoom-map\", \"title\": \"Zoom Map\", \"kind\": \"view\", \"hidden\": false,\n    \"description\": \"…\", \"skillMd\": \"# NthView — Zoom Map …\", \"schemaMd\": \"# Zoom Map data schema …\",\n    \"path\": \"skills/nthview-zoom-map\", \"skill\": \"skills/nthview-zoom-map/SKILL.md\",\n    \"schema\": \"skills/nthview-zoom-map/references/schema.md\",\n    \"demo\": \"skills/nthview-zoom-map/examples/example.html\" }\n], \"docs\": [ … ], \"lessons\": [ … ] };"
-            },
-            "deeper": {
-              "title": "why a generated file, and why the markdown travels inside it",
-              "text": "A page opened from `file://` may load a sibling script with a plain `<script src>` but may not `fetch` a sibling file. So the gallery cannot read `SKILL.md` or `schema.md` on demand; their text is embedded in `registry.js` as `skillMd` and `schemaMd`, and the gallery renders them in a reader dialog. The same limitation is why `index.html` never scans folders: `scripts/build-registry.js` does, at build time.\n\nThe file is overwritten on every run and committed together with the skill that changed. `node scripts/build-registry.js --check` exits `1` when it is stale, and is run before finishing any task that touched `skills/`."
-            },
-            "files": [
+            "tag": "TA0002",
+            "oneLiner": "Running attacker-controlled code on a local or remote system.",
+            "summary": "Execution is the tactic of actually running code. The dominant technique is the **command and scripting interpreter** already present on every machine — PowerShell, cmd, bash — because living off the land avoids dropping detectable files.",
+            "children": [
               {
-                "path": "registry.js",
-                "role": "GENERATED list of skills, docs and lessons that the gallery reads; never edited by hand",
-                "group": "repo root"
+                "id": "t1059",
+                "title": "T1059 Scripting",
+                "kind": "mechanism",
+                "heading": "T1059 Command and Scripting Interpreter",
+                "oneLiner": "Abusing the interpreters built into the OS — PowerShell, cmd, bash — to run commands and payloads.",
+                "summary": "Rather than drop a new binary, attackers drive the interpreters that ship with the system. `T1059.001` **PowerShell** and `T1059.003` **Windows Command Shell** are the two seen most on Windows. Because these tools are legitimate, detection rests on *how* they are used, not whether they ran.",
+                "snippet": {
+                  "label": "a one-liner a defender hopes to catch",
+                  "lang": "bash",
+                  "code": "powershell -nop -w hidden -enc <base64>",
+                  "resultLabel": "the red flags",
+                  "result": "`-enc` (base64-encoded command), `-w hidden` (no window) and `-nop` (no profile) together are a strong signal: legitimate admin scripts rarely combine all three. Command-line logging (`M1047` Audit, plus Script Block Logging) turns this into a reliable alert.",
+                  "caption": "Encoded, hidden, profile-less PowerShell launched by an Office process ties Execution back to Initial Access."
+                }
               }
             ]
           },
           {
-            "id": "index-html",
-            "title": "index.html, the gallery",
+            "id": "persistence",
+            "title": "Persistence",
             "kind": "concept",
-            "heading": "index.html — the gallery page",
             "level": 3,
-            "oneLiner": "One card per view with Open demo, Skill file and Schema; docs and lessons behind one button; generic for all.",
-            "summary": "The page loads `registry.js` with a plain `<script src>` and renders one card per entry, views first, with the title, name and description. **Open demo** opens the view's `examples/example.html`; **Skill file** and **Schema** open a reader dialog that renders the embedded markdown. Single documents and lessons sit behind one \"N docs · M lessons available\" button that opens a second dialog.",
-            "facts": [
-              "Follows the same standards as a view: the Google Fonts link and a pinned `marked` build from cdnjs are the only external resources; light and dark mode; responsive; keyboard accessible.",
-              "Content is rendered with `textContent`, so a description can never inject markup.",
-              "Never add per-view markup to `index.html`: it changes only when the gallery itself changes."
-            ],
-            "files": [
+            "tag": "TA0003",
+            "oneLiner": "Keeping access across reboots, logoffs and credential changes.",
+            "summary": "Persistence stops a reboot from evicting the attacker. Techniques plant something that runs again automatically — a scheduled task, a service, a registry run key, a startup item. The defender's edge is that most of these create durable, auditable artefacts.",
+            "children": [
               {
-                "path": "index.html",
-                "role": "the gallery: lists every skill with Open demo, Skill file and Schema links, plus the docs-and-lessons dialog",
-                "group": "repo root"
-              },
+                "id": "t1053",
+                "title": "T1053 Scheduled Task",
+                "kind": "mechanism",
+                "heading": "T1053 Scheduled Task/Job",
+                "oneLiner": "Using the OS task scheduler to run a payload on a trigger — at logon, on a timer, at a set time.",
+                "summary": "`T1053.005` **Scheduled Task** on Windows is a favourite: it survives reboots, can run as SYSTEM, and looks like ordinary administration. It is one of the few techniques that spans three tactics — Execution, Persistence and Privilege Escalation — because the same action achieves all three.",
+                "deeper": {
+                  "title": "why it appears under three tactics",
+                  "text": "A scheduled task *runs code* (Execution), *runs it again later* (Persistence) and can *run it as a higher-privileged account* (Privilege Escalation). ATT&CK lists one technique under every goal it serves, so the same `T1053` cell sits in three columns of the matrix. Watch the **Scheduled Job** data source and task-creation events (`4698`). Mitigation: `M1028` Operating System Configuration to restrict who may create tasks."
+                }
+              }
+            ]
+          },
+          {
+            "id": "privilege-escalation",
+            "title": "Privilege Escalation",
+            "kind": "concept",
+            "level": 3,
+            "tag": "TA0004",
+            "oneLiner": "Gaining higher permissions than the initial foothold allowed.",
+            "summary": "A phished user is rarely an administrator, so the attacker climbs. Techniques abuse misconfigurations, OS features and elevation controls to reach admin or SYSTEM, which unlocks credential theft and lateral movement.",
+            "children": [
               {
-                "path": "README.md",
-                "role": "the user-facing introduction; its *Views* section lists each view in one line",
-                "group": "repo root"
+                "id": "t1548",
+                "title": "T1548 Elevation Abuse",
+                "kind": "mechanism",
+                "heading": "T1548 Abuse Elevation Control Mechanism",
+                "oneLiner": "Subverting the OS controls meant to gate elevation, such as Windows UAC or Unix sudo.",
+                "summary": "`T1548.002` **Bypass User Account Control** abuses the Windows mechanism that is supposed to prompt before elevation, slipping a payload to high integrity without a prompt. Mitigation `M1026` Privileged Account Management and keeping UAC at its highest setting (`M1028`) raise the cost."
+              }
+            ]
+          },
+          {
+            "id": "defense-evasion",
+            "title": "Defense Evasion",
+            "kind": "concept",
+            "level": 3,
+            "tag": "TA0005",
+            "oneLiner": "Avoiding detection — hiding code, disabling tools, clearing logs, blending in.",
+            "summary": "Defense Evasion is the largest tactic in ATT&CK, because almost every other technique has a stealthy variant. A representative technique is **obfuscating files or information** so that scanners and analysts cannot read what the payload does.",
+            "children": [
+              {
+                "id": "t1027",
+                "title": "T1027 Obfuscation",
+                "kind": "mechanism",
+                "heading": "T1027 Obfuscated Files or Information",
+                "oneLiner": "Encoding, encrypting or packing payloads and commands so they resist inspection.",
+                "summary": "Attackers base64-encode commands, pack executables and encrypt strings so that static analysis and signature matching fail. The `-enc` PowerShell flag on [[L3|t1059]] is a tiny example. Detection shifts to behaviour and to decoded content at runtime; `M1049` Antivirus/Antimalware and `M1040` Behavior Prevention on Endpoint help.",
+                "deeper": {
+                  "title": "why evasion is everywhere",
+                  "text": "Because Defense Evasion is a *goal*, not a single trick, techniques from other tactics appear here too whenever they have a stealth purpose — disabling security tools, signing malware, timestomping files. That is why the tactic has more techniques than any other and why ATT&CK coverage is never \"complete\": you cover the behaviours that matter to your threat model."
+                }
               }
             ]
           }
         ]
       },
       {
-        "id": "lessons-parent",
-        "title": "Lessons and the parent skill",
+        "id": "learn-network",
+        "title": "Learning the network",
         "kind": "pillar",
-        "tag": "Front door for agents",
+        "tag": "Creds, recon, movement",
+        "color": "gold",
+        "oneLiner": "From one machine, the attacker steals credentials, maps the network and spreads to the hosts that matter.",
+        "summary": "With a privileged foothold, the attacker turns outward. **Credential Access** harvests passwords and hashes, **Discovery** maps the hosts, users and shares worth reaching, and **Lateral Movement** uses stolen credentials to hop to them. This phase is where a single compromise becomes a domain-wide one.",
+        "children": [
+          {
+            "id": "credential-access",
+            "title": "Credential Access",
+            "kind": "concept",
+            "level": 3,
+            "tag": "TA0006",
+            "oneLiner": "Stealing account names, passwords, hashes and tokens to reuse elsewhere.",
+            "summary": "Stolen credentials are the master key: they let an attacker move and persist while looking like a legitimate user. The classic technique is **OS credential dumping** — reading secrets out of the operating system's own stores.",
+            "children": [
+              {
+                "id": "t1003",
+                "title": "T1003 Cred Dumping",
+                "kind": "mechanism",
+                "heading": "T1003 OS Credential Dumping",
+                "oneLiner": "Extracting credential material from the OS — LSASS memory, the SAM database, cached hashes.",
+                "summary": "`T1003.001` **LSASS Memory** is the headline: on Windows, cleartext-adjacent secrets live in the LSASS process, and tools read them straight out of memory. Protecting LSASS (`M1043` Credential Access Protection, e.g. Credential Guard) and alerting on processes that open a handle to it is one of the highest-value detections a team can build.",
+                "snippet": {
+                  "label": "the data-source signal · lsass handle access",
+                  "lang": "text",
+                  "code": "Event 4656/4663 — Object: lsass.exe\n  AccessMask: 0x1410 (VM_READ | QUERY_INFORMATION)\n  Process:    \\\\Users\\\\...\\\\rundll32.exe",
+                  "resultLabel": "why it matters",
+                  "result": "Almost nothing legitimately reads LSASS memory. A non-system process opening it with read access is a near-certain credential-dumping alert — the single detection most ransomware intrusions would trip.",
+                  "caption": "Data source: **Process** (OS API execution) and **Logon Session**."
+                },
+                "files": [
+                  { "path": "attack.mitre.org/techniques/T1003/001", "role": "the LSASS Memory sub-technique page", "group": "Technique & tactic pages" },
+                  { "path": "attack.mitre.org/datasources/DS0009", "role": "the Process data source page, including the OS API Execution component", "group": "Mitigations & data sources" },
+                  { "path": "attack.mitre.org/mitigations/M1043", "role": "the Credential Access Protection mitigation page (covers Credential Guard)", "group": "Mitigations & data sources" }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "discovery",
+            "title": "Discovery",
+            "kind": "concept",
+            "level": 3,
+            "tag": "TA0007",
+            "oneLiner": "Learning the environment — hosts, users, shares, software, defences.",
+            "summary": "Before moving, the attacker looks around: what machine is this, who is logged in, what can it reach? **System Information Discovery** and its siblings are built from ordinary admin commands, so they hide in the noise. Volume and sequence, not any single command, are the tell.",
+            "children": [
+              {
+                "id": "t1082",
+                "title": "T1082 System Info",
+                "kind": "mechanism",
+                "heading": "T1082 System Information Discovery",
+                "oneLiner": "Querying the OS for host details — version, architecture, hardware, hostname.",
+                "summary": "Commands like `systeminfo`, `hostname` and `uname -a` tell the attacker where they landed and whether the host is worth keeping. Individually harmless, a burst of them from one process right after execution is a strong behavioural signal. ((Data source)): **Process Creation** and **Command Execution**."
+              }
+            ]
+          },
+          {
+            "id": "lateral-movement",
+            "title": "Lateral Movement",
+            "kind": "concept",
+            "level": 3,
+            "tag": "TA0008",
+            "oneLiner": "Moving from the foothold to other systems, usually with stolen credentials.",
+            "summary": "Lateral Movement spreads the intrusion. **Remote Services** reuse legitimate remote-access protocols — RDP, SMB, WinRM — with credentials taken in the previous step, so the traffic looks authorised. Segmentation and MFA are the main brakes.",
+            "children": [
+              {
+                "id": "t1021",
+                "title": "T1021 Remote Services",
+                "kind": "mechanism",
+                "heading": "T1021 Remote Services",
+                "oneLiner": "Logging in to other hosts over RDP, SMB or WinRM using valid, stolen credentials.",
+                "summary": "`T1021.001` **Remote Desktop Protocol** and `T1021.002` **SMB/Windows Admin Shares** carry attackers across the network as if they were administrators. Because the credentials are valid, the defence is structural: `M1030` Network Segmentation, `M1032` Multi-factor Authentication and watching **Logon Session** data for unusual source-to-destination pairs.",
+                "deeper": {
+                  "title": "the credential-to-movement link",
+                  "text": "Lateral Movement depends on Credential Access: no stolen password, no quiet hop. That is the single most important relation on this map — break the credential-dumping step on [[L3|t1003]] and most lateral movement collapses. See the connection drawn between those two regions on the overview."
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "take-data",
+        "title": "Taking the data",
+        "kind": "pillar",
+        "tag": "Collect, C2, exfil",
         "color": "blue",
-        "oneLiner": "The nthview skill picks document or lesson and a view per chapter; a lesson is a folder of one-view chapters.",
-        "summary": "`skills/nthview/SKILL.md` is the front door for an agent. It decides document versus lesson, recommends a view per use case from a minimal table, asks at most two questions, and hands each piece of content to the matching view skill. It holds no view detail of its own.",
+        "oneLiner": "The attacker gathers the data worth stealing, keeps a channel to the outside, and moves it out.",
+        "summary": "Now the operation acts on its objective of theft. **Collection** stages the data, **Command and Control** maintains the covert channel that runs the whole intrusion, and **Exfiltration** moves the data out — often over that same channel, to blend with normal traffic.",
         "children": [
           {
-            "id": "parent-skill",
-            "title": "The parent skill",
+            "id": "collection",
+            "title": "Collection",
             "kind": "concept",
-            "heading": "The nthview parent skill",
             "level": 3,
-            "oneLiner": "Decides the format, recommends a view with one line of reasoning, then follows the chosen view's SKILL.md.",
-            "summary": "One idea, or \"a doc\": a single document. Several ideas that build on each other, or the words lesson, course, chapters: a lesson of 3–10 chapters, each with one learning objective and one view. The recommendation table is minimal on purpose; the detail stays in each view's own `SKILL.md`.",
-            "table": {
-              "columns": [
-                "Use case",
-                "Prefer",
-                "Also works"
-              ],
-              "rows": [
-                [
-                  "A system of causes and effects, \"how it all fits together\"",
-                  "Concept Map",
-                  "Explorable Lab"
-                ],
-                [
-                  "Something with numbers or a model worth playing with",
-                  "Explorable Lab",
-                  "Island Quest"
-                ],
-                [
-                  "Judgement calls, rules, ethics, \"what would you do\"",
-                  "Scenario Quiz",
-                  "Detective Case"
-                ],
-                [
-                  "A puzzle with misconceptions to rule out, a story with a reveal",
-                  "Detective Case",
-                  "Scenario Quiz"
-                ],
-                [
-                  "How a codebase or system works, top down",
-                  "Zoom Map",
-                  "Concept Map"
-                ],
-                [
-                  "Beginners, children, anyone asking for a game",
-                  "Island Quest",
-                  "Detective Case"
+            "tag": "TA0009",
+            "oneLiner": "Gathering the data of interest and staging it for theft.",
+            "summary": "Collection pulls the target data together — documents, databases, mailboxes — and usually compresses and encrypts it first. **Archive Collected Data** is the staging step that precedes exfiltration and sometimes gives defenders their last chance to notice.",
+            "children": [
+              {
+                "id": "t1560",
+                "title": "T1560 Archive Data",
+                "kind": "mechanism",
+                "heading": "T1560 Archive Collected Data",
+                "oneLiner": "Compressing and often encrypting gathered data into archives before stealing it.",
+                "summary": "Attackers zip or RAR the files they intend to steal, often with a password, to shrink and hide them. A large archive appearing in a staging directory, built by an unusual process, is a signal that exfiltration is imminent. ((Data source)): **File Creation** and **Command Execution**."
+              }
+            ]
+          },
+          {
+            "id": "command-and-control",
+            "title": "Command and Control",
+            "kind": "concept",
+            "level": 3,
+            "tag": "TA0011",
+            "oneLiner": "Maintaining a covert channel to issue commands to compromised systems.",
+            "summary": "C2 is the attacker's remote control. **Application Layer Protocol** hides that control inside ordinary-looking web traffic — HTTPS to a benign-seeming domain — so it survives egress filtering. Most other tactics depend on this channel staying open.",
+            "children": [
+              {
+                "id": "t1071",
+                "title": "T1071 App-Layer C2",
+                "kind": "mechanism",
+                "heading": "T1071 Application Layer Protocol",
+                "oneLiner": "Tunnelling command-and-control inside common protocols such as HTTP, HTTPS or DNS.",
+                "summary": "`T1071.001` **Web Protocols** disguises C2 as normal HTTPS, often with domain fronting or look-alike domains from [[L3|t1583]]. Detection leans on **Network Traffic** analytics — beaconing intervals, rare destinations, JA3 fingerprints — and `M1031` Network Intrusion Prevention.",
+                "files": [
+                  { "path": "attack.mitre.org/techniques/T1071", "role": "the Application Layer Protocol technique page", "group": "Technique & tactic pages" },
+                  { "path": "attack.mitre.org/datasources/DS0029", "role": "the Network Traffic data source page (flow and content components)", "group": "Mitigations & data sources" }
                 ]
-              ],
-              "caption": "A pattern that works for a lesson: open with structure or a hook, build intuition, apply it, consolidate."
-            },
-            "files": [
-              {
-                "path": "skills/nthview/SKILL.md",
-                "role": "the parent skill: document versus lesson, the view-per-use-case table, the hand-off to view skills; hidden from the gallery",
-                "group": "skills/ · the views"
-              },
-              {
-                "path": "skills/nthview/references/lesson-format.md",
-                "role": "the `lesson.json` format, the folder layout and the build command",
-                "group": "skills/ · the views"
               }
             ]
           },
           {
-            "id": "lessons",
-            "title": "A lesson is a folder",
+            "id": "exfiltration",
+            "title": "Exfiltration",
             "kind": "concept",
             "level": 3,
-            "oneLiner": "lessons/<slug>/lesson.json plus chapters/NN-<slug>.json, one view per chapter; nothing hand-written.",
-            "summary": "A ((lesson)) is a folder under the repo-root `lessons/`. It holds a manifest and one view output per chapter; the chapter JSON is the source of truth and every HTML page is produced by `scripts/build-lesson.js`. Chapter files start with two digits so the order is visible on disk. Two angles on an idea are two chapters.",
-            "snippet": {
-              "label": "lessons/compliance-for-everyone/lesson.json",
-              "lang": "json",
-              "code": "{\n  \"schemaVersion\": 1,\n  \"title\": \"Compliance for Everyone\",\n  \"description\": \"What compliance really means, told three ways: crack a case, make the calls yourself, then play it through.\",\n  \"audience\": \"Anyone starting a job where rules matter, no legal background needed.\",\n  \"chapters\": [\n    { \"file\": \"01-the-marigold-kitchen-case\", \"title\": \"The Marigold Kitchen Case\", \"view\": \"nthview-detective\", \"summary\": \"…\" },\n    { \"file\": \"02-a-week-at-brightpath\", \"title\": \"A Week at BrightPath\", \"view\": \"nthview-scenario-quiz\", \"summary\": \"…\" },\n    { \"file\": \"03-compliance-cove\", \"title\": \"Compliance Cove\", \"view\": \"nthview-island-quest\", \"summary\": \"…\" }\n  ]\n}",
-              "caption": "The one lesson in the repository today: a detective case, then a scenario quiz, then an island quest, all about the same subject."
-            },
-            "files": [
+            "tag": "TA0010",
+            "oneLiner": "Stealing the collected data out of the environment.",
+            "summary": "Exfiltration moves the staged data off the network. The quietest option reuses the existing C2 channel so the theft hides in traffic the defender already tolerates. Volume anomalies and data-loss-prevention controls are the counters.",
+            "children": [
               {
-                "path": "lessons/compliance-for-everyone/lesson.json",
-                "role": "the manifest of the Compliance for Everyone lesson",
-                "group": "docs/ and lessons/ · outputs"
-              },
-              {
-                "path": "lessons/compliance-for-everyone/index.html",
-                "role": "GENERATED contents page with one card per chapter",
-                "group": "docs/ and lessons/ · outputs"
-              },
-              {
-                "path": "lessons/compliance-for-everyone/chapters/01-the-marigold-kitchen-case.json",
-                "role": "chapter 1 data (Detective Case); its `.html` is generated next to it",
-                "group": "docs/ and lessons/ · outputs"
-              },
-              {
-                "path": "lessons/compliance-for-everyone/chapters/02-a-week-at-brightpath.json",
-                "role": "chapter 2 data (Scenario Quiz)",
-                "group": "docs/ and lessons/ · outputs"
-              },
-              {
-                "path": "lessons/compliance-for-everyone/chapters/03-compliance-cove.json",
-                "role": "chapter 3 data (Island Quest)",
-                "group": "docs/ and lessons/ · outputs"
+                "id": "t1041",
+                "title": "T1041 Exfil over C2",
+                "kind": "mechanism",
+                "heading": "T1041 Exfiltration Over C2 Channel",
+                "oneLiner": "Sending stolen data out over the same channel the attacker already uses for control.",
+                "summary": "Rather than open a new path, the attacker ships the archive from [[L3|t1560]] back over the C2 link built on [[L3|t1071]]. One channel does both jobs, so blending is near-perfect. The tell is usually *volume*: a channel that normally trickles commands suddenly carrying megabytes outward. ((Data source)): **Network Traffic Flow**."
               }
             ]
-          },
+          }
+        ]
+      },
+      {
+        "id": "cause-harm",
+        "title": "Causing harm",
+        "kind": "pillar",
+        "tag": "Impact",
+        "color": "red",
+        "oneLiner": "The final phase: manipulate, interrupt or destroy — in ransomware, encrypting everything for extortion.",
+        "summary": "**Impact** is what the whole intrusion was for when the goal is disruption rather than quiet theft. In a ransomware case this is the loud finale — files encrypted, backups deleted, a ransom note left — but only after every earlier phase has run.",
+        "children": [
           {
-            "id": "docs-folder",
-            "title": "Single documents in docs/",
+            "id": "impact",
+            "title": "Impact",
             "kind": "concept",
             "level": 3,
-            "oneLiner": "A document built with a view lives in docs/ as <concept-slug>-<view>.json next to the .html it produced.",
-            "summary": "The root `docs/` folder is for single documents produced *with* a view: the JSON next to the HTML, named `<concept-slug>-<view>`. The registry scans the folder so the gallery can list them; nothing in `skills/` may depend on them. A view's own demo stays in `skills/<view>/examples/example.html`.",
-            "files": [
+            "tag": "TA0040",
+            "oneLiner": "Manipulating, interrupting or destroying systems and data to meet the attacker's goal.",
+            "summary": "Impact techniques degrade, disrupt or destroy. **Data Encrypted for Impact** is the ransomware technique: encrypt files on reachable hosts and shares, then demand payment. Because it is the last and loudest step, prevention lives in the earlier phases; recovery lives in backups.",
+            "children": [
               {
-                "path": "docs/greenhouse-effect-concept-map.json",
-                "role": "the greenhouse effect as a Concept Map; `.html` next to it",
-                "group": "docs/ and lessons/ · outputs"
-              },
-              {
-                "path": "docs/herd-immunity-explorable.json",
-                "role": "herd immunity as an Explorable Lab",
-                "group": "docs/ and lessons/ · outputs"
-              },
-              {
-                "path": "docs/compliance-detective.json",
-                "role": "compliance as a Detective Case",
-                "group": "docs/ and lessons/ · outputs"
-              },
-              {
-                "path": "docs/compliance-scenario-quiz.json",
-                "role": "compliance as a Scenario Quiz",
-                "group": "docs/ and lessons/ · outputs"
-              },
-              {
-                "path": "docs/compliance-island-quest.json",
-                "role": "compliance as an Island Quest",
-                "group": "docs/ and lessons/ · outputs"
-              },
-              {
-                "path": "docs/all-types-island-quest.json",
-                "role": "an Island Quest that exercises every activity type",
-                "group": "docs/ and lessons/ · outputs"
-              },
-              {
-                "path": "docs/floboard-how-it-works-zoom-map.json",
-                "role": "a codebase explained as a Zoom Map",
-                "group": "docs/ and lessons/ · outputs"
-              },
-              {
-                "path": ".gitignore",
-                "role": "ignores OS junk files and the scratch `temp/` folder",
-                "group": "repo root"
+                "id": "t1486",
+                "title": "T1486 Encrypt for Impact",
+                "kind": "mechanism",
+                "heading": "T1486 Data Encrypted for Impact",
+                "oneLiner": "Encrypting data on victim systems to interrupt availability and extort payment.",
+                "summary": "The payload encrypts documents, databases and often network shares, deletes volume shadow copies so local recovery fails, and drops a ransom note. By this point the data may already have been stolen on [[L3|t1041]] for double extortion.",
+                "table": {
+                  "columns": [
+                    "Mitigation",
+                    "ID",
+                    "What it buys you"
+                  ],
+                  "rows": [
+                    ["Data Backup", "`M1053`", "Offline, tested backups make recovery possible without paying"],
+                    ["Behavior Prevention on Endpoint", "`M1040`", "Stops rapid mass-encryption patterns before they finish"],
+                    ["Network Segmentation", "`M1030`", "Limits how many shares the payload can reach"]
+                  ],
+                  "caption": "Against Impact, detection is late; the real defence was built in the earlier phases and in `M1053` backups."
+                },
+                "deeper": {
+                  "title": "why the loudest step is the hardest to stop",
+                  "text": "By the time encryption starts, the attacker already has execution, privilege and reach. A detection here fires *during* the damage. That is the central lesson of reading ATT&CK as a chain: the cheap, reliable interventions are upstream — stop the phish on [[L3|t1566]], the credential dump on [[L3|t1003]], or the lateral movement on [[L3|t1021]] — and Impact never arrives. Backups (`M1053`) are what turn a catastrophe into an outage when it does."
+                },
+                "files": [
+                  { "path": "attack.mitre.org/techniques/T1486", "role": "the Data Encrypted for Impact technique page", "group": "Technique & tactic pages" },
+                  { "path": "attack.mitre.org/mitigations/M1053", "role": "the Data Backup mitigation page", "group": "Mitigations & data sources" }
+                ]
               }
             ]
           }
@@ -1053,206 +821,61 @@ The "How NthView works" map: this repository explained as a ladder. It is the ex
   },
   "pipelines": [
     {
-      "id": "lifecycle",
-      "title": "From a request to a file",
+      "id": "chain",
+      "title": "A ransomware intrusion, tactic by tactic",
       "level": 2,
-      "summary": "Every `SKILL.md` drives the same five steps, and the registry adds a sixth. Understanding this order explains why the files look the way they do.",
       "steps": [
-        {
-          "label": "Understand",
-          "node": "parent-skill",
-          "text": "read what the user wants to learn; settle document or lesson and the view"
-        },
-        {
-          "label": "Transform",
-          "node": "schema-md",
-          "text": "shape the content into the view's JSON exactly as schema.md defines"
-        },
-        {
-          "label": "Validate",
-          "node": "validation",
-          "text": "`node scripts/validate.js` prints `valid` or every `path: message`"
-        },
-        {
-          "label": "Build",
-          "node": "build-html",
-          "text": "one standalone HTML file from the fixed template"
-        },
-        {
-          "label": "Deliver",
-          "node": "docs-folder",
-          "text": "hand over the one file; build nothing else unless asked"
-        },
-        {
-          "label": "Register",
-          "node": "build-registry",
-          "text": "`node scripts/build-registry.js` lists it in the gallery"
-        }
+        { "tag": "TA0001", "label": "Phish the user", "node": "initial-access", "text": "A spearphishing email delivers a macro document; the user opens it." },
+        { "tag": "TA0002", "label": "Run the loader", "node": "execution", "text": "The macro launches hidden, encoded PowerShell that pulls down a loader." },
+        { "tag": "TA0003", "label": "Set a task", "node": "persistence", "text": "A scheduled task re-launches the loader after reboot." },
+        { "tag": "TA0004", "label": "Elevate", "node": "privilege-escalation", "text": "A UAC bypass gets the loader to high integrity." },
+        { "tag": "TA0006", "label": "Dump creds", "node": "credential-access", "text": "LSASS memory is read to harvest admin credentials." },
+        { "tag": "TA0007", "label": "Look around", "node": "discovery", "text": "The host, domain and reachable shares are enumerated." },
+        { "tag": "TA0008", "label": "Spread", "node": "lateral-movement", "text": "RDP and SMB carry the attacker to file servers with the stolen creds." },
+        { "tag": "TA0009", "label": "Stage data", "node": "collection", "text": "Sensitive files are archived into a password-protected RAR." },
+        { "tag": "TA0010", "label": "Exfiltrate", "node": "exfiltration", "text": "The archive leaves over the existing HTTPS C2 channel." },
+        { "tag": "TA0040", "label": "Encrypt", "node": "impact", "text": "Shadow copies are deleted, files are encrypted and a ransom note is left." }
       ],
-      "rule": "The data is validated before anything renders — by the CLI while the agent works, by `build-html.js` before it writes, and again by the same validator inside the page when the learner opens it. An invalid file shows the ((error panel)), never a half-broken view.",
-      "facts": [
-        {
-          "label": "The two things that never change",
-          "text": "The content the user wants to learn, and the view's `schema.md`. Everything between them — the JSON, the HTML, the registry entry — is derived and can be rebuilt."
-        },
-        {
-          "label": "Why the order matters",
-          "text": "A file built from unvalidated data would carry the problem to the learner; a skill registered before its folder is checked would break the gallery. Each step gates the next."
-        }
-      ]
+      "rule": "Each step relies on the one before it, so defence is cheapest upstream: breaking the phish, the credential dump or the lateral movement stops everything downstream, including the encryption."
     },
     {
-      "id": "lesson-build",
-      "title": "How a lesson is built",
-      "at": "build-lesson",
+      "id": "defend-flow",
+      "title": "From a technique to a defence",
+      "at": "credential-access",
       "steps": [
-        {
-          "tag": "lesson.json",
-          "label": "Check the manifest",
-          "text": "title, description, 1–30 chapters, each with `file`, `title`, `view` and `summary`"
-        },
-        {
-          "tag": "chapters/*.json",
-          "label": "Validate each chapter",
-          "node": "validation",
-          "text": "with the validator of the chapter's own view"
-        },
-        {
-          "tag": "build-html.js",
-          "label": "Assemble each page",
-          "node": "build-html",
-          "text": "the standard template plus the lesson bar as `extraBody`"
-        },
-        {
-          "tag": "index.html",
-          "label": "Write the contents page",
-          "node": "lessons",
-          "text": "one card per chapter, a Start button, the next lesson when named"
-        },
-        {
-          "tag": "registry.js",
-          "label": "Regenerate the registry",
-          "node": "build-registry",
-          "text": "so the gallery lists the lesson"
-        }
+        { "label": "Pick the technique", "text": "Start from the ATT&CK ID you care about, e.g. `T1003.001`." },
+        { "label": "Read its data sources", "text": "The technique page lists what telemetry reveals it — here, LSASS handle access." },
+        { "label": "Deploy the mitigation", "text": "Apply the listed `M-id`s, such as Credential Guard, and turn on the logging." },
+        { "label": "Validate with a layer", "text": "Mark the cell covered in a ((Navigator)) layer and test it with an atomic red-team run." }
       ],
-      "rule": "A chapter is exactly one view. If the manifest or any chapter is invalid, nothing is written."
+      "rule": "ATT&CK turns a technique page into a work item: data source to collect, mitigation to apply, detection to prove."
     }
   ],
   "relations": [
-    {
-      "from": "schema-md",
-      "to": "validation",
-      "label": "is implemented by",
-      "text": "The validator implements the rules written in schema.md and nothing more."
-    },
-    {
-      "from": "validation",
-      "to": "build-html",
-      "label": "gates",
-      "text": "build-html.js validates first and refuses to write an invalid file."
-    },
-    {
-      "from": "build-html",
-      "to": "build-lesson",
-      "label": "is reused by",
-      "text": "build-lesson.js calls assemble() for every chapter and passes the lesson bar as extraBody."
-    },
-    {
-      "from": "build-lesson",
-      "to": "build-registry",
-      "label": "re-runs",
-      "text": "After a lesson is built the registry is regenerated so the gallery lists it."
-    },
-    {
-      "from": "skill-md",
-      "to": "registry-js",
-      "label": "feeds",
-      "text": "The frontmatter description is the text the gallery card shows."
-    },
-    {
-      "from": "build-registry",
-      "to": "registry-js",
-      "label": "writes",
-      "text": "The only way registry.js changes."
-    },
-    {
-      "from": "registry-js",
-      "to": "index-html",
-      "label": "is read by",
-      "text": "A plain script tag, allowed from file://, unlike fetch."
-    },
-    {
-      "from": "parent-skill",
-      "to": "skill-md",
-      "label": "hands off to",
-      "text": "The parent skill holds no view detail; it follows each view's own procedure."
-    },
-    {
-      "from": "lessons",
-      "to": "build-lesson",
-      "label": "is built by",
-      "text": "Nothing in a lesson is hand-written HTML."
-    },
-    {
-      "from": "docs-folder",
-      "to": "build-html",
-      "label": "is built by",
-      "text": "A document's JSON and HTML sit side by side in docs/."
-    },
-    {
-      "from": "the-views",
-      "to": "nthview-global",
-      "label": "each implements",
-      "text": "Six views, one public surface."
-    },
-    {
-      "from": "nthview-global",
-      "to": "cdn-rules",
-      "label": "declares",
-      "text": "NthView.libs lists the view's pinned CDN resources, and build() checks them."
-    },
-    {
-      "from": "five-files",
-      "to": "build-registry",
-      "label": "is enforced by",
-      "text": "The registry builder refuses any folder that breaks the five-file contract."
-    }
+    { "from": "initial-access", "to": "execution", "label": "delivers code to", "text": "The phishing lure's whole purpose is to get the first code running." },
+    { "from": "execution", "to": "persistence", "label": "installs", "text": "The code that runs first usually plants the mechanism that brings it back." },
+    { "from": "credential-access", "to": "lateral-movement", "label": "enables", "text": "Stolen credentials are what let the attacker log in to other hosts as a legitimate user." },
+    { "from": "discovery", "to": "lateral-movement", "label": "targets", "text": "Discovery tells the attacker which hosts and shares are worth moving to." },
+    { "from": "collection", "to": "exfiltration", "label": "feeds", "text": "Collection stages the archive that exfiltration then steals out." },
+    { "from": "command-and-control", "to": "exfiltration", "label": "carries", "text": "Exfil over C2 reuses the control channel, so one link does both jobs." },
+    { "from": "lateral-movement", "to": "impact", "label": "spreads to", "text": "Reaching more hosts is what lets ransomware encrypt at scale." },
+    { "from": "defense-evasion", "to": "credential-access", "label": "hides", "text": "Obfuscation and tool-tampering keep the credential theft from being seen." },
+    { "from": "resource-development", "to": "command-and-control", "label": "stands up", "text": "The domains and servers acquired beforehand become the C2 infrastructure." }
   ],
   "glossary": [
-    {
-      "term": "view",
-      "meaning": "One way of presenting content to a learner — a quiz, a game, a concept map, a zoom map. Each view is a separate skill folder `skills/nthview-<view>/`."
-    },
-    {
-      "term": "skill",
-      "meaning": "A folder with a `SKILL.md` an agent follows, plus optional `scripts/`, `references/` and `assets/`, as the Agent Skills specification defines. Every NthView view is one."
-    },
-    {
-      "term": "standalone file",
-      "meaning": "One HTML file holding the data, the validator and the renderer; it opens from disk and fetches nothing but pinned CDN libraries and fonts."
-    },
-    {
-      "term": "kaleidoscope",
-      "meaning": "NthView's image for itself: the same content, turned, appears in a new form. One view at a time; another view is another file."
-    },
-    {
-      "term": "error panel",
-      "meaning": "The fixed block `build()` renders on invalid data: a heading, the problem count and one `path: message` line per error, the same strings the CLI prints."
-    },
-    {
-      "term": "registry",
-      "meaning": "`registry.js`, the generated list of skills, docs and lessons that the gallery reads; regenerated by `node scripts/build-registry.js`, never edited by hand."
-    },
-    {
-      "term": "lesson",
-      "meaning": "A folder `lessons/<slug>/` with a `lesson.json` manifest and one view output per chapter, built by `scripts/build-lesson.js`."
-    },
-    {
-      "term": "schemaVersion",
-      "meaning": "The integer every data object carries; a validator rejects any version it does not list in `SUPPORTED_VERSIONS` before checking anything else."
-    }
+    { "term": "matrix", "meaning": "The grid view of ATT&CK: tactics as columns, techniques as the cells beneath them. One per domain — Enterprise, Mobile, ICS." },
+    { "term": "tactic", "meaning": "An attacker's goal, the *why* of a behaviour — e.g. Persistence (TA0003). The columns of the matrix." },
+    { "term": "technique", "meaning": "A way an attacker achieves a tactic, the *how*, with a stable ID such as T1566. A cell in the matrix." },
+    { "term": "sub-technique", "meaning": "A more specific description of a technique, numbered with a suffix — T1566.001 Spearphishing Attachment under T1566 Phishing." },
+    { "term": "procedure", "meaning": "A specific, observed implementation of a technique by a particular group or piece of software — the real-world evidence behind the cell." },
+    { "term": "mitigation", "meaning": "A configuration, tool or process that prevents or reduces a technique, identified by an M-id such as M1017 User Training." },
+    { "term": "data source", "meaning": "A category of telemetry (Process, Network Traffic, Logon Session) that can reveal a technique; its components say exactly what to collect." },
+    { "term": "group", "meaning": "A tracked set of intrusion activity attributed to an adversary, with a G-id such as G0016 (APT29). Groups link to the techniques and software they use." },
+    { "term": "software", "meaning": "Malware or a tool used in intrusions, with an S-id; ATT&CK maps each to the techniques it implements." },
+    { "term": "command and control", "meaning": "Abbreviated C2: the channel an attacker uses to issue commands to compromised systems and receive results." },
+    { "term": "Navigator", "meaning": "The ATT&CK Navigator, a web tool for annotating the matrix with coloured, scored layers saved as JSON and shared freely." },
+    { "term": "CTI", "meaning": "Cyber Threat Intelligence: reporting on adversaries. ATT&CK is the common vocabulary CTI uses to tag what a group did." }
   ],
-  "footer": "NthView — learn anything, in the nth view that suits you. This document is the Zoom Map view explaining its own repository."
+  "footer": "This document is the Zoom Map view explaining the public MITRE ATT&CK framework (attack.mitre.org). IDs and names follow Enterprise ATT&CK; approximate counts are hedged because the framework is versioned and grows."
 }
 ```

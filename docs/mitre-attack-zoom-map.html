@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
-  <title>FloBoard — How It Works — NthView</title>
+  <title>MITRE ATT&amp;CK — How It Works — NthView</title>
 </head>
 <body>
   <div id="app"></div>
@@ -14,806 +14,741 @@
   <script type="application/json" id="nthview-data">
 {
   "schemaVersion": 1,
-  "title": "FloBoard — How It Works",
-  "subtitle": "A field guide to the working principle",
-  "theme": "blueprint",
+  "title": "MITRE ATT&CK — How It Works",
+  "subtitle": "A field guide to the adversary playbook",
+  "theme": "graphite",
   "levels": [
     {
       "label": "L0",
-      "name": "The big idea",
-      "meaning": "The plain-English picture: what FloBoard is and what you write."
+      "name": "The framework",
+      "meaning": "What ATT&CK is, the three matrices, and who turns it into defence."
     },
     {
       "label": "L1",
-      "name": "Five pillars",
-      "heading": "The five things that make it work",
-      "meaning": "Everything in FloBoard is one of five ideas. Learn these names and the rest of the guide is just detail."
+      "name": "Intrusion phases",
+      "heading": "Five phases every intrusion moves through",
+      "meaning": "The 14 Enterprise tactics group into five phases of an attack. Learn the phases and the tactics slot in."
     },
     {
       "label": "L2",
-      "name": "Board lifecycle",
-      "meaning": "The fixed pipeline a board travels through when someone opens it in Preview."
+      "name": "A ransomware intrusion",
+      "meaning": "One real-shaped attack chain walked tactic by tactic, from a phishing email to encrypted disks."
     },
     {
       "label": "L3",
-      "name": "Concepts",
-      "meaning": "One section per concept, with the snippets, tables and mechanisms behind it."
+      "name": "Tactics & techniques",
+      "meaning": "One section per tactic, with its goal, a representative technique, its sub-techniques and how groups use it."
     },
     {
       "label": "L4",
       "name": "Under the hood",
-      "heading": "Under the hood — how the pieces fit",
-      "meaning": "FloBoard is layered: the editor you touch, the engine beneath it, and the general-purpose machinery it reuses.",
-      "summary": "FloBoard is layered. The top layer is the editor you touch; below it sits the FloBoard engine; below that, general-purpose data and layout machinery it reuses. Each layer only depends on the ones beneath it.",
+      "heading": "Under the hood — the data model",
+      "meaning": "ATT&CK is data: tactics, techniques and sub-techniques as STIX objects, shared through bundles and the Navigator.",
+      "summary": "ATT&CK is not prose, it is a graph of typed objects. The matrix you read is a projection of that graph: tactics are columns, techniques are cells, and everything links to mitigations, ((data source))s, ((group))s and ((software)). Each layer only adds detail to the one above it, so a defender can stop at the rung that answers the question in front of them.",
       "stack": [
         {
-          "name": "Editor surface",
-          "caption": "what the author uses",
+          "name": "Matrices",
+          "caption": "one per technology domain",
           "items": [
-            "FloBoard.vue (host)",
-            "FloboardEditor.vue",
-            "MarkdownEditor (Milkdown)",
-            "dataNode / widget / grid plugins"
+            "Enterprise (Windows, macOS, Linux, cloud)",
+            "Mobile (Android, iOS)",
+            "ICS (industrial control systems)"
           ]
         },
         {
-          "name": "FloBoard engine",
-          "caption": "the working principle",
+          "name": "Tactics",
+          "caption": "the adversary's goal — the why",
           "items": [
-            "parseBoard",
-            "liquidEngine",
-            "DagRunner + graph",
-            "DataNodeRegistry",
-            "engines",
-            "bindConfig",
-            "renderBoard",
-            "lint",
-            "boardStore"
+            "TA0001 Initial Access … TA0040 Impact",
+            "columns of the matrix"
           ]
         },
         {
-          "name": "Execution engines",
-          "caption": "producing the data",
+          "name": "Techniques & sub-techniques",
+          "caption": "how the goal is met",
           "items": [
-            "inflo_pipeline (StageRunner)",
-            "FloQlPipeline",
-            "LocalRestClient / HttpRestClient",
-            "request (GET)"
+            "T1566 Phishing",
+            "T1566.001 Spearphishing Attachment",
+            "T1003.001 LSASS Memory"
           ]
         },
         {
-          "name": "Shared foundation",
-          "caption": "reused, not FloBoard-specific",
+          "name": "Objects that give context",
+          "caption": "who, with what, and how to stop it",
           "items": [
-            "FloLayout",
-            "StorageHandler",
-            "LiquidJS",
-            "ProseMirror"
+            "Groups (G-ids)",
+            "Software (S-ids)",
+            "Mitigations (M-ids)",
+            "Data sources & components (DS-ids)"
+          ]
+        },
+        {
+          "name": "Formats and tooling",
+          "caption": "how the graph travels",
+          "items": [
+            "STIX 2.1 bundles",
+            "ATT&CK Navigator layers (JSON)",
+            "the TAXII / GitHub distribution"
           ]
         }
       ],
       "facts": [
         {
-          "label": "The producing engines, briefly",
-          "text": "A `data_fetch` node calls the request library's GET and extracts an array from the response. A `data_pipeline` node runs the general-purpose pipeline engine (StageRunner) in a headless \"data\" mode — start → transform stages → collect — fed the input dataset and returning the transformed rows. A `floql` widget compiles its configuration through the FloQL system into a client that supplies rows to the display. All three are just different ways to end up with an array in the ((registry))."
+          "label": "One object model",
+          "text": "Every tactic, technique, group, piece of software and mitigation is a STIX object with a stable ID. A ((Navigator)) layer is just a list of those IDs with colours and scores, which is why one export opens in anyone's browser."
         },
         {
-          "label": "Why it stays consistent",
-          "text": "Every path — prose, widget settings, and node chaining — goes through the same Liquid grammar and reads from the same registry. There's no second way to express \"use this data.\" That single-grammar, single-store discipline is what keeps a board predictable as it grows."
+          "label": "Why sub-techniques exist",
+          "text": "A technique like `T1059` was once a bag of unrelated behaviours. Sub-techniques (`T1059.001` PowerShell, `T1059.003` Windows Command Shell) split it so detections and ((mitigation))s can be precise without multiplying the top-level list."
         }
-      ]
+      ],
+      "note": "**The matrix is a map, not a checklist.** No intrusion uses every cell, and defending every cell is impossible. ATT&CK is for reasoning about *which* behaviours matter to you, given the ((group))s and ((software)) that target your sector."
     },
     {
       "label": "L5",
-      "name": "File map",
-      "heading": "The complete file map",
-      "meaning": "Every file involved in FloBoard, grouped by the layer it belongs to. The engine (packages/floboard) is pure logic; the editor package wires it into Milkdown; the rest is reused machinery.",
+      "name": "Artefacts",
+      "heading": "The pages and files you actually open",
+      "meaning": "Every ATT&CK artefact — matrix, technique page, group page, mitigation page, data source page, Navigator layer, STIX bundle — and what it is for.",
       "fileMap": true
     }
   ],
   "root": {
-    "id": "floboard",
-    "title": "FloBoard",
+    "id": "attack",
+    "title": "MITRE ATT&CK",
     "kind": "system",
-    "oneLiner": "A dashboard you write, not one you configure.",
-    "summary": "FloBoard turns a single Markdown document into a live, interactive dashboard. You write plain text for the narrative, drop in small fenced blocks that fetch or shape data, and reference that data anywhere with `{{ ... }}`. The document is the whole thing — there is no hidden JSON model behind it.\n\nThis guide is built as a ladder. Start at the top for the plain-English picture; each level goes one step deeper. Every concept — and every file that implements it — is covered by the time you reach the bottom. Stop wherever it clicks.",
+    "oneLiner": "A public, evidence-based catalogue of how real attackers behave after they get in.",
+    "summary": "**ATT&CK** (Adversarial Tactics, Techniques, and Common Knowledge) is a free knowledge base, published by MITRE at attack.mitre.org, that names the things attackers *do*. Its spine is a ((matrix)): the columns are ((tactic))s — the attacker's goals, such as Initial Access or Exfiltration — and the cells are ((technique))s — the ways those goals are met, each with a stable ID like `T1566`.\n\nIt is built from reported, real-world intrusions, so every technique links to the ((group))s and ((software)) seen using it and to the ((mitigation))s and ((data source))s that counter and reveal it. Defenders use it as a shared language: to map their coverage, drive detections, plan red-team exercises and tag ((CTI)) reports.\n\nThis map reads ATT&CK top down. L0 is the idea, L1 the five phases of an intrusion, L2 one attack walked end to end, L3 the tactics and their techniques, L4 the data model, and L5 the artefacts you open. Stop at the rung that answers your question.",
     "facts": [
-      "Markdown = source of truth",
-      "data flows through a graph",
-      "one grammar everywhere",
-      "edit ⇄ preview"
+      "built from real, reported intrusions",
+      "14 Enterprise tactics",
+      "about 200 techniques, 400+ sub-techniques",
+      "free and openly licensed"
     ],
     "snippet": {
-      "label": "what you write · sales.floboard.md",
-      "lang": "md",
-      "code": "# Sales Dashboard\n\n```data_fetch:sales\n{ \"url\": \"api/v1/sales\" }\n```\n\nRevenue: {{ sales | sum_by: 'amount' }} across {{ sales | uniq: 'region' | size }} regions.",
-      "resultLabel": "what a viewer sees",
-      "result": "# Sales Dashboard\n\nRevenue: **20,400** across **3** regions.",
-      "caption": "The block that fetches the data isn't visible to the viewer — only the value it produced is."
+      "label": "a Navigator layer · lsass-coverage.json",
+      "lang": "json",
+      "code": "{\n  \"name\": \"EDR coverage — credential access\",\n  \"domain\": \"enterprise-attack\",\n  \"versions\": { \"attack\": \"15\", \"navigator\": \"4.9\" },\n  \"techniques\": [\n    { \"techniqueID\": \"T1003.001\", \"score\": 100,\n      \"color\": \"#2e7d32\", \"comment\": \"LSASS access alert live\" },\n    { \"techniqueID\": \"T1003.002\", \"score\": 0,\n      \"color\": \"#c62828\", \"comment\": \"SAM dumping — no detection yet\" }\n  ]\n}",
+      "resultLabel": "what an analyst sees",
+      "result": "The **ATT&CK Navigator** paints those two cells of the matrix green and red over the grey of every other technique — a one-glance heat-map of *where detection exists and where it does not*. The same file opens in anyone's browser with no account.",
+      "caption": "A layer is only a list of technique IDs with colours, scores and notes; the matrix underneath is ATT&CK's own."
     },
+    "table": {
+      "columns": [
+        "Tactic",
+        "ID",
+        "The attacker's goal"
+      ],
+      "rows": [
+        [
+          "Reconnaissance",
+          "`TA0043`",
+          "Gather information to plan the operation"
+        ],
+        [
+          "Resource Development",
+          "`TA0042`",
+          "Build or buy the infrastructure and tools"
+        ],
+        [
+          "Initial Access",
+          "`TA0001`",
+          "Get the first foothold inside"
+        ],
+        [
+          "Execution",
+          "`TA0002`",
+          "Run attacker-controlled code"
+        ],
+        [
+          "Persistence",
+          "`TA0003`",
+          "Keep the foothold across reboots and logins"
+        ],
+        [
+          "Privilege Escalation",
+          "`TA0004`",
+          "Gain higher permissions"
+        ],
+        [
+          "Defense Evasion",
+          "`TA0005`",
+          "Avoid being detected"
+        ],
+        [
+          "Credential Access",
+          "`TA0006`",
+          "Steal account names and passwords"
+        ],
+        [
+          "Discovery",
+          "`TA0007`",
+          "Learn the environment"
+        ],
+        [
+          "Lateral Movement",
+          "`TA0008`",
+          "Move to other systems"
+        ],
+        [
+          "Collection",
+          "`TA0009`",
+          "Gather the data of interest"
+        ],
+        [
+          "Command and Control",
+          "`TA0011`",
+          "Talk to the compromised systems"
+        ],
+        [
+          "Exfiltration",
+          "`TA0010`",
+          "Steal the data out"
+        ],
+        [
+          "Impact",
+          "`TA0040`",
+          "Manipulate, interrupt or destroy"
+        ]
+      ],
+      "caption": "The 14 Enterprise tactics, in roughly the order an intrusion meets them. This map groups them into the five phases at [[L1|get-in]]."
+    },
+    "files": [
+      {
+        "path": "attack.mitre.org/matrices/enterprise",
+        "role": "the Enterprise matrix: every tactic and technique for Windows, macOS, Linux and cloud",
+        "group": "Matrices"
+      },
+      {
+        "path": "attack.mitre.org/matrices/mobile",
+        "role": "the Mobile matrix (Android, iOS)",
+        "group": "Matrices"
+      },
+      {
+        "path": "attack.mitre.org/matrices/ics",
+        "role": "the ICS matrix for industrial control systems",
+        "group": "Matrices"
+      },
+      {
+        "path": "mitre-attack/attack-stix-data (GitHub)",
+        "role": "the whole knowledge base as STIX 2.1 bundles, the machine-readable source of truth",
+        "group": "Tooling (STIX, Navigator)"
+      },
+      {
+        "path": "mitre-attack.github.io/attack-navigator",
+        "role": "the Navigator web app that renders coloured, scored layers over the matrix",
+        "group": "Tooling (STIX, Navigator)"
+      }
+    ],
     "children": [
       {
-        "id": "source-of-truth",
-        "title": "One Markdown document",
+        "id": "get-in",
+        "title": "Getting a foothold",
         "kind": "pillar",
-        "tag": "Source of truth",
+        "tag": "Recon to access",
         "color": "teal",
-        "oneLiner": "The board is its markdown string: headings, prose, tables, plus a few special fenced blocks.",
-        "summary": "The board *is* its markdown string. Headings, prose, tables — plus a few special fenced blocks. Computed results are never written back into it, so the document stays clean, diff-able, and portable.",
+        "oneLiner": "Before any code runs on your network, the attacker researches you, builds tooling and finds a way in.",
+        "summary": "The first phase covers everything up to and including the first foothold: the pre-compromise ((tactic))s **Reconnaissance** and **Resource Development**, which happen on the attacker's own systems, and **Initial Access**, the moment a technique first touches yours. Phishing is the workhorse here, which is why so much defensive effort sits in email filtering and user training.",
         "children": [
           {
-            "id": "validation",
-            "title": "Validation",
+            "id": "reconnaissance",
+            "title": "Reconnaissance",
             "kind": "concept",
-            "heading": "Validation — catching mistakes early",
             "level": 3,
-            "oneLiner": "A board is checked continuously; every finding carries a code, a plain-English message and a hint.",
-            "summary": "A board is checked continuously. Every finding carries a machine-readable code, a plain-English message, and a hint — shown in a small panel while authoring, so problems surface before they become confusing behaviour.",
-            "table": {
-              "columns": [
-                "Family",
-                "Examples",
-                "What it catches"
-              ],
-              "rows": [
-                [
-                  "Fence & names",
-                  "`FENCE_MALFORMED`, `DUPLICATE_NODE_NAME`, `RESERVED_NAME`",
-                  "a block that looks like a dataNode but is written wrong; two nodes sharing a name"
-                ],
-                [
-                  "Body schema",
-                  "`JSON_PARSE`, `FETCH_SCHEMA`, `UNKNOWN_STAGE`",
-                  "invalid JSON; a fetch missing its url; a pipeline stage that doesn't exist"
-                ],
-                [
-                  "References",
-                  "`UNKNOWN_REF`, `CYCLE`",
-                  "pointing at a dataset that doesn't exist; circular dependencies"
-                ],
-                [
-                  "Expressions",
-                  "`QUOTE_STYLE_IN_FENCE`, `NON_SCALAR_INTERPOLATION`, `TAG_IN_FENCE_VALUE`",
-                  "double-quoted filter args breaking JSON; printing a whole dataset where text was expected"
-                ],
-                [
-                  "Prose & layout",
-                  "`PIPE_IN_TABLE_CELL`, `TAG_SPANS_BLOCK`, `GRID_COLS_RANGE`",
-                  "a filter pipe colliding with a table cell; a loop that can't span a block; too many grid columns"
+            "tag": "TA0043",
+            "oneLiner": "Gathering information — about people, systems and relationships — to plan the intrusion.",
+            "summary": "Reconnaissance is the attacker learning about the target before touching it. Much of it is passive and invisible: reading the company website, scraping staff names from social media, enumerating internet-facing hosts. Because it mostly happens off your network, it is rarely detected; the defence is reducing what you expose.",
+            "children": [
+              {
+                "id": "t1595",
+                "title": "T1595 Active Scanning",
+                "kind": "mechanism",
+                "oneLiner": "Probing the target's infrastructure directly — scanning IP blocks, ports and web apps for weak points.",
+                "summary": "Unlike passive reconnaissance, active scanning sends traffic to the target: port scans, vulnerability scans and crawling of public web applications. It leaves faint traces in network and web logs, so it is one of the few pre-compromise behaviours a defender can sometimes see.",
+                "deeper": {
+                  "title": "what the data sources show",
+                  "text": "Active scanning surfaces in **Network Traffic** (unusual flows from a single source across many ports) and in web-server logs. It is noisy and common, so alerting on it alone is low value; it matters as *corroboration* when a later `T1190` exploit lands on a host that was scanned days before."
+                }
+              }
+            ]
+          },
+          {
+            "id": "resource-development",
+            "title": "Resource Development",
+            "kind": "concept",
+            "level": 3,
+            "tag": "TA0042",
+            "oneLiner": "Building, buying or stealing the infrastructure and capabilities the operation will use.",
+            "summary": "Before the attack, the adversary stands up what it needs: domains, servers, email accounts, malware and exploits. Like reconnaissance, this happens off your network, but threat-intelligence teams track it — a newly registered look-alike domain is often the first warning of a campaign aimed at you.",
+            "children": [
+              {
+                "id": "t1583",
+                "title": "T1583 Acquire Infrastructure",
+                "kind": "mechanism",
+                "oneLiner": "Registering domains and renting servers that will host phishing pages, payloads and command-and-control.",
+                "summary": "Attackers acquire the ((command and control)) and delivery infrastructure an operation needs: look-alike domains for phishing, virtual servers for payload hosting, and redirectors to hide the real C2. Intelligence feeds and certificate-transparency logs let defenders spot some of it early."
+              }
+            ]
+          },
+          {
+            "id": "initial-access",
+            "title": "Initial Access",
+            "kind": "concept",
+            "level": 3,
+            "tag": "TA0001",
+            "heading": "Initial Access — the first foothold",
+            "oneLiner": "The techniques that get an attacker their first execution or account inside the target.",
+            "summary": "Initial Access is the doorway. Options include exploiting a public-facing application, abusing valid accounts, and — most commonly — **phishing**. This is the first tactic whose techniques actually touch your environment, so it is where detection becomes possible and where a layered defence pays off most.",
+            "children": [
+              {
+                "id": "t1566",
+                "title": "T1566 Phishing",
+                "kind": "mechanism",
+                "oneLiner": "Tricking a person into opening a malicious attachment or link that delivers the first payload.",
+                "summary": "Phishing sends a crafted message that leads the recipient to run code or hand over credentials. It is the single most common way intrusions begin, which is why it anchors the attack chain walked at level L2.",
+                "snippet": {
+                  "label": "a Sigma-style detection sketch · suspicious-office-child.yml",
+                  "lang": "text",
+                  "code": "title: Office app spawns a script interpreter\nlogsource: { category: process_creation, product: windows }\ndetection:\n  parent:\n    ParentImage|endswith: ['\\\\WINWORD.EXE', '\\\\EXCEL.EXE']\n  child:\n    Image|endswith: ['\\\\powershell.exe', '\\\\wscript.exe', '\\\\cmd.exe']\n  condition: parent and child\nlevel: high",
+                  "caption": "Detections for phishing usually fire on what the lure *does* — here, a document spawning a script interpreter — not on the email itself."
+                },
+                "deeper": {
+                  "title": "the two sub-techniques you meet most",
+                  "text": "`T1566.001` **Spearphishing Attachment** delivers a weaponised file (a macro-enabled document, an ISO, a LNK). `T1566.002` **Spearphishing Link** sends a URL to a credential-harvesting page or a drive-by payload. A group such as ((group)) G0016 (APT29) has used targeted spearphishing links against specific victims. Mitigations: `M1017` User Training and `M1049` Antivirus/Antimalware; the richest ((data source)) is **Application Log** (email gateway) joined to **Process Creation** on the endpoint."
+                },
+                "files": [
+                  {
+                    "path": "attack.mitre.org/techniques/T1566",
+                    "role": "the Phishing technique page: sub-techniques, procedures, mitigations and detections",
+                    "group": "Technique & tactic pages"
+                  },
+                  {
+                    "path": "attack.mitre.org/groups/G0016",
+                    "role": "the APT29 group page, listing the techniques and software attributed to it",
+                    "group": "Groups & software"
+                  }
                 ]
-              ],
-              "caption": "Findings are warnings or errors — a warning degrades gracefully, an error points at something that won't work."
-            },
-            "files": [
-              {
-                "path": "lint/index.ts",
-                "role": "the full validation pass",
-                "group": "packages/floboard/js · the engine"
               },
               {
-                "path": "lint/codes.ts",
-                "role": "the code table every finding is drawn from",
-                "group": "packages/floboard/js · the engine"
+                "id": "t1190",
+                "title": "T1190 Exploit App",
+                "heading": "T1190 Exploit Public-Facing Application",
+                "kind": "mechanism",
+                "oneLiner": "Exploiting a vulnerability in an internet-facing service to gain the first foothold.",
+                "summary": "Where phishing targets a person, `T1190` targets a service: an unpatched VPN, web server or file-transfer appliance exposed to the internet. Mass exploitation of a new CVE is a common ransomware entry point. Mitigations: `M1051` Update Software and `M1030` Network Segmentation; the signal is in web and application logs joined to new processes on the host."
               }
             ]
-          },
-          {
-            "id": "saving",
-            "title": "Saving & loading",
-            "kind": "concept",
-            "level": 3,
-            "oneLiner": "A board is just a markdown string, so each one is stored under an id with a revision number.",
-            "summary": "Because a board is just a markdown string, saving is simple: each board is stored under an id, with a small index listing all boards. Every save carries a revision number.",
-            "facts": [
-              {
-                "label": "What's stored",
-                "text": "An index of boards (id, title, last-updated) and, per board, an envelope of `{ version, revision, markdown }`. The title is taken from the board's first heading."
-              },
-              {
-                "label": "Two-tab safety",
-                "text": "Saves are guarded by the revision: if the same board changed in another tab since you loaded it, the save is refused rather than silently overwriting the other copy — you're offered reload-or-overwrite."
-              }
-            ],
-            "note": "**A board can also live as a file.** Importing a `.floboard.md` file yields a ready-to-render dashboard component.",
-            "files": [
-              {
-                "path": "boardStore.ts",
-                "role": "save / load / list boards with revision-guarded writes",
-                "group": "packages/floboard/js · the engine"
-              },
-              {
-                "path": "vite-plugin-floboard.js",
-                "role": "imports a `.floboard.md` file as a ready-to-render dashboard component",
-                "group": "execution & shared foundation"
-              },
-              {
-                "path": "lib/handlers/storageHandler/StorageHandler.ts",
-                "role": "the namespaced local-storage wrapper behind board saving",
-                "group": "execution & shared foundation"
-              }
-            ]
-          }
-        ],
-        "files": [
-          {
-            "path": "types.ts",
-            "role": "shared type vocabulary — dataNode kinds, registry entry, diagnostic, board context",
-            "group": "packages/floboard/js · the engine"
-          },
-          {
-            "path": "fixtures/*.floboard.md",
-            "role": "example boards (sales dashboard, layout showcase, error cases)",
-            "group": "packages/floboard/js · the engine"
           }
         ]
       },
       {
-        "id": "datanodes",
-        "title": "Blocks that produce data",
+        "id": "run-and-stay",
+        "title": "Running code and staying",
         "kind": "pillar",
-        "tag": "dataNodes",
+        "tag": "Execution & footholds",
         "color": "violet",
-        "oneLiner": "Fenced blocks named data:sales that generate, fetch or transform a dataset and publish it under that name.",
-        "summary": "Fenced blocks named `data:sales` that generate, fetch, or transform a dataset and publish it under that name. Invisible when viewing; editable when authoring.",
+        "oneLiner": "Once inside, the attacker runs code, survives reboots, grabs higher rights and hides from the defenders.",
+        "summary": "This phase turns a foothold into a durable, privileged, quiet presence. **Execution** runs the code, **Persistence** keeps it coming back, **Privilege Escalation** widens what it can do, and **Defense Evasion** — the largest tactic in ATT&CK — hides all of the above. These four tactics interleave rather than run in strict order.",
         "children": [
           {
-            "id": "data-kinds",
-            "title": "The three kinds",
+            "id": "execution",
+            "title": "Execution",
             "kind": "concept",
-            "heading": "dataNodes — the three kinds",
             "level": 3,
-            "oneLiner": "A dataNode's info string carries its kind and export name: ```kind:name. Three kinds produce data.",
-            "summary": "A ((dataNode)) is a fenced block whose info string carries its kind and its export name: ```` ```kind:name ````. There are three data-producing kinds — each produces one named dataset. (A fourth, interactive kind — `input` — collects data from the viewer instead; see [[Inputs|inputs]].)",
-            "note": "**The name lives in the fence.** `data_fetch:sales` means kind = `data_fetch`, exported name = `sales`. A block with no name (just ```` ```data ````) is treated as an ordinary code block, not a dataNode.",
-            "deeper": {
-              "title": "how a fence becomes a live block",
-              "text": "The editor is built on Milkdown (a Markdown editor on top of ProseMirror). A single factory, `createCodeBlockPlugin`, turns any fenced language into an interactive block backed by a Vue component. Each dataNode kind is one registration of that factory sharing one editor component, `DataNodeView.vue`.\n\nThe scanning that finds dataNodes doesn't need the editor at all — `parseBoard.ts` reads the raw markdown string with a small fence scanner, so the same recognition logic works both live in the editor and headlessly (for validation or file imports).\n\nFiles: `parseBoard.ts`, `data_node_plugin/`, `createCodeBlockPlugin.ts`."
-            },
+            "tag": "TA0002",
+            "oneLiner": "Running attacker-controlled code on a local or remote system.",
+            "summary": "Execution is the tactic of actually running code. The dominant technique is the **command and scripting interpreter** already present on every machine — PowerShell, cmd, bash — because living off the land avoids dropping detectable files.",
             "children": [
               {
-                "id": "data-inline",
-                "title": "data",
+                "id": "t1059",
+                "title": "T1059 Scripting",
                 "kind": "mechanism",
-                "heading": "data — an inline or derived dataset",
-                "oneLiner": "The block body is a JSON value; it can reference other datasets, so it doubles as a cheap transform step.",
-                "summary": "The block body is a JSON value. It can also reference other datasets, so it doubles as a cheap transform step.",
+                "heading": "T1059 Command and Scripting Interpreter",
+                "oneLiner": "Abusing the interpreters built into the OS — PowerShell, cmd, bash — to run commands and payloads.",
+                "summary": "Rather than drop a new binary, attackers drive the interpreters that ship with the system. `T1059.001` **PowerShell** and `T1059.003` **Windows Command Shell** are the two seen most on Windows. Because these tools are legitimate, detection rests on *how* they are used, not whether they ran.",
                 "snippet": {
-                  "lang": "md",
-                  "label": "data:regions",
-                  "code": "```data:regions\n[\n  { \"region\": \"North America\", \"amount\": 4200 },\n  { \"region\": \"Europe\",        \"amount\": 3100 }\n]\n```\n\n# derived from another dataset:\n```data:top\n\"{{ regions | where: 'active', true }}\"\n```",
-                  "caption": "**Best for:** sample data, small lookups, or reshaping another dataset without a full pipeline."
+                  "label": "a one-liner a defender hopes to catch",
+                  "lang": "bash",
+                  "code": "powershell -nop -w hidden -enc \u003cbase64>",
+                  "resultLabel": "the red flags",
+                  "result": "`-enc` (base64-encoded command), `-w hidden` (no window) and `-nop` (no profile) together are a strong signal: legitimate admin scripts rarely combine all three. Command-line logging (`M1047` Audit, plus Script Block Logging) turns this into a reliable alert.",
+                  "caption": "Encoded, hidden, profile-less PowerShell launched by an Office process ties Execution back to Initial Access."
                 }
               },
               {
-                "id": "data-fetch",
-                "title": "data_fetch",
+                "id": "t1204",
+                "title": "T1204 User Execution",
                 "kind": "mechanism",
-                "heading": "data_fetch — load data over the network",
-                "oneLiner": "The body is a request description — url, optional params, a path to the array — fetched with a read-only GET.",
-                "summary": "The body is a request description: a `url`, optional `params`, and an optional `path` that points at the array inside the response. It performs a read-only GET.",
-                "snippet": {
-                  "lang": "md",
-                  "label": "data_fetch:sales",
-                  "code": "```data_fetch:sales\n{\n  \"url\": \"api/v1/sales\",\n  \"params\": { \"period\": \"quarter\" },\n  \"path\": \"data.rows\"\n}\n```",
-                  "caption": "**Best for:** live data. Values can themselves use `{{ }}` (e.g. a param driven by another dataset), which links the two together."
-                },
-                "files": [
-                  {
-                    "path": "lib/request/index.ts",
-                    "role": "the request library — the GET used by data_fetch",
-                    "group": "execution & shared foundation"
-                  }
-                ]
-              },
-              {
-                "id": "data-pipeline",
-                "title": "data_pipeline",
-                "kind": "mechanism",
-                "heading": "data_pipeline — transform an existing dataset",
-                "oneLiner": "Takes an input dataset and runs it through a list of stages — group, aggregate, filter, tweak.",
-                "summary": "Takes an input dataset and runs it through a list of stages — group, aggregate, filter, tweak. The result is the transformed rows.",
-                "snippet": {
-                  "lang": "md",
-                  "label": "data_pipeline:by_region",
-                  "code": "```data_pipeline:by_region\n{\n  \"input\": \"{{ sales }}\",\n  \"stages\": [\n    { \"value\": \"GroupBy\", \"groupFields\": [\n        { \"type\": \"groupBy\",   \"field\": \"region\" },\n        { \"type\": \"aggregate\", \"field\": \"amount\",\n          \"aggregateFunction\": \"sum\" } ] }\n  ]\n}\n```",
-                  "caption": "**Best for:** rollups. Here `sales` becomes one row per region with a summed amount, published as `by_region`."
-                },
-                "files": [
-                  {
-                    "path": "inflo_pipeline/pipeline/runner/Pipeline.ts, StageRunner.ts",
-                    "role": "the general pipeline engine that runs data_pipeline stages and returns the final rows",
-                    "group": "execution & shared foundation"
-                  },
-                  {
-                    "path": "inflo_pipeline/pipeline/runner/NodeRunContext.ts",
-                    "role": "the per-stage context (args, events, results)",
-                    "group": "execution & shared foundation"
-                  },
-                  {
-                    "path": "inflo_pipeline/pipeline-node/{core.ts, index.ts}",
-                    "role": "the headless node registry; the \"data\" mode used by dataNodes",
-                    "group": "execution & shared foundation"
-                  },
-                  {
-                    "path": "inflo_pipeline/pipeline-node/start/plain_start_end_node.ts",
-                    "role": "the start/collect nodes that feed input in and gather output",
-                    "group": "execution & shared foundation"
-                  }
-                ]
-              }
-            ],
-            "files": [
-              {
-                "path": "parseBoard.ts",
-                "role": "Milkdown-independent scanner: finds fenced blocks and classifies dataNodes from raw markdown",
-                "group": "packages/floboard/js · the engine"
-              },
-              {
-                "path": "data_node_plugin/{index.js, DataNodeView.vue}",
-                "role": "the three dataNode fences and their shared editor card",
-                "group": "packages/milkdown_editor · the editor wiring"
-              },
-              {
-                "path": "shared/codeblock_type_plugin/createCodeBlockPlugin.ts",
-                "role": "the factory that turns a fenced language into a Vue-backed editor block",
-                "group": "packages/milkdown_editor · the editor wiring"
-              },
-              {
-                "path": "…/CodeBlockView.vue, …/CodeEditorBlock.vue",
-                "role": "the block's mount point and the code/preview editing shell",
-                "group": "packages/milkdown_editor · the editor wiring"
+                "oneLiner": "Relying on a user to run the malicious file or link that was delivered.",
+                "summary": "`T1204.002` **Malicious File** is the other half of phishing: delivery gets the file there, user execution is the double-click that runs it. It pairs with [[L3|t1566]] and is mitigated mostly by `M1017` User Training and by blocking risky file types (`M1042`)."
               }
             ]
           },
           {
-            "id": "inputs",
-            "title": "Inputs",
+            "id": "persistence",
+            "title": "Persistence",
             "kind": "concept",
-            "heading": "Inputs — filtering from the view",
             "level": 3,
-            "oneLiner": "The only dataNode a viewer can see and touch: a row of filter controls whose selection the board reads.",
-            "summary": "The three kinds above produce data and stay invisible. One more kind works the other way around: `input` is the only dataNode a viewer can see and touch. It renders a row of filter controls — dropdowns, date ranges, sliders — and publishes the viewer's selection as data the rest of the board reads. Change a control and the board recomputes itself, live.",
-            "snippet": {
-              "lang": "md",
-              "label": "what you write · input:filters",
-              "code": "```input:filters\n[\n  { \"key\": \"region\", \"filterType\": \"select\",     \"field\": \"region\", \"op\": \"in\" },\n  { \"key\": \"period\", \"filterType\": \"date_range\", \"asField\": true }\n]\n```",
-              "resultLabel": "what a viewer operates",
-              "result": "Region: **North America ▾**\n\nPeriod: **Jan–Jun ▾**",
-              "caption": "Every chart and table on the board redraws for the chosen region and period."
-            },
-            "note": "**Cleared means “show all”, not “show nothing”.** An empty selection resolves to a null condition and its filter stage is skipped — so an untouched board shows everything. And the viewer's choice lives only in the ((registry)): it is never written back into the markdown, so the document a viewer filters stays byte-for-byte the one the author saved.",
-            "deeper": {
-              "title": "how a selection re-runs the board",
-              "text": "A control publishes its value with `setInputValue`; the host re-runs the graph in stale mode seeded with that node, so only the dataNodes downstream of the filter recompute and the widgets bound to them re-bind — the rest of the board is left alone. Prose that mentions `{{ inputs.… }}` is re-rendered too; a board with no such prose never re-renders, so the control never loses focus mid-interaction.\n\nBecause `inputs` is invisible to the ordinary reference scanner, the ((dependency graph)) recovers the real edges with a dedicated `inputs.\u003cnode>` scan — so a filter change knows exactly which blocks to refresh.\n\nFiles: `input_node_plugin/InputNodeView.vue`, `inputValue.ts`, `engines.ts` (runInput), `DagRunner.ts` (dirty seed)."
-            },
+            "tag": "TA0003",
+            "oneLiner": "Keeping access across reboots, logoffs and credential changes.",
+            "summary": "Persistence stops a reboot from evicting the attacker. Techniques plant something that runs again automatically — a scheduled task, a service, a registry run key, a startup item. The defender's edge is that most of these create durable, auditable artefacts.",
             "children": [
               {
-                "id": "inputs-namespace",
-                "title": "The inputs namespace",
+                "id": "t1053",
+                "title": "T1053 Scheduled Task",
                 "kind": "mechanism",
-                "heading": "Read through the inputs namespace",
-                "oneLiner": "An input's live value is read through the reserved inputs namespace, so it is always clearly viewer-driven.",
-                "summary": "A normal dataNode is referenced by its bare name. An input node's live value is read through a reserved ((inputs namespace)) instead — so it's always clear the value is viewer-driven. The same control can drive two very different strategies, chosen purely by where you reference it:",
-                "snippet": [
-                  {
-                    "lang": "json",
-                    "label": "filter loaded data · a pipeline stage",
-                    "code": "{ \"value\": \"Filter\",\n  \"condition\": \"{{ inputs.filters._all }}\" }"
-                  },
-                  {
-                    "lang": "json",
-                    "label": "re-query the server · a fetch param",
-                    "code": "{ \"url\": \"api/v1/sales\",\n  \"params\": { \"region\": \"{{ inputs.filters.region }}\" } }",
-                    "caption": "Client-side (filter data already in the browser) or server-side (re-fetch) — same input, different reference. `{{ inputs.filters._all }}` is a convenience: every active filter AND-joined into one condition."
-                  }
-                ]
-              }
-            ],
-            "files": [
-              {
-                "path": "inputValue.ts",
-                "role": "helpers for the interactive input node — filter-key derivation, the combined `_all` condition, empty-selection (\"show all\") handling",
-                "group": "packages/floboard/js · the engine"
+                "heading": "T1053 Scheduled Task/Job",
+                "oneLiner": "Using the OS task scheduler to run a payload on a trigger — at logon, on a timer, at a set time.",
+                "summary": "`T1053.005` **Scheduled Task** on Windows is a favourite: it survives reboots, can run as SYSTEM, and looks like ordinary administration. It is one of the few techniques that spans three tactics — Execution, Persistence and Privilege Escalation — because the same action achieves all three.",
+                "deeper": {
+                  "title": "why it appears under three tactics",
+                  "text": "A scheduled task *runs code* (Execution), *runs it again later* (Persistence) and can *run it as a higher-privileged account* (Privilege Escalation). ATT&CK lists one technique under every goal it serves, so the same `T1053` cell sits in three columns of the matrix. Watch the **Scheduled Job** data source and task-creation events (`4698`). Mitigation: `M1028` Operating System Configuration to restrict who may create tasks."
+                }
               },
               {
-                "path": "input_node_plugin/{index.js, InputNodeView.vue}",
-                "role": "the interactive input fence — a live filter bar in view mode, a def-authoring card in edit mode",
-                "group": "packages/milkdown_editor · the editor wiring"
+                "id": "t1547",
+                "title": "T1547 Autostart",
+                "heading": "T1547 Boot or Logon Autostart Execution",
+                "kind": "mechanism",
+                "oneLiner": "Planting a payload in the places the OS runs automatically at boot or logon.",
+                "summary": "`T1547.001` **Registry Run Keys / Startup Folder** is the classic: an entry that relaunches the payload every time the user logs in. Cheap for the attacker, but it writes durable, auditable artefacts, so the **Windows Registry** and **File** data sources catch it well."
               }
             ]
           },
           {
-            "id": "dependency-graph",
-            "title": "Dependency graph",
+            "id": "privilege-escalation",
+            "title": "Privilege Escalation",
             "kind": "concept",
-            "heading": "The dependency graph",
             "level": 3,
-            "oneLiner": "Blocks reference each other by name, so FloBoard works out what depends on what and runs it in order.",
-            "summary": "Because blocks reference each other by name, FloBoard can read the whole board and figure out what depends on what — then run everything in the right order, on its own.\n\n**A three-step chain:** `data_fetch` **sales** loads raw rows → `data_pipeline` **by_region** groups & sums sales → `widget` **chart** shows by_region.",
-            "facts": [
+            "tag": "TA0004",
+            "oneLiner": "Gaining higher permissions than the initial foothold allowed.",
+            "summary": "A phished user is rarely an administrator, so the attacker climbs. Techniques abuse misconfigurations, OS features and elevation controls to reach admin or SYSTEM, which unlocks credential theft and lateral movement.",
+            "children": [
               {
-                "label": "Order-free",
-                "text": "You can define `by_region` before `sales` in the document. The graph sorts it out; document order never matters."
-              },
-              {
-                "label": "Parallel",
-                "text": "Independent dataNodes run at the same time. A node waits only for the specific inputs it references."
-              },
-              {
-                "label": "Fail-forward",
-                "text": "If `sales` errors, `by_region` is marked **blocked** — with the root cause named — instead of failing mysteriously."
-              },
-              {
-                "label": "Safe",
-                "text": "Circular references are rejected up front. A whole run is time-capped and can be cancelled; nothing hangs."
-              }
-            ],
-            "deeper": {
-              "title": "how the order is computed",
-              "text": "Each dataNode body is scanned for the names it mentions; a name that matches another dataNode becomes a dependency edge. The graph is sorted topologically (Kahn's algorithm), which also surfaces cycles — any node left over after the sort is part of, or downstream of, a loop and is reported.\n\nExecution is a set of promises keyed by node name: asking for a node runs its dependencies first, then the node, memoizing the result so shared inputs run once. An abort signal threads through so a cancel or a timeout stops in-flight fetches. A \"stale\" mode re-runs only the nodes whose text changed since last time — which is what makes switching between Edit and Preview instant.\n\nFiles: `DagRunner.ts`, `graph.ts`, `engines.ts`."
-            },
-            "files": [
-              {
-                "path": "graph.ts",
-                "role": "dependency-graph helper — cycle detection (shared by runner and linter)",
-                "group": "packages/floboard/js · the engine"
-              },
-              {
-                "path": "DagRunner.ts",
-                "role": "orchestrates a run: extract edges, order, execute, block/cycle/cancel/timeout, stale re-runs",
-                "group": "packages/floboard/js · the engine"
-              },
-              {
-                "path": "engines.ts",
-                "role": "the producers: inline, fetch (GET), pipeline (StageRunner), and the input publisher",
-                "group": "packages/floboard/js · the engine"
+                "id": "t1548",
+                "title": "T1548 Elevation Abuse",
+                "kind": "mechanism",
+                "heading": "T1548 Abuse Elevation Control Mechanism",
+                "oneLiner": "Subverting the OS controls meant to gate elevation, such as Windows UAC or Unix sudo.",
+                "summary": "`T1548.002` **Bypass User Account Control** abuses the Windows mechanism that is supposed to prompt before elevation, slipping a payload to high integrity without a prompt. Mitigation `M1026` Privileged Account Management and keeping UAC at its highest setting (`M1028`) raise the cost."
               }
             ]
           },
           {
-            "id": "registry",
-            "title": "Reactive registry",
+            "id": "defense-evasion",
+            "title": "Defense Evasion",
             "kind": "concept",
-            "heading": "The reactive registry",
             "level": 3,
-            "oneLiner": "The in-memory table holding every dataNode's result while a board is open — where producers meet consumers.",
-            "summary": "The ((registry)) is the in-memory table where every dataNode's result lives while a board is open. It is the meeting point between the blocks that produce data and everything that consumes it.\n\nEach entry tracks a status and, once ready, a value. Consumers watch their entry and re-render the instant it becomes ready — with no change to the document and no page reload.",
-            "facts": [
-              "`idle`",
-              "`running`",
-              "`ready`",
-              "`blocked`",
-              "`error`"
-            ],
-            "snippet": {
-              "lang": "text",
-              "label": "registry snapshot",
-              "code": "sales       ready    [ 42 rows ]\nby_region   ready    [ 3 rows ]\norders      running  …\nforecast    blocked  (needs orders)"
-            },
-            "note": "**Results never touch the markdown.** Keeping computed data out of the document is what lets the source stay clean and version-controlled — and it's why a board re-runs fresh each time it opens, always showing current data.",
-            "deeper": {
-              "title": "generations and reconciliation",
-              "text": "Each entry carries a generation counter. If you edit or delete a node while its previous run is still in flight, the counter advances and the late result is dropped — so a stale fetch can never overwrite fresh state. When the set of dataNodes changes, the registry reconciles: new names get fresh entries, removed names are cleared, changed bodies reset to idle for a re-run.\n\nFile: `DataNodeRegistry.ts`."
-            },
-            "files": [
+            "tag": "TA0005",
+            "oneLiner": "Avoiding detection — hiding code, disabling tools, clearing logs, blending in.",
+            "summary": "Defense Evasion is the largest tactic in ATT&CK, because almost every other technique has a stealthy variant. A representative technique is **obfuscating files or information** so that scanners and analysts cannot read what the payload does.",
+            "children": [
               {
-                "path": "DataNodeRegistry.ts",
-                "role": "the reactive store of results — statuses, generations, reconciliation",
-                "group": "packages/floboard/js · the engine"
+                "id": "t1027",
+                "title": "T1027 Obfuscation",
+                "kind": "mechanism",
+                "heading": "T1027 Obfuscated Files or Information",
+                "oneLiner": "Encoding, encrypting or packing payloads and commands so they resist inspection.",
+                "summary": "Attackers base64-encode commands, pack executables and encrypt strings so that static analysis and signature matching fail. The `-enc` PowerShell flag on [[L3|t1059]] is a tiny example. Detection shifts to behaviour and to decoded content at runtime; `M1049` Antivirus/Antimalware and `M1040` Behavior Prevention on Endpoint help.",
+                "deeper": {
+                  "title": "why evasion is everywhere",
+                  "text": "Because Defense Evasion is a *goal*, not a single trick, techniques from other tactics appear here too whenever they have a stealth purpose — disabling security tools, signing malware, timestomping files. That is why the tactic has more techniques than any other and why ATT&CK coverage is never \"complete\": you cover the behaviours that matter to your threat model."
+                }
               }
             ]
           }
         ]
       },
       {
-        "id": "templating",
-        "title": "One expression grammar",
+        "id": "learn-network",
+        "title": "Learning the network",
         "kind": "pillar",
-        "tag": "Templating",
+        "tag": "Creds, recon, movement",
         "color": "gold",
-        "oneLiner": "{{ ... }} (LiquidJS) works everywhere: in prose, in widget settings, and to pass one block's data to another.",
-        "summary": "`{{ ... }}` (LiquidJS) is used everywhere — in prose, inside widget settings, and to pass one block's data to another. Filters like `| sum_by` reshape values inline.",
+        "oneLiner": "From one machine, the attacker steals credentials, maps the network and spreads to the hosts that matter.",
+        "summary": "With a privileged foothold, the attacker turns outward. **Credential Access** harvests passwords and hashes, **Discovery** maps the hosts, users and shares worth reaching, and **Lateral Movement** uses stolen credentials to hop to them. This phase is where a single compromise becomes a domain-wide one.",
         "children": [
           {
-            "id": "liquid",
-            "title": "One grammar everywhere",
+            "id": "credential-access",
+            "title": "Credential Access",
             "kind": "concept",
-            "heading": "Templating — one grammar everywhere",
             "level": 3,
-            "oneLiner": "The {{ ... }} you write in a sentence also works inside widget settings and inside a dataNode feeding another.",
-            "summary": "FloBoard uses LiquidJS for every expression. The same `{{ ... }}` you write in a sentence also works inside a widget's settings and inside a dataNode that feeds another. One thing to learn, used in three places.",
-            "deeper": {
-              "title": "safe by design",
-              "text": "Liquid was chosen because it evaluates templates without running arbitrary code, and it has built-in guards against runaway work (render-time and memory limits). Rendering fails soft in Preview — an undefined reference becomes empty rather than crashing the page — while an authoring profile is strict and reports every mistake.\n\nTwo engine profiles run side by side: a display profile that produces raw typed values for settings, and a prose profile that escapes every interpolated value before it lands in the page (so a data value can never inject markup or break the layout).\n\nFile: `liquidEngine.ts`."
-            },
+            "tag": "TA0006",
+            "oneLiner": "Stealing account names, passwords, hashes and tokens to reuse elsewhere.",
+            "summary": "Stolen credentials are the master key: they let an attacker move and persist while looking like a legitimate user. The classic technique is **OS credential dumping** — reading secrets out of the operating system's own stores.",
             "children": [
               {
-                "id": "liquid-prose",
-                "title": "In prose",
+                "id": "t1003",
+                "title": "T1003 Cred Dumping",
                 "kind": "mechanism",
-                "heading": "In prose — outputs and logic",
-                "oneLiner": "Outputs and logic tags render straight into the narrative.",
+                "heading": "T1003 OS Credential Dumping",
+                "oneLiner": "Extracting credential material from the OS — LSASS memory, the SAM database, cached hashes.",
+                "summary": "`T1003.001` **LSASS Memory** is the headline: on Windows, cleartext-adjacent secrets live in the LSASS process, and tools read them straight out of memory. Protecting LSASS (`M1043` Credential Access Protection, e.g. Credential Guard) and alerting on processes that open a handle to it is one of the highest-value detections a team can build.",
                 "snippet": {
-                  "lang": "md",
-                  "label": "markdown",
-                  "code": "Total: **{{ sales | sum_by: 'amount' | format_number }}**\n\n{% for r in by_region %}\n- {{ r.region }}: {{ r.sum_amount }}\n{% endfor %}",
-                  "resultLabel": "rendered",
-                  "result": "Total: **20,400**\n\n- North America: 12,900\n- Europe: 7,500"
+                  "label": "the data-source signal · lsass handle access",
+                  "lang": "text",
+                  "code": "Event 4656/4663 — Object: lsass.exe\n  AccessMask: 0x1410 (VM_READ | QUERY_INFORMATION)\n  Process:    \\\\Users\\\\...\\\\rundll32.exe",
+                  "resultLabel": "why it matters",
+                  "result": "Almost nothing legitimately reads LSASS memory. A non-system process opening it with read access is a near-certain credential-dumping alert — the single detection most ransomware intrusions would trip.",
+                  "caption": "Data source: **Process** (OS API execution) and **Logon Session**."
                 },
-                "summary": "Outputs and logic tags render straight into the narrative. Every interpolated value is escaped before it lands in the page, so a data value can never break the layout."
-              },
-              {
-                "id": "whole-value-rule",
-                "title": "The whole-value rule",
-                "kind": "mechanism",
-                "heading": "The whole-value rule — how typed data flows into settings",
-                "oneLiner": "A JSON string that is exactly one {{ expr }} is replaced with the real typed value; any other mix is text.",
-                "summary": "Widget and dataNode bodies are JSON. A string value that is exactly one `{{ expr }}` is replaced with the real typed value — an array stays an array, not text. Any other mix is treated as text interpolation. This is the ((whole-value rule)).",
-                "snippet": [
+                "files": [
                   {
-                    "lang": "json",
-                    "label": "whole value → typed",
-                    "code": "{ \"rows\": \"{{ by_region }}\" }\n// rows becomes the array itself"
+                    "path": "attack.mitre.org/techniques/T1003/001",
+                    "role": "the LSASS Memory sub-technique page",
+                    "group": "Technique & tactic pages"
                   },
                   {
-                    "lang": "json",
-                    "label": "embedded → text",
-                    "code": "{ \"title\": \"Sales — {{ period }}\" }\n// title becomes a string"
+                    "path": "attack.mitre.org/datasources/DS0009",
+                    "role": "the Process data source page, including the OS API Execution component",
+                    "group": "Mitigations & data sources"
+                  },
+                  {
+                    "path": "attack.mitre.org/mitigations/M1043",
+                    "role": "the Credential Access Protection mitigation page (covers Credential Guard)",
+                    "group": "Mitigations & data sources"
                   }
                 ]
               },
               {
-                "id": "filters",
-                "title": "Filters",
+                "id": "t1555",
+                "title": "T1555 Password Stores",
+                "heading": "T1555 Credentials from Password Stores",
                 "kind": "mechanism",
-                "heading": "Filters do the reshaping",
-                "oneLiner": "Beyond Liquid's built-ins, FloBoard adds data-shaped filters so small jobs need no pipeline.",
-                "summary": "Beyond Liquid's built-ins (`where`, `map`, `sort`, `size`, `sum`…), FloBoard adds data-shaped filters so you rarely need a full pipeline for small jobs:",
+                "oneLiner": "Stealing saved credentials from browsers, keychains and password managers.",
+                "summary": "Beyond LSASS, users and apps save secrets: browser-stored passwords, the Windows Credential Manager, cloud CLI tokens. `T1555.003` **Credentials from Web Browsers** is seen constantly. Mitigation leans on `M1027` Password Policies and not storing high-value secrets locally."
+              }
+            ]
+          },
+          {
+            "id": "discovery",
+            "title": "Discovery",
+            "kind": "concept",
+            "level": 3,
+            "tag": "TA0007",
+            "oneLiner": "Learning the environment — hosts, users, shares, software, defences.",
+            "summary": "Before moving, the attacker looks around: what machine is this, who is logged in, what can it reach? **System Information Discovery** and its siblings are built from ordinary admin commands, so they hide in the noise. Volume and sequence, not any single command, are the tell.",
+            "children": [
+              {
+                "id": "t1082",
+                "title": "T1082 System Info",
+                "kind": "mechanism",
+                "heading": "T1082 System Information Discovery",
+                "oneLiner": "Querying the OS for host details — version, architecture, hardware, hostname.",
+                "summary": "Commands like `systeminfo`, `hostname` and `uname -a` tell the attacker where they landed and whether the host is worth keeping. Individually harmless, a burst of them from one process right after execution is a strong behavioural signal. ((Data source)): **Process Creation** and **Command Execution**."
+              },
+              {
+                "id": "t1018",
+                "title": "T1018 Remote Systems",
+                "heading": "T1018 Remote System Discovery",
+                "kind": "mechanism",
+                "oneLiner": "Listing other hosts on the network to pick lateral-movement targets.",
+                "summary": "Having mapped the local host on [[L3|t1082]], the attacker enumerates the network — `net view`, AD queries, ping sweeps — to find servers and domain controllers worth reaching. It feeds [[L3|t1021]] directly. ((Data source)): **Process Creation** and **Network Traffic**."
+              }
+            ]
+          },
+          {
+            "id": "lateral-movement",
+            "title": "Lateral Movement",
+            "kind": "concept",
+            "level": 3,
+            "tag": "TA0008",
+            "oneLiner": "Moving from the foothold to other systems, usually with stolen credentials.",
+            "summary": "Lateral Movement spreads the intrusion. **Remote Services** reuse legitimate remote-access protocols — RDP, SMB, WinRM — with credentials taken in the previous step, so the traffic looks authorised. Segmentation and MFA are the main brakes.",
+            "children": [
+              {
+                "id": "t1021",
+                "title": "T1021 Remote Services",
+                "kind": "mechanism",
+                "heading": "T1021 Remote Services",
+                "oneLiner": "Logging in to other hosts over RDP, SMB or WinRM using valid, stolen credentials.",
+                "summary": "`T1021.001` **Remote Desktop Protocol** and `T1021.002` **SMB/Windows Admin Shares** carry attackers across the network as if they were administrators. Because the credentials are valid, the defence is structural: `M1030` Network Segmentation, `M1032` Multi-factor Authentication and watching **Logon Session** data for unusual source-to-destination pairs.",
+                "deeper": {
+                  "title": "the credential-to-movement link",
+                  "text": "Lateral Movement depends on Credential Access: no stolen password, no quiet hop. That is the single most important relation on this map — break the credential-dumping step on [[L3|t1003]] and most lateral movement collapses. See the connection drawn between those two regions on the overview."
+                }
+              },
+              {
+                "id": "t1570",
+                "title": "T1570 Tool Transfer",
+                "heading": "T1570 Lateral Tool Transfer",
+                "kind": "mechanism",
+                "oneLiner": "Copying tools and payloads from one compromised host to the next.",
+                "summary": "Once on a new host, the attacker needs its tooling there too, so files are copied host-to-host over SMB or remote shares. Watching **File Creation** on admin shares and **Network Share Access** surfaces it; `M1030` Network Segmentation limits the reach."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "take-data",
+        "title": "Taking the data",
+        "kind": "pillar",
+        "tag": "Collect, C2, exfil",
+        "color": "blue",
+        "oneLiner": "The attacker gathers the data worth stealing, keeps a channel to the outside, and moves it out.",
+        "summary": "Now the operation acts on its objective of theft. **Collection** stages the data, **Command and Control** maintains the covert channel that runs the whole intrusion, and **Exfiltration** moves the data out — often over that same channel, to blend with normal traffic.",
+        "children": [
+          {
+            "id": "collection",
+            "title": "Collection",
+            "kind": "concept",
+            "level": 3,
+            "tag": "TA0009",
+            "oneLiner": "Gathering the data of interest and staging it for theft.",
+            "summary": "Collection pulls the target data together — documents, databases, mailboxes — and usually compresses and encrypts it first. **Archive Collected Data** is the staging step that precedes exfiltration and sometimes gives defenders their last chance to notice.",
+            "children": [
+              {
+                "id": "t1560",
+                "title": "T1560 Archive Data",
+                "kind": "mechanism",
+                "heading": "T1560 Archive Collected Data",
+                "oneLiner": "Compressing and often encrypting gathered data into archives before stealing it.",
+                "summary": "Attackers zip or RAR the files they intend to steal, often with a password, to shrink and hide them. A large archive appearing in a staging directory, built by an unusual process, is a signal that exfiltration is imminent. ((Data source)): **File Creation** and **Command Execution**."
+              }
+            ]
+          },
+          {
+            "id": "command-and-control",
+            "title": "Command and Control",
+            "kind": "concept",
+            "level": 3,
+            "tag": "TA0011",
+            "oneLiner": "Maintaining a covert channel to issue commands to compromised systems.",
+            "summary": "C2 is the attacker's remote control. **Application Layer Protocol** hides that control inside ordinary-looking web traffic — HTTPS to a benign-seeming domain — so it survives egress filtering. Most other tactics depend on this channel staying open.",
+            "children": [
+              {
+                "id": "t1071",
+                "title": "T1071 App-Layer C2",
+                "kind": "mechanism",
+                "heading": "T1071 Application Layer Protocol",
+                "oneLiner": "Tunnelling command-and-control inside common protocols such as HTTP, HTTPS or DNS.",
+                "summary": "`T1071.001` **Web Protocols** disguises C2 as normal HTTPS, often with domain fronting or look-alike domains from [[L3|t1583]]. Detection leans on **Network Traffic** analytics — beaconing intervals, rare destinations, JA3 fingerprints — and `M1031` Network Intrusion Prevention.",
+                "files": [
+                  {
+                    "path": "attack.mitre.org/techniques/T1071",
+                    "role": "the Application Layer Protocol technique page",
+                    "group": "Technique & tactic pages"
+                  },
+                  {
+                    "path": "attack.mitre.org/datasources/DS0029",
+                    "role": "the Network Traffic data source page (flow and content components)",
+                    "group": "Mitigations & data sources"
+                  }
+                ]
+              },
+              {
+                "id": "t1105",
+                "title": "T1105 Ingress Transfer",
+                "heading": "T1105 Ingress Tool Transfer",
+                "kind": "mechanism",
+                "oneLiner": "Pulling additional tools and payloads into the environment over the C2 channel.",
+                "summary": "After the first loader lands, the attacker downloads the rest — post-exploitation frameworks, the ransomware itself — over the channel built on [[L3|t1071]]. Large or unusual inbound transfers to a recently compromised host are the tell. ((Data source)): **Network Traffic Content**."
+              }
+            ]
+          },
+          {
+            "id": "exfiltration",
+            "title": "Exfiltration",
+            "kind": "concept",
+            "level": 3,
+            "tag": "TA0010",
+            "oneLiner": "Stealing the collected data out of the environment.",
+            "summary": "Exfiltration moves the staged data off the network. The quietest option reuses the existing C2 channel so the theft hides in traffic the defender already tolerates. Volume anomalies and data-loss-prevention controls are the counters.",
+            "children": [
+              {
+                "id": "t1041",
+                "title": "T1041 Exfil over C2",
+                "kind": "mechanism",
+                "heading": "T1041 Exfiltration Over C2 Channel",
+                "oneLiner": "Sending stolen data out over the same channel the attacker already uses for control.",
+                "summary": "Rather than open a new path, the attacker ships the archive from [[L3|t1560]] back over the C2 link built on [[L3|t1071]]. One channel does both jobs, so blending is near-perfect. The tell is usually *volume*: a channel that normally trickles commands suddenly carrying megabytes outward. ((Data source)): **Network Traffic Flow**."
+              },
+              {
+                "id": "t1567",
+                "title": "T1567 Exfil Web Service",
+                "heading": "T1567 Exfiltration Over Web Service",
+                "kind": "mechanism",
+                "oneLiner": "Stealing data out through a trusted cloud service rather than the raw C2 link.",
+                "summary": "`T1567.002` **Exfiltration to Cloud Storage** uploads the staged archive to a service the network already trusts — a cloud drive or paste site — so it blends with normal business traffic. Cloud access logs and DLP are the main counters; it is an alternative to [[L3|t1041]]."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "cause-harm",
+        "title": "Causing harm",
+        "kind": "pillar",
+        "tag": "Impact",
+        "color": "red",
+        "oneLiner": "The final phase: manipulate, interrupt or destroy — in ransomware, encrypting everything for extortion.",
+        "summary": "**Impact** is what the whole intrusion was for when the goal is disruption rather than quiet theft. In a ransomware case this is the loud finale — files encrypted, backups deleted, a ransom note left — but only after every earlier phase has run.",
+        "children": [
+          {
+            "id": "impact",
+            "title": "Impact",
+            "kind": "concept",
+            "level": 3,
+            "tag": "TA0040",
+            "oneLiner": "Manipulating, interrupting or destroying systems and data to meet the attacker's goal.",
+            "summary": "Impact techniques degrade, disrupt or destroy. **Data Encrypted for Impact** is the ransomware technique: encrypt files on reachable hosts and shares, then demand payment. Because it is the last and loudest step, prevention lives in the earlier phases; recovery lives in backups.",
+            "children": [
+              {
+                "id": "t1486",
+                "title": "T1486 Encrypt for Impact",
+                "kind": "mechanism",
+                "heading": "T1486 Data Encrypted for Impact",
+                "oneLiner": "Encrypting data on victim systems to interrupt availability and extort payment.",
+                "summary": "The payload encrypts documents, databases and often network shares, deletes volume shadow copies so local recovery fails, and drops a ransom note. By this point the data may already have been stolen on [[L3|t1041]] for double extortion.",
                 "table": {
                   "columns": [
-                    "Filter",
-                    "Does"
+                    "Mitigation",
+                    "ID",
+                    "What it buys you"
                   ],
                   "rows": [
                     [
-                      "`sum_by` / `avg_by` / `min_by` / `max_by`",
-                      "reduce a field across rows to one number"
+                      "Data Backup",
+                      "`M1053`",
+                      "Offline, tested backups make recovery possible without paying"
                     ],
                     [
-                      "`count_by`",
-                      "group rows by a field → `{ name, value }` counts"
+                      "Behavior Prevention on Endpoint",
+                      "`M1040`",
+                      "Stops rapid mass-encryption patterns before they finish"
                     ],
                     [
-                      "`top: n, 'field'`",
-                      "the n rows with the highest value of a field"
-                    ],
-                    [
-                      "`chart_data: 'name', 'value'`",
-                      "reshape rows into chart-ready `{ name, value }`"
-                    ],
-                    [
-                      "`format_number` / `format_bytes` / `format_time`",
-                      "human-friendly display of a value"
+                      "Network Segmentation",
+                      "`M1030`",
+                      "Limits how many shares the payload can reach"
                     ]
-                  ]
-                }
-              }
-            ],
-            "files": [
-              {
-                "path": "liquidEngine.ts",
-                "role": "the templating engine — display / prose / lint profiles, custom filters, the whole-value resolver, reference extraction",
-                "group": "packages/floboard/js · the engine"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "id": "widgets",
-        "title": "Blocks that show data",
-        "kind": "pillar",
-        "tag": "Widgets",
-        "color": "red",
-        "oneLiner": "Charts and query tables (chart, floql) that render a dataset by naming a dataNode — nothing is copy-pasted.",
-        "summary": "Charts and query tables (`chart`, `floql`) that render a dataset. They receive data by referencing a dataNode by name — nothing is copy-pasted.",
-        "children": [
-          {
-            "id": "widget-blocks",
-            "title": "Showing the data",
-            "kind": "concept",
-            "heading": "Widgets — showing the data",
-            "level": 3,
-            "oneLiner": "Widgets get data the same way prose does: by referencing a dataNode with {{ name }}. Nothing is duplicated.",
-            "summary": "((Widgets|widget)) are fenced blocks that display a dataset. They get their data the same way prose does: by referencing a dataNode with `{{ name }}`. Nothing is duplicated — the widget always shows whatever that node currently holds.",
-            "snippet": [
-              {
-                "lang": "md",
-                "label": "chart — a lightweight chart",
-                "code": "```chart\n{\n  \"type\": \"pie\",\n  \"data\": \"{{ by_region | chart_data: 'region', 'sum_amount' }}\"\n}\n```"
+                  ],
+                  "caption": "Against Impact, detection is late; the real defence was built in the earlier phases and in `M1053` backups."
+                },
+                "deeper": {
+                  "title": "why the loudest step is the hardest to stop",
+                  "text": "By the time encryption starts, the attacker already has execution, privilege and reach. A detection here fires *during* the damage. That is the central lesson of reading ATT&CK as a chain: the cheap, reliable interventions are upstream — stop the phish on [[L3|t1566]], the credential dump on [[L3|t1003]], or the lateral movement on [[L3|t1021]] — and Impact never arrives. Backups (`M1053`) are what turn a catastrophe into an outage when it does."
+                },
+                "files": [
+                  {
+                    "path": "attack.mitre.org/techniques/T1486",
+                    "role": "the Data Encrypted for Impact technique page",
+                    "group": "Technique & tactic pages"
+                  },
+                  {
+                    "path": "attack.mitre.org/mitigations/M1053",
+                    "role": "the Data Backup mitigation page",
+                    "group": "Mitigations & data sources"
+                  }
+                ]
               },
               {
-                "lang": "md",
-                "label": "floql — a query widget",
-                "code": "```floql\n{\n  \"display\": \"JsonTable\",\n  \"type\": \"LocalRestClient\",\n  \"rows\": \"{{ sales }}\"\n}\n```"
-              }
-            ],
-            "facts": [
-              {
-                "label": "Two ways to feed a widget",
-                "text": "**From a dataNode** (shown above): the widget reads a dataset already computed by the graph — best when several things share that data. **On its own:** a `floql` widget can also fetch directly from a URL when exactly one widget owns that query."
-              },
-              {
-                "label": "Honest states, always",
-                "text": "A widget never shows misleading data. While its source is still running it shows a loading state; if the source failed it shows an error naming the culprit; if it points at a name that doesn't exist it says so. Only real, ready data ever renders."
-              }
-            ],
-            "deeper": {
-              "title": "binding without rewriting the document",
-              "text": "When a widget renders, its JSON settings are resolved through Liquid against the registry: `\"rows\": \"{{ sales }}\"` becomes the actual array via the ((whole-value rule)). This happens in a reactive computation, so when the underlying dataNode's value lands, the widget re-binds automatically — the document is never edited to inject data. A dedicated helper distinguishes \"still loading\" from \"failed\" from \"unknown reference\" so the widget can show the right state.\n\n`floql` widgets are powered by the FloQL query system; `chart` widgets wrap the chart component. Both are just render targets for a resolved dataset.\n\nFiles: `bindConfig.ts`, `floql_plugin2/FloqlView.vue`, `charts_plugin/FloChartLiquidWrapper.vue`."
-            },
-            "files": [
-              {
-                "path": "bindConfig.ts",
-                "role": "resolves a widget's JSON settings against the registry; classifies loading / failed / unknown states",
-                "group": "packages/floboard/js · the engine"
-              },
-              {
-                "path": "floql_plugin2/{index.js, FloqlView.vue}",
-                "role": "the floql widget fence and its bound preview",
-                "group": "packages/milkdown_editor · the editor wiring"
-              },
-              {
-                "path": "charts_plugin/{index.js, FloChartLiquidWrapper.vue}",
-                "role": "the chart fence and its Liquid-bound data",
-                "group": "packages/milkdown_editor · the editor wiring"
-              },
-              {
-                "path": "flo_ql/components/FloQl.vue, js/FloQlPipeline.ts",
-                "role": "the query-widget system a floql block compiles into",
-                "group": "execution & shared foundation"
-              },
-              {
-                "path": "lib/rest/{LocalRestClient.ts, HttpRestClient.ts}",
-                "role": "in-memory and HTTP data clients used by widgets and pipelines",
-                "group": "execution & shared foundation"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "id": "layout-modes",
-        "title": "Structure + two ways to look",
-        "kind": "pillar",
-        "tag": "Layout & modes",
-        "color": "blue",
-        "oneLiner": "Grids, cards, tabs and accordions arrange the page; Edit and Preview are two views of the same document.",
-        "summary": "Grids, cards, tabs and accordions arrange the page. An Edit mode for authoring and a Preview mode for the finished dashboard — two separate views of the same document.",
-        "children": [
-          {
-            "id": "layout",
-            "title": "Layout",
-            "kind": "concept",
-            "heading": "Layout — arranging the page",
-            "level": 3,
-            "oneLiner": "Structure comes from Markdown directives: colon-fenced lines that wrap content into responsive containers.",
-            "summary": "Structure comes from Markdown ((directives|directive)) — lines that start with colons. They wrap content into responsive containers without any JSON layout model.",
-            "snippet": {
-              "lang": "md",
-              "label": "a two-column grid of cards",
-              "code": "::::grid{cols=\"1 2\"}\n:::card{title=\"Share by Region\"}\n```chart … ```\n:::\n:::card{title=\"Recent Orders\"}\n```floql … ```\n:::\n::::"
-            },
-            "facts": [
-              {
-                "label": "grid + card",
-                "text": "`cols=\"1 2 3\"` sets columns per screen size (small → large). Cards can span columns, and can be made transparent to blend into the page."
-              },
-              {
-                "label": "tabs / accordion",
-                "text": "Group content into switchable panels or collapsible sections — useful for chunking a dense dashboard."
-              },
-              {
-                "label": "splitter",
-                "text": "Side-by-side resizable panes for direct comparison."
-              }
-            ],
-            "note": "**Layout adapts to the mode.** In Preview, a grid packs its cards into a responsive layout. In Edit, that same grid stacks its cards vertically with a small settings strip — so authoring stays comfortable and you can reorder and re-title without fighting the grid.",
-            "deeper": {
-              "title": "one packing engine, two behaviours",
-              "text": "The `:::` grid and `:::` card directives are backed by a shared layout component (FloLayout) running in an \"embedded\" mode tuned for flowing inside a document — content-driven row heights, no viewport-height assumptions, no scroll paging. Cards become real CSS-grid items and carry a durable column/row span so the arrangement survives re-renders. In Edit mode the grid drops the packed layout entirely and renders a simple vertical stack plus per-card controls.\n\nDirective parsing is handled by a small factory that maps the colon-fence syntax to editor nodes, plus a repair pass that fixes common nesting slips so a slightly-off document still renders.\n\nFiles: `grid_card_plugin/`, `directiveNodeFactory.ts`, `FloLayout.vue`, `markdownUtils.js`."
-            },
-            "files": [
-              {
-                "path": "grid_card_plugin/{index.js, gridCardPlugin.ts, gridCard.css}",
-                "role": "the grid + card directives and their edit/view behaviours",
-                "group": "packages/milkdown_editor · the editor wiring"
-              },
-              {
-                "path": "tabs_plugin / accordion_plugin / splitter_plugin",
-                "role": "the other layout directives",
-                "group": "packages/milkdown_editor · the editor wiring"
-              },
-              {
-                "path": "shared/directiveNodeFactory.ts",
-                "role": "maps colon-fence directives to editor container/item nodes (with attributes)",
-                "group": "packages/milkdown_editor · the editor wiring"
-              },
-              {
-                "path": "shared/directivePastePlugin.ts, shared/appContextSlice.ts",
-                "role": "safe pasting of directive content; bridging app context into blocks",
-                "group": "packages/milkdown_editor · the editor wiring"
-              },
-              {
-                "path": "utils/markdownUtils.js",
-                "role": "directive-nesting repair & unclosed-fence fixups (fence-aware)",
-                "group": "packages/milkdown_editor · the editor wiring"
-              },
-              {
-                "path": "flo_layout/components/{FloLayout.vue, FloLayoutItem.vue}",
-                "role": "the responsive grid engine (with an embedded/document mode)",
-                "group": "execution & shared foundation"
-              }
-            ]
-          },
-          {
-            "id": "edit-preview",
-            "title": "Edit and Preview",
-            "kind": "concept",
-            "heading": "Edit and Preview — two views of one document",
-            "level": 3,
-            "oneLiner": "A board is authored in Edit and consumed in Preview: two separate editor instances over the same markdown.",
-            "summary": "A board is authored in Edit and consumed in Preview. These are two separate editor instances over the same markdown — only one is active at a time. See ((Preview / Edit)).",
-            "facts": [
-              {
-                "label": "Edit mode · Author the source",
-                "text": "You see the raw markdown, the dataNode editor cards (with Run buttons and result previews), and layout controls. Expressions appear as `{{ ... }}` — you're looking at the source."
-              },
-              {
-                "label": "Preview mode · See the dashboard",
-                "text": "dataNodes are hidden, prose expressions are filled in, and widgets show live data. This is exactly what a viewer would see."
-              }
-            ],
-            "note": "**Why two instances, not a toggle:** the editor decides its behaviour (which controls exist, whether content is editable) when it's created. Giving each mode its own instance guarantees Preview always shows freshly rendered content and Edit always shows the clean source — with no stale state leaking across the switch.",
-            "deeper": {
-              "title": "the Preview render pipeline",
-              "text": "Entering Preview: the markdown is split into runs of prose, fenced blocks, and directive lines. Only prose runs are passed through Liquid (with values escaped for safety); fenced blocks and directives are left untouched so widgets bind their own settings and layout survives verbatim. The dependency graph is settled first, then the rendered markdown is handed to the read-only editor instance. Widgets continue to update reactively from the registry after that first paint.\n\nA host component owns the shared registry, the templating engines, and the graph runner, and hoists them above both editor instances — so switching modes reuses already-computed results instead of refetching.\n\nFiles: `FloBoard.vue`, `renderBoard.ts`."
-            },
-            "files": [
-              {
-                "path": "renderBoard.ts",
-                "role": "the Preview pipeline — segment markdown, render prose Liquid, leave fences & directives verbatim",
-                "group": "packages/floboard/js · the engine"
-              },
-              {
-                "path": "components/FloBoard.vue",
-                "role": "the host: owns the registry + engines + runner, the Edit/Preview switch, and the lint panel",
-                "group": "packages/floboard/js · the engine"
-              },
-              {
-                "path": "components/MarkdownEditor.vue",
-                "role": "the base Milkdown editor (content in/out, edit vs read, menus)",
-                "group": "packages/milkdown_editor · the editor wiring"
-              },
-              {
-                "path": "components/FloboardEditor.vue",
-                "role": "MarkdownEditor + the FloBoard menu set (dataNodes, floql, chart, grid, layout)",
-                "group": "packages/milkdown_editor · the editor wiring"
-              },
-              {
-                "path": "components/FloMarkdownEditor.vue",
-                "role": "the lighter markdown editor (prose + charts + layout, no data blocks)",
-                "group": "packages/milkdown_editor · the editor wiring"
-              },
-              {
-                "path": "menuConf/floMarkdownMenuConf.js",
-                "role": "the toolbar / slash-menu configuration",
-                "group": "packages/milkdown_editor · the editor wiring"
-              },
-              {
-                "path": "demo/FloboardDemo.vue",
-                "role": "the board-list demo host (create / select / delete, persistence)",
-                "group": "packages/milkdown_editor · the editor wiring"
+                "id": "t1490",
+                "title": "T1490 Inhibit Recovery",
+                "heading": "T1490 Inhibit System Recovery",
+                "kind": "mechanism",
+                "oneLiner": "Deleting backups and shadow copies so victims cannot recover without paying.",
+                "summary": "Just before or during encryption, ransomware runs `vssadmin delete shadows` and disables recovery, so local restore fails and the pressure to pay rises. This is why `M1053` **Data Backup** must be *offline* — online backups get deleted too. It pairs with [[L3|t1486]]."
               }
             ]
           }
@@ -823,160 +758,287 @@
   },
   "pipelines": [
     {
-      "id": "lifecycle",
-      "title": "How a board comes alive",
+      "id": "chain",
+      "title": "A ransomware intrusion, tactic by tactic",
       "level": 2,
-      "summary": "When someone opens a board in Preview, the markdown travels through a short, fixed pipeline. Understanding this order explains almost every behaviour later on.",
       "steps": [
         {
-          "label": "Read",
-          "node": "source-of-truth",
-          "text": "the raw markdown string is loaded"
+          "tag": "TA0001",
+          "label": "Phish the user",
+          "node": "initial-access",
+          "text": "A spearphishing email delivers a macro document; the user opens it."
         },
         {
-          "label": "Scan",
-          "node": "data-kinds",
-          "text": "find every fenced block & dataNode"
+          "tag": "TA0002",
+          "label": "Run the loader",
+          "node": "execution",
+          "text": "The macro launches hidden, encoded PowerShell that pulls down a loader."
         },
         {
-          "label": "Check",
-          "node": "validation",
-          "text": "lint the grammar & references"
+          "tag": "TA0003",
+          "label": "Set a task",
+          "node": "persistence",
+          "text": "A scheduled task re-launches the loader after reboot."
         },
         {
-          "label": "Plan",
-          "node": "dependency-graph",
-          "text": "build the dependency graph"
+          "tag": "TA0004",
+          "label": "Elevate",
+          "node": "privilege-escalation",
+          "text": "A UAC bypass gets the loader to high integrity."
         },
         {
-          "label": "Run",
-          "node": "registry",
-          "text": "execute dataNodes in order"
+          "tag": "TA0006",
+          "label": "Dump creds",
+          "node": "credential-access",
+          "text": "LSASS memory is read to harvest admin credentials."
         },
         {
-          "label": "Render",
-          "node": "widget-blocks",
-          "text": "fill prose & bind widgets"
+          "tag": "TA0007",
+          "label": "Look around",
+          "node": "discovery",
+          "text": "The host, domain and reachable shares are enumerated."
+        },
+        {
+          "tag": "TA0008",
+          "label": "Spread",
+          "node": "lateral-movement",
+          "text": "RDP and SMB carry the attacker to file servers with the stolen creds."
+        },
+        {
+          "tag": "TA0009",
+          "label": "Stage data",
+          "node": "collection",
+          "text": "Sensitive files are archived into a password-protected RAR."
+        },
+        {
+          "tag": "TA0010",
+          "label": "Exfiltrate",
+          "node": "exfiltration",
+          "text": "The archive leaves over the existing HTTPS C2 channel."
+        },
+        {
+          "tag": "TA0040",
+          "label": "Encrypt",
+          "node": "impact",
+          "text": "Shadow copies are deleted, files are encrypted and a ransom note is left."
         }
       ],
-      "rule": "Steps 5 and 6 read data from a shared, in-memory ((registry)) — never from the document. So when a value arrives, only the parts that use it update. The markdown never changes.",
-      "facts": [
+      "rule": "Each step relies on the one before it, so defence is cheapest upstream: breaking the phish, the credential dump or the lateral movement stops everything downstream, including the encryption."
+    },
+    {
+      "id": "defend-flow",
+      "title": "From a technique to a defence",
+      "at": "credential-access",
+      "steps": [
         {
-          "label": "The two directions data moves",
-          "text": "**Producing:** a dataNode runs and drops its result into the registry under its name. **Consuming:** any `{{ name }}` — in prose or a widget — reads that value out of the registry."
+          "label": "Pick the technique",
+          "text": "Start from the ATT&CK ID you care about, e.g. `T1003.001`."
         },
         {
-          "label": "Why this design",
-          "text": "Because references are by name, the order you write blocks doesn't matter, results can be shared by many consumers, and the same value stays consistent everywhere it appears."
+          "label": "Read its data sources",
+          "text": "The technique page lists what telemetry reveals it — here, LSASS handle access."
+        },
+        {
+          "label": "Deploy the mitigation",
+          "text": "Apply the listed `M-id`s, such as Credential Guard, and turn on the logging."
+        },
+        {
+          "label": "Validate with a layer",
+          "text": "Mark the cell covered in a ((Navigator)) layer and test it with an atomic red-team run."
         }
-      ]
+      ],
+      "rule": "ATT&CK turns a technique page into a work item: data source to collect, mitigation to apply, detection to prove."
+    },
+    {
+      "id": "espionage-chain",
+      "title": "A quiet espionage intrusion, tactic by tactic",
+      "level": 2,
+      "steps": [
+        {
+          "tag": "TA0043",
+          "label": "Research",
+          "node": "reconnaissance",
+          "text": "The target's staff and internet-facing assets are mapped."
+        },
+        {
+          "tag": "TA0001",
+          "label": "Exploit a service",
+          "node": "initial-access",
+          "text": "An unpatched public-facing application is exploited instead of phishing."
+        },
+        {
+          "tag": "TA0002",
+          "label": "Run a loader",
+          "node": "execution",
+          "text": "A living-off-the-land script stages a lightweight implant."
+        },
+        {
+          "tag": "TA0005",
+          "label": "Hide",
+          "node": "defense-evasion",
+          "text": "The implant is obfuscated and signed to evade endpoint tools."
+        },
+        {
+          "tag": "TA0006",
+          "label": "Steal creds",
+          "node": "credential-access",
+          "text": "Browser and keychain secrets are harvested quietly."
+        },
+        {
+          "tag": "TA0007",
+          "label": "Map the network",
+          "node": "discovery",
+          "text": "Remote systems and high-value shares are enumerated."
+        },
+        {
+          "tag": "TA0008",
+          "label": "Move",
+          "node": "lateral-movement",
+          "text": "Valid accounts carry the implant to the hosts holding the target data."
+        },
+        {
+          "tag": "TA0009",
+          "label": "Collect",
+          "node": "collection",
+          "text": "Documents and mailboxes are archived."
+        },
+        {
+          "tag": "TA0010",
+          "label": "Exfiltrate to cloud",
+          "node": "exfiltration",
+          "text": "The archive is uploaded to a trusted cloud service and nothing is destroyed."
+        }
+      ],
+      "rule": "Espionage stops short of Impact on purpose: the goal is to take data and stay unseen, so the loudest tactic is never used and detection must come from the quiet, earlier steps."
     }
   ],
   "relations": [
     {
-      "from": "data-kinds",
-      "to": "registry",
-      "label": "publishes into",
-      "text": "Every dataNode drops its result into the registry under its export name."
+      "from": "initial-access",
+      "to": "execution",
+      "label": "delivers code to",
+      "text": "The phishing lure's whole purpose is to get the first code running."
     },
     {
-      "from": "registry",
-      "to": "widget-blocks",
+      "from": "execution",
+      "to": "persistence",
+      "label": "installs",
+      "text": "The code that runs first usually plants the mechanism that brings it back."
+    },
+    {
+      "from": "credential-access",
+      "to": "lateral-movement",
+      "label": "enables",
+      "text": "Stolen credentials are what let the attacker log in to other hosts as a legitimate user."
+    },
+    {
+      "from": "discovery",
+      "to": "lateral-movement",
+      "label": "targets",
+      "text": "Discovery tells the attacker which hosts and shares are worth moving to."
+    },
+    {
+      "from": "collection",
+      "to": "exfiltration",
       "label": "feeds",
-      "text": "A widget watches its registry entry and re-binds the instant it becomes ready."
+      "text": "Collection stages the archive that exfiltration then steals out."
     },
     {
-      "from": "dependency-graph",
-      "to": "data-kinds",
-      "label": "orders",
-      "text": "The graph decides which dataNode runs when; document order never matters."
+      "from": "command-and-control",
+      "to": "exfiltration",
+      "label": "carries",
+      "text": "Exfil over C2 reuses the control channel, so one link does both jobs."
     },
     {
-      "from": "inputs",
-      "to": "dependency-graph",
-      "label": "re-runs",
-      "text": "A changed filter seeds a stale run so only the downstream nodes recompute."
+      "from": "lateral-movement",
+      "to": "impact",
+      "label": "spreads to",
+      "text": "Reaching more hosts is what lets ransomware encrypt at scale."
     },
     {
-      "from": "liquid",
-      "to": "widget-blocks",
-      "label": "binds settings of",
-      "text": "A widget's JSON settings are resolved through Liquid against the registry."
+      "from": "defense-evasion",
+      "to": "credential-access",
+      "label": "hides",
+      "text": "Obfuscation and tool-tampering keep the credential theft from being seen."
     },
     {
-      "from": "liquid",
-      "to": "data-kinds",
-      "label": "chains",
-      "text": "A dataNode body can reference another dataset with the same grammar."
-    },
-    {
-      "from": "validation",
-      "to": "data-kinds",
-      "label": "checks",
-      "text": "Lint catches malformed fences, duplicate names and unknown references before they run."
-    },
-    {
-      "from": "edit-preview",
-      "to": "liquid",
-      "label": "renders prose with",
-      "text": "Entering Preview passes prose runs through Liquid, leaving fences and directives untouched."
-    },
-    {
-      "from": "layout",
-      "to": "edit-preview",
-      "label": "adapts to",
-      "text": "A grid packs its cards in Preview and stacks them in Edit."
-    },
-    {
-      "from": "edit-preview",
-      "to": "registry",
-      "label": "reuses",
-      "text": "The host hoists the registry above both editor instances, so switching modes reuses computed results."
+      "from": "resource-development",
+      "to": "command-and-control",
+      "label": "stands up",
+      "text": "The domains and servers acquired beforehand become the C2 infrastructure."
     }
   ],
   "glossary": [
     {
-      "term": "dataNode",
-      "meaning": "A named fenced block — `data`, `data_fetch`, and `data_pipeline` produce a dataset; `input` collects one from the viewer."
+      "term": "matrix",
+      "meaning": "The grid view of ATT&CK: tactics as columns, techniques as the cells beneath them. One per domain — Enterprise, Mobile, ICS."
     },
     {
-      "term": "Input node",
-      "meaning": "The one dataNode a viewer can see and operate — a bar of filter controls whose selection filters the board, live."
+      "term": "tactic",
+      "meaning": "An attacker's goal, the *why* of a behaviour — e.g. Persistence (TA0003). The columns of the matrix."
     },
     {
-      "term": "inputs namespace",
-      "meaning": "How a viewer's live selections are read: `{{ inputs.\u003cnode>.\u003ckey> }}`, or `{{ inputs.\u003cnode>._all }}` for every active filter combined."
+      "term": "technique",
+      "meaning": "A way an attacker achieves a tactic, the *how*, with a stable ID such as T1566. A cell in the matrix."
     },
     {
-      "term": "Registry",
-      "meaning": "The in-memory table of dataNode results (name → status + value) that widgets and prose read from."
+      "term": "sub-technique",
+      "meaning": "A more specific description of a technique, numbered with a suffix — T1566.001 Spearphishing Attachment under T1566 Phishing."
     },
     {
-      "term": "Dependency graph",
-      "meaning": "The order-free map of which dataNodes feed which, derived from name references and run topologically."
+      "term": "procedure",
+      "meaning": "A specific, observed implementation of a technique by a particular group or piece of software — the real-world evidence behind the cell."
     },
     {
-      "term": "Whole-value rule",
-      "meaning": "A JSON string that is exactly one `{{ expr }}` is replaced with the real typed value, not text."
+      "term": "mitigation",
+      "meaning": "A configuration, tool or process that prevents or reduces a technique, identified by an M-id such as M1017 User Training."
     },
     {
-      "term": "Widget",
-      "meaning": "A fenced block that displays data — `chart` or `floql`."
+      "term": "data source",
+      "meaning": "A category of telemetry (Process, Network Traffic, Logon Session) that can reveal a technique; its components say exactly what to collect."
     },
     {
-      "term": "Directive",
-      "meaning": "A colon-fence layout container — `::: grid`, `::: card`, tabs, accordion, splitter."
+      "term": "group",
+      "meaning": "A tracked set of intrusion activity attributed to an adversary, with a G-id such as G0016 (APT29). Groups link to the techniques and software they use."
     },
     {
-      "term": "Preview / Edit",
-      "meaning": "The two modes: a rendered dashboard vs. the editable source, as separate editor instances."
+      "term": "software",
+      "meaning": "Malware or a tool used in intrusions, with an S-id; ATT&CK maps each to the techniques it implements."
     },
     {
-      "term": "Lint",
-      "meaning": "The always-on validation pass that reports coded, human-readable findings."
+      "term": "command and control",
+      "meaning": "Abbreviated C2: the channel an attacker uses to issue commands to compromised systems and receive results."
+    },
+    {
+      "term": "Navigator",
+      "meaning": "The ATT&CK Navigator, a web tool for annotating the matrix with coloured, scored layers saved as JSON and shared freely."
+    },
+    {
+      "term": "CTI",
+      "meaning": "Cyber Threat Intelligence: reporting on adversaries. ATT&CK is the common vocabulary CTI uses to tag what a group did."
+    },
+    {
+      "term": "TTP",
+      "meaning": "Tactics, Techniques and Procedures: the standard phrase for adversary behaviour that ATT&CK organises and names."
+    },
+    {
+      "term": "kill chain",
+      "meaning": "A model of an intrusion as ordered stages; ATT&CK's tactics are a finer-grained, non-linear relative of the Lockheed Martin Cyber Kill Chain."
+    },
+    {
+      "term": "detection",
+      "meaning": "A rule or analytic that fires on the telemetry a technique produces; ATT&CK links techniques to the data sources detections should watch."
+    },
+    {
+      "term": "atomic test",
+      "meaning": "A small, safe script that executes a single technique so a team can check whether its detections and mitigations actually fire."
+    },
+    {
+      "term": "STIX",
+      "meaning": "Structured Threat Information Expression: the JSON object model ATT&CK is published in, so tools can consume the whole knowledge base."
     }
   ],
-  "footer": "FloBoard — a working-principle field guide. Read top to bottom for the full picture, or jump to any level."
+  "footer": "This document is the Zoom Map view explaining the public MITRE ATT&CK framework (attack.mitre.org). IDs and names follow Enterprise ATT&CK; approximate counts are hedged because the framework is versioned and grows. Nothing here is specific to any one organisation."
 }
   </script>
 

@@ -159,7 +159,8 @@ if (fs.existsSync(docsDir)) {
     if (!/\.html$/.test(f)) return;
     var html = fs.readFileSync(path.join(docsDir, f), "utf8");
     var t = html.match(/<title>([^<]*)<\/title>/), v = html.match(/NthView — ([a-z0-9-]+) (?:validator|renderer)/);
-    docs.push({ file: "docs/" + f, title: t ? t[1].replace(/\s*—\s*NthView.*$/, "") : f.replace(/\.html$/, ""), view: v ? "nthview-" + v[1] : null, data: fs.existsSync(path.join(docsDir, f.replace(/\.html$/, ".json"))) ? "docs/" + f.replace(/\.html$/, ".json") : null });
+    var unesc = function (x) { return x.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, "&"); };
+    docs.push({ file: "docs/" + f, title: t ? unesc(t[1].replace(/\s*—\s*NthView.*$/, "")) : f.replace(/\.html$/, ""), view: v ? "nthview-" + v[1] : null, data: fs.existsSync(path.join(docsDir, f.replace(/\.html$/, ".json"))) ? "docs/" + f.replace(/\.html$/, ".json") : null });
   });
 }
 /* lessons: lessons/<slug>/lesson.json, built by scripts/build-lesson.js */

@@ -63,7 +63,7 @@ function assemble(viewDir, data, opts) {
   var json = JSON.stringify(data, null, 2).replace(/</g, "\\u003c");
   var validateSrc = fs.readFileSync(view.files.validate, "utf8").replace(/\s+$/, "");
   var viewSrc = fs.readFileSync(view.files.view, "utf8").replace(/\s+$/, "");
-  var title = String(data.title || view.name).replace(/[<>&]/g, "");
+  var title = String(data.title || view.name).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
   var html = [
     "<!doctype html>",
