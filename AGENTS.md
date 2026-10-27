@@ -108,7 +108,7 @@ NthView/
 ```
 
 Nothing else goes at the repo root except the files above and standard
-housekeeping (`.gitignore`, `CONTRIBUTING.md` if added). No `package.json`,
+housekeeping (`.gitignore`, `.nojekyll`, `CONTRIBUTING.md` if added). No `package.json`,
 no `node_modules`, no bundler. The root `scripts/` folder holds repo tooling
 only, never view code; the plugin layout permits it.
 
@@ -672,7 +672,10 @@ view's `references/schema.md`.
 title, name and description, and offers **Open demo**, **Skill file** and
 **Schema** links. It must work when opened straight from disk or from any
 static host, so it cannot scan folders itself. Instead it reads one generated
-file.
+file. GitHub Pages serves the `main` branch root as is at
+https://patrickp1702.github.io/NthView/, so every path in the gallery,
+the registry and the lesson pages stays relative and lowercase; `.nojekyll`
+at the root keeps Pages from preprocessing the files.
 
 ### 7.1 How registration works
 

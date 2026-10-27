@@ -45,7 +45,10 @@ One concept, many dimensions, one view at a time.
   ideas, and every delivery is a learning errand with explained choices.
   Demo: `skills/nthview-courier/examples/example.html`.
 
-Open `index.html` for the gallery of all views.
+Open `index.html` for the gallery of all views, or visit the hosted copy at
+https://patrickp1702.github.io/NthView/ (served by GitHub Pages straight from
+the `main` branch; every demo, doc and lesson there is the same file that is
+in the repository).
 
 ## Install as a Claude Code plugin
 
