@@ -79,7 +79,7 @@
     .nv-dialog-head { display: flex; align-items: center; justify-content: space-between; padding: 1.1rem 1.3rem .6rem; }
     .nv-dialog-head h2 { font-family: var(--display); font-weight: 800; font-size: 1.5rem; margin: 0; letter-spacing: -.02em; }
     .nv-close { width: 2.2rem; height: 2.2rem; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-size: 1.3rem; line-height: 1; cursor: pointer; }
-    #nv-dialog-body { padding: 0 1.3rem 1.3rem; overflow: auto; max-height: calc(100vh - 9rem); }
+    #nv-dialog-body { padding: 0 1.3rem 1.3rem; overflow: auto; max-height: calc(100vh - 12rem); }
     .nv-dlabel { font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; font-weight: 700; color: var(--accent); margin: 1rem 0 .5rem; }
     .nv-dlist { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; }
     .nv-dlist a { display: flex; gap: .8rem; align-items: center; text-decoration: none; color: inherit; border: 1px solid var(--line); border-radius: 1rem; padding: .75rem .9rem; background: var(--surface); transition: transform .15s, border-color .15s; }
@@ -88,6 +88,27 @@
     .nv-dlist p { margin: .15rem 0 0; color: var(--muted); font-size: .9rem; }
     .nv-dtag { flex: none; font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; border-radius: 999px; padding: .2rem .55rem; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; }
     .nv-dmeta { flex: none; font-size: .78rem; color: var(--muted); white-space: nowrap; }
+    .nv-dlist .nv-dmore { margin-left: .35rem; border: 0; background: none; color: var(--accent); font: inherit; font-size: .9rem; cursor: pointer; padding: 0; }
+    .nv-dlist .nv-dmain { min-width: 0; flex: 1; }
+    .nv-dtools { display: flex; gap: .8rem; align-items: center; flex-wrap: wrap; padding: .2rem 1.3rem .6rem; }
+    .nv-tabs { display: flex; gap: .3rem; flex-wrap: wrap; }
+    .nv-tab { border: 1px solid var(--line); background: var(--surface); color: var(--muted); border-radius: 999px; padding: .4rem .9rem; font: 600 .85rem/1 var(--body); cursor: pointer; }
+    .nv-tab[aria-selected="true"] { background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-color: transparent; color: #fff; }
+    .nv-dfilter { flex: 1; min-width: 10rem; border: 1px solid var(--line); background: var(--surface); color: inherit; border-radius: 999px; padding: .45rem .9rem; font: inherit; font-size: .9rem; }
+    .nv-dpage { margin: .8rem auto 0; display: block; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: .5rem 1rem; font: 600 .85rem/1 var(--body); cursor: pointer; }
+    .nv-howto { width: min(52rem, calc(100vw - 2rem)); }
+    .nv-howto-body { padding: 0 1.3rem 1.4rem; overflow: auto; max-height: calc(100vh - 11rem); line-height: 1.6; }
+    .nv-howto-body h3 { font-family: var(--display); font-size: 1.15rem; margin: 1.2rem 0 .3rem; }
+    .nv-howto-body h3:first-child { margin-top: .4rem; }
+    .nv-howto-body p, .nv-howto-body li { color: var(--ink); margin: .3rem 0; }
+    .nv-howto-body .nv-note { color: var(--muted); font-size: .92rem; }
+    .nv-howto-body ul, .nv-howto-body ol { padding-left: 1.3rem; margin: .3rem 0 .6rem; }
+    .nv-code { position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: .8rem; margin: .5rem 0 .9rem; }
+    .nv-code pre { margin: 0; padding: .8rem 5.2rem .8rem 1rem; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font: .85rem/1.55 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .nv-code button { position: absolute; top: .5rem; right: .5rem; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); border-radius: 999px; padding: .3rem .7rem; font: 600 .75rem/1 var(--body); cursor: pointer; }
+    .nv-code button:hover { border-color: var(--accent); }
+    .nv-section .nv-btns { display: flex; gap: .6rem; flex-wrap: wrap; }
+    .nv-library.nv-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; border-color: transparent; }
     .nv-reader { width: min(60rem, calc(100vw - 2rem)); }
     .nv-reader-tools { display: flex; align-items: center; gap: .8rem; }
     .nv-reader-tools a { font-size: .85rem; color: var(--muted); text-decoration: none; border-bottom: 1px solid transparent; }
@@ -153,7 +174,7 @@
       </div>
     </header>
 
-    <div class="nv-section"><h2>The views</h2><button type="button" class="nv-library" id="nv-library" hidden></button></div>
+    <div class="nv-section"><h2>The views</h2><div class="nv-btns"><button type="button" class="nv-library nv-primary" id="nv-howto-btn">How to use</button><button type="button" class="nv-library" id="nv-library" hidden></button></div></div>
     <ul id="nv-grid" class="nv-grid" aria-live="polite"></ul>
     <div id="nv-status"></div>
 
@@ -171,7 +192,13 @@
     </dialog>
     <dialog id="nv-dialog" class="nv-dialog" aria-labelledby="nv-dialog-title">
       <div class="nv-dialog-head"><h2 id="nv-dialog-title">Docs and lessons</h2><button type="button" class="nv-close" id="nv-close" aria-label="Close">×</button></div>
+      <div class="nv-dtools" id="nv-dialog-tools"></div>
       <div id="nv-dialog-body"></div>
+    </dialog>
+    <dialog id="nv-howto" class="nv-dialog nv-howto" aria-labelledby="nv-howto-title">
+      <div class="nv-dialog-head"><h2 id="nv-howto-title">How to use NthView</h2><button type="button" class="nv-close" id="nv-howto-close" aria-label="Close">×</button></div>
+      <div class="nv-dtools" id="nv-howto-tabs" role="tablist" aria-label="Agents"></div>
+      <div id="nv-howto-body" class="nv-howto-body" role="tabpanel" tabindex="0"></div>
     </dialog>
   </main>
 
@@ -329,28 +356,171 @@
         return;
       }
       var skills = registry.skills.filter(function (s) { return !s.hidden; }).sort(function (a, b) { if (a.kind !== b.kind) return a.kind === "view" ? -1 : 1; return a.name < b.name ? -1 : 1; });
+      /* shared: tab strip with keyboard support */
+      function tabStrip(host, tabs, onPick) {
+        host.innerHTML = "";
+        var strip = el("div", { class: "nv-tabs", role: "tablist" });
+        var btns = tabs.map(function (t, i) {
+          var b = el("button", { type: "button", class: "nv-tab", role: "tab", "aria-selected": i === 0 ? "true" : "false", text: t.label });
+          b.addEventListener("click", function () { pick(i); });
+          b.addEventListener("keydown", function (e) { var d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0; if (!d) return; e.preventDefault(); var n = (i + d + btns.length) % btns.length; pick(n); btns[n].focus(); });
+          strip.appendChild(b); return b;
+        });
+        function pick(i) { btns.forEach(function (b, j) { b.setAttribute("aria-selected", j === i ? "true" : "false"); }); onPick(tabs[i], i); }
+        host.appendChild(strip);
+        return { pick: pick };
+      }
       /* docs and lessons live behind one button and a dialog */
       (function () {
         var docs = registry.docs || [], lessons = registry.lessons || [];
-        var btn = document.getElementById("nv-library"), dlg = document.getElementById("nv-dialog"), body = document.getElementById("nv-dialog-body");
+        var btn = document.getElementById("nv-library"), dlg = document.getElementById("nv-dialog"), body = document.getElementById("nv-dialog-body"), tools = document.getElementById("nv-dialog-tools");
         if (!docs.length && !lessons.length) return;
         var parts = []; if (docs.length) parts.push(docs.length + (docs.length === 1 ? " doc" : " docs")); if (lessons.length) parts.push(lessons.length + (lessons.length === 1 ? " lesson" : " lessons"));
         btn.textContent = parts.join(" · ") + " available"; btn.hidden = false;
         var viewTitle = function (v) { return v ? v.replace(/^nthview-/, "").split("-").map(function (w) { return w[0].toUpperCase() + w.slice(1); }).join(" ") : "View"; };
-        if (lessons.length) {
-          body.appendChild(el("p", { class: "nv-dlabel", text: "Lessons" }));
-          body.appendChild(el("ul", { class: "nv-dlist" }, lessons.map(function (l) {
-            return el("li", {}, [el("a", { href: l.path }, [el("span", { class: "nv-dtag", text: l.chapters + (l.chapters === 1 ? " chapter" : " chapters") }), el("span", {}, [el("b", { text: l.title }), el("p", { text: l.description })]), el("span", { class: "nv-dmeta", text: l.views.map(viewTitle).join(", ") })])]);
-          })));
+        var PAGE = 20, CLAMP = 200;
+        function clamped(text) {
+          var p = el("p", {});
+          if (!text || text.length <= CLAMP) { p.textContent = text || ""; return p; }
+          var cut = text.slice(0, CLAMP).replace(/\s+\S*$/, "") + "…", open = false;
+          var t = document.createTextNode(cut), more = el("button", { type: "button", class: "nv-dmore", text: "Show more", "aria-expanded": "false" });
+          more.addEventListener("click", function (e) { e.preventDefault(); e.stopPropagation(); open = !open; t.nodeValue = open ? text + " " : cut; more.textContent = open ? "Show less" : "Show more"; more.setAttribute("aria-expanded", String(open)); });
+          p.appendChild(t); p.appendChild(more); return p;
         }
-        if (docs.length) {
-          body.appendChild(el("p", { class: "nv-dlabel", text: "Docs" }));
-          body.appendChild(el("ul", { class: "nv-dlist" }, docs.map(function (d) {
-            return el("li", {}, [el("a", { href: d.file }, [el("span", { class: "nv-dtag", text: viewTitle(d.view) }), el("span", {}, [el("b", { text: d.title })])])]);
-          })));
+        function lessonRow(l) {
+          return el("li", {}, [el("a", { href: l.path }, [
+            el("span", { class: "nv-dmain" }, [el("b", { text: l.title }), clamped(l.description)]),
+            el("span", { class: "nv-dmeta", text: l.chapters + (l.chapters === 1 ? " chapter" : " chapters") })])]);
         }
+        function docRow(d) {
+          return el("li", {}, [el("a", { href: d.file }, [el("span", { class: "nv-dtag", text: viewTitle(d.view) }), el("span", { class: "nv-dmain" }, [el("b", { text: d.title })])])]);
+        }
+        var tabs = [];
+        if (lessons.length) tabs.push({ label: "Lessons (" + lessons.length + ")", items: lessons, row: lessonRow, text: function (l) { return (l.title + " " + l.description).toLowerCase(); }, empty: "No lessons match." });
+        if (docs.length) tabs.push({ label: "Docs (" + docs.length + ")", items: docs, row: docRow, text: function (d) { return (d.title + " " + viewTitle(d.view)).toLowerCase(); }, empty: "No docs match." });
+        var filter = el("input", { type: "search", class: "nv-dfilter", placeholder: "Filter…", "aria-label": "Filter the list" });
+        var current = tabs[0];
+        function show() {
+          body.innerHTML = "";
+          var q = filter.value.trim().toLowerCase();
+          var hits = current.items.filter(function (it) { return !q || current.text(it).indexOf(q) !== -1; });
+          if (!hits.length) { body.appendChild(el("p", { class: "nv-note", text: current.empty })); return; }
+          var list = el("ul", { class: "nv-dlist" }), shown = 0;
+          body.appendChild(list);
+          function more() {
+            hits.slice(shown, shown + PAGE).forEach(function (it) { list.appendChild(current.row(it)); });
+            shown = Math.min(hits.length, shown + PAGE);
+            var old = body.querySelector(".nv-dpage"); if (old) old.remove();
+            if (shown < hits.length) { var b = el("button", { type: "button", class: "nv-dpage", text: "Show " + Math.min(PAGE, hits.length - shown) + " more of " + (hits.length - shown) }); b.addEventListener("click", more); body.appendChild(b); }
+          }
+          more();
+        }
+        var strip = tabStrip(tools, tabs, function (t) { current = t; show(); });
+        tools.appendChild(filter);
+        if (tabs.length === 1) tools.querySelector(".nv-tabs").hidden = true;
+        filter.addEventListener("input", show);
+        show();
         btn.addEventListener("click", function () { if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", ""); });
         document.getElementById("nv-close").addEventListener("click", function () { dlg.close ? dlg.close() : dlg.removeAttribute("open"); });
+        dlg.addEventListener("click", function (e) { if (e.target === dlg) dlg.close(); });
+      })();
+
+      /* "How to use": install and contribution guide, one tab per agent family */
+      (function () {
+        var REPO = "https://github.com/patrickp1702/NthView", SITE = "https://patrickp1702.github.io/NthView/";
+        var dlg = document.getElementById("nv-howto"), body = document.getElementById("nv-howto-body"), tabsHost = document.getElementById("nv-howto-tabs");
+        function h3(t) { return el("h3", { text: t }); }
+        function p(t, cls) { return el("p", cls ? { class: cls, text: t } : { text: t }); }
+        function pLink(before, href, label, after) { return el("p", {}, [document.createTextNode(before), el("a", { href: href, target: "_blank", rel: "noopener", text: label }), document.createTextNode(after || "")]); }
+        function ul(items) { return el("ul", {}, items.map(function (t) { return el("li", { text: t }); })); }
+        function ol(items) { return el("ol", {}, items.map(function (t) { return el("li", { text: t }); })); }
+        function code(text) {
+          var pre = el("pre", {}, [el("code", { text: text })]);
+          var b = el("button", { type: "button", text: "Copy", "aria-label": "Copy to clipboard" });
+          b.addEventListener("click", function () {
+            var done = function () { b.textContent = "Copied"; setTimeout(function () { b.textContent = "Copy"; }, 1400); };
+            if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function () { fallback(); });
+            else fallback();
+            function fallback() { var r = document.createRange(); r.selectNodeContents(pre); var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r); try { document.execCommand("copy"); done(); } catch (e) {} }
+          });
+          return el("div", { class: "nv-code" }, [pre, b]);
+        }
+        var tabs = [
+          { label: "Claude Code", build: function () { return [
+            h3("Install the plugin"),
+            p("Inside any Claude Code session (terminal, desktop app or VS Code), run these two slash commands. The first registers this repository as a plugin marketplace on your machine; the second installs the plugin from it."),
+            code("/plugin marketplace add patrickp1702/NthView\n/plugin install nthview@nthview-marketplace"),
+            p("To try a local checkout without installing:", "nv-note"),
+            code("claude --plugin-dir /path/to/NthView"),
+            h3("Use it"),
+            p("Just ask. The front-door skill picks the view that fits, or asks you one question."),
+            code("Teach me how vaccines train the immune system\nMake a 5-chapter lesson on compliance for new hires\nExplain this codebase as a zoom map"),
+            p("Or call a view directly with its namespaced name:"),
+            code("/nthview:nthview-island-quest the water cycle, for a ten-year-old\n/nthview:nthview-scenario-quiz GDPR basics, as a quiz that grades me"),
+            p("Each request produces one standalone HTML file. Open it in any browser; share it as it is."),
+            h3("Update"),
+            code("/plugin marketplace update nthview-marketplace"),
+            p("Node.js is recommended (the skills use it to validate data and assemble files) but not required: without it the skills do that work by hand and the output still checks itself when opened.", "nv-note")
+          ]; } },
+          { label: "Codex · Cursor · Copilot · Gemini", build: function () { return [
+            p("These agents read the same open Agent Skills format (a folder with a SKILL.md). Clone the repository once and link its skill folders into the directory your agent scans. Keep the clone whole: the skills call the build tools in its scripts/ folder."),
+            h3("One command for Codex, Cursor and Copilot"),
+            p("All three read ~/.agents/skills/ (personal) and .agents/skills/ inside a project."),
+            code("git clone " + REPO + " ~/NthView\nmkdir -p ~/.agents/skills\nfor s in ~/NthView/skills/*/; do ln -sfn \"$s\" ~/.agents/skills/$(basename \"$s\"); done"),
+            p("For one project only, replace ~/.agents/skills with .agents/skills in that project. On Windows, copy the folders instead of linking (mklink /D works too).", "nv-note"),
+            h3("Gemini CLI"),
+            code("gemini skills install " + REPO + ".git --path skills"),
+            p("Or link the folders into ~/.gemini/skills/ (personal) or .gemini/skills/ (project) with the same loop as above.", "nv-note"),
+            h3("Agent-specific folders, if you prefer them"),
+            ul([
+              "Codex CLI: .agents/skills/ in the project, ~/.agents/skills/ for you.",
+              "Cursor: .cursor/skills/ or ~/.cursor/skills/; it also reads the .agents, .claude and .codex skill folders.",
+              "GitHub Copilot: .github/skills/ in the repository, ~/.copilot/skills/ for you; it also reads .agents/skills/ and .claude/skills/.",
+              "Gemini CLI: .gemini/skills/ or ~/.gemini/skills/, plus .agents/skills/."
+            ]),
+            h3("Then use it"),
+            code("Teach me how vaccines train the immune system, with NthView\nUsing the nthview skill, make a lesson on photosynthesis"),
+            p("The skills refer to the folder they live in as ${CLAUDE_SKILL_DIR}. Claude Code fills that in; other agents read it as \"the folder holding this SKILL.md\", which the skill text says in place. Symlinks keep the path to scripts/ intact; a copied folder still works but the agent assembles the file by hand.", "nv-note")
+          ]; } },
+          { label: "Any other agent", build: function () { return [
+            h3("An agent that can read files and run commands"),
+            p("No plugin mechanism is needed. Clone the repository and point the agent at the front-door skill:"),
+            code("git clone " + REPO + " ~/NthView"),
+            code("Read ~/NthView/skills/nthview/SKILL.md and follow it to teach me <topic>."),
+            p("The skill tells the agent how to choose a view, write the data, validate it and build the single HTML file. If the machine has no Node.js, Bun or Deno, the skill says how to do the validator's and assembler's work by hand; the output still validates itself when opened."),
+            h3("An agent that can read files but not run commands"),
+            p("Same as above. Every check and every byte of the output is written down in the skill and its references/schema.md, so the agent assembles the file itself. Expect it to be slower, and open the result once to see the self-check pass."),
+            h3("A chat-only agent, no file access"),
+            ol([
+              "Open the view you want below and copy its Skill file and Schema (the links on each card show them rendered; Raw file gives the text).",
+              "Paste both into the chat with your content and ask for the JSON exactly as the schema describes.",
+              "Build the file yourself from the repository: node scripts/build-html.js skills/<view> data.json out.html. It validates the JSON and prints any problem as path: message."
+            ]),
+            p("The repository has no npm packages or build step. Node.js alone runs every script.", "nv-note")
+          ]; } },
+          { label: "Add your lesson", build: function () { return [
+            p("This gallery is the repository's GitHub Pages site. Every doc and lesson in the repository is listed here, so publishing is a pull request away."),
+            h3("1. Fork and clone"),
+            code("git clone https://github.com/<you>/NthView\ncd NthView"),
+            h3("2. Build with your agent"),
+            p("From inside the clone, ask your agent (any of the set-ups on the other tabs):"),
+            code("Using the nthview skill, build a lesson on <topic> in lessons/<lesson-slug>/\nUsing the nthview skill, build a single <view> doc on <topic> in docs/"),
+            p("A lesson is lessons/<slug>/lesson.json plus one chapters/NN-<slug>.json per chapter, one view per chapter. The agent runs the build tool, which validates everything, writes the chapter pages with the previous/next bar and the contents page, and registers the lesson in the gallery:"),
+            code("node scripts/build-lesson.js lessons/<lesson-slug>"),
+            p("A single doc is docs/<slug>-<view>.json next to its .html, built with build-html.js, then registered:"),
+            code("node scripts/build-html.js skills/nthview-<view> docs/<slug>-<view>.json docs/<slug>-<view>.html\nnode scripts/build-registry.js"),
+            h3("3. Check and publish"),
+            code("node scripts/build-registry.js --check\ngit add -A && git commit -m \"Add lesson: <title>\"\ngit push"),
+            p("Open index.html from the clone to see it listed. Then open a pull request against patrickp1702/NthView. Once merged, it appears on this site under Docs and lessons for everyone."),
+            pLink("Rules of the house are in ", REPO + "/blob/main/AGENTS.md", "AGENTS.md", ": one view per chapter, generated files never hand-edited, registry.js always rebuilt."),
+            pLink("Live site: ", SITE, SITE, "")
+          ]; } }
+        ];
+        function render(t) { body.innerHTML = ""; t.build().forEach(function (n) { body.appendChild(n); }); body.scrollTop = 0; }
+        tabStrip(tabsHost, tabs, render);
+        render(tabs[0]);
+        document.getElementById("nv-howto-btn").addEventListener("click", function () { if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", ""); });
+        document.getElementById("nv-howto-close").addEventListener("click", function () { dlg.close ? dlg.close() : dlg.removeAttribute("open"); });
         dlg.addEventListener("click", function (e) { if (e.target === dlg) dlg.close(); });
       })();
       var views = skills.filter(function (s) { return s.kind === "view"; }).length;

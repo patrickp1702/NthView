@@ -710,6 +710,15 @@ skills/<name>/SKILL.md  ──(frontmatter name + description)──▶  scripts
    show them rendered in a dialog without fetching files. It renders them
    with `marked` (pinned, from cdnjs) and falls back to plain text if that
    library does not load.
+5. Two more dialogs live in `index.html` itself. **How to use** holds the
+   install and usage guide, one tab per agent family (Claude Code; Codex,
+   Cursor, Copilot and Gemini; any other agent; adding a lesson to this repo),
+   with copyable commands. **Docs and lessons** lists the registry's `docs`
+   and `lessons` in two tabs with a filter, twenty rows at a time; a lesson
+   row shows name and description only (clamped at 200 characters with a
+   "Show more" toggle) and the chapter count, a doc row its view and title.
+   Keep both dialogs generic: nothing per view, per doc or per lesson is
+   written into `index.html`.
 
 ### 7.2 Rules
 
