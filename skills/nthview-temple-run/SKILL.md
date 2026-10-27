@@ -71,8 +71,10 @@ Follow `references/schema.md` exactly. Set `"schemaVersion": 1`.
   (`compare`, `bars`, `switches`, `flashcards`, `story`, `tune`, `race`,
   `collect`) need a `quiz`. A lesson that deserves several checks gets up to
   ten more scored panel questions in `checks`.
-- Track labels are read while running: one or two words each; explain them
-  in `lead`, `body` or `prompt`.
+- Track trials never ask the learner to read and run at once: the runner
+  stops before each choice, a card shows the prompt and lane labels, and the
+  run resumes on Enter or Run. Still keep labels to one or two words (they
+  also float over the lanes) and explain them in `lead`, `body` or `prompt`.
 - Leave `strictMode` off (omit it or set `false`) unless the user explicitly
   asks for a quiz, test or exam, or to evaluate or grade the learner.
 - Every stretch needs `lead` and `remember`. Use `findings` for numbers; set

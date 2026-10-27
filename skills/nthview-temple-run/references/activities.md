@@ -30,7 +30,7 @@ answer stays hidden until found (see Modes in `schema.md`).
 | One item that breaks a pattern | `odd` | panel |
 | A labelled system or a diagram with parts | `hotspot` | panel |
 | Two to four options compared by size or by two numbers | `pads` | panel |
-| Two or three answers to choose between, at speed | `lanes` (runes) or `gates` (gateways) | track |
+| Two or three answers to choose between, then a dash through the right one | `lanes` (runes) or `gates` (gateways) | track |
 | A set where some members qualify and others do not | `torches` | track |
 | A cause and effect worth predicting first | `predict` | panel |
 | A fact learners are often confidently wrong about | `confidence` | panel |
@@ -49,10 +49,13 @@ Rules of thumb:
 - Vary the types: a good run changes rhythm every stretch or two, with a
   track trial roughly every third stretch. Six or more stretches with only
   one or two types trigger a validator warning.
-- Track labels are read while running: keep them to one or two words
-  (≤16 characters, ≤12 for tokens, levers and tile items), and put the
-  explanation in `lead`, `body` or `prompt`. The top card repeats every label
-  in lane order, so nothing has to be read off the 3D scene.
+- Track trials are read first: the runner stops before each choice (each
+  step for `torches`, `planks`, `harvest`, `levers`, `tiles`), a card shows
+  the prompt and the lane labels, and the run resumes only when the learner
+  presses Enter or taps Run. Keep labels to one or two words anyway
+  (≤16 characters, ≤12 for tokens, levers and tile items) so they also read
+  on the floating signs, and put the explanation in `lead`, `body` or
+  `prompt`.
 - A lesson that deserves more than one check gets `checks`: up to ten extra
   scored panel questions the encounter asks after the main one.
 - Exploration types (`compare`, `bars`, `switches`, `flashcards`, `story`,
