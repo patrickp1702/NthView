@@ -35,6 +35,11 @@ commit, and then update every existing view to match.
     cards to `index.html`. The script also rejects any folder that breaks §3.
 11. Do not create views or change the plugin manifests unless the current
     task asks for it.
+12. **Progress survives.** Every view saves the learner's progress to
+    `localStorage` at every state change and restores it on the next open,
+    so closing the tab, going back, or reopening the file resumes where they
+    left off. Every view shows a **Restart** control that erases that
+    progress and starts over (§5.5).
 
 ---
 
@@ -555,6 +560,8 @@ Rules the skeleton enforces and every view must keep:
    `:focus-visible` rule; correct roles and `aria-*` attributes.
 9. Re-running `build()` replaces the previous render.
 10. ES2018 or lower, no module syntax, no build step.
+11. Progress is saved to `localStorage` on every state change and restored
+    on open; a Restart control erases it (§5.5).
 
 ### 5.4 External libraries (CDN)
 
@@ -588,6 +595,78 @@ Rules:
    access to load it.
 6. Prefer no library when plain JavaScript and CSS do the job. A view with
    no libraries omits `NthView.libs` entirely.
+
+### 5.5 Progress storage
+
+Learning takes more than one sitting. Every view keeps the learner's
+progress in `localStorage` so that the back button, a closed tab, a crash or
+a fresh tab on the same file all resume at the same place. Copy this block
+into `view.js` unchanged except for `<view>` and keep the names, so every
+view behaves identically:
+
+```js
+  // ---- progress storage (identical in every view, §5.5) ------------------
+  var STORE_VERSION = 1;
+  function storageKey(data) {
+    var s = JSON.stringify(data), h = 2166136261;
+    for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return "nthview:<view>:" + (h >>> 0).toString(36);
+  }
+  function loadState(key) {
+    try { var raw = root.localStorage.getItem(key); if (!raw) return null; var st = JSON.parse(raw); return st && st.v === STORE_VERSION ? st : null; }
+    catch (e) { return null; }
+  }
+  function saveState(key, state) {
+    try { state.v = STORE_VERSION; state.savedAt = Date.now(); root.localStorage.setItem(key, JSON.stringify(state)); }
+    catch (e) { /* storage unavailable or full: keep playing without saving */ }
+  }
+  function clearState(key) { try { root.localStorage.removeItem(key); } catch (e) {} }
+  function restartButton(container, data, key) {
+    var b = el("button", { type: "button", class: "nthview-restart", text: "Restart", title: "Start again from the beginning" });
+    b.addEventListener("click", function () {
+      if (!root.confirm("Start again from the beginning? Your progress here will be erased.")) return;
+      clearState(key);
+      NthView.build(container, data);
+    });
+    return b;
+  }
+```
+
+Rules:
+
+1. **Key.** `nthview:<view>:<hash>` where the hash is the FNV-1a of the
+   serialised data. The same document, wherever it is opened, shares one
+   record; a document whose content changed starts fresh, so stale state can
+   never point at items that no longer exist. Nothing else identifies the
+   learner; nothing is stored but progress.
+2. **What is saved.** Everything needed to put the learner back where they
+   were: current screen or scene, position, items solved or visited, answers
+   given, scores, lives or coins, settings the view offers (theme, sound,
+   reduced motion, on-screen controls). Transient animation state is not
+   saved. The record is one JSON object, `{ v, savedAt, ...view fields }`,
+   under 100 KB.
+3. **When.** `saveState` runs on every state change (an answer, a screen
+   change, a collected item, a settings toggle) and, for views with a
+   continuous world, also on `visibilitychange` to hidden and `pagehide`.
+   Never only on unload: a crash or a killed tab must lose at most the
+   last few seconds.
+4. **Restore.** `render` calls `loadState` first and rebuilds the view in
+   the saved state, including the position in a 3D world. A short
+   non-blocking notice, `.nthview-resume`, tells the learner they are
+   continuing ("Welcome back, continuing from …") and disappears on its
+   own or on the first interaction. Data that no longer matches (an id or
+   index out of range) is ignored field by field, never thrown.
+5. **Restart.** `restartButton` is placed in the view's header or HUD, is
+   visible on every screen including the intro and the end report, and
+   is a real `button` with the class `nthview-restart`. It asks for
+   confirmation, clears the record and calls `NthView.build` again. The
+   view's own "play again" controls on the end screen call `clearState`
+   too.
+6. **Safety.** Every storage call is wrapped in try/catch; a browser with
+   storage disabled plays normally without saving. `build()` on fresh data
+   with no record behaves exactly as before this rule existed.
+7. **Lesson chapters** are separate documents with separate records; the
+   lesson bar needs nothing.
 
 ---
 
@@ -877,6 +956,9 @@ Copy into the task; every box must be ticked.
       blank screen.
 - [ ] Checked at 320px and desktop width; both colour schemes; keyboard-only.
 - [ ] Re-running `build()` replaces the render.
+- [ ] §5.5 storage block copied unchanged; progress saved on every change,
+      restored on reload (tested with a persistent headless profile or by
+      reloading in a browser); Restart erases it; storage disabled still plays.
 
 **example.html (§6)**
 - [ ] Byte-for-byte follows the §6 template with the schema example.
@@ -921,6 +1003,8 @@ against the allowed CDN hosts, and must print no errors.
 - Global: `NthView`, with public `validate` and `build`. Helpers stay in the
   closure. The only other permitted properties are `SUPPORTED_VERSIONS`,
   `libs` (§5.4) and `THEMES` (when the view has themes).
+- Storage: `localStorage` keys `nthview:<view>:<hash>` only (§5.5); no
+  cookies, no `sessionStorage`, no IndexedDB.
 - CSS: `.nthview` on the container, every other class `nthview-<element>`,
   colours via `--nv-*` custom properties, style element id `nthview-style`.
 - HTML ids: `nthview-data` for the data, `app` for the mount point.
