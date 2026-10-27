@@ -177,7 +177,11 @@ Build no other view unless asked.
 - **Files are complete at the bottom.** Every file worth knowing appears
   once, under the node it implements, with a role of one line; the file map
   rung collects them all. Use `group` for package names when the subject has
-  packages.
+  packages. When the subject is not code but a framework, standard or body of
+  knowledge, map `files` to its artefacts instead — for MITRE ATT&CK, the
+  matrix, technique and tactic pages, group and software pages, mitigation and
+  data-source pages, Navigator layers and STIX bundles — with `group` naming
+  the kind of artefact; the file map then reads as "where to find each thing".
 - **Glossary.** The terms a newcomer would look up; reference each at least
   once with `((term))` so it opens in place.
 - **Tone.** Plain, concrete, present tense. Say what the thing does before

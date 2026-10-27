@@ -1,0 +1,1028 @@
+{
+  "schemaVersion": 1,
+  "title": "MITRE ATT&CK — How It Works",
+  "subtitle": "A field guide to the adversary playbook",
+  "theme": "graphite",
+  "levels": [
+    {
+      "label": "L0",
+      "name": "The framework",
+      "meaning": "What ATT&CK is, the three matrices, and who turns it into defence."
+    },
+    {
+      "label": "L1",
+      "name": "Intrusion phases",
+      "heading": "Five phases every intrusion moves through",
+      "meaning": "The 14 Enterprise tactics group into five phases of an attack. Learn the phases and the tactics slot in."
+    },
+    {
+      "label": "L2",
+      "name": "A ransomware intrusion",
+      "meaning": "One real-shaped attack chain walked tactic by tactic, from a phishing email to encrypted disks."
+    },
+    {
+      "label": "L3",
+      "name": "Tactics & techniques",
+      "meaning": "One section per tactic, with its goal, a representative technique, its sub-techniques and how groups use it."
+    },
+    {
+      "label": "L4",
+      "name": "Under the hood",
+      "heading": "Under the hood — the data model",
+      "meaning": "ATT&CK is data: tactics, techniques and sub-techniques as STIX objects, shared through bundles and the Navigator.",
+      "summary": "ATT&CK is not prose, it is a graph of typed objects. The matrix you read is a projection of that graph: tactics are columns, techniques are cells, and everything links to mitigations, ((data source))s, ((group))s and ((software)). Each layer only adds detail to the one above it, so a defender can stop at the rung that answers the question in front of them.",
+      "stack": [
+        {
+          "name": "Matrices",
+          "caption": "one per technology domain",
+          "items": [
+            "Enterprise (Windows, macOS, Linux, cloud)",
+            "Mobile (Android, iOS)",
+            "ICS (industrial control systems)"
+          ]
+        },
+        {
+          "name": "Tactics",
+          "caption": "the adversary's goal — the why",
+          "items": [
+            "TA0001 Initial Access … TA0040 Impact",
+            "columns of the matrix"
+          ]
+        },
+        {
+          "name": "Techniques & sub-techniques",
+          "caption": "how the goal is met",
+          "items": [
+            "T1566 Phishing",
+            "T1566.001 Spearphishing Attachment",
+            "T1003.001 LSASS Memory"
+          ]
+        },
+        {
+          "name": "Objects that give context",
+          "caption": "who, with what, and how to stop it",
+          "items": [
+            "Groups (G-ids)",
+            "Software (S-ids)",
+            "Mitigations (M-ids)",
+            "Data sources & components (DS-ids)"
+          ]
+        },
+        {
+          "name": "Formats and tooling",
+          "caption": "how the graph travels",
+          "items": [
+            "STIX 2.1 bundles",
+            "ATT&CK Navigator layers (JSON)",
+            "the TAXII / GitHub distribution"
+          ]
+        }
+      ],
+      "facts": [
+        {
+          "label": "One object model",
+          "text": "Every tactic, technique, group, piece of software and mitigation is a STIX object with a stable ID. A ((Navigator)) layer is just a list of those IDs with colours and scores, which is why one export opens in anyone's browser."
+        },
+        {
+          "label": "Why sub-techniques exist",
+          "text": "A technique like `T1059` was once a bag of unrelated behaviours. Sub-techniques (`T1059.001` PowerShell, `T1059.003` Windows Command Shell) split it so detections and ((mitigation))s can be precise without multiplying the top-level list."
+        }
+      ],
+      "note": "**The matrix is a map, not a checklist.** No intrusion uses every cell, and defending every cell is impossible. ATT&CK is for reasoning about *which* behaviours matter to you, given the ((group))s and ((software)) that target your sector."
+    },
+    {
+      "label": "L5",
+      "name": "Artefacts",
+      "heading": "The pages and files you actually open",
+      "meaning": "Every ATT&CK artefact — matrix, technique page, group page, mitigation page, data source page, Navigator layer, STIX bundle — and what it is for.",
+      "fileMap": true
+    }
+  ],
+  "root": {
+    "id": "attack",
+    "title": "MITRE ATT&CK",
+    "kind": "system",
+    "oneLiner": "A public, evidence-based catalogue of how real attackers behave after they get in.",
+    "summary": "**ATT&CK** (Adversarial Tactics, Techniques, and Common Knowledge) is a free knowledge base, published by MITRE at attack.mitre.org, that names the things attackers *do*. Its spine is a ((matrix)): the columns are ((tactic))s — the attacker's goals, such as Initial Access or Exfiltration — and the cells are ((technique))s — the ways those goals are met, each with a stable ID like `T1566`.\n\nIt is built from reported, real-world intrusions, so every technique links to the ((group))s and ((software)) seen using it and to the ((mitigation))s and ((data source))s that counter and reveal it. Defenders use it as a shared language: to map their coverage, drive detections, plan red-team exercises and tag ((CTI)) reports.\n\nThis map reads ATT&CK top down. L0 is the idea, L1 the five phases of an intrusion, L2 one attack walked end to end, L3 the tactics and their techniques, L4 the data model, and L5 the artefacts you open. Stop at the rung that answers your question.",
+    "facts": [
+      "built from real, reported intrusions",
+      "14 Enterprise tactics",
+      "about 200 techniques, 400+ sub-techniques",
+      "free and openly licensed"
+    ],
+    "snippet": {
+      "label": "a Navigator layer · lsass-coverage.json",
+      "lang": "json",
+      "code": "{\n  \"name\": \"EDR coverage — credential access\",\n  \"domain\": \"enterprise-attack\",\n  \"versions\": { \"attack\": \"15\", \"navigator\": \"4.9\" },\n  \"techniques\": [\n    { \"techniqueID\": \"T1003.001\", \"score\": 100,\n      \"color\": \"#2e7d32\", \"comment\": \"LSASS access alert live\" },\n    { \"techniqueID\": \"T1003.002\", \"score\": 0,\n      \"color\": \"#c62828\", \"comment\": \"SAM dumping — no detection yet\" }\n  ]\n}",
+      "resultLabel": "what an analyst sees",
+      "result": "The **ATT&CK Navigator** paints those two cells of the matrix green and red over the grey of every other technique — a one-glance heat-map of *where detection exists and where it does not*. The same file opens in anyone's browser with no account.",
+      "caption": "A layer is only a list of technique IDs with colours, scores and notes; the matrix underneath is ATT&CK's own."
+    },
+    "table": {
+      "columns": [
+        "Tactic",
+        "ID",
+        "The attacker's goal"
+      ],
+      "rows": [
+        [
+          "Reconnaissance",
+          "`TA0043`",
+          "Gather information to plan the operation"
+        ],
+        [
+          "Resource Development",
+          "`TA0042`",
+          "Build or buy the infrastructure and tools"
+        ],
+        [
+          "Initial Access",
+          "`TA0001`",
+          "Get the first foothold inside"
+        ],
+        [
+          "Execution",
+          "`TA0002`",
+          "Run attacker-controlled code"
+        ],
+        [
+          "Persistence",
+          "`TA0003`",
+          "Keep the foothold across reboots and logins"
+        ],
+        [
+          "Privilege Escalation",
+          "`TA0004`",
+          "Gain higher permissions"
+        ],
+        [
+          "Defense Evasion",
+          "`TA0005`",
+          "Avoid being detected"
+        ],
+        [
+          "Credential Access",
+          "`TA0006`",
+          "Steal account names and passwords"
+        ],
+        [
+          "Discovery",
+          "`TA0007`",
+          "Learn the environment"
+        ],
+        [
+          "Lateral Movement",
+          "`TA0008`",
+          "Move to other systems"
+        ],
+        [
+          "Collection",
+          "`TA0009`",
+          "Gather the data of interest"
+        ],
+        [
+          "Command and Control",
+          "`TA0011`",
+          "Talk to the compromised systems"
+        ],
+        [
+          "Exfiltration",
+          "`TA0010`",
+          "Steal the data out"
+        ],
+        [
+          "Impact",
+          "`TA0040`",
+          "Manipulate, interrupt or destroy"
+        ]
+      ],
+      "caption": "The 14 Enterprise tactics, in roughly the order an intrusion meets them. This map groups them into the five phases at [[L1|get-in]]."
+    },
+    "files": [
+      {
+        "path": "attack.mitre.org/matrices/enterprise",
+        "role": "the Enterprise matrix: every tactic and technique for Windows, macOS, Linux and cloud",
+        "group": "Matrices"
+      },
+      {
+        "path": "attack.mitre.org/matrices/mobile",
+        "role": "the Mobile matrix (Android, iOS)",
+        "group": "Matrices"
+      },
+      {
+        "path": "attack.mitre.org/matrices/ics",
+        "role": "the ICS matrix for industrial control systems",
+        "group": "Matrices"
+      },
+      {
+        "path": "mitre-attack/attack-stix-data (GitHub)",
+        "role": "the whole knowledge base as STIX 2.1 bundles, the machine-readable source of truth",
+        "group": "Tooling (STIX, Navigator)"
+      },
+      {
+        "path": "mitre-attack.github.io/attack-navigator",
+        "role": "the Navigator web app that renders coloured, scored layers over the matrix",
+        "group": "Tooling (STIX, Navigator)"
+      }
+    ],
+    "children": [
+      {
+        "id": "get-in",
+        "title": "Getting a foothold",
+        "kind": "pillar",
+        "tag": "Recon to access",
+        "color": "teal",
+        "oneLiner": "Before any code runs on your network, the attacker researches you, builds tooling and finds a way in.",
+        "summary": "The first phase covers everything up to and including the first foothold: the pre-compromise ((tactic))s **Reconnaissance** and **Resource Development**, which happen on the attacker's own systems, and **Initial Access**, the moment a technique first touches yours. Phishing is the workhorse here, which is why so much defensive effort sits in email filtering and user training.",
+        "children": [
+          {
+            "id": "reconnaissance",
+            "title": "Reconnaissance",
+            "kind": "concept",
+            "level": 3,
+            "tag": "TA0043",
+            "oneLiner": "Gathering information — about people, systems and relationships — to plan the intrusion.",
+            "summary": "Reconnaissance is the attacker learning about the target before touching it. Much of it is passive and invisible: reading the company website, scraping staff names from social media, enumerating internet-facing hosts. Because it mostly happens off your network, it is rarely detected; the defence is reducing what you expose.",
+            "children": [
+              {
+                "id": "t1595",
+                "title": "T1595 Active Scanning",
+                "kind": "mechanism",
+                "oneLiner": "Probing the target's infrastructure directly — scanning IP blocks, ports and web apps for weak points.",
+                "summary": "Unlike passive reconnaissance, active scanning sends traffic to the target: port scans, vulnerability scans and crawling of public web applications. It leaves faint traces in network and web logs, so it is one of the few pre-compromise behaviours a defender can sometimes see.",
+                "deeper": {
+                  "title": "what the data sources show",
+                  "text": "Active scanning surfaces in **Network Traffic** (unusual flows from a single source across many ports) and in web-server logs. It is noisy and common, so alerting on it alone is low value; it matters as *corroboration* when a later `T1190` exploit lands on a host that was scanned days before."
+                }
+              }
+            ]
+          },
+          {
+            "id": "resource-development",
+            "title": "Resource Development",
+            "kind": "concept",
+            "level": 3,
+            "tag": "TA0042",
+            "oneLiner": "Building, buying or stealing the infrastructure and capabilities the operation will use.",
+            "summary": "Before the attack, the adversary stands up what it needs: domains, servers, email accounts, malware and exploits. Like reconnaissance, this happens off your network, but threat-intelligence teams track it — a newly registered look-alike domain is often the first warning of a campaign aimed at you.",
+            "children": [
+              {
+                "id": "t1583",
+                "title": "T1583 Acquire Infrastructure",
+                "kind": "mechanism",
+                "oneLiner": "Registering domains and renting servers that will host phishing pages, payloads and command-and-control.",
+                "summary": "Attackers acquire the ((command and control)) and delivery infrastructure an operation needs: look-alike domains for phishing, virtual servers for payload hosting, and redirectors to hide the real C2. Intelligence feeds and certificate-transparency logs let defenders spot some of it early."
+              }
+            ]
+          },
+          {
+            "id": "initial-access",
+            "title": "Initial Access",
+            "kind": "concept",
+            "level": 3,
+            "tag": "TA0001",
+            "heading": "Initial Access — the first foothold",
+            "oneLiner": "The techniques that get an attacker their first execution or account inside the target.",
+            "summary": "Initial Access is the doorway. Options include exploiting a public-facing application, abusing valid accounts, and — most commonly — **phishing**. This is the first tactic whose techniques actually touch your environment, so it is where detection becomes possible and where a layered defence pays off most.",
+            "children": [
+              {
+                "id": "t1566",
+                "title": "T1566 Phishing",
+                "kind": "mechanism",
+                "oneLiner": "Tricking a person into opening a malicious attachment or link that delivers the first payload.",
+                "summary": "Phishing sends a crafted message that leads the recipient to run code or hand over credentials. It is the single most common way intrusions begin, which is why it anchors the attack chain walked at level L2.",
+                "snippet": {
+                  "label": "a Sigma-style detection sketch · suspicious-office-child.yml",
+                  "lang": "text",
+                  "code": "title: Office app spawns a script interpreter\nlogsource: { category: process_creation, product: windows }\ndetection:\n  parent:\n    ParentImage|endswith: ['\\\\WINWORD.EXE', '\\\\EXCEL.EXE']\n  child:\n    Image|endswith: ['\\\\powershell.exe', '\\\\wscript.exe', '\\\\cmd.exe']\n  condition: parent and child\nlevel: high",
+                  "caption": "Detections for phishing usually fire on what the lure *does* — here, a document spawning a script interpreter — not on the email itself."
+                },
+                "deeper": {
+                  "title": "the two sub-techniques you meet most",
+                  "text": "`T1566.001` **Spearphishing Attachment** delivers a weaponised file (a macro-enabled document, an ISO, a LNK). `T1566.002` **Spearphishing Link** sends a URL to a credential-harvesting page or a drive-by payload. A group such as ((group)) G0016 (APT29) has used targeted spearphishing links against specific victims. Mitigations: `M1017` User Training and `M1049` Antivirus/Antimalware; the richest ((data source)) is **Application Log** (email gateway) joined to **Process Creation** on the endpoint."
+                },
+                "files": [
+                  {
+                    "path": "attack.mitre.org/techniques/T1566",
+                    "role": "the Phishing technique page: sub-techniques, procedures, mitigations and detections",
+                    "group": "Technique & tactic pages"
+                  },
+                  {
+                    "path": "attack.mitre.org/groups/G0016",
+                    "role": "the APT29 group page, listing the techniques and software attributed to it",
+                    "group": "Groups & software"
+                  }
+                ]
+              },
+              {
+                "id": "t1190",
+                "title": "T1190 Exploit App",
+                "heading": "T1190 Exploit Public-Facing Application",
+                "kind": "mechanism",
+                "oneLiner": "Exploiting a vulnerability in an internet-facing service to gain the first foothold.",
+                "summary": "Where phishing targets a person, `T1190` targets a service: an unpatched VPN, web server or file-transfer appliance exposed to the internet. Mass exploitation of a new CVE is a common ransomware entry point. Mitigations: `M1051` Update Software and `M1030` Network Segmentation; the signal is in web and application logs joined to new processes on the host."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "run-and-stay",
+        "title": "Running code and staying",
+        "kind": "pillar",
+        "tag": "Execution & footholds",
+        "color": "violet",
+        "oneLiner": "Once inside, the attacker runs code, survives reboots, grabs higher rights and hides from the defenders.",
+        "summary": "This phase turns a foothold into a durable, privileged, quiet presence. **Execution** runs the code, **Persistence** keeps it coming back, **Privilege Escalation** widens what it can do, and **Defense Evasion** — the largest tactic in ATT&CK — hides all of the above. These four tactics interleave rather than run in strict order.",
+        "children": [
+          {
+            "id": "execution",
+            "title": "Execution",
+            "kind": "concept",
+            "level": 3,
+            "tag": "TA0002",
+            "oneLiner": "Running attacker-controlled code on a local or remote system.",
+            "summary": "Execution is the tactic of actually running code. The dominant technique is the **command and scripting interpreter** already present on every machine — PowerShell, cmd, bash — because living off the land avoids dropping detectable files.",
+            "children": [
+              {
+                "id": "t1059",
+                "title": "T1059 Scripting",
+                "kind": "mechanism",
+                "heading": "T1059 Command and Scripting Interpreter",
+                "oneLiner": "Abusing the interpreters built into the OS — PowerShell, cmd, bash — to run commands and payloads.",
+                "summary": "Rather than drop a new binary, attackers drive the interpreters that ship with the system. `T1059.001` **PowerShell** and `T1059.003` **Windows Command Shell** are the two seen most on Windows. Because these tools are legitimate, detection rests on *how* they are used, not whether they ran.",
+                "snippet": {
+                  "label": "a one-liner a defender hopes to catch",
+                  "lang": "bash",
+                  "code": "powershell -nop -w hidden -enc <base64>",
+                  "resultLabel": "the red flags",
+                  "result": "`-enc` (base64-encoded command), `-w hidden` (no window) and `-nop` (no profile) together are a strong signal: legitimate admin scripts rarely combine all three. Command-line logging (`M1047` Audit, plus Script Block Logging) turns this into a reliable alert.",
+                  "caption": "Encoded, hidden, profile-less PowerShell launched by an Office process ties Execution back to Initial Access."
+                }
+              },
+              {
+                "id": "t1204",
+                "title": "T1204 User Execution",
+                "kind": "mechanism",
+                "oneLiner": "Relying on a user to run the malicious file or link that was delivered.",
+                "summary": "`T1204.002` **Malicious File** is the other half of phishing: delivery gets the file there, user execution is the double-click that runs it. It pairs with [[L3|t1566]] and is mitigated mostly by `M1017` User Training and by blocking risky file types (`M1042`)."
+              }
+            ]
+          },
+          {
+            "id": "persistence",
+            "title": "Persistence",
+            "kind": "concept",
+            "level": 3,
+            "tag": "TA0003",
+            "oneLiner": "Keeping access across reboots, logoffs and credential changes.",
+            "summary": "Persistence stops a reboot from evicting the attacker. Techniques plant something that runs again automatically — a scheduled task, a service, a registry run key, a startup item. The defender's edge is that most of these create durable, auditable artefacts.",
+            "children": [
+              {
+                "id": "t1053",
+                "title": "T1053 Scheduled Task",
+                "kind": "mechanism",
+                "heading": "T1053 Scheduled Task/Job",
+                "oneLiner": "Using the OS task scheduler to run a payload on a trigger — at logon, on a timer, at a set time.",
+                "summary": "`T1053.005` **Scheduled Task** on Windows is a favourite: it survives reboots, can run as SYSTEM, and looks like ordinary administration. It is one of the few techniques that spans three tactics — Execution, Persistence and Privilege Escalation — because the same action achieves all three.",
+                "deeper": {
+                  "title": "why it appears under three tactics",
+                  "text": "A scheduled task *runs code* (Execution), *runs it again later* (Persistence) and can *run it as a higher-privileged account* (Privilege Escalation). ATT&CK lists one technique under every goal it serves, so the same `T1053` cell sits in three columns of the matrix. Watch the **Scheduled Job** data source and task-creation events (`4698`). Mitigation: `M1028` Operating System Configuration to restrict who may create tasks."
+                }
+              },
+              {
+                "id": "t1547",
+                "title": "T1547 Autostart",
+                "heading": "T1547 Boot or Logon Autostart Execution",
+                "kind": "mechanism",
+                "oneLiner": "Planting a payload in the places the OS runs automatically at boot or logon.",
+                "summary": "`T1547.001` **Registry Run Keys / Startup Folder** is the classic: an entry that relaunches the payload every time the user logs in. Cheap for the attacker, but it writes durable, auditable artefacts, so the **Windows Registry** and **File** data sources catch it well."
+              }
+            ]
+          },
+          {
+            "id": "privilege-escalation",
+            "title": "Privilege Escalation",
+            "kind": "concept",
+            "level": 3,
+            "tag": "TA0004",
+            "oneLiner": "Gaining higher permissions than the initial foothold allowed.",
+            "summary": "A phished user is rarely an administrator, so the attacker climbs. Techniques abuse misconfigurations, OS features and elevation controls to reach admin or SYSTEM, which unlocks credential theft and lateral movement.",
+            "children": [
+              {
+                "id": "t1548",
+                "title": "T1548 Elevation Abuse",
+                "kind": "mechanism",
+                "heading": "T1548 Abuse Elevation Control Mechanism",
+                "oneLiner": "Subverting the OS controls meant to gate elevation, such as Windows UAC or Unix sudo.",
+                "summary": "`T1548.002` **Bypass User Account Control** abuses the Windows mechanism that is supposed to prompt before elevation, slipping a payload to high integrity without a prompt. Mitigation `M1026` Privileged Account Management and keeping UAC at its highest setting (`M1028`) raise the cost."
+              }
+            ]
+          },
+          {
+            "id": "defense-evasion",
+            "title": "Defense Evasion",
+            "kind": "concept",
+            "level": 3,
+            "tag": "TA0005",
+            "oneLiner": "Avoiding detection — hiding code, disabling tools, clearing logs, blending in.",
+            "summary": "Defense Evasion is the largest tactic in ATT&CK, because almost every other technique has a stealthy variant. A representative technique is **obfuscating files or information** so that scanners and analysts cannot read what the payload does.",
+            "children": [
+              {
+                "id": "t1027",
+                "title": "T1027 Obfuscation",
+                "kind": "mechanism",
+                "heading": "T1027 Obfuscated Files or Information",
+                "oneLiner": "Encoding, encrypting or packing payloads and commands so they resist inspection.",
+                "summary": "Attackers base64-encode commands, pack executables and encrypt strings so that static analysis and signature matching fail. The `-enc` PowerShell flag on [[L3|t1059]] is a tiny example. Detection shifts to behaviour and to decoded content at runtime; `M1049` Antivirus/Antimalware and `M1040` Behavior Prevention on Endpoint help.",
+                "deeper": {
+                  "title": "why evasion is everywhere",
+                  "text": "Because Defense Evasion is a *goal*, not a single trick, techniques from other tactics appear here too whenever they have a stealth purpose — disabling security tools, signing malware, timestomping files. That is why the tactic has more techniques than any other and why ATT&CK coverage is never \"complete\": you cover the behaviours that matter to your threat model."
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "learn-network",
+        "title": "Learning the network",
+        "kind": "pillar",
+        "tag": "Creds, recon, movement",
+        "color": "gold",
+        "oneLiner": "From one machine, the attacker steals credentials, maps the network and spreads to the hosts that matter.",
+        "summary": "With a privileged foothold, the attacker turns outward. **Credential Access** harvests passwords and hashes, **Discovery** maps the hosts, users and shares worth reaching, and **Lateral Movement** uses stolen credentials to hop to them. This phase is where a single compromise becomes a domain-wide one.",
+        "children": [
+          {
+            "id": "credential-access",
+            "title": "Credential Access",
+            "kind": "concept",
+            "level": 3,
+            "tag": "TA0006",
+            "oneLiner": "Stealing account names, passwords, hashes and tokens to reuse elsewhere.",
+            "summary": "Stolen credentials are the master key: they let an attacker move and persist while looking like a legitimate user. The classic technique is **OS credential dumping** — reading secrets out of the operating system's own stores.",
+            "children": [
+              {
+                "id": "t1003",
+                "title": "T1003 Cred Dumping",
+                "kind": "mechanism",
+                "heading": "T1003 OS Credential Dumping",
+                "oneLiner": "Extracting credential material from the OS — LSASS memory, the SAM database, cached hashes.",
+                "summary": "`T1003.001` **LSASS Memory** is the headline: on Windows, cleartext-adjacent secrets live in the LSASS process, and tools read them straight out of memory. Protecting LSASS (`M1043` Credential Access Protection, e.g. Credential Guard) and alerting on processes that open a handle to it is one of the highest-value detections a team can build.",
+                "snippet": {
+                  "label": "the data-source signal · lsass handle access",
+                  "lang": "text",
+                  "code": "Event 4656/4663 — Object: lsass.exe\n  AccessMask: 0x1410 (VM_READ | QUERY_INFORMATION)\n  Process:    \\\\Users\\\\...\\\\rundll32.exe",
+                  "resultLabel": "why it matters",
+                  "result": "Almost nothing legitimately reads LSASS memory. A non-system process opening it with read access is a near-certain credential-dumping alert — the single detection most ransomware intrusions would trip.",
+                  "caption": "Data source: **Process** (OS API execution) and **Logon Session**."
+                },
+                "files": [
+                  {
+                    "path": "attack.mitre.org/techniques/T1003/001",
+                    "role": "the LSASS Memory sub-technique page",
+                    "group": "Technique & tactic pages"
+                  },
+                  {
+                    "path": "attack.mitre.org/datasources/DS0009",
+                    "role": "the Process data source page, including the OS API Execution component",
+                    "group": "Mitigations & data sources"
+                  },
+                  {
+                    "path": "attack.mitre.org/mitigations/M1043",
+                    "role": "the Credential Access Protection mitigation page (covers Credential Guard)",
+                    "group": "Mitigations & data sources"
+                  }
+                ]
+              },
+              {
+                "id": "t1555",
+                "title": "T1555 Password Stores",
+                "heading": "T1555 Credentials from Password Stores",
+                "kind": "mechanism",
+                "oneLiner": "Stealing saved credentials from browsers, keychains and password managers.",
+                "summary": "Beyond LSASS, users and apps save secrets: browser-stored passwords, the Windows Credential Manager, cloud CLI tokens. `T1555.003` **Credentials from Web Browsers** is seen constantly. Mitigation leans on `M1027` Password Policies and not storing high-value secrets locally."
+              }
+            ]
+          },
+          {
+            "id": "discovery",
+            "title": "Discovery",
+            "kind": "concept",
+            "level": 3,
+            "tag": "TA0007",
+            "oneLiner": "Learning the environment — hosts, users, shares, software, defences.",
+            "summary": "Before moving, the attacker looks around: what machine is this, who is logged in, what can it reach? **System Information Discovery** and its siblings are built from ordinary admin commands, so they hide in the noise. Volume and sequence, not any single command, are the tell.",
+            "children": [
+              {
+                "id": "t1082",
+                "title": "T1082 System Info",
+                "kind": "mechanism",
+                "heading": "T1082 System Information Discovery",
+                "oneLiner": "Querying the OS for host details — version, architecture, hardware, hostname.",
+                "summary": "Commands like `systeminfo`, `hostname` and `uname -a` tell the attacker where they landed and whether the host is worth keeping. Individually harmless, a burst of them from one process right after execution is a strong behavioural signal. ((Data source)): **Process Creation** and **Command Execution**."
+              },
+              {
+                "id": "t1018",
+                "title": "T1018 Remote Systems",
+                "heading": "T1018 Remote System Discovery",
+                "kind": "mechanism",
+                "oneLiner": "Listing other hosts on the network to pick lateral-movement targets.",
+                "summary": "Having mapped the local host on [[L3|t1082]], the attacker enumerates the network — `net view`, AD queries, ping sweeps — to find servers and domain controllers worth reaching. It feeds [[L3|t1021]] directly. ((Data source)): **Process Creation** and **Network Traffic**."
+              }
+            ]
+          },
+          {
+            "id": "lateral-movement",
+            "title": "Lateral Movement",
+            "kind": "concept",
+            "level": 3,
+            "tag": "TA0008",
+            "oneLiner": "Moving from the foothold to other systems, usually with stolen credentials.",
+            "summary": "Lateral Movement spreads the intrusion. **Remote Services** reuse legitimate remote-access protocols — RDP, SMB, WinRM — with credentials taken in the previous step, so the traffic looks authorised. Segmentation and MFA are the main brakes.",
+            "children": [
+              {
+                "id": "t1021",
+                "title": "T1021 Remote Services",
+                "kind": "mechanism",
+                "heading": "T1021 Remote Services",
+                "oneLiner": "Logging in to other hosts over RDP, SMB or WinRM using valid, stolen credentials.",
+                "summary": "`T1021.001` **Remote Desktop Protocol** and `T1021.002` **SMB/Windows Admin Shares** carry attackers across the network as if they were administrators. Because the credentials are valid, the defence is structural: `M1030` Network Segmentation, `M1032` Multi-factor Authentication and watching **Logon Session** data for unusual source-to-destination pairs.",
+                "deeper": {
+                  "title": "the credential-to-movement link",
+                  "text": "Lateral Movement depends on Credential Access: no stolen password, no quiet hop. That is the single most important relation on this map — break the credential-dumping step on [[L3|t1003]] and most lateral movement collapses. See the connection drawn between those two regions on the overview."
+                }
+              },
+              {
+                "id": "t1570",
+                "title": "T1570 Tool Transfer",
+                "heading": "T1570 Lateral Tool Transfer",
+                "kind": "mechanism",
+                "oneLiner": "Copying tools and payloads from one compromised host to the next.",
+                "summary": "Once on a new host, the attacker needs its tooling there too, so files are copied host-to-host over SMB or remote shares. Watching **File Creation** on admin shares and **Network Share Access** surfaces it; `M1030` Network Segmentation limits the reach."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "take-data",
+        "title": "Taking the data",
+        "kind": "pillar",
+        "tag": "Collect, C2, exfil",
+        "color": "blue",
+        "oneLiner": "The attacker gathers the data worth stealing, keeps a channel to the outside, and moves it out.",
+        "summary": "Now the operation acts on its objective of theft. **Collection** stages the data, **Command and Control** maintains the covert channel that runs the whole intrusion, and **Exfiltration** moves the data out — often over that same channel, to blend with normal traffic.",
+        "children": [
+          {
+            "id": "collection",
+            "title": "Collection",
+            "kind": "concept",
+            "level": 3,
+            "tag": "TA0009",
+            "oneLiner": "Gathering the data of interest and staging it for theft.",
+            "summary": "Collection pulls the target data together — documents, databases, mailboxes — and usually compresses and encrypts it first. **Archive Collected Data** is the staging step that precedes exfiltration and sometimes gives defenders their last chance to notice.",
+            "children": [
+              {
+                "id": "t1560",
+                "title": "T1560 Archive Data",
+                "kind": "mechanism",
+                "heading": "T1560 Archive Collected Data",
+                "oneLiner": "Compressing and often encrypting gathered data into archives before stealing it.",
+                "summary": "Attackers zip or RAR the files they intend to steal, often with a password, to shrink and hide them. A large archive appearing in a staging directory, built by an unusual process, is a signal that exfiltration is imminent. ((Data source)): **File Creation** and **Command Execution**."
+              }
+            ]
+          },
+          {
+            "id": "command-and-control",
+            "title": "Command and Control",
+            "kind": "concept",
+            "level": 3,
+            "tag": "TA0011",
+            "oneLiner": "Maintaining a covert channel to issue commands to compromised systems.",
+            "summary": "C2 is the attacker's remote control. **Application Layer Protocol** hides that control inside ordinary-looking web traffic — HTTPS to a benign-seeming domain — so it survives egress filtering. Most other tactics depend on this channel staying open.",
+            "children": [
+              {
+                "id": "t1071",
+                "title": "T1071 App-Layer C2",
+                "kind": "mechanism",
+                "heading": "T1071 Application Layer Protocol",
+                "oneLiner": "Tunnelling command-and-control inside common protocols such as HTTP, HTTPS or DNS.",
+                "summary": "`T1071.001` **Web Protocols** disguises C2 as normal HTTPS, often with domain fronting or look-alike domains from [[L3|t1583]]. Detection leans on **Network Traffic** analytics — beaconing intervals, rare destinations, JA3 fingerprints — and `M1031` Network Intrusion Prevention.",
+                "files": [
+                  {
+                    "path": "attack.mitre.org/techniques/T1071",
+                    "role": "the Application Layer Protocol technique page",
+                    "group": "Technique & tactic pages"
+                  },
+                  {
+                    "path": "attack.mitre.org/datasources/DS0029",
+                    "role": "the Network Traffic data source page (flow and content components)",
+                    "group": "Mitigations & data sources"
+                  }
+                ]
+              },
+              {
+                "id": "t1105",
+                "title": "T1105 Ingress Transfer",
+                "heading": "T1105 Ingress Tool Transfer",
+                "kind": "mechanism",
+                "oneLiner": "Pulling additional tools and payloads into the environment over the C2 channel.",
+                "summary": "After the first loader lands, the attacker downloads the rest — post-exploitation frameworks, the ransomware itself — over the channel built on [[L3|t1071]]. Large or unusual inbound transfers to a recently compromised host are the tell. ((Data source)): **Network Traffic Content**."
+              }
+            ]
+          },
+          {
+            "id": "exfiltration",
+            "title": "Exfiltration",
+            "kind": "concept",
+            "level": 3,
+            "tag": "TA0010",
+            "oneLiner": "Stealing the collected data out of the environment.",
+            "summary": "Exfiltration moves the staged data off the network. The quietest option reuses the existing C2 channel so the theft hides in traffic the defender already tolerates. Volume anomalies and data-loss-prevention controls are the counters.",
+            "children": [
+              {
+                "id": "t1041",
+                "title": "T1041 Exfil over C2",
+                "kind": "mechanism",
+                "heading": "T1041 Exfiltration Over C2 Channel",
+                "oneLiner": "Sending stolen data out over the same channel the attacker already uses for control.",
+                "summary": "Rather than open a new path, the attacker ships the archive from [[L3|t1560]] back over the C2 link built on [[L3|t1071]]. One channel does both jobs, so blending is near-perfect. The tell is usually *volume*: a channel that normally trickles commands suddenly carrying megabytes outward. ((Data source)): **Network Traffic Flow**."
+              },
+              {
+                "id": "t1567",
+                "title": "T1567 Exfil Web Service",
+                "heading": "T1567 Exfiltration Over Web Service",
+                "kind": "mechanism",
+                "oneLiner": "Stealing data out through a trusted cloud service rather than the raw C2 link.",
+                "summary": "`T1567.002` **Exfiltration to Cloud Storage** uploads the staged archive to a service the network already trusts — a cloud drive or paste site — so it blends with normal business traffic. Cloud access logs and DLP are the main counters; it is an alternative to [[L3|t1041]]."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "cause-harm",
+        "title": "Causing harm",
+        "kind": "pillar",
+        "tag": "Impact",
+        "color": "red",
+        "oneLiner": "The final phase: manipulate, interrupt or destroy — in ransomware, encrypting everything for extortion.",
+        "summary": "**Impact** is what the whole intrusion was for when the goal is disruption rather than quiet theft. In a ransomware case this is the loud finale — files encrypted, backups deleted, a ransom note left — but only after every earlier phase has run.",
+        "children": [
+          {
+            "id": "impact",
+            "title": "Impact",
+            "kind": "concept",
+            "level": 3,
+            "tag": "TA0040",
+            "oneLiner": "Manipulating, interrupting or destroying systems and data to meet the attacker's goal.",
+            "summary": "Impact techniques degrade, disrupt or destroy. **Data Encrypted for Impact** is the ransomware technique: encrypt files on reachable hosts and shares, then demand payment. Because it is the last and loudest step, prevention lives in the earlier phases; recovery lives in backups.",
+            "children": [
+              {
+                "id": "t1486",
+                "title": "T1486 Encrypt for Impact",
+                "kind": "mechanism",
+                "heading": "T1486 Data Encrypted for Impact",
+                "oneLiner": "Encrypting data on victim systems to interrupt availability and extort payment.",
+                "summary": "The payload encrypts documents, databases and often network shares, deletes volume shadow copies so local recovery fails, and drops a ransom note. By this point the data may already have been stolen on [[L3|t1041]] for double extortion.",
+                "table": {
+                  "columns": [
+                    "Mitigation",
+                    "ID",
+                    "What it buys you"
+                  ],
+                  "rows": [
+                    [
+                      "Data Backup",
+                      "`M1053`",
+                      "Offline, tested backups make recovery possible without paying"
+                    ],
+                    [
+                      "Behavior Prevention on Endpoint",
+                      "`M1040`",
+                      "Stops rapid mass-encryption patterns before they finish"
+                    ],
+                    [
+                      "Network Segmentation",
+                      "`M1030`",
+                      "Limits how many shares the payload can reach"
+                    ]
+                  ],
+                  "caption": "Against Impact, detection is late; the real defence was built in the earlier phases and in `M1053` backups."
+                },
+                "deeper": {
+                  "title": "why the loudest step is the hardest to stop",
+                  "text": "By the time encryption starts, the attacker already has execution, privilege and reach. A detection here fires *during* the damage. That is the central lesson of reading ATT&CK as a chain: the cheap, reliable interventions are upstream — stop the phish on [[L3|t1566]], the credential dump on [[L3|t1003]], or the lateral movement on [[L3|t1021]] — and Impact never arrives. Backups (`M1053`) are what turn a catastrophe into an outage when it does."
+                },
+                "files": [
+                  {
+                    "path": "attack.mitre.org/techniques/T1486",
+                    "role": "the Data Encrypted for Impact technique page",
+                    "group": "Technique & tactic pages"
+                  },
+                  {
+                    "path": "attack.mitre.org/mitigations/M1053",
+                    "role": "the Data Backup mitigation page",
+                    "group": "Mitigations & data sources"
+                  }
+                ]
+              },
+              {
+                "id": "t1490",
+                "title": "T1490 Inhibit Recovery",
+                "heading": "T1490 Inhibit System Recovery",
+                "kind": "mechanism",
+                "oneLiner": "Deleting backups and shadow copies so victims cannot recover without paying.",
+                "summary": "Just before or during encryption, ransomware runs `vssadmin delete shadows` and disables recovery, so local restore fails and the pressure to pay rises. This is why `M1053` **Data Backup** must be *offline* — online backups get deleted too. It pairs with [[L3|t1486]]."
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "pipelines": [
+    {
+      "id": "chain",
+      "title": "A ransomware intrusion, tactic by tactic",
+      "level": 2,
+      "steps": [
+        {
+          "tag": "TA0001",
+          "label": "Phish the user",
+          "node": "initial-access",
+          "text": "A spearphishing email delivers a macro document; the user opens it."
+        },
+        {
+          "tag": "TA0002",
+          "label": "Run the loader",
+          "node": "execution",
+          "text": "The macro launches hidden, encoded PowerShell that pulls down a loader."
+        },
+        {
+          "tag": "TA0003",
+          "label": "Set a task",
+          "node": "persistence",
+          "text": "A scheduled task re-launches the loader after reboot."
+        },
+        {
+          "tag": "TA0004",
+          "label": "Elevate",
+          "node": "privilege-escalation",
+          "text": "A UAC bypass gets the loader to high integrity."
+        },
+        {
+          "tag": "TA0006",
+          "label": "Dump creds",
+          "node": "credential-access",
+          "text": "LSASS memory is read to harvest admin credentials."
+        },
+        {
+          "tag": "TA0007",
+          "label": "Look around",
+          "node": "discovery",
+          "text": "The host, domain and reachable shares are enumerated."
+        },
+        {
+          "tag": "TA0008",
+          "label": "Spread",
+          "node": "lateral-movement",
+          "text": "RDP and SMB carry the attacker to file servers with the stolen creds."
+        },
+        {
+          "tag": "TA0009",
+          "label": "Stage data",
+          "node": "collection",
+          "text": "Sensitive files are archived into a password-protected RAR."
+        },
+        {
+          "tag": "TA0010",
+          "label": "Exfiltrate",
+          "node": "exfiltration",
+          "text": "The archive leaves over the existing HTTPS C2 channel."
+        },
+        {
+          "tag": "TA0040",
+          "label": "Encrypt",
+          "node": "impact",
+          "text": "Shadow copies are deleted, files are encrypted and a ransom note is left."
+        }
+      ],
+      "rule": "Each step relies on the one before it, so defence is cheapest upstream: breaking the phish, the credential dump or the lateral movement stops everything downstream, including the encryption."
+    },
+    {
+      "id": "defend-flow",
+      "title": "From a technique to a defence",
+      "at": "credential-access",
+      "steps": [
+        {
+          "label": "Pick the technique",
+          "text": "Start from the ATT&CK ID you care about, e.g. `T1003.001`."
+        },
+        {
+          "label": "Read its data sources",
+          "text": "The technique page lists what telemetry reveals it — here, LSASS handle access."
+        },
+        {
+          "label": "Deploy the mitigation",
+          "text": "Apply the listed `M-id`s, such as Credential Guard, and turn on the logging."
+        },
+        {
+          "label": "Validate with a layer",
+          "text": "Mark the cell covered in a ((Navigator)) layer and test it with an atomic red-team run."
+        }
+      ],
+      "rule": "ATT&CK turns a technique page into a work item: data source to collect, mitigation to apply, detection to prove."
+    },
+    {
+      "id": "espionage-chain",
+      "title": "A quiet espionage intrusion, tactic by tactic",
+      "level": 2,
+      "steps": [
+        {
+          "tag": "TA0043",
+          "label": "Research",
+          "node": "reconnaissance",
+          "text": "The target's staff and internet-facing assets are mapped."
+        },
+        {
+          "tag": "TA0001",
+          "label": "Exploit a service",
+          "node": "initial-access",
+          "text": "An unpatched public-facing application is exploited instead of phishing."
+        },
+        {
+          "tag": "TA0002",
+          "label": "Run a loader",
+          "node": "execution",
+          "text": "A living-off-the-land script stages a lightweight implant."
+        },
+        {
+          "tag": "TA0005",
+          "label": "Hide",
+          "node": "defense-evasion",
+          "text": "The implant is obfuscated and signed to evade endpoint tools."
+        },
+        {
+          "tag": "TA0006",
+          "label": "Steal creds",
+          "node": "credential-access",
+          "text": "Browser and keychain secrets are harvested quietly."
+        },
+        {
+          "tag": "TA0007",
+          "label": "Map the network",
+          "node": "discovery",
+          "text": "Remote systems and high-value shares are enumerated."
+        },
+        {
+          "tag": "TA0008",
+          "label": "Move",
+          "node": "lateral-movement",
+          "text": "Valid accounts carry the implant to the hosts holding the target data."
+        },
+        {
+          "tag": "TA0009",
+          "label": "Collect",
+          "node": "collection",
+          "text": "Documents and mailboxes are archived."
+        },
+        {
+          "tag": "TA0010",
+          "label": "Exfiltrate to cloud",
+          "node": "exfiltration",
+          "text": "The archive is uploaded to a trusted cloud service and nothing is destroyed."
+        }
+      ],
+      "rule": "Espionage stops short of Impact on purpose: the goal is to take data and stay unseen, so the loudest tactic is never used and detection must come from the quiet, earlier steps."
+    }
+  ],
+  "relations": [
+    {
+      "from": "initial-access",
+      "to": "execution",
+      "label": "delivers code to",
+      "text": "The phishing lure's whole purpose is to get the first code running."
+    },
+    {
+      "from": "execution",
+      "to": "persistence",
+      "label": "installs",
+      "text": "The code that runs first usually plants the mechanism that brings it back."
+    },
+    {
+      "from": "credential-access",
+      "to": "lateral-movement",
+      "label": "enables",
+      "text": "Stolen credentials are what let the attacker log in to other hosts as a legitimate user."
+    },
+    {
+      "from": "discovery",
+      "to": "lateral-movement",
+      "label": "targets",
+      "text": "Discovery tells the attacker which hosts and shares are worth moving to."
+    },
+    {
+      "from": "collection",
+      "to": "exfiltration",
+      "label": "feeds",
+      "text": "Collection stages the archive that exfiltration then steals out."
+    },
+    {
+      "from": "command-and-control",
+      "to": "exfiltration",
+      "label": "carries",
+      "text": "Exfil over C2 reuses the control channel, so one link does both jobs."
+    },
+    {
+      "from": "lateral-movement",
+      "to": "impact",
+      "label": "spreads to",
+      "text": "Reaching more hosts is what lets ransomware encrypt at scale."
+    },
+    {
+      "from": "defense-evasion",
+      "to": "credential-access",
+      "label": "hides",
+      "text": "Obfuscation and tool-tampering keep the credential theft from being seen."
+    },
+    {
+      "from": "resource-development",
+      "to": "command-and-control",
+      "label": "stands up",
+      "text": "The domains and servers acquired beforehand become the C2 infrastructure."
+    }
+  ],
+  "glossary": [
+    {
+      "term": "matrix",
+      "meaning": "The grid view of ATT&CK: tactics as columns, techniques as the cells beneath them. One per domain — Enterprise, Mobile, ICS."
+    },
+    {
+      "term": "tactic",
+      "meaning": "An attacker's goal, the *why* of a behaviour — e.g. Persistence (TA0003). The columns of the matrix."
+    },
+    {
+      "term": "technique",
+      "meaning": "A way an attacker achieves a tactic, the *how*, with a stable ID such as T1566. A cell in the matrix."
+    },
+    {
+      "term": "sub-technique",
+      "meaning": "A more specific description of a technique, numbered with a suffix — T1566.001 Spearphishing Attachment under T1566 Phishing."
+    },
+    {
+      "term": "procedure",
+      "meaning": "A specific, observed implementation of a technique by a particular group or piece of software — the real-world evidence behind the cell."
+    },
+    {
+      "term": "mitigation",
+      "meaning": "A configuration, tool or process that prevents or reduces a technique, identified by an M-id such as M1017 User Training."
+    },
+    {
+      "term": "data source",
+      "meaning": "A category of telemetry (Process, Network Traffic, Logon Session) that can reveal a technique; its components say exactly what to collect."
+    },
+    {
+      "term": "group",
+      "meaning": "A tracked set of intrusion activity attributed to an adversary, with a G-id such as G0016 (APT29). Groups link to the techniques and software they use."
+    },
+    {
+      "term": "software",
+      "meaning": "Malware or a tool used in intrusions, with an S-id; ATT&CK maps each to the techniques it implements."
+    },
+    {
+      "term": "command and control",
+      "meaning": "Abbreviated C2: the channel an attacker uses to issue commands to compromised systems and receive results."
+    },
+    {
+      "term": "Navigator",
+      "meaning": "The ATT&CK Navigator, a web tool for annotating the matrix with coloured, scored layers saved as JSON and shared freely."
+    },
+    {
+      "term": "CTI",
+      "meaning": "Cyber Threat Intelligence: reporting on adversaries. ATT&CK is the common vocabulary CTI uses to tag what a group did."
+    },
+    {
+      "term": "TTP",
+      "meaning": "Tactics, Techniques and Procedures: the standard phrase for adversary behaviour that ATT&CK organises and names."
+    },
+    {
+      "term": "kill chain",
+      "meaning": "A model of an intrusion as ordered stages; ATT&CK's tactics are a finer-grained, non-linear relative of the Lockheed Martin Cyber Kill Chain."
+    },
+    {
+      "term": "detection",
+      "meaning": "A rule or analytic that fires on the telemetry a technique produces; ATT&CK links techniques to the data sources detections should watch."
+    },
+    {
+      "term": "atomic test",
+      "meaning": "A small, safe script that executes a single technique so a team can check whether its detections and mitigations actually fire."
+    },
+    {
+      "term": "STIX",
+      "meaning": "Structured Threat Information Expression: the JSON object model ATT&CK is published in, so tools can consume the whole knowledge base."
+    }
+  ],
+  "footer": "This document is the Zoom Map view explaining the public MITRE ATT&CK framework (attack.mitre.org). IDs and names follow Enterprise ATT&CK; approximate counts are hedged because the framework is versioned and grows. Nothing here is specific to any one organisation."
+}
