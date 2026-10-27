@@ -1443,6 +1443,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     ".nthview-error-panel h2{margin:0 0 .5rem;color:var(--nv-error)}",
     ".nthview-error-panel code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}",
     /* ---- view-specific styles below, every class prefixed nthview- ---- */
+    ".nthview-temple-run .nthview-error-panel li{overflow-wrap:anywhere}",
     ".nthview.nthview-temple-run.nthview-tr-game{max-width:none;margin:0;padding:0;position:relative;width:100%;height:100vh;height:100dvh;min-height:420px;overflow:hidden;",
     "  --display:\"Cinzel\",\"Trajan Pro\",Georgia,serif;--body:\"Atkinson Hyperlegible\",\"Segoe UI\",system-ui,sans-serif;",
     "  --hud-bg:rgba(14,11,7,.58);--hud-ink:#fff6e3;--gold:#ffcf5a;--flame:#ffb02e;",
@@ -1487,6 +1488,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     "@keyframes nthview-flick{0%,100%{opacity:1;transform:none}20%{opacity:.2;transform:scale(.6)}40%{opacity:1;transform:scale(1.25)}60%{opacity:.3}80%{opacity:1}}",
     ".nthview-temple-run .nthview-hstats{display:flex;gap:8px;font-size:.8rem;font-weight:700;white-space:nowrap}",
     ".nthview-temple-run .nthview-hstats b{color:var(--gold)}",
+    "@media (max-width:380px){.nthview-temple-run .nthview-hstats{gap:5px;font-size:.7rem}.nthview-temple-run .nthview-danger span{display:none}.nthview-temple-run .nthview-hright{padding:6px 7px}.nthview-temple-run .nthview-hud{gap:6px;padding:8px 8px 0}}",
     ".nthview-temple-run .nthview-danger{display:flex;align-items:center;gap:6px;margin-top:5px;font-size:.68rem;opacity:.9;white-space:nowrap}",
     ".nthview-temple-run .nthview-danger .nthview-hbar{flex:1;margin:0;height:3px}",
     ".nthview-temple-run .nthview-danger .nthview-hbar i{background:linear-gradient(90deg,#ffb02e,#e5332a);transition:width .4s}",
@@ -1512,6 +1514,10 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     ".nthview-temple-run .nthview-pad{position:absolute;left:0;right:0;bottom:max(14px,env(safe-area-inset-bottom));display:flex;justify-content:center;gap:12px;pointer-events:none}",
     ".nthview-temple-run .nthview-pad button{pointer-events:auto;width:56px;height:56px;border-radius:50%;background:rgba(14,11,7,.32);border:1.5px solid rgba(255,255,255,.35);color:#fff;display:grid;place-items:center;touch-action:none;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}",
     ".nthview-temple-run .nthview-pad button:active{background:rgba(255,207,90,.4)}",
+    ".nthview-temple-run .nthview-grade{position:absolute;inset:0;pointer-events:none;z-index:3;background:radial-gradient(ellipse 80% 70% at 50% 42%,transparent 55%,rgba(30,16,0,.38) 100%),linear-gradient(180deg,rgba(255,196,110,.16),transparent 38%,transparent 70%,rgba(40,24,6,.22))}",
+    ".nthview-temple-run.nthview-theme-haunted .nthview-grade{background:radial-gradient(ellipse 80% 70% at 50% 42%,transparent 50%,rgba(0,4,24,.5) 100%),linear-gradient(180deg,rgba(90,140,255,.14),transparent 40%,transparent 70%,rgba(0,8,30,.3))}",
+    ".nthview-temple-run.nthview-theme-sand .nthview-grade{background:radial-gradient(ellipse 80% 70% at 50% 42%,transparent 55%,rgba(60,24,0,.36) 100%),linear-gradient(180deg,rgba(255,170,80,.2),transparent 40%,transparent 70%,rgba(70,30,0,.2))}",
+    ".nthview-temple-run.nthview-theme-ice .nthview-grade{background:radial-gradient(ellipse 80% 70% at 50% 42%,transparent 55%,rgba(10,30,50,.32) 100%),linear-gradient(180deg,rgba(190,230,255,.18),transparent 40%,transparent 70%,rgba(20,40,60,.18))}",
     ".nthview-temple-run .nthview-vignette{position:absolute;inset:0;pointer-events:none;z-index:4;opacity:0;background:radial-gradient(ellipse at center,transparent 52%,rgba(210,30,10,.7) 100%)}",
     ".nthview-temple-run .nthview-vignette.nthview-hit{animation:nthview-hit .7s ease-out}",
     "@keyframes nthview-hit{0%{opacity:0}15%{opacity:1}100%{opacity:0}}",
@@ -1895,11 +1901,11 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
   };
   /* side scenery kits per stretch scenery, with weights */
   var KITS = {
-    causeway: [["trees", 4], ["void", 3], ["pillars", 2], ["statues", 1]],
+    causeway: [["trees", 3], ["wall", 3], ["pillars", 3], ["void", 1], ["statues", 1]],
     canopy: [["trees", 7], ["wall", 1], ["void", 1]],
     ruins: [["pillars", 4], ["statues", 3], ["wall", 2], ["trees", 1]],
     cliffs: [["cliff", 6], ["void", 2], ["trees", 1]],
-    waterfall: [["waterfall", 4], ["cliff", 2], ["trees", 2]],
+    waterfall: [["waterfall", 5], ["cliff", 2], ["trees", 2]],
     bridges: [["void", 5], ["trees", 2], ["pillars", 1]],
     tunnel: [["wall", 7], ["statues", 2]],
     courtyard: [["obelisks", 4], ["statues", 3], ["pillars", 2]]
@@ -1914,8 +1920,8 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     tunnel: { fire: 3, flames: 2, rubble: 2, gap: 1 },
     courtyard: { rubble: 2, flames: 2, fire: 2, trunk: 1 }
   };
-  var HAZARD_P = { none: 0, light: 0.28, normal: 0.46, heavy: 0.64 };
-  var LANE = 1.7, HALF = 2.75, RUN_LEN = root.__trRunLen || 250; /* TEMP DEBUG override */
+  var HAZARD_P = { none: 0, light: 0.32, normal: 0.5, heavy: 0.72 };
+  var LANE = 1.7, HALF = 2.75, RUN_LEN = 90;
 
   function pickW(list, rnd) { var tot = 0, i; for (i = 0; i < list.length; i++) tot += list[i][1]; var r = rnd() * tot; for (i = 0; i < list.length; i++) { r -= list[i][1]; if (r <= 0) return list[i][0]; } return list[0][0]; }
   function pickObj(obj, rnd) { return pickW(Object.keys(obj).map(function (k) { return [k, obj[k]]; }), rnd); }
@@ -1959,8 +1965,8 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     var hMid = el("div", { class: "nthview-hchip nthview-hmid" }, [hName, el("div", { class: "nthview-hbar", "aria-hidden": "true" }, [hFill]), el("div", { class: "nthview-hbar nthview-thin", "aria-hidden": "true" }, [hFill2]),
       el("div", { class: "nthview-danger", "aria-hidden": "true" }, [el("span", { text: chaserName.length > 22 ? "Chasers" : chaserName.charAt(0).toUpperCase() + chaserName.slice(1) }), el("div", { class: "nthview-hbar" }, [dFill])])]);
     var torchRow = el("div", { class: "nthview-torches", role: "img" });
-    var starOut = el("b", { text: "0" }), coinOut = el("b", { text: "0" });
-    var hRight = el("div", { class: "nthview-hchip nthview-hright" }, [torchRow, el("div", { class: "nthview-hstats" }, [el("span", {}, [doc.createTextNode("★ "), starOut]), el("span", {}, [doc.createTextNode("◉ "), coinOut])])]);
+    var starOut = el("b", { text: "0" }), coinOut = el("b", { text: "0" }), capOut = el("b", { text: "0" });
+    var hRight = el("div", { class: "nthview-hchip nthview-hright" }, [torchRow, el("div", { class: "nthview-hstats" }, [el("span", {}, [doc.createTextNode("★ "), starOut]), el("span", {}, [doc.createTextNode("◉ "), coinOut]), el("span", { title: "Times captured", "aria-label": "times captured" }, [doc.createTextNode("✋ "), capOut])])]);
     var KEY = storageKey(data), SAVED = loadState(KEY);
     var hud = el("div", { class: "nthview-hud" }, [el("div", { class: "nthview-hleft" }, [pauseBtn, restartButton(container, data, KEY)]), hMid, hRight]);
     var cKick = el("div", { class: "nthview-ckick" }), cText = el("div", { class: "nthview-ctext" }), cBig = el("div", { class: "nthview-cbig" }), cLanes = el("div", { class: "nthview-lanes" }), cFb = el("div", { class: "nthview-cfb", "aria-live": "polite" });
@@ -1979,11 +1985,12 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     var panel = el("section", { class: "nthview-panel", "aria-label": "Lesson", tabindex: "-1" }, [pbody]);
     [hud, callout, turnHint, toastEl, pad, panel, srLive].forEach(function (n) { col.appendChild(n); });
     var vignette = el("div", { class: "nthview-vignette", "aria-hidden": "true" });
+    var grade = el("div", { class: "nthview-grade", "aria-hidden": "true" });
     var fadeEl = el("div", { class: "nthview-fade", "aria-hidden": "true" });
     var overlay = el("div", { class: "nthview-overlay nthview-hidden" });
     var ocard = el("div", { class: "nthview-card", role: "dialog", "aria-modal": "true" });
     overlay.appendChild(ocard);
-    [canvas, vignette, col, overlay, fadeEl].forEach(function (n) { container.appendChild(n); });
+    [canvas, grade, vignette, col, overlay, fadeEl].forEach(function (n) { container.appendChild(n); });
 
     /* ---------- state & score ---------- */
     var S = {
@@ -1999,7 +2006,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         finale: { m: S.finale.mistakes, done: S.finale.done ? 1 : 0, i: S.finale.i },
         settings: { reduced: settings.reduced, buttons: settings.buttons, sound: settings.sound } };
     }
-    function saveNow() { clearTimeout(saveTimer); saveTimer = 0; if (S.mode !== "intro") saveState(KEY, snapshot()); }
+    function saveNow() { clearTimeout(saveTimer); saveTimer = 0; if (S.mode !== "intro" && canvas.isConnected) saveState(KEY, snapshot()); }
     function persist() { if (!saveTimer) saveTimer = setTimeout(saveNow, 250); }
     function intIn(v, lo, hi) { return typeof v === "number" && v % 1 === 0 && v >= lo && v <= hi; }
     /* apply a saved record field by field; anything that no longer fits the data is ignored */
@@ -2007,6 +2014,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       if (sv.settings && typeof sv.settings === "object") ["reduced", "buttons", "sound"].forEach(function (k2) { if (typeof sv.settings[k2] === "boolean") settings[k2] = sv.settings[k2]; });
       if (Array.isArray(sv.results)) sv.results.forEach(function (r, i) { if (i >= N || !r || typeof r !== "object") return; if (intIn(r.m, 0, 999)) S.results[i].mistakes = r.m; if (r.d === 1 || r.d === 0) S.results[i].done = !!r.d; if (intIn(r.s, 0, 3)) S.results[i].stars = r.s; });
       if (intIn(sv.torches, 0, 9)) S.torches = sv.torches;
+      if (STRICT && S.torches <= 0) S.torches = START_TORCHES;
       if (intIn(sv.coins, 0, 1e7)) S.coins = sv.coins;
       if (intIn(sv.caught, 0, 1e5)) S.caughtCount = sv.caught;
       if (intIn(sv.runSeed, 0, 1e6)) S.runSeed = sv.runSeed;
@@ -2025,7 +2033,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       for (var i = 0; i < n; i++) torchRow.appendChild(el("span", { class: "nthview-torch" + (i < S.torches ? "" : " nthview-out") }));
       torchRow.setAttribute("aria-label", S.torches + " of " + START_TORCHES + " torches");
     }
-    function renderScore() { starOut.textContent = String(totalStars()); coinOut.textContent = String(S.coins); }
+    function renderScore() { starOut.textContent = String(totalStars()); coinOut.textContent = String(S.coins); capOut.textContent = String(S.caughtCount); }
     function renderHud() {
       var k = Math.min(S.k, N - 1);
       hName.textContent = S.mode === "sprint" || S.mode === "finale" || S.mode === "exit" ? data.finale.name : "Stretch " + (k + 1) + " of " + N + " · " + STRETCHES[k].name;
@@ -2088,8 +2096,8 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       camera.updateProjectionMatrix();
     }
     fitCamera();
-    var hemi = new THREE.HemisphereLight(W3.hemiSky, W3.hemiGround, W3.hemiI); scene.add(hemi);
-    var sunLight = new THREE.DirectionalLight(W3.sun, W3.sunI); sunLight.position.set(W3.sunDir[0] * 100, W3.sunDir[1] * 100, W3.sunDir[2] * 100); scene.add(sunLight);
+    var hemi = new THREE.HemisphereLight(W3.hemiSky, W3.hemiGround, W3.hemiI * .72); scene.add(hemi);
+    var sunLight = new THREE.DirectionalLight(W3.sun, W3.sunI * 1.3); sunLight.position.set(W3.sunDir[0] * 100, W3.sunDir[1] * 100, W3.sunDir[2] * 100); scene.add(sunLight);
     var sunDirV = new THREE.Vector3(W3.sunDir[0], W3.sunDir[1], W3.sunDir[2]).normalize();
     var skyMat = new THREE.ShaderMaterial({
       uniforms: { top: { value: new THREE.Color(W3.skyTop) }, hor: { value: new THREE.Color(W3.skyHor) }, bot: { value: new THREE.Color(W3.skyBot) }, sunC: { value: new THREE.Color(W3.sun) }, sunD: { value: sunDirV }, sunS: { value: W3.sunS }, moon: { value: W3.sky === "moon" ? 1 : 0 } },
@@ -2121,7 +2129,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     });
     waterTex.wrapS = waterTex.wrapT = THREE.RepeatWrapping; waterTex.repeat.set(1, 3);
     var matWater = new THREE.MeshBasicMaterial({ map: waterTex, color: W3.water, transparent: true, opacity: .82, depthWrite: false, side: THREE.DoubleSide });
-    var blobTex = canvasTex(64, 64, function (x) { var g = x.createRadialGradient(32, 32, 2, 32, 32, 31); g.addColorStop(0, "rgba(0,0,0,.6)"); g.addColorStop(1, "rgba(0,0,0,0)"); x.fillStyle = g; x.fillRect(0, 0, 64, 64); });
+    var blobTex = canvasTex(64, 64, function (x) { var g = x.createRadialGradient(32, 32, 2, 32, 32, 31); g.addColorStop(0, "rgba(0,0,0,.72)"); g.addColorStop(1, "rgba(0,0,0,0)"); x.fillStyle = g; x.fillRect(0, 0, 64, 64); });
     var matBlob = new THREE.MeshBasicMaterial({ map: blobTex, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
     var softTex = canvasTex(128, 128, function (x) { var g = x.createRadialGradient(64, 64, 4, 64, 64, 63); g.addColorStop(0, "rgba(255,255,255,1)"); g.addColorStop(.4, "rgba(255,255,255,.45)"); g.addColorStop(1, "rgba(255,255,255,0)"); x.fillStyle = g; x.fillRect(0, 0, 128, 128); });
     var glowSpriteMat = new THREE.SpriteMaterial({ map: softTex, color: W3.glow, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: .8 });
@@ -2136,6 +2144,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       taper: new THREE.CylinderGeometry(.62, 1, 1, 7, 1).toNonIndexed(),
       cone5: new THREE.ConeGeometry(1, 1, 5, 1).toNonIndexed(),
       cone7: new THREE.ConeGeometry(1, 1, 7, 1).toNonIndexed(),
+      cone4: new THREE.ConeGeometry(1, 1, 4, 1).toNonIndexed(),
       ico: ni(new THREE.IcosahedronGeometry(1, 0)),
       ico1: ni(new THREE.IcosahedronGeometry(1, 1)),
       dode: ni(new THREE.DodecahedronGeometry(1, 0)),
@@ -2215,6 +2224,13 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         var a = i / 34 * Math.PI * 2 + rr() * .1, d = 330 + rr() * 60, h = 50 + rr() * 90, w = 40 + rr() * 50;
         b.add(themeName === "sand" ? GEO.cone5 : GEO.cone7, Math.cos(a) * d, -40 + h / 2, Math.sin(a) * d, w, h, w * (.7 + rr() * .5), 0, rr() * 3, 0, mix(W3.mountain, W3.skyHor, rr() * .35), .05);
       }
+      /* far temples on the horizon: stepped pyramids in the jungle and desert, spires at night, peaks of ice */
+      for (var z = 0; z < 7; z++) {
+        var za = z / 7 * Math.PI * 2 + .4, zd = 300 + rr() * 30, zx = Math.cos(za) * zd, zz = Math.sin(za) * zd, zc = mix(W3.mountain, W3.skyHor, .25 + rr() * .2), zs = 18 + rr() * 14;
+        if (themeName === "haunted") { b.add(GEO.box, zx, -10 + zs, zz, zs * .5, zs * 2.6, zs * .5, 0, rr(), 0, zc, .03); b.add(GEO.cone4, zx, -10 + zs * 3.1, zz, zs * .45, zs * 1.2, zs * .45, 0, rr(), 0, zc, .03); }
+        else if (themeName === "ice") b.add(GEO.cone5, zx, -40 + zs * 2.4, zz, zs * 1.2, zs * 5, zs * 1.2, 0, rr(), 0, mix(zc, "#ffffff", .3), .04);
+        else for (var st2 = 0; st2 < 5; st2++) b.add(GEO.box, zx, -20 + st2 * zs * .45, zz, zs * (2.6 - st2 * .45), zs * .46, zs * (2.6 - st2 * .45), 0, za, 0, mix(zc, W3.skyHor, st2 * .04), .03);
+      }
       var m = b.mesh(new THREE.MeshBasicMaterial({ vertexColors: true, fog: false })); m.matrixAutoUpdate = true; m.renderOrder = -8; scene.add(m); return m;
     })();
     var mistTex = canvasTex(128, 128, function (x) { var g = x.createRadialGradient(64, 64, 6, 64, 64, 63); g.addColorStop(0, "rgba(255,255,255,.9)"); g.addColorStop(1, "rgba(255,255,255,0)"); x.fillStyle = g; x.fillRect(0, 0, 128, 128); });
@@ -2232,16 +2248,21 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
 
     /* ---------- prefab library ---------- */
     var SIDE_KITS = ["trees", "pillars", "statues", "wall", "cliff", "waterfall", "void", "obelisks"];
-    GEO.cone4 = new THREE.ConeGeometry(1, 1, 4, 1).toNonIndexed();
     /* a flame: a tall soft outer tongue, a bright core and a glow, all additive; pivot at the base */
     var flameGeo = new THREE.ConeGeometry(1, 1, 7, 1, true); flameGeo.translate(0, .5, 0);
     var flameGlowMat = new THREE.SpriteMaterial({ map: softTex, color: W3.fire, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: .55, fog: false });
+    /* fire sprites: a painted flame tongue (outer) and a hot core, both additive, plus a soft glow */
+    var flameTex = canvasTex(64, 128, function (x, w, h) {
+      var g = x.createRadialGradient(w / 2, h * .78, 2, w / 2, h * .62, h * .62); g.addColorStop(0, "rgba(255,255,255,1)"); g.addColorStop(.35, "rgba(255,255,255,.8)"); g.addColorStop(1, "rgba(255,255,255,0)");
+      x.fillStyle = g; x.beginPath(); x.moveTo(w / 2, 2); x.bezierCurveTo(w * .78, h * .3, w * .98, h * .62, w * .8, h * .86); x.quadraticCurveTo(w / 2, h, w * .2, h * .86); x.bezierCurveTo(w * .02, h * .62, w * .22, h * .3, w / 2, 2); x.fill();
+    });
+    var flameOuterMat = new THREE.SpriteMaterial({ map: flameTex, color: W3.fire, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: .95, fog: false });
+    var flameCoreMat = new THREE.SpriteMaterial({ map: flameTex, color: W3.fireCore, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: .9, fog: false });
     function addFlame(group, x, y, z, s, list) {
       var f = new THREE.Group(); f.position.set(x, y, z); f.scale.set(s, s, s);
-      var outer = new THREE.Mesh(flameGeo, matFire); outer.scale.set(.2, 1, .2); f.add(outer);
-      var tip = new THREE.Mesh(flameGeo, matFire); tip.scale.set(.12, 1.35, .12); tip.rotation.y = .5; f.add(tip);
-      var core = new THREE.Mesh(flameGeo, matFireCore); core.scale.set(.11, .55, .11); f.add(core);
-      var glow = new THREE.Sprite(flameGlowMat); glow.scale.set(1.1, 1.1, 1); glow.position.y = .3; f.add(glow);
+      var outer = new THREE.Sprite(flameOuterMat); outer.scale.set(.62, 1.15, 1); outer.position.y = .5; f.add(outer);
+      var core = new THREE.Sprite(flameCoreMat); core.scale.set(.32, .6, 1); core.position.y = .3; f.add(core);
+      var glow = new THREE.Sprite(flameGlowMat); glow.scale.set(1.3, 1.3, 1); glow.position.y = .35; f.add(glow);
       f.userData.base = s; f.userData.ph = (x * 3.1 + z * 1.7) % 6.28; group.add(f); list.push(f); return f;
     }
     function rockAt(b, x, y, z, s, col) { b.add(GEO.dode, x, y, z, s, s * (.6 + b.rnd() * .4), s * (.8 + b.rnd() * .4), b.rnd() * 3, b.rnd() * 3, b.rnd() * 3, col || W3.rock, .14); }
@@ -2255,8 +2276,11 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     function curbs(b, z0, len, sides) {
       for (var z = 0; z < len - .01; z += 2) {
         (sides || [-1, 1]).forEach(function (s) {
-          var c = mix(W3.stone, W3.moss, b.rnd() < .35 ? .45 : .08);
-          b.add(GEO.box, s * (HALF + .23), .02, z0 - z - 1, .48, .52, 1.94, 0, 0, 0, c, .07);
+          var c = mix(W3.stone, W3.moss, b.rnd() < .35 ? .45 : .08), zc = z0 - z - 1, carved = ((z / 2) % 2) === 0;
+          b.add(GEO.box, s * (HALF + .25), .08, zc, .52, .66, 1.94, 0, 0, 0, c, .07);
+          b.add(GEO.box, s * (HALF + .25), .44, zc, .6, .1, 1.98, 0, 0, 0, mix(c, W3.stone, .4), .05);
+          if (carved) { b.add(GEO.box, s * (HALF - .02), .1, zc, .04, .32, 1.2, 0, 0, 0, mix(W3.stone, W3.stoneDark, .45), .04); b.add(GEO.box, s * (HALF - .035), .1, zc, .03, .14, .14, 0, 0, .785, mix(W3.stone, W3.stoneDark, .15), .02); }
+          else b.add(GEO.box, s * (HALF + .53), -.05, zc, .04, .36, 1.3, 0, 0, 0, mix(W3.stone, W3.stoneDark, .4), .04);
           if (b.rnd() < .45) b.add(GEO.box, s * (HALF + .5), -.1 - b.rnd() * .3, z0 - z - .5 - b.rnd(), .07, .5 + b.rnd() * .7, .5 + b.rnd() * .8, 0, 0, 0, W3.moss, .2);
         });
       }
@@ -2318,7 +2342,9 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       var trees = W3.trees;
       switch (kit) {
         case "trees":
-          tree(b, gb, 5.6 + b.rnd(), -2 - b.rnd() * 6, .9 + b.rnd() * .4, trees);
+          var tz = -2 - b.rnd() * 6;
+          tree(b, gb, 5.6 + b.rnd(), tz, .9 + b.rnd() * .4, trees);
+          if (trees !== "pine" && trees !== "palm") for (i = 0; i < 3; i++) b.add(GEO.arch, 4.3, .02, tz + (i - 1) * .9, 1.5 + i * .3, .38, .75, 0, (i - 1) * .35, 0, mix(W3.trunk, "#1a1208", .35), .1);
           tree(b, gb, 9 + b.rnd() * 4, -1 - b.rnd() * 8, 1.1 + b.rnd() * .5, trees);
           if (v) tree(b, gb, 15 + b.rnd() * 5, -b.rnd() * 10, 1.5, trees);
           tree(b, gb, 22 + b.rnd() * 6, -b.rnd() * 10, 1.9, trees);
@@ -2345,7 +2371,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
           break;
         case "wall":
           terrace(b, 0, len, 4.4);
-          var wh = v ? 4.6 : 3.6;
+          var wh = v ? 7.2 : 5.4;
           b.add(GEO.box, 3.75, wh / 2, -5, .7, wh, 10, 0, 0, 0, stoneCol(b, .15), .05);
           for (i = 0; i < 3; i++) { var cz = -1.7 - i * 3.3; b.add(GEO.box, 3.38, wh * .5, cz, .06, wh * .6, 2.4, 0, 0, 0, mix(W3.stone, W3.stoneDark, .45), .05); b.add(GEO.box, 3.34, wh * .55, cz, .06, .5, .5, 0, 0, .785, mix(W3.stone, W3.stoneDark, .2), .04); b.add(GEO.box, 3.34, wh * .32, cz, .06, .16, 1.6, 0, 0, 0, mix(W3.stone, W3.stoneDark, .2), .04); }
           b.add(GEO.box, 3.7, wh + .15, -5, 1.0, .3, 10, 0, 0, 0, stoneCol(b, 0), .05);
@@ -2472,6 +2498,11 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
           var lightPlane = new THREE.Mesh(GEO.plane, new THREE.MeshBasicMaterial({ color: "#fff6d8", transparent: true, opacity: .92, fog: false, depthWrite: false })); lightPlane.scale.set(6.8, 8.8, 1); lightPlane.position.set(0, 4.4, -12.3); g.add(lightPlane);
           var halo = new THREE.Sprite(glowSpriteMat); halo.scale.set(26, 20, 1); halo.position.set(0, 4.6, -12.6); g.add(halo);
           break;
+        case "canopy":
+          [-1, 1].forEach(function (sd) { b.add(GEO.cyl7, sd * 3.2, 7.4, -5 + sd * 2, .28, 8.5, .28, 0, 0, sd * (Math.PI / 2 - .25), W3.trunk, .08); });
+          for (i = 0; i < 9; i++) { var cr = 1.4 + b.rnd() * 1.4; b.add(GEO.ico, (b.rnd() - .5) * 9, 8 + b.rnd() * 1.5, -b.rnd() * 10, cr, cr * .55, cr, b.rnd(), b.rnd(), 0, W3.leaf[i % 4], .14); }
+          for (i = 0; i < 10; i++) { var vl2 = 1.5 + b.rnd() * 2; var vx2 = (b.rnd() - .5) * 8; if (Math.abs(vx2) < 2.2 && vl2 > 2.4) vl2 = 2.4; b.add(GEO.box, vx2, 7.6 - vl2 / 2, -b.rnd() * 10, .06, vl2, .06, 0, 0, 0, mix(W3.moss, W3.trunk, .25), .1); if (b.rnd() < .6) b.add(GEO.ico, vx2, 7.6 - vl2, 0 - b.rnd() * 10, .16, .22, .16, 0, 0, 0, W3.leaf[1], .1); }
+          break;
         case "arch":
           [-1, 1].forEach(function (s) { b.add(GEO.box, s * 3.45, 2.6, -5, .9, 5.2, .9, 0, 0, 0, stoneCol(b, .12), .05); });
           b.add(GEO.box, 0, 5.5, -5, 8, .9, 1.3, 0, 0, 0, stoneCol(b, .05), .05);
@@ -2543,6 +2574,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       if (used.bridges || used.waterfall) names.push("bridge", "rope");
       if (used.cliffs) names.push("ledgeR", "ledgeL");
       if (used.tunnel) names.push("arch");
+      if (used.canopy || used.causeway || used.waterfall) names.push("canopy");
       names.forEach(function (nm) { give(take(nm)); });
     }
 
@@ -2565,7 +2597,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
 
     /* coins: one instanced mesh, recycled slots */
     var COIN_CAP = 220;
-    var coinMat = new THREE.MeshLambertMaterial({ color: "#ffc93a", emissive: "#6a3e00" });
+    var coinMat = new THREE.MeshPhongMaterial({ color: "#ffc02a", emissive: "#4a2a00", specular: "#fff4c0", shininess: 70 });
     var coinGeo = new THREE.CylinderGeometry(.3, .3, .07, 14); coinGeo.rotateX(Math.PI / 2);
     var coinMesh = new THREE.InstancedMesh(coinGeo, coinMat, COIN_CAP); coinMesh.frustumCulled = false; scene.add(coinMesh);
     var coins = [], coinFree = [], _cm = new THREE.Matrix4(), _cq = new THREE.Quaternion(), _cs = new THREE.Vector3(1, 1, 1), _cp = new THREE.Vector3(), _zero = new THREE.Matrix4().makeScale(0, 0, 0), _yAxis = new THREE.Vector3(0, 1, 0);
@@ -2604,6 +2636,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     function sides(t, st) {
       [-1, 1].forEach(function (sd) { var kit = pickW(KITS[st.scenery], gen.rnd); addPart(t, "side:" + kit + ":" + (gen.rnd() < .5 ? 0 : 1) + ":" + sd); });
       if (st.scenery === "tunnel") addPart(t, "arch");
+      else if (W3.trees !== "dead" && (st.scenery === "canopy" || ((st.scenery === "causeway" || st.scenery === "waterfall") && gen.rnd() < .4))) addPart(t, "canopy");
     }
     function emitStraight(st, allowHazard) {
       var r = gen.rnd, sc = st.scenery, piece = "straight" + Math.floor(r() * 3), hz = null;
@@ -2654,7 +2687,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
           t = newTile("start", 22); addPart(t, "start"); addPart(t, "straight0", 0, -12); [-1, 1].forEach(function (sd) { addPart(t, "side:" + pickW(KITS[st.scenery], gen.rnd) + ":0:" + sd, 0, -12); }); advance(22); gen.phase = gen.k >= N ? "sprint" : "run"; gen.inStretch = 0; break;
         case "run":
           if (gen.runLeft <= 0) { emitStraight(st, false); gen.phase = st.track ? "trial" : "site"; gen.trialLeft = st.track ? trialLength(st) / 10 : 0; gen.trialD0 = gen.d; break; }
-          if (gen.sinceCorner >= 3 && gen.inStretch > 1 && gen.runLeft > 25 && (gen.sinceCorner >= 9 || gen.rnd() < .2)) { emitCorner(); gen.runLeft -= 6; break; }
+          if (gen.sinceCorner >= 3 && gen.inStretch > 1 && gen.runLeft > 20 && (gen.sinceCorner >= 7 || gen.rnd() < .28)) { emitCorner(); gen.runLeft -= 6; break; }
           emitStraight(st, true); gen.runLeft -= 10; break;
         case "trial":
           t = newTile("trial", 10, true); addPart(t, st.type === "planks" ? "rope" : "trial"); if (st.type !== "planks") sides(t, st); advance(10);
@@ -2677,7 +2710,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
           t = newTile("straight", 10); addPart(t, "straight0"); [-1, 1].forEach(function (sd) { addPart(t, "side:void:" + (gen.d % 20 < 10 ? 0 : 1) + ":" + sd); }); advance(10); break;
       }
     }
-    function horizon() { return (S.mode === "sprint" || S.mode === "finale") && !S.finale.done ? 90 : 190; }
+    function horizon() { return (S.mode === "sprint" || S.mode === "finale") && !S.finale.done ? 55 : 190; }
     function updateWorld() {
       var guard = 0;
       while (gen.d < R.d + horizon() && guard++ < 6) emitNext();
@@ -2955,7 +2988,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
           break;
         case "plank":
           P.mat = new THREE.MeshLambertMaterial({ color: mix(W3.trunk, "#e0b070", .45), emissive: W3.glow, emissiveIntensity: .25 });
-          P.core = mesh(g, GEO.box, P.mat, 0, -.06, 0, 5.3, .14, .8); bw = 4.6; bh = 1.25; by = 2.5;
+          P.core = mesh(g, GEO.box, P.mat, 0, -.06, 0, 5.3, .14, .8); bw = 3.7; bh = 1.0; by = 3.0;
           break;
         case "token":
           P.mat = new THREE.MeshLambertMaterial({ color: "#ffd25a", emissive: "#8a5200", emissiveIntensity: .7 });
@@ -2971,7 +3004,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
           break;
         case "orb":
           P.mat = new THREE.MeshBasicMaterial({ color: W3.glow });
-          P.core = mesh(g, GEO.ico1, P.mat, 0, 2.6, 0, .36, .36, .36); var hs = new THREE.Sprite(glowSpriteMat); hs.scale.set(1.8, 1.8, 1); P.core.add(hs); hs.scale.set(5, 5, 1); bw = 2.0; by = 3.5;
+          P.core = mesh(g, GEO.ico1, P.mat, 0, 2.6, 0, .36, .36, .36); var hs = new THREE.Sprite(glowSpriteMat); P.core.add(hs); hs.scale.set(2.4, 2.4, 1); bw = 2.0; by = 3.5;
           break;
       }
       if (!b.empty()) g.add(b.mesh());
@@ -2983,12 +3016,12 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     function setPropState(P, state) {
       P.state = state; P.fx = 1;
       var c = state === "ok" ? "#5ee08f" : state === "no" ? "#ff5a4a" : state === "reveal" ? "#5ee08f" : state === "dim" ? "#555555" : W3.glow;
-      if (P.kind === "rune" || P.kind === "plank" || P.kind === "tile" || P.kind === "token") { P.mat.emissive.set(c); P.mat.emissiveIntensity = state === "dim" ? .05 : .8; }
+      if (P.kind === "rune" || P.kind === "plank" || P.kind === "tile" || P.kind === "token") { P.mat.emissive.set(c); P.mat.emissiveIntensity = state === "dim" ? .05 : P.kind === "plank" ? .45 : .8; }
       if (P.kind === "gateway" || P.kind === "orb") { P.mat.color.set(c); if (P.kind === "gateway") P.mat.opacity = state === "dim" ? .08 : .5; }
       if (P.kind === "lever") { P.mat.emissive.set(state === "ok" || state === "reveal" ? "#2a8a4a" : state === "no" ? "#8a1a10" : "#3a2400"); }
       if (P.kind === "brazier") { P.mat.color.set(c); P.mat.opacity = state === "idle" ? 0 : .9; }
     }
-    function propAt(P, d, lat, y) { var p = {}; var L = pathPos(d, lat, p); place(P.g, p.x, p.z, L.h, y || 0); }
+    function propAt(P, d, lat, y) { var p = {}; var L = pathPos(d, lat, p); place(P.g, p.x, p.z, L.h, y || 0); P.d = d; P.board.visible = true; }
 
     /* sparkles for successes: a few pooled additive sprites */
     var sparks = [];
@@ -3000,15 +3033,16 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     var runner = buildRunner();
     var R = { d: 11, lat: 0, lane: 0, y: 0, vy: 0, slide: 0, stumbleT: 0, speed: 0, yaw: 0, ph: 0, snapX: 0, snapZ: 0, blocked: null, startD: 11, airborne: false };
     var chasers = [buildChaser(chaserKind), buildChaser(chaserKind), buildChaser(chaserKind)];
-    var CH_LAT = [-1.0, .55, 1.35], CH_OFF = [0, 1.3, .7];
-    var CH = { gap: 12, ph: 0, pounce: 0 };
+    chasers.forEach(function (J, i) { var sc = chaserKind === "yeti" ? .62 + i * .04 : chaserKind === "ghost" ? .58 + i * .04 : .86 + i * .05; J.g.scale.setScalar(sc); J.shadow.scale.multiplyScalar(sc); });
+    var CH_LAT = [-.85, .35, 1.05], CH_OFF = [0, .9, .45];
+    var CH = { gap: 9, ph: 0, pounce: 0 };
     var _rp = { x: 0, z: 0 }, _cp2 = { x: 0, z: 0 };
     function chaserTarget() {
-      var g = 12 - 2.6 * S.stumbles - (STRICT ? (START_TORCHES - S.torches) * 1.0 : 0);
-      if (S.mode === "stop" || S.mode === "lesson" || S.mode === "solved") g = Math.min(g, 7.5);
-      return Math.max(3.4, Math.min(12, g));
+      var g = 3.0 - .4 * S.stumbles - (STRICT ? (START_TORCHES - S.torches) * .15 : 0);
+      if (S.mode === "stop" || S.mode === "lesson" || S.mode === "solved") g = 2.6;
+      return Math.max(1.9, Math.min(3.1, g));
     }
-    function lunge(by) { CH.gap = Math.max(2.8, CH.gap - by); }
+    function lunge(by) { CH.gap = Math.max(1.2, CH.gap - by * .15); }
 
     function laneIndex() { return Math.max(-1, Math.min(1, Math.round(R.lat / LANE))); }
     function isRunning() { return (S.mode === "run" || S.mode === "sprint" || S.mode === "exit") && !S.paused; }
@@ -3032,8 +3066,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       if (R.stumbleT > 0) return;
       R.stumbleT = .62; R.speed *= .5; S.stumbles++; lunge(9); hitFlash(); if (!settings.reduced) shake = .35; sfx("stumble");
       say(hero + " stumbled on " + reason + ".");
-      if (STRICT && S.stumbles >= 3) { toast("Caught!", 1200); caught("You stumbled three times on this stretch."); return; }
-      if (!STRICT && S.stumbles >= 3) { toast(chaserName.charAt(0).toUpperCase() + chaserName.slice(1) + " grab at " + hero + ", who breaks free!", 1800); S.stumbles = 1; return; }
+      if (S.stumbles >= 3) { caught("Three stumbles let them catch up."); return; }
       toast("Stumbled on " + reason + "!", 1100);
     }
     function checkHazards(prevD) {
@@ -3268,7 +3301,6 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         ctx.wrongs++;
         if (k >= 0) { S.results[k].mistakes += cost; S.results[k].notes.push(plain(msg)); loseTorch(cost); } else S.finale.mistakes += cost;
         reactWrong(); sfx("no");
-        if (S.mode === "caught") return;
         fb.className = "nthview-fb nthview-no"; fb.textContent = ""; fb.appendChild(rich(msg));
         if (!STRICT || final) {
           var rv = reveal ? reveal() : null;
@@ -3720,10 +3752,10 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     function loseTorch(n) {
       if (n <= 0) return; S.torches = Math.max(0, S.torches - n); renderTorches(); persist();
       var t = torchRow.children[Math.min(torchRow.children.length - 1, S.torches)]; if (t) { t.classList.remove("nthview-flicker"); void t.offsetWidth; t.classList.add("nthview-flicker"); }
-      if (STRICT && S.torches <= 0) caught("You ran out of torches.");
+      if (STRICT && S.torches <= 0) caught("The last torch went out.");
     }
     function reactWrong() { var e = liveEnc[S.k]; if (e && S.mode !== "sprint") e.hit(); lunge(2.6); hitFlash(); if (!settings.reduced) shake = .26; sfx("roar"); }
-    function reactRight() { CH.gap = Math.min(13, CH.gap + 2.5); sfx("ok"); R.boost = 1.2; }
+    function reactRight() { CH.gap = Math.min(3.6, CH.gap + .8); sfx("ok"); R.boost = 1.2; }
 
     function introCard() {
       openOverlay("intro"); ocard.textContent = "";
@@ -3731,7 +3763,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       data.intro.paragraphs.forEach(function (t) { ocard.appendChild(p("nthview-big", t)); });
       if (data.intro.steps && data.intro.steps.length) { ocard.appendChild(p("", "**How it works**")); ocard.appendChild(el("ol", {}, data.intro.steps.map(function (s) { var li = el("li"); li.appendChild(rich(s)); return li; }))); }
       ocard.appendChild(p("nthview-small", "Keys: ← → change lane and take corners, ↑ or Space jumps, ↓ slides, P pauses. On a phone, swipe, or use the arrow buttons."));
-      ocard.appendChild(p("nthview-small", STRICT ? "Quiz mode: a wrong answer costs a torch and the answer stays hidden until you find it. Lose every torch and " + chaserName + " catch you; the stretch starts again." : "Learning mode: a wrong answer shows the right one and costs a star, never the run."));
+      ocard.appendChild(p("nthview-small", STRICT ? "Quiz mode: a wrong answer costs a torch and the answer stays hidden until you find it. If " + chaserName + " catch you, the capture is counted and you resume." : "Learning mode: a wrong answer shows the right one and costs a star, never the run. If " + chaserName + " catch you, the capture is counted and you resume."));
       if (data.intro.note) ocard.appendChild(p("nthview-small", data.intro.note));
       var go = primaryBtn("Start", function () { closeOverlay(); sfx("open"); showLesson(0); });
       ocard.appendChild(el("div", { class: "nthview-actions" }, [go, keyHint("Enter"), restartButton(container, data, KEY)]));
@@ -3822,7 +3854,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     function solve(k) {
       var r = S.results[k]; r.done = true; r.stars = starsFor(r.mistakes); renderScore(); persist();
       var e = liveEnc[k]; if (e) e.clear();
-      closePanel(); S.mode = "solved"; sfx("grind"); CH.gap = 12;
+      closePanel(); S.mode = "solved"; sfx("grind"); CH.gap = 9;
       var st = STRETCHES[k]; say(ENCOUNTER_INFO[st.encounter].ok);
       showCallout(ENCOUNTER_INFO[st.encounter].name, ENCOUNTER_INFO[st.encounter].ok, starsText(r.stars));
       setTimeout(function () { hideCallout(); showSolved(k); }, settings.reduced ? 500 : 1700);
@@ -3885,8 +3917,9 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       ocard.appendChild(el("div", { class: "nthview-scorecard" }, [
         el("div", {}, [doc.createTextNode("★ Stars"), el("b", { text: st + " / " + max })]),
         el("div", {}, [doc.createTextNode("First try"), el("b", { text: firstTry + " / " + N })]),
-        el("div", {}, [doc.createTextNode("◉ Coins"), el("b", { text: String(S.coins) })])
-      ].concat(STRICT ? [el("div", {}, [doc.createTextNode("Torches left"), el("b", { text: S.torches + " / " + START_TORCHES })]), el("div", {}, [doc.createTextNode("Times caught"), el("b", { text: String(S.caughtCount) })])] : [])));
+        el("div", {}, [doc.createTextNode("◉ Coins"), el("b", { text: String(S.coins) })]),
+        el("div", {}, [doc.createTextNode("✋ Captured"), el("b", { text: String(S.caughtCount) })])
+      ].concat(STRICT ? [el("div", {}, [doc.createTextNode("Torches left"), el("b", { text: S.torches + " / " + START_TORCHES })])] : [])));
       ocard.appendChild(p("nthview-big", st === max ? (tiers.perfect || "Every answer right first time.") : st >= max * .8 ? (tiers.great || "A great run.") : (tiers.pass || "You made it out! Run it again to earn more stars.")));
       ocard.appendChild(p("", "**What you learned**"));
       ocard.appendChild(el("ol", {}, r.lessons.map(function (l) { var li = el("li"); li.appendChild(rich(l)); return li; })));
@@ -3910,22 +3943,39 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       ocard.appendChild(el("div", { class: "nthview-actions" }, [again]));
       setTimeout(function () { again.focus({ preventScroll: true }); }, 60);
     }
+    /* being caught never blocks: the capture plays, a card counts it, and Resume continues from just before */
+    var capture = null;
     function caught(reason) {
       if (S.mode === "caught") return;
-      S.mode = "caught"; S.caughtCount++; CH.pounce = 1; closePanel(); hideCallout(); updatePad(); sfx("roar"); hitFlash();
-      var k = Math.min(S.k, N - 1);
+      capture = { mode: S.mode, panel: panelOpen(), compact: panel.classList.contains("nthview-compact"), callout: !callout.classList.contains("nthview-off"), d: R.d };
+      S.mode = "caught"; S.caughtCount++; renderScore(); CH.pounce = 1; R.speed = 0; panel.classList.remove("nthview-open"); viewShiftT = 0; hideCallout(); updatePad(); sfx("roar"); hitFlash(); if (!settings.reduced) shake = .4;
+      saveNow();
       setTimeout(function () {
         openOverlay("caught"); ocard.textContent = "";
-        ocard.appendChild(el("h1", { text: "Caught!" }));
-        ocard.appendChild(p("nthview-big", chaserName.charAt(0).toUpperCase() + chaserName.slice(1) + " caught " + hero + " on stretch " + (k + 1) + ", " + STRETCHES[k].name + ". " + reason));
-        var notes = S.results[k].notes.filter(function (n, i, a) { return a.indexOf(n) === i; }).slice(-6);
-        if (TR && TR.notes) TR.notes.forEach(function (n) { if (notes.indexOf(n) === -1) notes.push(n); });
-        if (notes.length) { ocard.appendChild(p("", "**What to look at again**")); ocard.appendChild(el("ul", {}, notes.map(function (n) { var li = el("li"); li.appendChild(rich(n)); return li; }))); }
-        ocard.appendChild(p("nthview-small", "Your torches are restored. Read the lesson again, then run the stretch."));
-        var go = primaryBtn("Read the lesson and run again", function () { closeOverlay(); restartStretch(k); });
-        ocard.appendChild(el("div", { class: "nthview-actions" }, [go]));
+        ocard.appendChild(el("h1", { text: "Captured" }));
+        ocard.appendChild(p("nthview-big", chaserName.charAt(0).toUpperCase() + chaserName.slice(1) + " caught " + hero + ". " + reason));
+        ocard.appendChild(el("p", { class: "nthview-readout", text: "Captured " + S.caughtCount + (S.caughtCount === 1 ? " time" : " times") + " so far" }));
+        ocard.appendChild(p("nthview-small", hero + " wriggles free and runs on from just before the spot" + (STRICT && S.torches <= 0 ? ", with the torches lit again" : "") + ". Nothing you answered is lost."));
+        var go = primaryBtn("Resume", resumeCapture);
+        ocard.appendChild(el("div", { class: "nthview-actions" }, [go, keyHint("Enter"), restartButton(container, data, KEY)]));
+        ocard.lastChild.lastChild.style.marginLeft = "auto";
         setTimeout(function () { go.focus({ preventScroll: true }); }, 60);
-      }, settings.reduced ? 250 : 1100);
+      }, settings.reduced ? 250 : 1200);
+    }
+    function resumeCapture() {
+      if (!capture) return; var c = capture; capture = null;
+      closeOverlay(); CH.pounce = 0; CH.gap = 9; S.stumbles = 0; R.stumbleT = 0;
+      if (STRICT && S.torches <= 0) { S.torches = START_TORCHES; renderTorches(); }
+      S.mode = c.mode;
+      if (c.mode === "run" || c.mode === "sprint") {
+        var site = sites[S.k];
+        R.d = Math.max(R.startD, c.d - 6, site && site.trialD0 !== null && TR && TR.k === site.k ? site.trialD0 : -1e9);
+        R.speed = 0; R.y = 0; R.vy = 0; R.slide = 0; R.lane = laneIndex(); hazards.forEach(function (h) { if (h.d >= R.d - .5 && h.d <= c.d + 1) h.done = true; });
+        if (c.callout) callout.classList.remove("nthview-off");
+        if (S.mode === "sprint" && !S.finale.done && !panelOpen()) finaleQ(S.finale.i);
+      }
+      if (c.panel) { panel.classList.toggle("nthview-compact", c.compact); panel.classList.add("nthview-open"); viewShiftT = c.compact ? .12 : .22; }
+      updatePad(); persist(); if (!panelOpen()) canvas.focus({ preventScroll: true });
     }
     function restartStretch(k) {
       fade(true);
@@ -3933,7 +3983,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         closePanel(); hideCallout(); clearWorld(); TR = null; S.paused = false;
         newGen(k, true);
         R.d = 11; R.lat = 0; R.lane = 0; R.y = 0; R.vy = 0; R.slide = 0; R.stumbleT = 0; R.speed = 0; R.snapX = R.snapZ = 0; R.blocked = null; R.yaw = 0;
-        S.stumbles = 0; if (STRICT) S.torches = START_TORCHES; renderTorches(); CH.gap = 12; CH.pounce = 0; S.finale.done = false; S.finale.i = 0;
+        S.stumbles = 0; if (STRICT) S.torches = START_TORCHES; renderTorches(); CH.gap = 9; CH.pounce = 0; S.finale.done = false; S.finale.i = 0;
         S.results[k].notes = []; S.results[k].done = false;
         updateWorld(); snapCamera(); fade(false); showLesson(k);
       }, 380);
@@ -3972,7 +4022,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       setTimeout(function () { resumeB.focus({ preventScroll: true }); }, 60);
     }
     function resume() {
-      if (!S.paused) return; S.paused = false; closeOverlay(); last = 0; updatePad();
+      if (!S.paused) return; S.paused = false; closeOverlay(); last = 0; updatePad(); schedule();
       if (S.pendingQ !== undefined && S.pendingQ !== null) { var q = S.pendingQ; S.pendingQ = null; finaleQ(q); }
       if (!panelOpen()) canvas.focus({ preventScroll: true });
     }
@@ -3988,12 +4038,12 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     function pulled() { return S.mode === "lesson" || S.mode === "stop" || S.mode === "solved" || S.mode === "finale" || S.mode === "caught" || S.mode === "intro"; }
     /* the camera rides the path itself a few metres behind the runner, so it follows corners and never ends up behind a wall */
     function camTargets(out, look) {
-      var pb = pulled(), dist = pb ? 8.4 : 6.3, hgt = pb ? 4.1 : 3.15, la = pb ? 13 : 9;
+      var pb = pulled(), dist = pb ? 7.4 : 5.4, hgt = pb ? 3.6 : 2.85, la = pb ? 12 : 8;
       pathPos(R.d - dist, R.lat * .45, _cp2);
       out.set(_cp2.x, hgt + R.y * .35, _cp2.z);
       pathPos(R.d, R.lat * .6, _rp);
       var fx = -Math.sin(camYaw), fz = -Math.cos(camYaw);
-      look.set(_rp.x + R.snapX + fx * la, pb ? 1.6 : 1.15 + R.y * .3, _rp.z + R.snapZ + fz * la);
+      look.set(_rp.x + R.snapX + fx * la, pb ? 1.5 : 1.05 + R.y * .3, _rp.z + R.snapZ + fz * la);
     }
     var _ct = new THREE.Vector3(), _lt = new THREE.Vector3();
     function snapCamera() { camYaw = headingYaw(legAt(R.d + 3).h); R.yaw = camYaw; camTargets(camPos, camLookS); camera.position.copy(camPos); camera.lookAt(camLookS); }
@@ -4058,15 +4108,15 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       poseRunner(dt, t);
       /* ---- chasers ---- */
       if (CH.pounce > 0) CH.gap += (0.4 - CH.gap) * (1 - Math.exp(-dt * 6));
-      else CH.gap += (chaserTarget() - CH.gap) * (1 - Math.exp(-dt * .32));
+      else CH.gap += (chaserTarget() - CH.gap) * (1 - Math.exp(-dt * (CH.gap > 3.2 ? .9 : .35)));
       var chSpeed = S.mode === "run" || S.mode === "sprint" || S.mode === "exit" ? R.speed : 0;
       CH.ph += dt * (3 + chSpeed * .62);
-      dFill.style.width = Math.max(0, Math.min(100, (12 - CH.gap) / 9.5 * 100)) + "%";
+      dFill.style.width = Math.max(0, Math.min(100, (3.4 - CH.gap) / 2.2 * 100)) + "%";
       for (var i = 0; i < chasers.length; i++) {
-        var J = chasers[i], cd = R.d - CH.gap - CH_OFF[i] + (CH.pounce > 0 ? CH_OFF[i] * .8 : 0), cl = CH_LAT[i] + Math.sin(t * .8 + i * 2) * .25;
+        var J = chasers[i], cd = R.d - CH.gap - CH_OFF[i] + (CH.pounce > 0 ? CH_OFF[i] * .8 : 0), cl = (CH.pounce > 0 ? R.lat * .6 + CH_LAT[i] * .4 : CH_LAT[i] + Math.sin(t * .8 + i * 2) * .25);
         var cleg = pathPos(cd, cl, _cp2), cy = headingYaw(cleg.h);
         J.yaw = J.yaw === undefined ? cy : J.yaw + angDiff(cy, J.yaw) * (1 - Math.exp(-dt * 8));
-        J.g.position.set(_cp2.x, 0, _cp2.z); J.g.rotation.y = J.yaw; J.g.visible = cd > (legs[0].d0 + .5) && S.mode !== "report";
+        J.g.position.set(_cp2.x, 0, _cp2.z); J.g.rotation.y = J.yaw; J.g.visible = cd > (legs[0].d0 + .5) && S.mode !== "report" && CH.gap + CH_OFF[i] < 4.2;
         J.shadow.position.set(_cp2.x, .03, _cp2.z); J.shadow.visible = J.g.visible;
         animChaser(J, CH.ph + i * 1.9, chSpeed, t + i);
       }
@@ -4075,6 +4125,8 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       for (var ti = 0; ti < tiles.length; ti++) { var tp = tiles[ti].parts; for (var pi = 0; pi < tp.length; pi++) { var fl = tp[pi].userData.flames; if (fl && fl.length) for (var fi = 0; fi < fl.length; fi++) fl[fi].scale.y = fl[fi].userData.base * (.82 + Math.sin(t * 12 + fl[fi].userData.ph) * .14 + Math.sin(t * 31 + fi) * .05); } }
       for (var q = 0; q < trialProps.length; q++) {
         var P = trialProps[q]; if (!P.g.visible) continue;
+        if (P.board.visible && P.d !== undefined && P.d < R.d + 2.2) P.board.visible = false;
+        if ((P.kind === "token" || P.kind === "orb") && P.d !== undefined && P.d < R.d - .4) { P.g.visible = false; continue; }
         if (P.kind === "rune" || P.kind === "orb") P.core.rotation.y = t * 1.6; if (P.kind === "rune") P.core.position.y = 1.5 + Math.sin(t * 2.5 + q) * .12;
         if (P.kind === "token") P.core.rotation.z = t * 3;
         if (P.kind === "brazier" && P.core.visible) { var bf = P.flames[0]; bf.scale.y = bf.userData.base * (.85 + Math.sin(t * 13 + q) * .15); }
@@ -4109,7 +4161,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       var kp = 1 - Math.exp(-dt * (pulled() ? 2.6 : 7));
       camPos.lerp(_ct, kp); camLookS.lerp(_lt, 1 - Math.exp(-dt * 8));
       camera.position.copy(camPos);
-      if (!settings.reduced && (S.mode === "run" || S.mode === "sprint") && R.y === 0 && R.speed > 1) camera.position.y += Math.sin(R.ph * 2) * .035;
+      if (!settings.reduced && (S.mode === "run" || S.mode === "sprint") && R.y === 0 && R.speed > 1) { camera.position.y += Math.abs(Math.sin(R.ph)) * .07 - .035; camera.position.x += Math.sin(R.ph) * .025; }
       if (shake > 0) { shake = Math.max(0, shake - dt); if (!settings.reduced) { camera.position.x += (Math.random() - .5) * shake * .5; camera.position.y += (Math.random() - .5) * shake * .4; } }
       camera.lookAt(camLookS);
       if (!settings.reduced) camera.rotateZ(Math.max(-.12, Math.min(.12, dy * .22)) + (R.lane * LANE - R.lat) * -.012);
@@ -4186,6 +4238,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     canvas.addEventListener("pointercancel", function () { sw = null; });
     doc.addEventListener("visibilitychange", onVisibility);
     root.addEventListener("pagehide", saveNow);
+    canvas.addEventListener("webglcontextlost", function (e) { e.preventDefault(); saveNow(); toast("The graphics were reset by the browser. Reload the page to continue; your progress is saved.", 8000); });
     function onResize() { renderer.setSize(VW(), VH(), false); fitCamera(); }
     var ro = root.ResizeObserver ? new root.ResizeObserver(onResize) : null;
     if (ro) ro.observe(container); else root.addEventListener("resize", onResize);
@@ -4210,7 +4263,6 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     }
     renderer.render(scene, camera);
     schedule();
-    root.__trDebug = function () { return { R: R, mode: S.mode, k: S.k, stumbles: S.stumbles, gen: { d: gen.d, k: gen.k, phase: gen.phase, h: gen.h }, legs: legs.map(function (l) { return [l.d0, l.h, Math.round(l.x0), Math.round(l.z0)]; }), corners: corners.map(function (c) { return [c.d, c.dir, c.done, c.queued]; }), sites: Object.keys(sites).map(function (k2) { return [k2, sites[k2].stopD, sites[k2].trialD0]; }), cam: camera.position.toArray().map(Math.round), hz: hazards.filter(function (h) { return !h.done; }).slice(0, 3).map(function (h) { return [h.d, h.kind, h.lanes || null]; }), calls: renderer.info.render.calls, tris: renderer.info.render.triangles, geos: renderer.info.memory.geometries, tr: TR ? { type: TR.type, next: TR.next, rows: TR.rows.slice(TR.next, TR.next + 1).map(function (r) { return { d: r.d, plank: r.plank ? r.plank.answer : null, items: r.items.map(function (x) { return [x.lane, x.kind, x.ok === undefined ? null : x.ok, x.want === undefined ? null : x.want, x.belongs === undefined ? null : x.belongs]; }) }; }) } : null, tiles: tiles.map(function (t) { return t.kind + "@" + t.d0; }).join(" ") }; }; /* TEMP DEBUG */
     if (doc.fonts && doc.fonts.ready) doc.fonts.ready.then(function () { trialProps.forEach(function (P) { if (P.label) P.board.userData.draw(P.label); }); });
   }
 

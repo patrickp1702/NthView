@@ -108,10 +108,14 @@ Minimal guidance only; each view's `SKILL.md` has the detail.
 | An overview before diving in, or a recap after | Concept Map | Explorable Lab |
 | A big system or codebase to understand top down, down to its files | Zoom Map | Concept Map |
 | Roles and parts that can be personified; relaxed, exploratory learning | Courier | Island Quest |
+| Fast-paced recall, a lesson that should feel like a game run, phones | Temple Run | Island Quest |
 
 Skill names: `nthview-concept-map`, `nthview-explorable`,
 `nthview-scenario-quiz`, `nthview-detective`, `nthview-island-quest`,
-`nthview-zoom-map`, `nthview-courier`.
+`nthview-zoom-map`, `nthview-courier`, `nthview-temple-run`.
+
+Views that have a `strictMode` (Temple Run) keep it off by default; turn it
+on only when the user says quiz, test, exam, evaluate or grade.
 
 ### Shaping a lesson
 - 3–10 chapters, each with one learning objective and one view.
@@ -133,4 +137,4 @@ Skill names: `nthview-concept-map`, `nthview-explorable`,
 
 ## Files
 - `references/lesson-format.md` — the `lesson.json` format, folder layout and build commands
-- `../nthview-concept-map/SKILL.md`, `../nthview-explorable/SKILL.md`, `../nthview-scenario-quiz/SKILL.md`, `../nthview-detective/SKILL.md`, `../nthview-island-quest/SKILL.md`, `../nthview-zoom-map/SKILL.md`, `../nthview-courier/SKILL.md` — the view skills this one hands off to
+- `../nthview-concept-map/SKILL.md`, `../nthview-explorable/SKILL.md`, `../nthview-scenario-quiz/SKILL.md`, `../nthview-detective/SKILL.md`, `../nthview-island-quest/SKILL.md`, `../nthview-zoom-map/SKILL.md`, `../nthview-courier/SKILL.md`, `../nthview-temple-run/SKILL.md` — the view skills this one hands off to
