@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "title": "Krishnamurti or Osho?",
+  "subtitle": "Ten questions, two teachers: how each would answer, and why they differ",
+  "theme": "paper",
+  "scenario": {
+    "heading": "The scenario",
+    "setting": [
+      "Dev runs a small Sunday reading circle in a café. This term the group is reading **J. Krishnamurti** and **Osho** side by side, and the regulars keep bringing real questions from their own lives: about meditation, gurus, fear, pleasure, anger and religion.",
+      "The two teachers often sound alike: both distrusted organized religion, both talked about awareness, both said freedom had to be found, not given. Then they disagree completely about how. Dev's job is to answer each question the way the right teacher actually would, and not blur the two together."
+    ],
+    "role": {
+      "title": "You are Dev, the circle's host",
+      "description": "Each question tells you which teacher's answer is wanted. The wrong options often include the other teacher's answer, so read carefully."
+    },
+    "goal": "Tell Krishnamurti's teaching and Osho's teaching apart, and see where they genuinely overlap."
+  },
+  "questions": [
+    {
+      "id": "technique",
+      "situation": "Priya, a newcomer, asks: \"Which meditation technique should I practise every morning?\"",
+      "prompt": "How would Krishnamurti answer?",
+      "options": [
+        { "text": "Try Dynamic Meditation: breathe, let go, jump, be still, then dance.", "trap": true, "tempting": "Both teachers are known for talking about meditation, and this is a famous technique.", "why": "That is Osho's answer. Krishnamurti would refuse to prescribe any technique at all." },
+        { "text": "None: any method becomes another conditioning. Meditation is total attention, and attention can't be practised like a drill.", "correct": true, "why": "Krishnamurti held that truth is a pathless land, so a technique is just another path. What he called meditation was watching without a meditator trying to get somewhere." },
+        { "text": "Choiceless awareness, practised step by step, twenty minutes a day.", "tempting": "Choiceless awareness really is his phrase.", "why": "Close, but he insisted it was not a method you practise. Turning it into a routine would make it exactly the kind of conditioning he warned against." },
+        { "text": "Repeat a mantra until the mind goes quiet.", "tempting": "It is one of the oldest meditation methods in India.", "why": "Krishnamurti criticised mantra repetition as dulling the mind rather than freeing it." }
+      ],
+      "takeaway": "Krishnamurti offered no technique; Osho offered many."
+    },
+    {
+      "id": "guru",
+      "situation": "Ravi asks: \"Do I need a teacher to make real progress?\"",
+      "prompt": "How would Osho answer?",
+      "options": [
+        { "text": "No teacher can help you; be a light to yourself and accept no authority, including mine.", "trap": true, "tempting": "Both teachers attacked religious authority, so this can sound like either.", "why": "That is Krishnamurti's position. Osho, by contrast, initiated disciples and taught that the bond with a living master can help." },
+        { "text": "A living master can be a doorway: Osho initiated disciples into neo-sannyas from 1970 and worked with them directly.", "correct": true, "why": "Osho embraced the master–disciple relationship. His sannyasins stayed in ordinary life, but the relationship with the master was central to the movement." },
+        { "text": "Scriptures are enough; a teacher is unnecessary.", "tempting": "Many traditions rely on texts more than on living teachers.", "why": "Osho was sharply critical of scripture-based religion; for him a living presence mattered more than texts." },
+        { "text": "Teachers are only for beginners; drop them as soon as possible.", "tempting": "It sounds like a sensible middle way.", "why": "Osho didn't frame the master as training wheels. The relationship was the heart of his movement." }
+      ],
+      "takeaway": "On gurus the two are opposites: Krishnamurti refused the role; Osho took it on."
+    },
+    {
+      "id": "fear",
+      "situation": "Leela says she wakes at night afraid of losing her job and everything that depends on it.",
+      "prompt": "How would Krishnamurti answer?",
+      "options": [
+        { "text": "Look at the fear directly, without running from it: it is bound up with thought and time, with the known coming to an end.", "correct": true, "why": "\"One is never afraid of the unknown; one is afraid of the known coming to an end.\" (Berkeley, 1969). He asked people to observe fear fully instead of escaping into distractions, beliefs or plans." },
+        { "text": "Build courage with daily discipline until fear has no hold.", "trap": true, "tempting": "It's what most self-help advice says, and discipline does build confidence.", "why": "For Krishnamurti, cultivating courage is another project in psychological time: \"I'll be brave later.\" It leaves the fear itself unexamined." },
+        { "text": "Replace the fearful thought with a comforting belief.", "tempting": "Comforting beliefs really do ease anxiety.", "why": "Krishnamurti saw beliefs as an escape that fear produces, not a cure for it." },
+        { "text": "Ignore it until it passes.", "tempting": "Not feeding a worry can sometimes help.", "why": "Ignoring is avoiding. His whole approach was full attention to what is actually there." }
+      ],
+      "takeaway": "Krishnamurti: don't escape fear; watch it, and see how thought and time make it."
+    },
+    {
+      "id": "pleasure",
+      "situation": "Arjun feels guilty that he loves good food, music and parties while trying to live a spiritual life.",
+      "prompt": "How would Osho answer?",
+      "options": [
+        { "text": "Give them up: pleasure distracts from the spiritual path.", "trap": true, "tempting": "That's what renunciate traditions have taught for centuries.", "why": "Osho rejected renunciation. His ideal, Zorba the Buddha, enjoys life fully and is inwardly still." },
+        { "text": "Enjoy them fully and with awareness: Zorba and the Buddha belong in one person.", "correct": true, "why": "For Osho, celebration was part of the spiritual life. The aim isn't to drop pleasure but to bring awareness into it." },
+        { "text": "Enjoy them, but treat spirituality as a separate hobby.", "tempting": "Keeping things in separate boxes avoids the guilt.", "why": "Osho's point is that the two aren't separate. Meditation and celebration were meant to happen in the same life." },
+        { "text": "Pleasure doesn't matter either way.", "tempting": "Indifference can sound wise.", "why": "Osho cared a great deal about joy and celebration; indifference is not his message." }
+      ],
+      "takeaway": "Osho: enjoy life fully, with awareness, instead of renouncing it."
+    },
+    {
+      "id": "anger",
+      "situation": "Sam admits he loses his temper with his kids and then hates himself for it.",
+      "prompt": "How would Krishnamurti answer?",
+      "options": [
+        { "text": "Let the anger out safely in a cathartic meditation, then witness what remains.", "trap": true, "tempting": "It's a well-known, practical approach, and it does come from a teacher you are reading.", "why": "That is Osho's answer: catharsis first, then witnessing. Krishnamurti offered no technique." },
+        { "text": "Watch the anger without a separate \"me\" trying to control it: the observer is the observed, and when the split ends so does the inner war.", "correct": true, "why": "For Krishnamurti the \"I\" that hates the anger is made of the same thought as the anger. Seeing this ends the conflict of controlling and condemning, and the anger can be understood." },
+        { "text": "Suppress it and practise patience.", "tempting": "Patience is a virtue in every tradition.", "why": "Suppression keeps the split between \"me\" and \"my anger\" that Krishnamurti said was the root of the conflict." },
+        { "text": "Find the childhood cause and fix it.", "tempting": "Understanding causes sounds thorough.", "why": "Analysis over time is another form of becoming. Krishnamurti asked for seeing now, not gradual repair." }
+      ],
+      "takeaway": "Same anger, two answers: Osho releases and witnesses; Krishnamurti sees that the watcher is the watched."
+    },
+    {
+      "id": "belief",
+      "situation": "Meera asks: \"Should I keep believing what my religion taught me?\"",
+      "prompt": "Which answer would BOTH teachers broadly accept?",
+      "options": [
+        { "text": "Belief handed down to you gets in the way; you have to find out for yourself.", "correct": true, "why": "This is real common ground. Krishnamurti: truth is a pathless land that no religion or sect can lead you to. Osho: \"If you believe in any religion you cannot meditate.\"" },
+        { "text": "Drop your religion and adopt the teacher's ideas instead.", "trap": true, "tempting": "Switching from an old belief to a new one feels like progress.", "why": "Both warned against belief as such, including belief in themselves. Krishnamurti dissolved his own Order to avoid becoming an authority." },
+        { "text": "Keep the rituals; they carry inherited wisdom.", "tempting": "Respect for tradition is a real value.", "why": "Both were openly critical of organized religion and inherited ritual, Osho loudly and Krishnamurti relentlessly." },
+        { "text": "Mix the best parts of every religion into your own system.", "tempting": "It sounds open-minded.", "why": "A self-built system is still a structure of belief. Both wanted direct seeing, not a better collection of beliefs." }
+      ],
+      "takeaway": "Where they agree: inherited belief is an obstacle, and truth has to be discovered, not adopted."
+    },
+    {
+      "id": "gradual",
+      "situation": "Kabir says: \"If I work on myself every day, in ten years I'll be free.\"",
+      "prompt": "How would Krishnamurti respond?",
+      "options": [
+        { "text": "Steady practice is exactly right; freedom is earned over time.", "trap": true, "tempting": "It's how we learn almost everything else, from music to coding.", "why": "Krishnamurti called this psychological time: postponing change into an imagined future. Skills take time; seeing does not." },
+        { "text": "\"The first step is the last step\": the change happens in seeing, now, not by climbing towards it.", "correct": true, "why": "He said this in his talks in India (published 1971). Becoming free gradually would mean staying unfree in the meantime; for him real transformation is immediate or not at all." },
+        { "text": "Ten years is too short; it takes lifetimes.", "tempting": "Some traditions do measure the path in lifetimes.", "why": "That stretches psychological time even further. Krishnamurti rejected the whole idea of a path over time." },
+        { "text": "It depends on finding the right method.", "tempting": "A better method sounds like a faster route.", "why": "No method, for Krishnamurti, because any method becomes another conditioning." }
+      ],
+      "takeaway": "Krishnamurti: freedom isn't reached through time; the first step is the last step."
+    },
+    {
+      "id": "movements",
+      "situation": "A newcomer assumes both men founded big spiritual organisations full of followers.",
+      "prompt": "Which description is accurate?",
+      "options": [
+        { "text": "Krishnamurti dissolved the Order of the Star built around him (1929) and refused followers; Osho initiated neo-sannyasins and his movement built communes in Pune and Oregon.", "correct": true, "why": "Foundations and schools such as Rishi Valley and Brockwood Park carry Krishnamurti's work, but he refused disciples. Osho's movement was built around him as master." },
+        { "text": "Both founded movements of followers in much the same way.", "trap": true, "tempting": "Both are famous, both have foundations, and both still have dedicated readers.", "why": "Their stance on followers was opposite. Krishnamurti's defining act was dismantling the organisation that made him a leader." },
+        { "text": "Krishnamurti founded a large order; Osho refused any organisation.", "tempting": "It's an easy mix-up if you know one of them dissolved something.", "why": "It's the other way round: Krishnamurti dissolved an order; Osho built a movement." },
+        { "text": "Neither had any organisation around his work.", "tempting": "Both did reject organized religion.", "why": "Rejecting religion didn't stop organisations forming: Krishnamurti's foundations and schools, and Osho's ashrams and communes." }
+      ],
+      "takeaway": "Krishnamurti walked away from an organisation; Osho built one around himself."
+    },
+    {
+      "id": "world",
+      "situation": "Nisha asks: \"Why should wars and divisions between nations have anything to do with my inner life?\"",
+      "prompt": "How would Krishnamurti answer?",
+      "options": [
+        { "text": "\"The world is me and I am the world\": the divisions out there come from the divisions in each of us.", "correct": true, "why": "He said it in a 1979 seminar at Brockwood Park. And: \"When you separate yourself by belief, by nationality, by tradition, it breeds violence.\" (Freedom from the Known, 1969)" },
+        { "text": "They don't: inner life is private and separate from politics.", "trap": true, "tempting": "It's a common way to protect one's peace from the news.", "why": "For Krishnamurti that separation is the problem. Our conditioning as Hindu, Muslim, Indian or American is what the world's conflicts are made of." },
+        { "text": "Fix the world first, and inner peace will follow.", "tempting": "Social change can feel more urgent than introspection.", "why": "He argued the reverse order doesn't work either; the outer reflects the inner, so the change has to happen in the individual." },
+        { "text": "Choose the right nation or ideology and support it.", "tempting": "Taking a side feels responsible.", "why": "Taking sides is exactly the separation by belief and nationality that he said breeds violence." }
+      ],
+      "takeaway": "Krishnamurti: the world's divisions are our own conditioning, writ large."
+    },
+    {
+      "id": "each-other",
+      "situation": "At the end of term someone asks: \"Did these two ever comment on each other?\"",
+      "prompt": "What does the record show?",
+      "options": [
+        { "text": "Osho spoke of Krishnamurti many times, admiring him but saying \"His teachings have all the seeds, but he never prepared the ground.\"", "correct": true, "why": "In Rinzai: Master of the Irrational (ch. 5) Osho said that \"whatever he was saying was absolutely right\", but that without methods people couldn't put it into practice. We found no reliable record of Krishnamurti commenting on Osho in return." },
+        { "text": "Osho dismissed Krishnamurti as a fraud.", "trap": true, "tempting": "Osho did mock many religious figures, often sharply.", "why": "Not Krishnamurti. His criticism was about method, not sincerity; he praised Krishnamurti as right in what he said." },
+        { "text": "Osho said Krishnamurti was his own master.", "tempting": "Osho clearly respected him, and reportedly encouraged followers to attend his talks.", "why": "He admired him but never claimed him as his teacher; Osho said he became enlightened himself in 1953." },
+        { "text": "They wrote a book of dialogues together.", "tempting": "Krishnamurti did hold famous book-length dialogues with someone.", "why": "Those were with the physicist David Bohm, not with Osho." }
+      ],
+      "takeaway": "Osho admired Krishnamurti's insight but thought people needed methods first; that is the whole difference in one sentence."
+    }
+  ],
+  "summary": {
+    "heading": "What you've learned",
+    "closing": [
+      "Krishnamurti and Osho agree that inherited belief and authority stand in the way, that awareness without judgement matters most, and that freedom has to be discovered by each person. Many of their sentences could be swapped without anyone noticing.",
+      "They disagree about nearly everything practical. Krishnamurti: no method, no guru, no followers, no time; just seeing, now. Osho: a master, a movement and many methods, beginning with the body and its tensions, in a life that celebrates the world. Osho put it himself: Krishnamurti's teachings had all the seeds, but he never prepared the ground."
+    ]
+  }
+}

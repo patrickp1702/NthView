@@ -1,0 +1,314 @@
+{
+  "schemaVersion": 1,
+  "title": "The Night-Shift Anomaly",
+  "subtitle": "At 02:10 a water plant's chemical dosing jumped to four times normal. Sensor fault, human error or intrusion? Investigate the safe way.",
+  "caseNumber": "RW-0210",
+  "theme": "noir",
+  "briefing": {
+    "heading": "Case briefing",
+    "paragraphs": [
+      "**Riverbend Water** is a fictional municipal water treatment plant. At 02:10 last night the setpoint for one of its treatment chemicals jumped, in three quick steps, to four times its normal value. The night operator, Tom Silva, saw the alarm at 02:13, put the value back and switched dosing to local manual control at 02:14. The safety system never tripped, water quality stayed normal and no one was harmed.",
+      "By morning everyone has a theory: a faulty sensor, a tired operator, an infected workstation, a foreign hacking campaign. IT wants to wipe the operator workstation and cut the plant off the network. The plant manager wants the operator disciplined. The regulator will want a report.",
+      "In a plant, a good investigation must not create a second incident. Your job is to find out what actually changed the setpoint, using evidence that can be gathered without stopping the water."
+    ],
+    "question": "What changed Riverbend's dosing setpoint at 02:10?",
+    "stakes": "Search the plant's records, pin what you find, rule theories out with evidence, then name the cause."
+  },
+  "detective": {
+    "title": "You are Asha Nair, Riverbend Water's OT security lead",
+    "description": "OT means operational technology: the controllers, screens and networks that run the physical plant. You don't need to know how any attack works. You need to know how to investigate a plant without putting it at risk."
+  },
+  "cast": [
+    { "id": "tom", "name": "Tom Silva", "role": "Night-shift operator", "kind": "witness", "bio": "Twelve years on night shift. Caught the alarm, reversed the change and put dosing on manual within four minutes.", "portrait": { "skin": "tan", "hair": "short", "hairColor": "black", "outfit": "uniform", "accessory": "cap", "expression": "worried" } },
+    { "id": "helen", "name": "Helen Marsh", "role": "Plant manager", "kind": "witness", "bio": "Took Tom's call at 02:16. Under pressure from the council to explain by noon.", "portrait": { "skin": "fair", "hair": "bob", "hairColor": "grey", "outfit": "suit", "accessory": "glasses", "expression": "stern" } },
+    { "id": "raj", "name": "Raj Patel", "role": "Instrument technician", "kind": "witness", "bio": "Calibrates every analyser in the plant. Has seen sensors do strange things at night.", "portrait": { "skin": "brown", "hair": "short", "hairColor": "black", "outfit": "shirt", "facialHair": "moustache", "expression": "neutral" } },
+    { "id": "ben", "name": "Ben Cole", "role": "IT security analyst", "kind": "witness", "bio": "Handles incidents on the office network. His instinct: isolate, wipe, rebuild.", "portrait": { "skin": "porcelain", "hair": "buzz", "hairColor": "auburn", "outfit": "hoodie", "outfitColor": "#2563eb", "accessory": "headset", "expression": "worried" } },
+    { "id": "kim", "name": "Kim Lee", "role": "Communications and regulator liaison", "kind": "witness", "bio": "Writes the utility's public statements and its reports to the regulator. Reads every threat newsletter.", "portrait": { "skin": "olive", "hair": "long", "hairColor": "black", "outfit": "cardigan", "accessory": "earrings", "expression": "worried" } },
+    { "id": "priya", "name": "Priya Raman", "role": "OT engineer", "kind": "expert", "bio": "Designed the plant's network zones and runs its remote-access gateway. First question, always: is the process safe?", "portrait": { "skin": "deep", "hair": "bun", "hairColor": "black", "outfit": "labcoat", "accessory": "glasses", "expression": "smile" } }
+  ],
+  "hypotheses": [
+    { "id": "sensor-drift", "title": "A faulty sensor", "holder": "raj",
+      "statement": "An analyser drifted overnight and the control loop chased the bad reading. Nothing was actually changed by anyone.",
+      "tempting": "Sensors really do drift and fail, often at night when nobody is watching, and Raj fixed exactly that kind of fault last March.",
+      "why": "The setpoint itself changed, in three clean steps, which drift cannot do. The two independent analysers agreed all night, and Tom's grab sample matched them." },
+    { "id": "operator-error", "title": "The night operator slipped", "holder": "helen", "popular": true,
+      "statement": "Tom was tired at two in the morning and mistyped the setpoint on the console, then corrected it.",
+      "tempting": "Human error is behind many plant incidents, and Tom was the only person on site and the one who touched the setpoint at 02:14.",
+      "why": "Tom was out on rounds when the setpoint changed, the console was locked with no input until 02:13, and the network monitor shows the writes came from the remote-access jump host, not the console." },
+    { "id": "hmi-malware", "title": "Malware on the operator workstation", "holder": "ben", "popular": true,
+      "statement": "The operator workstation is infected and sent the commands. Wipe it now and pull the plant off the network.",
+      "tempting": "In office IT an infected machine is the usual culprit, and the operator workstation is the computer that normally talks to the controllers.",
+      "why": "The workstation sent no commands at 02:10–02:12, and a forensic image, taken without rebooting, found no malware. Wiping it first would have destroyed the very evidence that cleared it." },
+    { "id": "nation-state", "title": "A sophisticated nation-state attack", "holder": "kim",
+      "statement": "This is the campaign from the headline: custom malware broke into our control system, and it could have gone after the safety system too.",
+      "tempting": "Water utilities really are targeted, the headline was on everyone's phone, and a chemical change at 2 a.m. feels exactly like what such a campaign would do.",
+      "why": "No malware was found, the independent safety system was untouched, and the session came in through an ordinary vendor login with a valid password. Who was behind it may never be known, and the response didn't need to know." },
+    { "id": "vendor-path", "title": "A session through vendor remote access", "holder": "priya", "correct": true,
+      "statement": "The changes came in through the contractor's remote-access path: a session on the shared contractor account at 01:52, password only, with no maintenance ticket.",
+      "why": "The network monitor shows the writes came from the remote-access jump host, during a contractor session that opened at 01:52 with only a password and matched no ticket. The account is shared by six people without MFA. Whether it was a mistaken legitimate session or a stolen password is still under investigation; the actionable finding is the access path." }
+  ],
+  "clues": [
+    { "id": "step-changes", "title": "Three clean steps, not a creep", "kind": "record",
+      "text": "Historian trend, 02:10 to 02:12: the dosing setpoint rose in three clean steps to four times its normal value, and the pump followed each step.",
+      "proves": "Something deliberately wrote new setpoint values; this was not a sensor slowly creeping.",
+      "why": "In a control system a reading can drift, but a setpoint changes only when someone or something writes a new value. The shape of a trend separates a fault from an action.",
+      "rulesOut": [
+        { "hypothesis": "sensor-drift", "because": "Drift is slow and changes readings, not setpoints. Three clean steps in two minutes to the setpoint itself is an action." }
+      ],
+      "supports": ["operator-error", "vendor-path"] },
+    { "id": "redundant-sensors", "title": "Both analysers agreed", "kind": "record",
+      "text": "Analyser A and the independent Analyser B agreed within 1% all night, and Tom's 02:20 grab sample matched both.",
+      "proves": "The instruments were reading true.",
+      "why": "Redundant instruments and a manual lab sample are how plants tell a bad sensor from a real change in the process.",
+      "rulesOut": [
+        { "hypothesis": "sensor-drift", "because": "A drifting analyser would disagree with its independent twin and with the lab sample. All three agreed." }
+      ] },
+    { "id": "hmi-idle", "title": "Console locked until 02:13", "kind": "record",
+      "text": "Operator console audit trail: screen locked from 01:30 to 02:13, no keyboard or mouse input until Tom unlocked it at 02:13.",
+      "proves": "Nobody typed the changes at the operator console.",
+      "why": "Plant workstations keep audit trails of who did what and when. Reading them before blaming a person is basic fairness and basic investigation.",
+      "rulesOut": [
+        { "hypothesis": "operator-error", "because": "The console was locked with no input from 01:30 until 02:13, after all three changes, so they were not typed there." }
+      ] },
+    { "id": "tom-on-rounds", "title": "Tom was out on rounds", "kind": "record",
+      "text": "CCTV: Tom leaves the control room for his rounds at 01:40 and comes back to the console at 02:13.",
+      "proves": "Tom was away from the console while the setpoint changed.",
+      "why": "Independent records such as cameras and door logs protect staff from easy blame and keep the investigation pointed at the facts.",
+      "rulesOut": [
+        { "hypothesis": "operator-error", "because": "Tom was out on rounds from 01:40 to 02:13, so he could not have typed changes at 02:10 to 02:12." }
+      ] },
+    { "id": "manual-control", "title": "Safe within four minutes", "kind": "testimony",
+      "text": "Tom: at 02:14 he restored the setpoint and switched dosing to local manual at the pump skid. 02:16 called the manager; 02:20 lab grab sample normal.",
+      "proves": "The process was put in a known safe state within four minutes and the plant kept running.",
+      "why": "In OT the first priority is safe operation: put the process in a known safe state, often with local manual control that no network command can override, and only then investigate.",
+      "rulesOut": [
+        { "hypothesis": "sensor-drift", "because": "Under manual control the pump delivered exactly what Tom set and the sample matched the analysers, so the instruments and pump behaved normally." }
+      ] },
+    { "id": "ot-monitor", "title": "Writes came from the jump host", "kind": "record",
+      "text": "Passive OT network monitor: the setpoint writes at 02:10, 02:11 and 02:12 came from the remote-access jump host. The operator console sent none.",
+      "proves": "The changes arrived over the network through the remote-access path.",
+      "why": "Passive monitoring only listens to plant traffic, so it is safe on fragile control networks, and it records which machine told a controller to do what.",
+      "rulesOut": [
+        { "hypothesis": "operator-error", "because": "The writes came from the jump host, not from the console Tom uses." },
+        { "hypothesis": "hmi-malware", "because": "The operator workstation sent no commands at all between 02:10 and 02:12; they came from the jump host." }
+      ],
+      "supports": ["vendor-path"] },
+    { "id": "gateway-log", "title": "01:52: password-only login", "kind": "document",
+      "text": "Remote-access gateway: login on the account 'riverbend-contractor' at 01:52 with a password only, no second factor; session closed 02:15.",
+      "proves": "Someone used the shared contractor account to reach the plant during the changes.",
+      "why": "Remote access is the doorway between outside and the plant. With a password-only login, anyone who knows the password can walk through, which is why secure remote access is one of SANS's five critical ICS controls.",
+      "rulesOut": [
+        { "hypothesis": "nation-state", "because": "No custom tooling was needed: the session came in through the normal vendor login with a valid password." }
+      ],
+      "supports": ["vendor-path"] },
+    { "id": "no-ticket", "title": "No ticket for 01:52", "kind": "record",
+      "text": "Every other contractor session this week matches an approved maintenance ticket. The 01:52 session matches none.",
+      "proves": "The session was not planned maintenance.",
+      "why": "Requiring a ticket for every vendor session, and checking sessions against tickets, is how unplanned access gets spotted quickly.",
+      "supports": ["vendor-path"] },
+    { "id": "shared-account", "title": "Six people, one password", "kind": "document",
+      "text": "Account roster: 'riverbend-contractor' is shared by six technicians at Aquaflow Services; password last changed 26 months ago; MFA not enabled.",
+      "proves": "The account can't say which person logged in, and its password could be known to many people.",
+      "why": "Named accounts and multi-factor authentication make every session traceable and far harder to misuse. A shared account turns 'who did this?' into guesswork.",
+      "supports": ["vendor-path"] },
+    { "id": "vendor-call", "title": "Aquaflow: nobody scheduled", "kind": "testimony",
+      "text": "Aquaflow's service manager: nobody was scheduled to work on Riverbend last night, and they are checking who knew the password. Mistake or stolen password: still open.",
+      "proves": "Planned work is ruled out; who was behind the session, and why, is still under investigation.",
+      "why": "Good investigations separate what is established (the access path) from what isn't yet (who and why), and act on the first without waiting for the second.",
+      "supports": ["vendor-path"] },
+    { "id": "clean-image", "title": "Workstation image: clean", "kind": "document",
+      "text": "Forensic summary: memory captured live first, then the disk imaged without rebooting. No malware, unknown programs or new scheduled tasks on the operator workstation.",
+      "proves": "The operator workstation was not infected.",
+      "why": "Capture the most volatile evidence first (memory before disk, as RFC 3227 describes) and image before you wipe. Wiping first would have destroyed the evidence that cleared this machine.",
+      "rulesOut": [
+        { "hypothesis": "hmi-malware", "because": "A full memory capture and disk image found no malware or unknown programs on the workstation." },
+        { "hypothesis": "nation-state", "because": "No custom malware was found on the plant workstation that talks to the controllers." }
+      ] },
+    { "id": "sis-normal", "title": "Safety system untouched", "kind": "record",
+      "text": "Safety instrumented system log: no trips, no configuration changes and no logins all night. Its independent high limit was never reached.",
+      "proves": "The plant's independent safety layer was untouched and never needed.",
+      "why": "A safety instrumented system is a separate layer that shuts the process down if limits are crossed. Attacks on safety systems are rare but real (the 2017 TRITON case targeted one), so checking it is part of any OT investigation.",
+      "rulesOut": [
+        { "hypothesis": "nation-state", "because": "The theory said a sophisticated attack could have gone after the safety system. Its log shows no changes and no logins all night." }
+      ] },
+    { "id": "session-overlap", "title": "All three steps in one session", "kind": "record",
+      "text": "Rebuilt in order: the contractor session opened at 01:52, all three setpoint steps happened inside it, and it closed a minute after Tom took manual control.",
+      "proves": "The changes happened entirely within the contractor's remote session.",
+      "why": "Lining up logs from different systems on one timeline is often what turns several weak hints into one clear finding.",
+      "supports": ["vendor-path"] },
+    { "id": "path-closed", "title": "Close one door, keep the plant", "kind": "test",
+      "text": "What Priya did at 02:40: close the remote gateway and disable the contractor account, keep the plant connected, image before wiping. No further writes appeared, and a login retry at 03:05 was refused.",
+      "proves": "Closing the one path that was used stopped the activity without stopping the plant.",
+      "why": "In OT, containment should be as narrow as the evidence allows. Pulling a whole plant off its network blinds operators and can create a safety problem of its own.",
+      "supports": ["vendor-path"] },
+    { "id": "headline", "title": "Scary headline", "kind": "physical", "redHerring": true,
+      "text": "A printout taped beside the console: 'Nation-state hackers target water utilities', from a threat-intelligence newsletter.",
+      "proves": "Water utilities are a real target in general.",
+      "why": "A headline is context, not evidence. Nothing in it is linked to Riverbend's logs, and jumping to attribution can send a response in the wrong direction." },
+    { "id": "firmware", "title": "Friday's firmware update", "kind": "physical", "redHerring": true,
+      "text": "Sticker on the controller cabinet: 'Firmware updated Fri, ticket T-318, checksum verified.'",
+      "proves": "The controller was updated, as planned, days earlier.",
+      "why": "A recent change is always worth checking, but this one was ticketed and verified, and the setpoint changes arrived as network commands from the jump host." }
+  ],
+  "locations": [
+    { "id": "control-room", "name": "The control room", "type": "examine", "summary": "Where Tom works the night shift, and where the alarm went off.",
+      "intro": "Morning shift has taken over. Dosing is still on local manual at the pump skid and the water is fine. The overnight evidence is all still here.",
+      "scene": "room",
+      "hotspots": [
+        { "id": "console", "label": "Operator console", "object": "laptop", "x": 32, "y": 56, "note": "The console's audit trail: screen locked from 01:30 to 02:13, no input until Tom unlocked it.", "clue": "hmi-idle" },
+        { "id": "cctv", "label": "CCTV monitor", "object": "camera", "x": 86, "y": 20, "note": "Tom walks out for rounds at 01:40 and is back at the console at 02:13.", "clue": "tom-on-rounds" },
+        { "id": "alarm", "label": "Alarm panel", "object": "alarm", "x": 68, "y": 24, "note": "Alarm history: HIGH DOSING RATE at 02:13, acknowledged by T. Silva. Nothing else overnight." },
+        { "id": "headline", "label": "Newsletter printout", "object": "note", "x": 14, "y": 34, "note": "Kim taped this up at seven this morning.", "clue": "headline" },
+        { "id": "cabinet", "label": "Controller cabinet", "object": "cabinet", "x": 54, "y": 62, "note": "A sticker on the door.", "clue": "firmware" },
+        { "id": "clipboard", "label": "Handover clipboard", "object": "clipboard", "x": 44, "y": 30, "note": "Helen's note: \"Engineering cabinet code = the time dosing went to manual, as four digits.\"" },
+        { "id": "jar", "label": "Coffee jar", "object": "jar", "x": 80, "y": 76, "note": "Empty. The night was long, but the coffee is not a suspect." }
+      ] },
+    { "id": "historian", "name": "Historian trends", "type": "compare", "host": "raj", "summary": "Last night against the analyser fault Raj fixed last March.",
+      "intro": "The historian stores every reading and setpoint the plant has ever had. Raj pulls up last March's sensor fault for comparison.",
+      "prompt": "Compare a known sensor fault with last night.",
+      "rowLabels": ["How the value changed", "What changed", "Second analyser", "Lab grab sample"],
+      "left": { "label": "Last March: analyser fault", "rows": ["Slow creep over nine hours", "The reading; the setpoint stayed put", "Disagreed by 20%", "Didn't match the reading"] },
+      "right": { "label": "Last night", "rows": ["Three clean steps in two minutes", "The setpoint itself", "Agreed within 1%", "Matched both analysers"] },
+      "spots": [
+        { "row": 0, "note": "A fault creeps; last night jumped in steps.", "clue": "step-changes" },
+        { "row": 1, "note": "Drift moves readings. Setpoints only change when something writes them." },
+        { "row": 2, "note": "Two independent analysers and a lab sample all agreed.", "clue": "redundant-sensors" }
+      ] },
+    { "id": "tom", "name": "Interview: Tom", "type": "interview", "person": "tom", "summary": "The night operator who caught it.",
+      "opening": "\"I was out at the filter beds. When I got back the alarm was going and the dosing was way up.\"",
+      "questions": [
+        { "id": "where", "ask": "Where were you before the alarm?", "answer": "\"On rounds, from about 01:40. I walked back in at 02:13. The camera will show you.\"", "clue": "tom-on-rounds" },
+        { "id": "did", "ask": "What did you do when you saw it?", "answer": "\"Put the setpoint back, then at 02:14 switched dosing to local manual at the pump skid so nothing on the network could change it. Called Helen at 02:16 and took a grab sample at 02:20. Fine.\"", "clue": "manual-control" },
+        { "id": "changed", "ask": "Did you change any setpoints last night?", "answer": "\"Only my routine check at 23:40, no change. And putting it back at 02:14.\"" },
+        { "id": "who", "ask": "Who do you think did it?", "answer": "\"Has to be those hackers from the news. Kim's been showing everyone that article.\"", "redHerring": true, "note": "A newsletter headline isn't evidence about Riverbend. The logs, not the news, have to say where the commands came from." }
+      ] },
+    { "id": "monitor", "name": "OT network monitor", "type": "ledger", "summary": "Who talked to the dosing controller overnight.",
+      "intro": "Priya's passive monitor listens to plant network traffic without sending anything, so it is safe to read during an incident.",
+      "prompt": "Check each connection to the dosing controller against the rule.",
+      "rule": "Only the operator console (HMI-1) and the engineering workstation (ENG-1) may send write commands to the dosing controller.",
+      "columns": ["Time", "Source", "Destination", "Command"],
+      "rows": [
+        ["23:40", "HMI-1", "Dosing controller", "Read status"],
+        ["01:30", "HMI-1", "Dosing controller", "Read status"],
+        ["01:55", "Jump host", "Plant network", "New connection"],
+        ["02:10", "Jump host", "Dosing controller", "Write setpoint"],
+        ["02:11", "Jump host", "Dosing controller", "Write setpoint"],
+        ["02:12", "Jump host", "Dosing controller", "Write setpoint"],
+        ["02:14", "HMI-1", "Dosing controller", "Write setpoint"],
+        ["02:14", "HMI-1", "Dosing controller", "Set local manual"]
+      ],
+      "mismatches": [
+        { "row": 3, "cell": 1, "note": "The jump host is the remote-access server. It should never write to a controller.", "clue": "ot-monitor" },
+        { "row": 4, "cell": 1, "note": "Second write from the jump host, a minute later." },
+        { "row": 5, "cell": 1, "note": "Third write. Then nothing more from the jump host." }
+      ],
+      "okNote": "This row follows the rule." },
+    { "id": "gateway", "name": "Remote-access gateway log", "type": "document", "docType": "log", "docTitle": "Remote-access gateway: overnight log",
+      "summary": "Every vendor login to the plant.",
+      "intro": "Contractors log in to this gateway from outside, then reach plant systems through a jump host in the zone between the office and the plant.",
+      "meta": [ { "label": "Account", "value": "riverbend-contractor" }, { "label": "Second factor", "value": "Not enabled" } ],
+      "lines": [
+        { "text": "01:52 Login: riverbend-contractor. Authentication: password only.", "clue": "gateway-log" },
+        { "text": "01:55 Session connects from the jump host to the plant network.", "note": "From here the session could reach plant systems, as the monitor shows." },
+        { "text": "02:15 Session closed by the remote user.", "note": "One minute after Tom took manual control." },
+        { "text": "02:40 Account disabled by P. Raman; gateway closed to all vendor sessions.", "note": "Containment aimed at the one path that was used." },
+        { "text": "03:05 Login attempt: riverbend-contractor. Refused (account disabled).", "note": "Someone still had the password and tried again. Who it was is part of the ongoing investigation." }
+      ] },
+    { "id": "night", "name": "The night, in order", "type": "timeline", "summary": "Line up the gateway, monitor and operator logs.",
+      "prompt": "Put last night's events in order.",
+      "events": [
+        { "id": "login", "time": "01:52", "text": "Contractor account logs in to the remote-access gateway, password only." },
+        { "id": "connect", "time": "01:55", "text": "The jump host opens a connection into the plant network." },
+        { "id": "step1", "time": "02:10", "text": "First setpoint step on the dosing controller." },
+        { "id": "step3", "time": "02:12", "text": "Third step: setpoint at four times normal." },
+        { "id": "alarm", "time": "02:13", "text": "High dosing-rate alarm; Tom is back at the console." },
+        { "id": "manual", "time": "02:14", "text": "Tom restores the setpoint and switches dosing to local manual." },
+        { "id": "end", "time": "02:15", "text": "The contractor session ends." }
+      ],
+      "solvedNote": "All three changes fall inside the contractor session, which ended a minute after Tom took manual control.",
+      "clue": "session-overlap" },
+    { "id": "tickets", "name": "Tickets against sessions", "type": "compare", "summary": "Planned maintenance this week, against actual vendor sessions.",
+      "prompt": "Does every remote session match a planned job?",
+      "rowLabels": ["Monday", "Wednesday", "Friday", "Last night"],
+      "left": { "label": "Approved maintenance tickets", "rows": ["T-311: filter valve check, 10:00", "T-315: pump calibration, 14:30", "T-318: controller firmware update", "No ticket"] },
+      "right": { "label": "Contractor remote sessions", "rows": ["10:02 to 11:40", "14:28 to 15:55", "09:10 to 12:05", "01:52 to 02:15"] },
+      "spots": [
+        { "row": 3, "note": "A session with no ticket behind it.", "clue": "no-ticket" },
+        { "row": 2, "note": "The firmware update was planned and ticketed; it isn't the anomaly." }
+      ] },
+    { "id": "forensics", "name": "Workstation forensics", "type": "document", "docType": "report", "docTitle": "Forensic summary: operator console HMI-1",
+      "summary": "What the workstation's memory and disk show.",
+      "meta": [ { "label": "Analyst", "value": "B. Cole, with P. Raman" }, { "label": "Method", "value": "Live capture, no reboot" } ],
+      "lines": [
+        { "text": "02:50 Memory captured live, before anything else was touched.", "note": "Memory is the most volatile evidence; a reboot would have erased it." },
+        { "text": "Disk imaged without rebooting; the console kept running for operations.", "note": "Operators still needed the screen to watch the plant." },
+        { "text": "Findings: no malware, unknown programs or new scheduled tasks; allow-list and antivirus logs clean.", "clue": "clean-image" },
+        { "text": "Console locked 01:30 to 02:13; first input at 02:13 (T. Silva).", "note": "Matches the audit trail on the console itself." }
+      ] },
+    { "id": "ben", "name": "Interview: Ben", "type": "interview", "person": "ben", "summary": "IT security, wanting to wipe and isolate.",
+      "opening": "\"Wipe that workstation and cut the plant off the network. That's how we'd handle it in IT.\"",
+      "questions": [
+        { "id": "why", "ask": "Why the workstation?", "answer": "\"It's the only computer that talks to the controllers. If something changed a setpoint, that's where it came from.\"" },
+        { "id": "done", "ask": "What has happened to it so far?", "answer": "\"Priya stopped me before I could wipe it. We captured memory and imaged the disk first, without rebooting. The report's in.\"" },
+        { "id": "monitor", "ask": "The monitor says the writes came from the jump host. Does that change things?", "requires": ["ot-monitor"], "answer": "\"Then the workstation's a witness, not the culprit. Good thing we didn't wipe it.\"" },
+        { "id": "firmware", "ask": "Could Friday's firmware update have caused it?", "answer": "\"Could be! The vendor updated that controller on Friday. Updates break things all the time.\"", "redHerring": true, "note": "The update was ticketed and checksum-verified, and the changes arrived as network commands from the jump host." }
+      ] },
+    { "id": "priya", "name": "Interview: Priya", "type": "interview", "person": "priya", "summary": "The OT engineer who runs the plant's network.",
+      "opening": "\"In a plant the first question isn't 'who?', it's 'is the process safe?' Tom answered that at 02:14. Now we can investigate properly.\"",
+      "questions": [
+        { "id": "path", "ask": "How could anything outside reach the dosing controller?", "answer": "\"Through the remote-access path. Vendors log in to a gateway, then a jump host in the zone between the office and the plant is allowed to reach plant systems. It's the one doorway in from outside.\"" },
+        { "id": "isolate", "ask": "Should we pull the whole plant off the network?", "answer": "\"Not the whole plant. That blinds the operators and can create its own safety problem. Close the door that was used, keep the plant in a known safe state and keep the evidence.\"" },
+        { "id": "roster", "ask": "Who uses the contractor account?", "requires": ["gateway-log"], "answer": "\"Aquaflow Services. Here's the roster: six technicians, one shared login, a password older than two years and no second factor.\"", "clue": "shared-account" },
+        { "id": "aquaflow", "ask": "Did Aquaflow schedule anything last night?", "requires": ["no-ticket"], "answer": "\"I called their service manager. Nobody was scheduled, and they're checking who knew the password. A mistake or a stolen password: we don't know yet.\"", "clue": "vendor-call" },
+        { "id": "report", "ask": "What do we tell the regulator?", "requires": ["session-overlap"], "answer": "\"What we know, when we know it: a setpoint change through vendor remote access, reversed in four minutes, no effect on water quality. Our plan sets the deadlines, and a first report can be partial.\"" }
+      ] },
+    { "id": "sis", "name": "Safety system cabinet", "type": "lock", "summary": "The safety instrumented system's event log.",
+      "requires": ["manual-control"], "lockedNote": "Find out when dosing went to manual first. Ask the operator.",
+      "prompt": "The engineering cabinet has a four-digit code. Helen's handover note says it is the time dosing went to manual.",
+      "answer": "0214",
+      "hints": ["Tom told you when he switched dosing to local manual.", "It happened at fourteen minutes past two.", "The code is 0 2 1 4."],
+      "openText": "Inside, the safety system's own event log: a separate, independent layer that would shut dosing down if limits were crossed.",
+      "clue": "sis-normal" },
+    { "id": "lab", "name": "Choose the containment", "type": "lab", "host": "priya", "summary": "Try the options IT and OT argued about at 02:30.",
+      "requires": ["gateway-log"], "lockedNote": "Find out how the session got in first.",
+      "intro": "At 02:30 the incident call had three decisions to make. Try the combinations and see what each would have done to the plant and the evidence.",
+      "prompt": "Choose what to do with the remote path, the plant network and the operator workstation.",
+      "visual": "gauge", "meterLabel": "Safe, contained and evidence kept",
+      "controls": [
+        { "id": "gateway", "label": "Remote-access gateway", "options": ["Leave open", "Close, disable account"] },
+        { "id": "network", "label": "Plant network", "options": ["Keep connected", "Pull off the network"] },
+        { "id": "hmi", "label": "Operator workstation", "options": ["Image it first", "Wipe and rebuild now"] }
+      ],
+      "outcomes": [
+        { "when": { "gateway": 1, "network": 0, "hmi": 0 }, "level": 95, "reading": "Contained safely", "text": "The one path that was used is shut, operators keep full visibility and the evidence survives. This is what Priya did at 02:40.", "clue": "path-closed" },
+        { "when": { "hmi": 1 }, "level": 30, "reading": "Evidence lost", "text": "Wiping now destroys the memory and disk evidence that later showed the workstation was clean, and takes the operators' screen away mid-incident." },
+        { "when": { "network": 1 }, "level": 45, "reading": "Plant blinded", "text": "Pulling the plant off the network cuts operators off from remote monitoring and alarms. Sometimes necessary, but not when one known path is the problem." },
+        { "level": 10, "reading": "Still exposed", "text": "The doorway the changes came through is still open, and the password still works." }
+      ] }
+  ],
+  "board": {
+    "heading": "The case board",
+    "intro": "Pin each clue, then string it to the theories it fits or contradicts. A contradiction rules a theory out; fitting is not proof."
+  },
+  "accusation": {
+    "prompt": "Name what changed the setpoint",
+    "intro": "Choose the explanation every piece of evidence converges on, and say how sure you are."
+  },
+  "epilogue": {
+    "heading": "Epilogue",
+    "concept": "OT response: safety first, then the path",
+    "paragraphs": [
+      "Riverbend's response went right in the order that matters in a plant. First, safety: Tom put the process in a known safe state with local manual control, the plant kept producing safe water, and the independent safety system was checked. Only then came the investigation.",
+      "The investigation didn't break anything either. Passive monitoring, historian trends and audit trails answered most questions without touching the controllers. The workstation was imaged before anyone wiped it, which is what cleared it. IT and OT decided together, and containment closed the one door that was used instead of cutting the whole plant off. The regulator got the facts as they were known.",
+      "The lesson is about the door. One shared contractor account, password only, with no ticket or monitoring for its sessions, let someone reach a chemical setpoint at 2 a.m. Whether that was a mistake or a stolen password, the fix is the same: named accounts, multi-factor login, and vendor sessions that are scheduled, approved and watched. Real cases are often murkier than headlines: in the much-reported 2021 Oldsmar water plant incident, later reporting suggested it may not have been an outside intrusion at all."
+    ],
+    "takeaways": [
+      "In OT, make the process safe first; investigate second.",
+      "Read trends, audit trails and passive monitors before blaming a person or a sensor.",
+      "Capture memory and image disks before wiping anything.",
+      "Contain as narrowly as the evidence allows; don't blind the plant.",
+      "Establish the access path even when who-and-why is still open.",
+      "Vendor remote access needs named accounts, MFA, tickets and monitoring."
+    ]
+  }
+}

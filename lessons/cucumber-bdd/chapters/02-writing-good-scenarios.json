@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "title": "Writing Good Scenarios",
+  "subtitle": "Ten pull-request reviews: what makes Gherkin readable, robust and worth keeping",
+  "theme": "forest",
+  "scenario": {
+    "heading": "The scenario",
+    "setting": [
+      "**BasketBee** is a fictional online grocery. Its team has just adopted Cucumber-JVM with JUnit 5, and feature files are arriving in pull requests faster than anyone can read them. Some read like crisp specifications. Others read like recorded mouse clicks.",
+      "The team lead, who championed BDD, is on leave for two weeks. Before going, they asked you to review every feature file and step definition, so the suite stays something the product owner can actually read."
+    ],
+    "role": {
+      "title": "You are the reviewer of BasketBee's Cucumber pull requests",
+      "description": "You know Java and testing well, and you're new to BDD. For each pull request, decide what to do. The questions get trickier as the suite grows."
+    },
+    "goal": "Keep the scenarios readable by the business, focused on behaviour, and cheap to run and maintain."
+  },
+  "questions": [
+    {
+      "id": "declarative",
+      "situation": "A pull request adds this scenario: Given I open the login page / When I type \"sam@example.com\" into the email field / And I type \"secret\" into the password field / And I click the \"Log in\" button / Then I see the text \"Welcome, Sam\".",
+      "prompt": "What review comment do you leave?",
+      "options": [
+        { "text": "Approve it: it is precise and easy to automate.", "trap": true, "tempting": "Every step maps neatly onto a browser action, so the step definitions are trivial to write.", "why": "It describes how the UI works, not what the system should do. Rename one field or move one button and the scenario breaks, though the behaviour hasn't changed. The product owner learns nothing from it." },
+        { "text": "Ask for a declarative version, such as: Given Sam has an account / When Sam logs in with valid details / Then Sam sees the dashboard, with the clicks moved into the step definitions.", "correct": true, "why": "Cucumber's docs favour the declarative style, which \"describes the behaviour of the application, rather than the implementation details\". The how lives in Java, where it can change without touching the specification, or even run against the API instead of the UI." },
+        { "text": "Ask for more detail: element IDs and wait times, so failures are easier to debug.", "tempting": "Debuggability matters, and explicit selectors do make failures precise.", "why": "That pushes the scenario further into automation detail. Debugging information belongs in the step definitions and their logs, not in the business-readable spec." },
+        { "text": "Delete it: login is already covered by unit tests.", "tempting": "Duplicated coverage is waste.", "why": "Login is a behaviour worth stating at the business level. The problem is how it's written, not whether it exists." }
+      ],
+      "takeaway": "Write steps that describe behaviour (what), and keep UI mechanics (how) in the step definitions."
+    },
+    {
+      "id": "one-behaviour",
+      "situation": "\"Checkout journey\" is a single scenario with 23 steps: log in, search, add three items, apply a coupon, change the delivery slot, pay, check the confirmation email, then log out, with several When/Then pairs along the way.",
+      "prompt": "What do you suggest?",
+      "options": [
+        { "text": "Keep it: one end-to-end journey covers everything in one go.", "trap": true, "tempting": "It mirrors what a real customer does, and one long scenario feels efficient.", "why": "When step 17 fails, everything after it goes untested, and the name doesn't say which rule broke. Long journeys are slow, fragile and hard to read." },
+        { "text": "Split it into focused scenarios that each illustrate one behaviour, typically one When and its Then, such as \"Coupon reduces the total\" or \"Delivery slot can be changed before payment\".", "correct": true, "why": "A widely followed guideline is one behaviour per scenario. Each scenario then has a meaningful name, fails for one reason, and can run on its own or in parallel." },
+        { "text": "Turn it into a Scenario Outline with an Examples table.", "tempting": "Outlines reduce repetition.", "why": "Outlines vary data for the same behaviour. They don't untangle several different behaviours squeezed into one scenario." },
+        { "text": "Move the first ten steps into a Background.", "tempting": "It shortens the scenario on the page.", "why": "The scenario would still test many behaviours at once; it would just hide half of them." }
+      ],
+      "takeaway": "One scenario, one behaviour: focused scenarios fail clearly and run independently."
+    },
+    {
+      "id": "gwt-roles",
+      "situation": "A scenario reads: Given I click \"Add to basket\" on Apples / Given I click \"Add to basket\" on Apples / When the basket page shows 2 Apples / Then I click \"Remove\".",
+      "prompt": "What is wrong with how the keywords are used?",
+      "options": [
+        { "text": "Nothing: Cucumber treats Given, When and Then the same, so it's only style.", "trap": true, "tempting": "That's technically true: Cucumber doesn't check the meaning of the keywords when matching steps.", "why": "The keywords are for humans. Given sets up context, When is the action under test, Then checks the outcome. Here they're scrambled, so readers can't tell what is being specified." },
+        { "text": "The roles are mixed up. It should read: Given the basket contains 2 apples / When Sam removes one apple / Then the basket contains 1 apple.", "correct": true, "why": "Given describes the starting state (ideally set up directly, not clicked through), When is the one event, Then is the observable result. Read aloud, it becomes a specification." },
+        { "text": "It should use And instead of repeating Given.", "tempting": "Repeated keywords do read awkwardly.", "why": "And (and But) do improve flow, but swapping keywords doesn't fix steps that are in the wrong role altogether." },
+        { "text": "Then steps should never contain actions, so delete the last line.", "tempting": "Part of that is right.", "why": "The last line shouldn't be a Then, but deleting it loses the action under test. The scenario needs restructuring, not trimming." }
+      ],
+      "takeaway": "Given sets the context, When is the event, Then checks the observable outcome."
+    },
+    {
+      "id": "then-observable",
+      "situation": "A Then step reads: Then the basket_items table contains 1 row for user 4471.",
+      "prompt": "How do you review it?",
+      "options": [
+        { "text": "Approve it: checking the database is the most reliable assertion.", "trap": true, "tempting": "A direct database check feels exact and leaves no room for UI quirks.", "why": "It ties the specification to a table name and an internal ID that business readers don't know and that may change. The behaviour is what the customer sees: the basket shows one item." },
+        { "text": "Ask for an outcome in business terms, such as: Then Sam's basket contains 1 apple, with the step definition checking it however is best.", "correct": true, "why": "Then steps should describe observable outcomes in domain language. The Java behind the step can still query an API or even the database; the Gherkin doesn't need to know." },
+        { "text": "Remove the Then: the When step already proves the action worked.", "tempting": "If no error was thrown, it probably worked.", "why": "A scenario without a Then specifies nothing. The outcome is the point." },
+        { "text": "Replace it with a screenshot comparison.", "tempting": "A screenshot captures everything at once.", "why": "Pixel comparisons are brittle and say nothing readable about the expected behaviour." }
+      ],
+      "takeaway": "Assert outcomes in the language of the domain; keep storage details inside the step definitions."
+    },
+    {
+      "id": "background",
+      "situation": "A feature file has a Background of 8 steps: create a user, verify their email, add an address, add a payment card, set a delivery slot, add 3 items, apply a coupon, open the basket. Only 2 of its 9 scenarios need the coupon and the delivery slot.",
+      "prompt": "What do you recommend?",
+      "options": [
+        { "text": "Keep it: Background avoids repeating setup in every scenario.", "trap": true, "tempting": "Don't repeat yourself is a sound principle, and Background exists to share setup.", "why": "Readers must hold 8 steps in their head to understand each scenario, and 7 scenarios set up things they don't use, which slows them and hides what matters. Cucumber's Gherkin reference advises keeping the Background short." },
+        { "text": "Keep only the setup every scenario needs in the Background, phrased at a high level, and move the rest into the scenarios that need it, or split the feature.", "correct": true, "why": "A short Background (\"Given Sam is a registered customer with an empty basket\") gives shared context without hiding the details that make each scenario different." },
+        { "text": "Move all the setup into a Before hook in Java so the feature file is clean.", "tempting": "It removes the clutter from the Gherkin entirely.", "why": "Then readers can't see the context at all. Hooks suit technical setup (starting a browser, cleaning data), not the business context a scenario depends on." },
+        { "text": "Copy all 8 steps into every scenario instead.", "tempting": "Explicit is better than implicit.", "why": "That swaps one problem for another: long, repetitive scenarios with the same irrelevant setup." }
+      ],
+      "takeaway": "Backgrounds should be short and relevant to every scenario; business context belongs in Gherkin, technical setup in hooks."
+    },
+    {
+      "id": "outline",
+      "situation": "A Scenario Outline for delivery fees has an Examples table with 40 rows: every postcode zone crossed with basket totals from ₹100 to ₹2,000.",
+      "prompt": "What do you suggest?",
+      "options": [
+        { "text": "More rows means better coverage, so keep it.", "trap": true, "tempting": "It feels thorough, and Outlines make adding rows effortless.", "why": "Forty rows obscure the rules they're meant to illustrate, and each row is a full scenario run. Exhaustive combinations belong in fast unit tests." },
+        { "text": "Group scenarios under each business rule (with the Rule keyword) and keep a few telling examples per rule, such as just below, at, and above the free-delivery threshold.", "correct": true, "why": "BDD examples illustrate rules for humans. A handful of well-chosen rows (especially at boundaries) makes the rule obvious, and unit tests can check the full matrix cheaply." },
+        { "text": "Split it into 40 separate scenarios.", "tempting": "Separate scenarios get separate names.", "why": "That keeps all the noise and adds repetition. The fix is fewer, better examples." },
+        { "text": "Generate the rows from a spreadsheet at runtime.", "tempting": "It keeps the table out of the file.", "why": "Then the specification isn't readable at all, which defeats the purpose of writing it in Gherkin." }
+      ],
+      "takeaway": "Use a few examples that illustrate each rule; exhaustive data belongs in unit tests."
+    },
+    {
+      "id": "tags",
+      "situation": "Developers want a fast check on every commit, while the full suite runs nightly. Some scenarios are still being written.",
+      "prompt": "How should the team select what runs?",
+      "options": [
+        { "text": "Tag key scenarios @smoke and unfinished ones @wip, and run commits with the tag expression \"@smoke and not @wip\" (in Cucumber-JVM, via the cucumber.filter.tags property).", "correct": true, "why": "Tags label scenarios without changing them, and tag expressions combine them with and, or and not. The same files serve both the commit check and the nightly run." },
+        { "text": "Keep a second copy of the feature files containing only the smoke scenarios.", "trap": true, "tempting": "A separate folder is easy to understand and to point a CI job at.", "why": "Two copies drift apart within weeks. Tags give you any subset you like from a single source of truth." },
+        { "text": "Comment out the slow scenarios on the commit branch.", "tempting": "It's quick, and comments are supported in Gherkin.", "why": "Commented-out scenarios rot silently, and people forget to uncomment them." },
+        { "text": "Run everything on every commit; speed doesn't matter.", "tempting": "Running everything is the safest option.", "why": "If the commit check takes 80 minutes, people stop waiting for it. Fast feedback is what makes tests change behaviour." }
+      ],
+      "takeaway": "Use tags and tag expressions to choose subsets from one set of feature files."
+    },
+    {
+      "id": "shared-state",
+      "situation": "Step definitions pass the current basket between steps through a static field: private static Basket basket. The suite passes alone but fails randomly once parallel execution is turned on.",
+      "prompt": "What is the fix?",
+      "options": [
+        { "text": "Keep the static field and turn parallel execution off.", "trap": true, "tempting": "It makes the failures go away immediately, and static fields are the simplest way to share data.", "why": "Static state leaks between scenarios even when run one at a time, making results depend on order. Disabling parallelism hides the bug and gives up the speed." },
+        { "text": "Share state through a per-scenario context object injected into the step-definition classes, for example with PicoContainer.", "correct": true, "why": "Cucumber-JVM creates fresh step-definition instances for every scenario, and dependency injection lets several classes share one context object for just that scenario. Nothing leaks, so scenarios can run in any order or in parallel." },
+        { "text": "Add a Thread.sleep before each step so the scenarios don't overlap.", "tempting": "Timing problems sometimes look like they can be slept away.", "why": "Sleeps slow everything down and don't remove the shared state; they only change how often the race bites." },
+        { "text": "Retry failed scenarios automatically.", "tempting": "Retries make the build green.", "why": "They hide a real defect in the test code, and an intermittent bug in the product could hide the same way." }
+      ],
+      "takeaway": "Never share state through statics; inject a per-scenario context so scenarios stay independent."
+    },
+    {
+      "id": "expressions",
+      "situation": "Two step definitions exist: one for \"the basket has 2 items\" and another, copy-pasted, for \"the basket has 3 items\". A third developer now needs \"the basket has 5 items\".",
+      "prompt": "What should they write?",
+      "options": [
+        { "text": "One step definition with a Cucumber Expression: @Given(\"the basket has {int} items\") public void basketHas(int count), and delete the copies.", "correct": true, "why": "Cucumber Expressions capture parameters with built-in types such as {int}, {string} and {word}, converted automatically. One readable step definition covers every number." },
+        { "text": "A third copy for 5: it's the established pattern.", "trap": true, "tempting": "Following existing code is usually good practice.", "why": "Copy-paste step definitions multiply maintenance. A parameter does the same job once." },
+        { "text": "A regular expression that matches anything: \"the basket has (.*)\".", "tempting": "Regex is flexible, and Cucumber supports it.", "why": "Regex still works, but an over-broad pattern can match steps it shouldn't. If two definitions match the same step, Cucumber reports it as ambiguous. Cucumber Expressions are clearer for most cases." },
+        { "text": "Write the step as \"the basket has five items\" so no parameter is needed.", "tempting": "Words read nicely in Gherkin.", "why": "You'd still need a separate definition per number, or a custom parameter type. {int} is simpler." }
+      ],
+      "takeaway": "Use Cucumber Expressions with parameters instead of copy-pasted step definitions."
+    },
+    {
+      "id": "who-writes",
+      "situation": "The product owner suggests a new process: developers build each feature, then the testers write the feature files and automate them before release.",
+      "prompt": "How does this fit BDD?",
+      "options": [
+        { "text": "It's fine: Cucumber is a testing tool, so testers should own it.", "trap": true, "tempting": "Many teams adopt Cucumber exactly this way, and testers are the automation experts.", "why": "Cucumber's creators have long argued it is a collaboration tool first, not primarily a testing tool. Writing scenarios after the code turns them into slow, expensive regression scripts and skips the part that gives BDD its value: agreeing on behaviour before building it." },
+        { "text": "Before building, business, development and testing (the \"three amigos\") discuss concrete examples together. Those examples become the Gherkin, and automation follows while the feature is built.", "correct": true, "why": "BDD runs as discovery (conversations, often with Example Mapping), formulation (writing the agreed examples in Gherkin) and automation (step definitions). The conversation catches misunderstandings while they're still cheap." },
+        { "text": "Developers should write the feature files alone, since they write the step definitions.", "tempting": "It keeps everything in one pair of hands.", "why": "Then the business perspective is missing. The specification should be agreed by the people who know the domain." },
+        { "text": "The product owner should write all scenarios alone, upfront, as requirements.", "tempting": "The product owner knows what the business wants.", "why": "Upfront documents without conversation miss the edge cases developers and testers spot. BDD is collaborative by design." }
+      ],
+      "takeaway": "BDD is a conversation before code: discover examples together, formulate them in Gherkin, then automate."
+    }
+  ],
+  "summary": {
+    "heading": "What you've learned",
+    "closing": [
+      "Good Gherkin reads like a specification: declarative steps in domain language, one behaviour per scenario, Given for context, When for the event, Then for the observable outcome. Backgrounds stay short, Outlines use a few telling examples per rule, and tags select subsets from one set of files.",
+      "Behind the scenes, step definitions use Cucumber Expressions and share state only through a per-scenario context, so scenarios stay independent and can run in parallel. And the whole thing starts with a conversation: Cucumber automates the examples a team agreed on, rather than standing in for the agreement."
+    ]
+  }
+}

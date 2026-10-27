@@ -159,6 +159,21 @@ window.NthViewRegistry = {
   ],
   "lessons": [
     {
+      "slug": "artex-global-explained",
+      "title": "ARTEX Explained: An AI Team That Pentests on Its Own",
+      "description": "What ARTEX is, what makes it different from a scanner or a single chatbot, and how its team of AI agents plans, works, remembers and finishes a security test with little human help.",
+      "audience": "Anyone curious how an autonomous multi-agent AI system works, no code reading needed.",
+      "chapters": 4,
+      "views": [
+        "nthview-concept-map",
+        "nthview-scenario-quiz",
+        "nthview-detective",
+        "nthview-island-quest"
+      ],
+      "path": "lessons/artex-global-explained/index.html",
+      "next": null
+    },
+    {
       "slug": "compliance-for-everyone",
       "title": "Compliance for Everyone",
       "description": "What compliance really means, why the rules exist, and how they are used day to day, told three ways: crack a case, make the calls yourself, then play it through.",
@@ -170,6 +185,53 @@ window.NthViewRegistry = {
         "nthview-island-quest"
       ],
       "path": "lessons/compliance-for-everyone/index.html",
+      "next": null
+    },
+    {
+      "slug": "cucumber-bdd",
+      "title": "Cucumber and BDD: Specs Everyone Can Read",
+      "description": "What Behaviour-Driven Development is, how Cucumber turns plain-language Gherkin scenarios into automated tests, and how to keep a Cucumber suite readable, fast and trustworthy.",
+      "audience": "Developers and testers new to BDD; examples use Java with Cucumber-JVM and JUnit 5.",
+      "chapters": 5,
+      "views": [
+        "nthview-concept-map",
+        "nthview-scenario-quiz",
+        "nthview-detective",
+        "nthview-explorable",
+        "nthview-island-quest"
+      ],
+      "path": "lessons/cucumber-bdd/index.html",
+      "next": null
+    },
+    {
+      "slug": "incident-response-it-ot",
+      "title": "Incident Response in IT and OT",
+      "description": "How enterprises detect, contain, recover from and report cybersecurity incidents, and why the playbook changes when the systems run factories, pipelines and power grids.",
+      "audience": "Developers, IT staff and managers who want an enterprise-level picture of incident response; no security background needed.",
+      "chapters": 5,
+      "views": [
+        "nthview-concept-map",
+        "nthview-scenario-quiz",
+        "nthview-detective",
+        "nthview-explorable",
+        "nthview-island-quest"
+      ],
+      "path": "lessons/incident-response-it-ot/index.html",
+      "next": null
+    },
+    {
+      "slug": "krishnamurti-and-osho",
+      "title": "Krishnamurti and Osho: Two Teachers of Freedom",
+      "description": "What J. Krishnamurti and Osho taught about freedom, awareness, thought, love and meditation, where their teachings meet, and where they sharply part.",
+      "audience": "Curious beginners. No background in philosophy or spirituality needed.",
+      "chapters": 5,
+      "views": [
+        "nthview-concept-map",
+        "nthview-detective",
+        "nthview-scenario-quiz",
+        "nthview-island-quest"
+      ],
+      "path": "lessons/krishnamurti-and-osho/index.html",
       "next": null
     }
   ]
