@@ -45,6 +45,11 @@ One concept, many dimensions, one view at a time.
   ideas, and every delivery is a learning errand with explained choices.
   Demo: `skills/nthview-courier/examples/example.html`.
 
+- **Temple Run** (`skills/nthview-temple-run`) — a Temple Run style 3D runner:
+  every stretch is a lesson and ends in an encounter that asks about it with one
+  of 31 activity types, in a card or as a trial on the track; learning or quiz
+  mode, four themes. Demo: `skills/nthview-temple-run/examples/example.html`.
+
 Open `index.html` for the gallery of all views, or visit the hosted copy at
 https://patrickp1702.github.io/NthView/ (served by GitHub Pages straight from
 the `main` branch; every demo, doc and lesson there is the same file that is
