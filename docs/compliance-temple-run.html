@@ -1546,6 +1546,10 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     ".nthview-temple-run .nthview-btn:disabled{opacity:.45}",
     ".nthview-temple-run .nthview-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;align-items:center}",
     ".nthview-temple-run .nthview-keyhint{font-size:.8rem;color:var(--muted)}",
+    ".nthview-temple-run .nthview-legend{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}",
+    ".nthview-temple-run .nthview-legend span{border:2px solid var(--accent);border-radius:12px;padding:8px 6px;text-align:center;font-weight:700;background:var(--panel-solid);overflow-wrap:anywhere;min-height:2.8em}",
+    ".nthview-temple-run .nthview-legend span.nthview-empty{border-style:dashed;border-color:var(--line);color:var(--muted);font-weight:400}",
+    ".nthview-temple-run .nthview-legend small{display:block;font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:700}",
     ".nthview-temple-run .nthview-q{font-weight:700;font-size:1.06rem;margin:6px 0 10px}",
     ".nthview-temple-run .nthview-opts{display:grid;gap:9px}",
     ".nthview-temple-run .nthview-opts.nthview-two{grid-template-columns:1fr 1fr}",
@@ -2622,8 +2626,11 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       switch (st.type) { case "lanes": case "gates": return 1; case "torches": case "levers": case "tiles": return a.items.length; case "planks": return a.planks.length; case "harvest": return Math.ceil(a.items.length / 2); case "collect": return a.items.length; }
       return 0;
     }
-    var ROW_GAP = { lanes: 0, gates: 0, torches: 9, planks: 8, harvest: 10, levers: 10, tiles: 11, collect: 6.5 };
-    function trialLength(st) { return Math.ceil((22 + trialRows(st) * (ROW_GAP[st.type] || 8) + 8) / 10) * 10; }
+    /* rows of a read-per-step type are spaced so each gets its own stop, card and run-up */
+    var ROW_GAP = { lanes: 0, gates: 0, torches: 22, planks: 22, harvest: 22, levers: 22, tiles: 22, collect: 6.5 };
+    var READ_EACH = { torches: 1, planks: 1, harvest: 1, levers: 1, tiles: 1 };
+    var RUNWAY = 18;
+    function trialLength(st) { return Math.ceil((24 + trialRows(st) * (ROW_GAP[st.type] || 8) + 8) / 10) * 10; }
 
     function newTile(kind, len, pinned) {
       var t = { kind: kind, d0: gen.d, d1: gen.d + len, x: gen.x, z: gen.z, h: gen.h, parts: [], coins: [], k: gen.k, pinned: !!pinned };
@@ -3039,7 +3046,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     var _rp = { x: 0, z: 0 }, _cp2 = { x: 0, z: 0 };
     function chaserTarget() {
       var g = 3.0 - .4 * S.stumbles - (STRICT ? (START_TORCHES - S.torches) * .15 : 0);
-      if (S.mode === "stop" || S.mode === "lesson" || S.mode === "solved") g = 2.6;
+      if (S.mode === "stop" || S.mode === "lesson" || S.mode === "solved" || S.mode === "read") g = 3.0;
       return Math.max(1.9, Math.min(3.1, g));
     }
     function lunge(by) { CH.gap = Math.max(1.2, CH.gap - by * .15); }
@@ -3047,7 +3054,8 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     function laneIndex() { return Math.max(-1, Math.min(1, Math.round(R.lat / LANE))); }
     function isRunning() { return (S.mode === "run" || S.mode === "sprint" || S.mode === "exit") && !S.paused; }
     function nextCorner() { for (var i = 0; i < corners.length; i++) if (!corners[i].done) return corners[i]; return null; }
-    var shake = 0;
+    var shake = 0, shakeT = 1;
+    function kick(a) { if (settings.reduced) return; shake = a; shakeT = 0; }
     function act(k) {
       if (!isRunning() || S.mode === "exit") return;
       if (k === "left" || k === "right") {
@@ -3064,7 +3072,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     }
     function stumble(reason) {
       if (R.stumbleT > 0) return;
-      R.stumbleT = .62; R.speed *= .5; S.stumbles++; lunge(9); hitFlash(); if (!settings.reduced) shake = .35; sfx("stumble");
+      R.stumbleT = .62; R.speed *= .5; S.stumbles++; lunge(9); hitFlash(); kick(.05); sfx("stumble");
       say(hero + " stumbled on " + reason + ".");
       if (S.stumbles >= 3) { caught("Three stumbles let them catch up."); return; }
       toast("Stumbled on " + reason + "!", 1100);
@@ -3114,7 +3122,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       var st = STRETCHES[site.k], a = st.data.activity, rnd = seeded(st.id + ":pass" + passNo), type = st.type;
       var keep = TR && TR.k === site.k ? TR : null;
       TR = { k: site.k, type: type, act: a, pass: passNo, rows: [], next: 0, mistakes: 0, charged: false, notes: [], step: 0, picked: [], removed: keep ? keep.removed : [], sorted: keep ? keep.sorted : {}, got: keep ? keep.got : {} };
-      var d = site.trialD0 + 22, gap = ROW_GAP[type] || 8, i;
+      var d = site.trialD0 + 24, gap = ROW_GAP[type] || 8, i;
       function shuffle(arr) { var out = arr.slice(); for (var q = out.length - 1; q > 0; q--) { var j = Math.floor(rnd() * (q + 1)); var t = out[q]; out[q] = out[j]; out[j] = t; } return out; }
       function lanesFor(n) { return shuffle(laneSet(n)); }
       switch (type) {
@@ -3153,7 +3161,32 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
           break;
       }
       TR.rows.forEach(function (row) { row.items.forEach(function (it) { var P = takeProp(it.kind); it.prop = P; propAt(P, row.d, it.kind === "orb" || it.kind === "plank" ? 0 : it.lane * LANE); P.board.userData.draw(it.label, it.kind === "orb" ? W3.glow : "#ffcf5a"); if (it.kind === "brazier") { P.core.visible = false; setPropState(P, "idle"); } else setPropState(P, "idle"); if (it.kind === "lever") P.core.rotation.x = .6; }); });
+      TR.holds = []; TR.hi = 0;
+      TR.rows.forEach(function (row, j) { if (j === 0 || READ_EACH[type]) TR.holds.push({ d: row.d - RUNWAY, row: row, j: j }); });
+      while (TR.hi < TR.holds.length && TR.holds[TR.hi].d < R.d - .5) TR.hi++;
       showTrialCallout();
+    }
+    /* the runner stands still while the learner reads the next question; nothing moves until Run */
+    function showRead(h) {
+      var st = STRETCHES[TR.k], a = TR.act, info = ENCOUNTER_INFO[st.encounter], row = h.row, multi = READ_EACH[TR.type] && TR.rows.length > 1;
+      S.mode = "read"; R.speed = 0; hideCallout(); updatePad();
+      page(info.name + " · trial" + (multi ? " · step " + (h.j + 1) + " of " + TR.rows.length : ""), h.j === 0 ? "Read, then run" : "Next step");
+      var t0 = p("", a.prompt); t0.style.marginTop = "0"; pbody.appendChild(t0);
+      var big = null;
+      if (TR.type === "planks") big = "“" + row.plank.text + "”";
+      else if (TR.type === "tiles") big = "Where does " + row.item.label + " go?";
+      else if (TR.type === "levers") big = "Step " + (row.step + 1) + " of " + a.items.length + ": which lever comes next?";
+      else if (TR.type === "torches") big = row.items[0].label + ": light it or pass it?";
+      else if (TR.type === "harvest") big = "Grab what belongs, dodge the rest.";
+      if (big) pbody.appendChild(el("p", { class: "nthview-q", text: big }));
+      if (TR.type === "planks") pbody.appendChild(el("div", { class: "nthview-legend" }, [el("span", { text: "True: step on it" }), el("span", { class: "nthview-empty", text: "or" }), el("span", { text: "False: jump ↑" })]));
+      else if (TR.type !== "collect") pbody.appendChild(el("div", { class: "nthview-legend", "aria-label": "What stands in each lane" }, [-1, 0, 1].map(function (l) { var x = rowItemAt(row, l); return el("span", { class: x ? "" : "nthview-empty" }, [el("small", { text: laneName(l) }), doc.createTextNode(x ? x.label : TR.type === "torches" ? "pass by" : "—")]); })));
+      else pbody.appendChild(p("nthview-cap", TYPE_HELP.collect));
+      if (TR.type === "torches") pbody.appendChild(p("nthview-cap", "Run through the brazier's lane to light it; stay in another lane to leave it dark."));
+      var go = primaryBtn("Run ▸", function () { if (S.mode !== "read") return; closePanel(); S.mode = "run"; updatePad(); showTrialCallout(); callout.classList.remove("nthview-off"); sfx("open"); });
+      actions([go, keyHint("Press Enter or tap Run to continue")]);
+      openPanel(true, "Read the trial question");
+      setTimeout(function () { go.focus({ preventScroll: true }); }, 70);
     }
     function endPassProps() { trialProps.forEach(releaseProp); trialProps = []; }
     function trialMistake(note, revealFn) {
@@ -3312,9 +3345,11 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         if (ctx.finished) return; ctx.finished = true;
         if (extraMistakes && k >= 0) S.results[k].mistakes += extraMistakes;
         fb.className = "nthview-fb nthview-ok"; fb.textContent = ""; fb.appendChild(rich(msg || "Correct!"));
-        cont.classList.add("nthview-hidden"); reactRight(); setTimeout(onDone, 1000);
+        reactRight(); ctx.rightDone = true; cont.classList.remove("nthview-hidden"); contBtn.textContent = "Continue";
+        contBtn.disabled = false; setTimeout(function () { contBtn.disabled = false; if (contBtn.isConnected) contBtn.focus({ preventScroll: true }); }, 0);
       };
-      ctx.finish = function () { if (ctx.finished) return; ctx.finished = true; onDone(); };
+      var called = false;
+      ctx.finish = function () { if (ctx.rightDone) { if (!called) { called = true; onDone(); } return; } if (ctx.finished) return; ctx.finished = true; called = true; onDone(); };
       ctx.note = function (msg, tone) { fb.className = "nthview-fb" + (tone ? " nthview-" + tone : ""); fb.textContent = msg; };
       return ctx;
     }
@@ -3754,7 +3789,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       var t = torchRow.children[Math.min(torchRow.children.length - 1, S.torches)]; if (t) { t.classList.remove("nthview-flicker"); void t.offsetWidth; t.classList.add("nthview-flicker"); }
       if (STRICT && S.torches <= 0) caught("The last torch went out.");
     }
-    function reactWrong() { var e = liveEnc[S.k]; if (e && S.mode !== "sprint") e.hit(); lunge(2.6); hitFlash(); if (!settings.reduced) shake = .26; sfx("roar"); }
+    function reactWrong() { var e = liveEnc[S.k]; if (e && S.mode !== "sprint") e.hit(); lunge(2.6); hitFlash(); kick(.03); sfx("roar"); }
     function reactRight() { CH.gap = Math.min(3.6, CH.gap + .8); sfx("ok"); R.boost = 1.2; }
 
     function introCard() {
@@ -3880,7 +3915,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       S.mode = "finale"; S.k = N; renderHud(); S.finale.list = pickFinale(); var from = Math.min(S.finale.i || 0, S.finale.list.length - 1); persist();
       page("Final sprint", data.finale.name);
       pbody.appendChild(p("nthview-lead", data.finale.lead));
-      pbody.appendChild(p("nthview-cap", S.finale.list.length + " question" + (S.finale.list.length > 1 ? "s" : "") + " while you run. Right answers are bursts of speed."));
+      pbody.appendChild(p("nthview-cap", S.finale.list.length + " question" + (S.finale.list.length > 1 ? "s" : "") + ". " + hero + " stops to answer each one, then sprints on."));
       actions([primaryBtn("Sprint! ▸", startSprint), keyHint("Enter")]);
       openPanel(false, "Final sprint");
     }
@@ -3894,9 +3929,9 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       var list = S.finale.list;
       if (i >= list.length) { S.finale.done = true; S.finale.i = list.length; persist(); closePanel(); toast("Run for the light!", 1600); say("Run for the light!"); updatePad(); return; }
       S.finale.i = i; hFill2.style.width = (100 * i / list.length) + "%"; persist();
-      page(data.finale.name + " · question " + (i + 1) + " of " + list.length, "Keep running!");
+      page(data.finale.name + " · question " + (i + 1) + " of " + list.length, "Catch your breath");
       var host = el("div"); pbody.appendChild(host);
-      wChoice(host, list[i], qctx(-1, function () { finaleQ(i + 1); }), null);
+      wChoice(host, list[i], qctx(-1, function () { closePanel(); R.boost = 1.2; setTimeout(function () { finaleQ(i + 1); }, settings.reduced ? 600 : 1600); }), null);
       openPanel(true, "Final sprint question");
     }
     function reachedExit() {
@@ -3948,7 +3983,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     function caught(reason) {
       if (S.mode === "caught") return;
       capture = { mode: S.mode, panel: panelOpen(), compact: panel.classList.contains("nthview-compact"), callout: !callout.classList.contains("nthview-off"), d: R.d };
-      S.mode = "caught"; S.caughtCount++; renderScore(); CH.pounce = 1; R.speed = 0; panel.classList.remove("nthview-open"); viewShiftT = 0; hideCallout(); updatePad(); sfx("roar"); hitFlash(); if (!settings.reduced) shake = .4;
+      S.mode = "caught"; S.caughtCount++; renderScore(); CH.pounce = 1; R.speed = 0; panel.classList.remove("nthview-open"); viewShiftT = 0; hideCallout(); updatePad(); sfx("roar"); hitFlash(); kick(.06);
       saveNow();
       setTimeout(function () {
         openOverlay("caught"); ocard.textContent = "";
@@ -4031,7 +4066,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     /* ======================================================================
        The frame loop. Fixed temporaries, clamped delta time, no allocation.
        ====================================================================== */
-    var camPos = new THREE.Vector3(0, 3, 8), camLook = new THREE.Vector3(), camLookS = new THREE.Vector3(0, 1, -6), camYaw = 0, T = 0;
+    var camRoll = 0, camPos = new THREE.Vector3(0, 3, 8), camLook = new THREE.Vector3(), camLookS = new THREE.Vector3(0, 1, -6), camYaw = 0, T = 0;
     var TRIAL_SPEED = { lanes: 6.5, gates: 6.5, torches: 6.2, planks: 5.0, harvest: 6.2, levers: 6.0, tiles: 5.6, collect: 7.0 };
     var SPEED_CAP = 15;
     function angDiff(a, b) { var d = a - b; return Math.atan2(Math.sin(d), Math.cos(d)); }
@@ -4058,9 +4093,10 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         target = Math.min(SPEED_CAP, 9.2 + Math.min(5, S.k * .28) + Math.min(1.6, (R.d - R.startD) / RUN_LEN * 1.6));
         if (site) {
           if (site.trialD0 !== null && R.d >= site.trialD0 - 8) target = TRIAL_SPEED[st.type] || 6;
+          if (TR && TR.k === site.k && TR.hi < TR.holds.length) { var remH = TR.holds[TR.hi].d - R.d; if (remH < 20) target = Math.min(target, Math.sqrt(Math.max(0, 2 * 6.5 * remH)) + .05); }
           var rem = site.stopD - R.d; if (rem < 18) target = Math.min(target, Math.sqrt(Math.max(0, 2 * 6.5 * rem)) + .25);
         }
-      } else if (S.mode === "sprint") target = S.finale.done ? 20 : 14;
+      } else if (S.mode === "sprint") target = S.finale.done ? 20 : panelOpen() ? 0 : 14;
       else if (S.mode === "exit") target = 12;
       if (R.boost > 0) { R.boost -= dt; if (S.mode === "sprint") target += 4; }
       if (R.stumbleT > 0) target *= .55;
@@ -4068,6 +4104,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       var prevD = R.d;
       R.d += R.speed * dt;
       if (S.mode === "run" && site && R.d >= site.stopD - .03) { R.d = site.stopD; arrive(site); }
+      else if (S.mode === "run" && TR && site && TR.k === site.k && TR.hi < TR.holds.length && R.d >= TR.holds[TR.hi].d - .03) { R.d = TR.holds[TR.hi].d; R.speed = 0; showRead(TR.holds[TR.hi++]); }
       /* ---- vertical motion, lanes ---- */
       R.vy -= 24 * dt; R.y += R.vy * dt; if (R.y <= 0) { R.y = 0; R.vy = 0; }
       if (R.slide > 0) R.slide -= dt; if (R.stumbleT > 0) R.stumbleT -= dt;
@@ -4095,7 +4132,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
           var info = ENCOUNTER_INFO[st.encounter];
           showCallout(info.name + " ahead", info.line, st.track ? TYPE_HELP[st.type] : "Run to it. It asks about this stretch."); say(info.name + " ahead. " + info.line);
         }
-        if (site.trialD0 !== null && (!TR || TR.k !== site.k) && R.d >= site.trialD0) startPass(site, 1);
+        if (site.trialD0 !== null && (!TR || TR.k !== site.k) && R.d >= site.trialD0 - 30) startPass(site, 1);
         if (TR && TR.k === site.k) { while (TR && TR.next < TR.rows.length && R.d >= TR.rows[TR.next].d) { var row = TR.rows[TR.next++]; resolveRow(row); } }
       }
       if (S.mode === "sprint" && S.finale.done && gen.exitD && R.d >= gen.exitD - 1) reachedExit();
@@ -4161,10 +4198,10 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       var kp = 1 - Math.exp(-dt * (pulled() ? 2.6 : 7));
       camPos.lerp(_ct, kp); camLookS.lerp(_lt, 1 - Math.exp(-dt * 8));
       camera.position.copy(camPos);
-      if (!settings.reduced && (S.mode === "run" || S.mode === "sprint") && R.y === 0 && R.speed > 1) { camera.position.y += Math.abs(Math.sin(R.ph)) * .07 - .035; camera.position.x += Math.sin(R.ph) * .025; }
-      if (shake > 0) { shake = Math.max(0, shake - dt); if (!settings.reduced) { camera.position.x += (Math.random() - .5) * shake * .5; camera.position.y += (Math.random() - .5) * shake * .4; } }
+      if (!settings.reduced && (S.mode === "run" || S.mode === "sprint") && R.y === 0 && R.speed > 1) { camera.position.y += Math.sin(R.ph * .8) * .012; camera.position.x += Math.sin(R.ph * .4) * .008; }
+      if (shakeT < .22) { shakeT += dt; if (!settings.reduced) camera.position.y += Math.sin(shakeT * 40) * shake * Math.max(0, 1 - shakeT / .22); }
       camera.lookAt(camLookS);
-      if (!settings.reduced) camera.rotateZ(Math.max(-.12, Math.min(.12, dy * .22)) + (R.lane * LANE - R.lat) * -.012);
+      if (!settings.reduced) { camRoll += (Math.max(-.06, Math.min(.06, dy * .12)) + (R.lane * LANE - R.lat) * -.005 - camRoll) * (1 - Math.exp(-dt * 4)); camera.rotateZ(camRoll); }
       viewShift += (viewShiftT - viewShift) * (1 - Math.exp(-dt * 5));
       if (viewShift > .002) camera.setViewOffset(VW(), VH(), 0, VH() * viewShift, VW(), VH()); else if (camera.view && camera.view.enabled) camera.clearViewOffset();
     }
@@ -4223,6 +4260,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         return;
       }
       if (S.paused || typing || overlayOpen()) return;
+      if (S.mode === "read" && key === " " && tag !== "BUTTON") { var rb = pbody.querySelector("[data-primary]"); if (rb) { e.preventDefault(); rb.click(); } return; }
       if (key === "enter" && tag !== "BUTTON" && tag !== "A" && panelOpen()) { var pb = pbody.querySelector("[data-primary]:not([disabled]):not(.nthview-hidden)"); var cont = pbody.querySelector(".nthview-actions:not(.nthview-hidden) [data-primary]"); var tgt = cont && !cont.disabled ? cont : pb; if (tgt) { e.preventDefault(); tgt.click(); } return; }
       if (tag === "BUTTON" && (key === " " || key === "enter")) return;
       if (isRunning() && KEYMAP[key]) { e.preventDefault(); if (!e.repeat) act(KEYMAP[key]); }

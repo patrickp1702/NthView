@@ -173,8 +173,9 @@ the same as omitting it), `why` (string, ≤300, optional feedback for a wrong
 pick).
 
 ## Finale object
-The final sprint: a hazard-free run at speed while questions appear one at a
-time in a compact card. It draws `ask` questions from the pool in a seeded
+The final sprint: a hazard-free run in short bursts; before each question the
+runner stops, the question waits in a compact card, and a right answer (then
+Continue) sends the runner sprinting on to the next one. It draws `ask` questions from the pool in a seeded
 random order, a fresh order on every replay, so a large pool stays fair.
 
 | Field | Type | Required | Constraints | Description |
@@ -214,7 +215,7 @@ omitted; also allowed in `checks`): `choice`, `truefalse`, `multi`, `cloze`,
 same card): `compare`, `bars`, `switches`, `flashcards`, `story`, `tune`,
 `race`.
 
-**Scored track types** (a trial played while running, just before the
+**Scored track types** (a trial on the track, read at a standstill and then run, just before the
 encounter; `quiz` must be omitted): `lanes`, `gates`, `torches`, `planks`,
 `harvest`, `levers`, `tiles`.
 
@@ -489,11 +490,16 @@ comparisons `== != < <= > >=`, `&& || !` and parentheses. Nothing else.
 
 ### Track trials
 The seven scored track types and `collect` are played on a trial corridor
-between the end of the run and the encounter. The runner slows down; the
-encounter is visible ahead; a card at the top of the screen shows the prompt
-and, for the next row, what stands in the left, middle and right lane, so
-the labels can always be read. Labels on the track are short: keep them to a
-word or two.
+between the end of the run and the encounter, and the learner never has to
+read and run at the same time. When the trial begins the runner stops at a
+safe spot with the chasers holding back, and a card shows the prompt and what
+stands in the left, middle and right lane (for `planks` the statement). Nothing
+moves until the learner presses Enter or Space or taps **Run**; the first
+choice point is then 18 m ahead, more than three seconds of running. `torches`,
+`planks`, `harvest`, `levers` and `tiles` stop again before every later step
+with that step's card; `lanes`, `gates` and `collect` have one card. While
+running, a card at the top of the screen repeats the next row's lane labels.
+Labels on the track are short: keep them to a word or two.
 
 ### `lanes` — run through the lane with the right answer
 
