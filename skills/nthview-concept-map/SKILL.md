@@ -24,7 +24,10 @@ practice. The output is one self-contained HTML file. The force-directed
 layout, pan and zoom, minimap and cluster collapsing are plain JavaScript;
 the only external resource is Google Fonts (Fraunces, Inter, Outfit, Space
 Grotesk), which needs internet access the first time the file opens and
-falls back to system fonts without it.
+falls back to system fonts without it. Progress (stage, tour stop, rebuild
+tasks done and slips, reflection picks, open panel, pan and zoom) is saved in
+the browser's localStorage and resumed on the next open; the Restart button
+in the top bar clears it.
 
 ## When to use
 - Topics whose meaning lives in the relationships: causes and effects,

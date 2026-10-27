@@ -18,7 +18,9 @@ every wrong choice is answered with why, stamps collect in the bag, and
 finishing earns a closing letter that recaps every idea and a review of what
 was mixed up. The output is a single HTML file that loads three.js r128 and
 two Google Fonts from CDNs, so it needs internet access the first time it
-opens.
+opens. Progress (errands, bag, answers, settings and where the courier stands)
+is saved in the browser and restored on the next open; the Restart button in
+the top-left corner clears it.
 
 ## When to use
 - A system or process made of actors with distinct jobs (network protocols,

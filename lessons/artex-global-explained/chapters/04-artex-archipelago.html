@@ -1461,7 +1461,16 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     ".nthview-island-quest table.nthview-t{border-collapse:collapse;width:100%;font-size:.95rem;margin-top:8px}",
     ".nthview-island-quest table.nthview-t th,.nthview-island-quest table.nthview-t td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left}",
     ".nthview-island-quest a{color:var(--nv-accent)}",
-    "@media (prefers-reduced-motion:reduce){.nthview-island-quest .nthview-panel,.nthview-island-quest .nthview-toast,.nthview-island-quest .nthview-track .nthview-bar,.nthview-island-quest .nthview-flip,.nthview-island-quest .nthview-toggle::after{transition:none}}"
+    /* progress storage (§5.5): Restart in the HUD, the cards and the panel; a short resume notice */
+    ".nthview-island-quest .nthview-restart{background:var(--nv-bg);color:var(--nv-fg);border:1px solid var(--nv-border);border-radius:14px;padding:6px 12px;font-size:.88rem;font-weight:700;line-height:1.2;pointer-events:auto;white-space:nowrap}",
+    ".nthview-island-quest .nthview-restart:hover{border-color:var(--nv-accent)}",
+    ".nthview-island-quest .nthview-actions .nthview-restart{margin-left:auto;align-self:center}",
+    ".nthview-island-quest .nthview-panel .nthview-restart{position:sticky;top:0;float:right;margin-right:8px;border-radius:10px;font-size:.9rem;z-index:2}",
+    "@media (max-width:480px){.nthview-island-quest .nthview-panel .nthview-restart ~ div > .nthview-kicker:first-child{clear:both;padding-top:8px}}",
+    ".nthview-island-quest .nthview-resume{position:absolute;left:0;right:0;top:38%;transform:translateY(-50%);margin:0 auto;width:max-content;z-index:21;max-width:calc(100% - 32px);background:var(--nv-bg);color:var(--nv-fg);border:2px solid var(--nv-accent);border-radius:14px;padding:10px 18px;text-align:center;font-weight:700;pointer-events:none;box-shadow:0 10px 34px rgba(0,0,0,.25);transition:opacity .4s}",
+    ".nthview-island-quest .nthview-resume.nthview-gone{opacity:0}",
+    "@media (min-width:641px){.nthview-island-quest .nthview-panel.nthview-open ~ .nthview-resume{right:min(470px,100%);max-width:calc(100% - min(470px,100%) - 32px)}}",
+    "@media (prefers-reduced-motion:reduce){.nthview-island-quest .nthview-panel,.nthview-island-quest .nthview-toast,.nthview-island-quest .nthview-track .nthview-bar,.nthview-island-quest .nthview-flip,.nthview-island-quest .nthview-toggle::after,.nthview-island-quest .nthview-resume{transition:none}}"
   ].join("\n");
 
   function injectStyles() {
@@ -1491,6 +1500,32 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       el("p", { text: "The data has " + result.errors.length + " problem(s). Fix them and rebuild the file." }),
       el("ul", {}, items)
     ]));
+  }
+
+  // ---- progress storage (identical in every view, §5.5) ------------------
+  var STORE_VERSION = 1;
+  function storageKey(data) {
+    var s = JSON.stringify(data), h = 2166136261;
+    for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return "nthview:island-quest:" + (h >>> 0).toString(36);
+  }
+  function loadState(key) {
+    try { var raw = root.localStorage.getItem(key); if (!raw) return null; var st = JSON.parse(raw); return st && st.v === STORE_VERSION ? st : null; }
+    catch (e) { return null; }
+  }
+  function saveState(key, state) {
+    try { state.v = STORE_VERSION; state.savedAt = Date.now(); root.localStorage.setItem(key, JSON.stringify(state)); }
+    catch (e) { /* storage unavailable or full: keep playing without saving */ }
+  }
+  function clearState(key) { try { root.localStorage.removeItem(key); } catch (e) {} }
+  function restartButton(container, data, key) {
+    var b = el("button", { type: "button", class: "nthview-restart", text: "Restart", title: "Start again from the beginning" });
+    b.addEventListener("click", function () {
+      if (!root.confirm("Start again from the beginning? Your progress here will be erased.")) return;
+      clearState(key);
+      NthView.build(container, data);
+    });
+    return b;
   }
 
   /* three.js throws when WebGL is off or unsupported; probe first so the reader gets a notice, not a blank page */
@@ -1665,6 +1700,8 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     var reduceMotion = root.matchMedia && root.matchMedia("(prefers-reduced-motion: reduce)").matches;
     var isDark = function () { return !!(root.matchMedia && root.matchMedia("(prefers-color-scheme: dark)").matches); };
     var css = function (n) { return getComputedStyle(container).getPropertyValue(n).trim(); };
+    /* progress storage (§5.5): one record per document, restored at the end of render */
+    var key = storageKey(data), saved = loadState(key), stopped = false, flushQueued = false, panelFor = null, lastSave = { x: 0, z: 0, yaw: 0, t: 0 };
 
     /* ---------- DOM scaffold ---------- */
     var canvas = el("canvas", { class: "nthview-canvas", tabindex: "0", "aria-label": "3D islands. Use WASD or arrow keys to move and drag to look. Use the guide at the bottom of the screen to walk to the next lesson." });
@@ -1681,7 +1718,8 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
           el("span", { class: "nthview-coin", "aria-hidden": "true" }), coinCount,
           el("span", { class: "nthview-star", "aria-hidden": "true", text: "★" }), starCount,
           el("span", { class: "nthview-sr", text: "coins and stars" })]),
-        el("div", { class: "nthview-hud-row" }, [soundBtn, helpBtn])])
+        el("div", { class: "nthview-hud-row" }, [soundBtn, helpBtn]),
+        el("div", { class: "nthview-hud-row" }, [restartButton(container, data, key)])])
     ]);
     var svgNS = "http://www.w3.org/2000/svg";
     var gSvg = doc.createElementNS(svgNS, "svg"); gSvg.setAttribute("viewBox", "0 0 24 24"); gSvg.setAttribute("width", "26"); gSvg.setAttribute("height", "26");
@@ -1694,7 +1732,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     var joy = el("div", { class: "nthview-joy", "aria-hidden": "true" }, [knob]);
     var closeBtn = el("button", { type: "button", class: "nthview-close", text: "Back to the islands" });
     var pbody = el("div");
-    var panel = el("aside", { class: "nthview-panel", "aria-label": "Lesson" }, [closeBtn, pbody]);
+    var panel = el("aside", { class: "nthview-panel", "aria-label": "Lesson" }, [closeBtn, restartButton(container, data, key), pbody]);
     var startBtn = btn("Start", "nthview-primary", function () { onStart(); });
     var introCard = el("div", { class: "nthview-card" });
     introCard.appendChild(el("h1", { text: data.title }));
@@ -1706,20 +1744,20 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     }
     introCard.appendChild(p("nthview-small", "To move yourself: WASD or arrow keys, and drag to look around. On a phone, use the stick at the bottom left."));
     if (data.intro.note) introCard.appendChild(p("nthview-small", data.intro.note));
-    introCard.appendChild(el("div", { class: "nthview-actions" }, [startBtn]));
+    introCard.appendChild(el("div", { class: "nthview-actions" }, [startBtn, restartButton(container, data, key)]));
     var intro = el("div", { class: "nthview-overlay" }, [introCard]);
     var endCard = el("div", { class: "nthview-card" });
     var end = el("div", { class: "nthview-overlay nthview-hidden" }, [endCard]);
     [canvas, hud, guide, toastEl, joy, panel, intro, end].forEach(function (n) { container.appendChild(n); });
 
     /* ---------- state & score ---------- */
-    var state = { done: {}, doneCount: 0, coins: data.coins || 10, stars: {}, attempts: {}, panelOpen: false, started: false, finished: false, muted: false };
+    var state = { done: {}, doneCount: 0, coins: data.coins || 10, stars: {}, attempts: {}, panelOpen: false, started: false, finished: false, muted: false, answers: {} };
     var totalStars = function () { return Object.keys(state.stars).reduce(function (a, k) { return a + state.stars[k]; }, 0); };
     var maxStars = 3 * (N + data.finale.questions.length);
     function renderScore() { coinCount.textContent = String(state.coins); starCount.textContent = String(totalStars()); }
-    function attempt(key, cost) { state.attempts[key] = (state.attempts[key] || 0) + 1; state.coins = Math.max(0, state.coins - (cost === undefined ? 1 : cost)); renderScore(); }
-    function award(key) { var a = state.attempts[key] || 1; var st = a === 1 ? 3 : a === 2 ? 2 : 1; state.stars[key] = st; renderScore(); return st; }
-    function awardStars(key, st) { state.stars[key] = st; renderScore(); return st; }
+    function attempt(key, cost) { state.attempts[key] = (state.attempts[key] || 0) + 1; state.coins = Math.max(0, state.coins - (cost === undefined ? 1 : cost)); renderScore(); persist(); }
+    function award(key) { var a = state.attempts[key] || 1; var st = a === 1 ? 3 : a === 2 ? 2 : 1; state.stars[key] = st; renderScore(); persist(); return st; }
+    function awardStars(key, st) { state.stars[key] = st; renderScore(); persist(); return st; }
     var toastTimer;
     function toast(msg) { toastEl.textContent = msg; toastEl.classList.add("nthview-show"); clearTimeout(toastTimer); toastTimer = setTimeout(function () { toastEl.classList.remove("nthview-show"); }, 3400); }
 
@@ -1748,7 +1786,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         }
       } catch (e) { /* audio is optional */ }
     }
-    soundBtn.addEventListener("click", function () { state.muted = !state.muted; soundBtn.textContent = state.muted ? "Sound off" : "Sound on"; soundBtn.setAttribute("aria-pressed", String(!state.muted)); if (!state.muted) sfx("open"); });
+    soundBtn.addEventListener("click", function () { state.muted = !state.muted; soundBtn.textContent = state.muted ? "Sound off" : "Sound on"; soundBtn.setAttribute("aria-pressed", String(!state.muted)); if (!state.muted) sfx("open"); persist(); });
 
     /* ---------- renderer & scene ---------- */
     var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
@@ -2227,7 +2265,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     var PROPS = {
       collect: function (s, act) {
         var n = act.items.length;
-        s.task = { type: "collect", total: n, collected: [], items: [] };
+        s.task = { type: "collect", total: n, collected: [], items: [], gotIdx: [] };
         act.items.forEach(function (L, i) {
           var a = i / n * Math.PI * 2 + .4, d = 4.6 + (i % 2) * 1.6, lx = Math.cos(a) * d, lz = Math.sin(a) * d;
           var o = new THREE.Mesh(new THREE.SphereGeometry(.42, 12, 10), glow(s.color, 1)); o.position.set(lx, 1, lz); s.g.add(o);
@@ -2397,7 +2435,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         });
       },
       gather: function (s, act) {
-        s.task = { type: "gather", items: [], bins: [], carrying: null, sorted: 0, total: act.items.length, nearBin: null };
+        s.task = { type: "gather", items: [], bins: [], carrying: null, sorted: 0, total: act.items.length, nearBin: null, binnedIdx: [] };
         act.bins.forEach(function (b, i) {
           var bx = spreadX(i, act.bins.length, 4.2), bz = 5.5;
           var bin = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.3, 2.4), M("#c8cdd8", { emissive: s.color, emissiveIntensity: .1 })); bin.position.set(bx, .65, bz); s.g.add(bin);
@@ -2492,21 +2530,22 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     }
 
     /* ---------- panel helpers ---------- */
-    function openPanel(accent) { panel.style.setProperty("--accent", accent); panel.classList.add("nthview-open"); state.panelOpen = true; keys = {}; joyVec.x = joyVec.y = 0; panel.scrollTop = 0; sfx("open"); setTimeout(function () { closeBtn.focus({ preventScroll: true }); }, 60); }
-    function closePanel() { panel.classList.remove("nthview-open"); state.panelOpen = false; guideKey = ""; canvas.focus({ preventScroll: true }); }
+    function openPanel(accent) { panel.style.setProperty("--accent", accent); panel.classList.add("nthview-open"); state.panelOpen = true; keys = {}; joyVec.x = joyVec.y = 0; panel.scrollTop = 0; sfx("open"); setTimeout(function () { closeBtn.focus({ preventScroll: true }); }, 60); persist(); }
+    function closePanel() { panel.classList.remove("nthview-open"); state.panelOpen = false; panelFor = null; guideKey = ""; canvas.focus({ preventScroll: true }); persist(); }
     closeBtn.addEventListener("click", closePanel);
 
     function quiz(host, o) {
       var box = el("div", { class: "nthview-quiz" }); box.appendChild(p("nthview-q", o.q.question));
       var list = el("div", { class: "nthview-opts" }), fb = el("div", { class: "nthview-fb", "aria-live": "polite" });
-      var finished = false;
+      var finished = false, qa = answersFor("q:" + o.key), wrongs = o.solved ? [] : idxList(qa.wrong, o.q.options.length).filter(function (k) { return !o.q.options[k].correct; });
       var done = function (st) { finished = true; fb.className = "nthview-fb nthview-ok"; fb.textContent = (o.q.okText || "Correct!") + " " + starsText(st) + (st === 3 ? " First try!" : ""); Array.prototype.forEach.call(list.querySelectorAll("button"), function (x) { x.disabled = true; }); };
-      o.q.options.forEach(function (opt) {
+      o.q.options.forEach(function (opt, k) {
         var b = el("button", { type: "button", class: "nthview-opt", text: opt.text }); if (o.solved && opt.correct) b.classList.add("nthview-right");
+        if (wrongs.indexOf(k) !== -1) { b.classList.add("nthview-wrong"); b.disabled = true; }
         b.addEventListener("click", function () {
           if (finished) return; attempt(o.key);
           if (opt.correct) { b.classList.add("nthview-right"); var st = award(o.key); sfx("ok"); done(st); if (o.onSolve) o.onSolve(st); }
-          else { b.classList.add("nthview-wrong"); b.disabled = true; sfx("no"); fb.className = "nthview-fb nthview-no"; fb.textContent = opt.why || "Not quite. Read the box above again and try once more."; }
+          else { b.classList.add("nthview-wrong"); b.disabled = true; sfx("no"); fb.className = "nthview-fb nthview-no"; fb.textContent = opt.why || "Not quite. Read the box above again and try once more."; if (wrongs.indexOf(k) === -1) wrongs.push(k); qa.wrong = wrongs.slice(); persist(); }
         });
         list.appendChild(b);
       });
@@ -2536,7 +2575,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     }
     function lower(s) { return s.charAt(0).toLowerCase() + s.slice(1); }
     function earn(s) {
-      if (state.done[s.id]) return; state.done[s.id] = true; state.doneCount++; renderTray(); refreshWorld(); guideKey = "";
+      if (state.done[s.id]) return; state.done[s.id] = true; state.doneCount++; renderTray(); refreshWorld(); guideKey = ""; persist();
       burst(s.x, 3, s.z, s.color); burst(crown[s.idx].p.position.x, crown[s.idx].p.position.y + 2, crown[s.idx].p.position.z, s.color, 50); roboJump = 1;
       if (state.doneCount === N) { sfx("win"); toast("All " + N + " lessons done! " + data.finale.name + " in the middle is open."); } else toast("Lesson " + (s.idx + 1) + " done. " + (N - state.doneCount) + " to go.");
     }
@@ -2575,6 +2614,18 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     }
     function markRows(rows, marks) { rows.forEach(function (r, i) { r.classList.remove("nthview-right", "nthview-wrong"); if (marks) r.classList.add(marks[i] ? "nthview-right" : "nthview-wrong"); }); }
 
+    /* ---------- saved answers (§5.5): every value is checked against the data before use ---------- */
+    function isInt(v) { return typeof v === "number" && isFinite(v) && Math.floor(v) === v; }
+    function isIdx(v, n) { return isInt(v) && v >= 0 && v < n; }
+    function idxList(arr, n) { var out = []; if (Array.isArray(arr)) arr.forEach(function (v) { if (isIdx(v, n) && out.indexOf(v) === -1) out.push(v); }); return out; }
+    function isPerm(arr, n) { return Array.isArray(arr) && arr.length === n && idxList(arr, n).length === n; }
+    function answersFor(k) { var a = state.answers[k]; if (!a || typeof a !== "object" || Array.isArray(a)) { a = {}; state.answers[k] = a; } return a; }
+    function tuneEnv(act, a) { var env = {}; act.controls.forEach(function (c) { var v = a && a.env ? a.env[c.id] : undefined; env[c.id] = typeof v === "number" && isFinite(v) && v >= c.min && v <= c.max ? v : c.value; }); return env; }
+    function switchEnv(act, a) { var env = {}; act.switches.forEach(function (sw) { var v = a && a.env ? a.env[sw.id] : undefined; env[sw.id] = v === 0 || v === 1 ? v : (sw.on ? 1 : 0); }); return env; }
+    function storyStep(act, a) { return a && isInt(a.step) && a.step >= 1 && a.step <= act.frames.length ? a.step : 1; }
+    function barGuesses(act, a) { return act.items.map(function (_, i) { var g = a && Array.isArray(a.guesses) ? a.guesses[i] : undefined; return isInt(g) && g >= 0 && g <= 100 ? g : 50; }); }
+    function estimateValue(act, a) { var v = a ? a.value : undefined; return typeof v === "number" && isFinite(v) && v >= act.min && v <= act.max ? v : null; }
+
     /* ---------- activities inside the panel ----------
        Each returns true when the lesson may show its question/remember part. */
     var ACTIVITIES = {
@@ -2598,15 +2649,15 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         return true;
       },
       story: function (s, act) {
-        var w = box(act.title || "Try it"); var row = el("div", { class: "nthview-row" }); var story = el("div", { class: "nthview-story" }); var step = 1;
-        var draw = function () { story.textContent = ""; act.frames.slice(0, step).forEach(function (f) { story.appendChild(p("", f)); }); next.disabled = step >= act.frames.length; if (s.api) s.api.step(step); };
+        var w = box(act.title || "Try it"); var row = el("div", { class: "nthview-row" }); var story = el("div", { class: "nthview-story" }); var sa = answersFor(s.id), step = storyStep(act, sa);
+        var draw = function () { story.textContent = ""; act.frames.slice(0, step).forEach(function (f) { story.appendChild(p("", f)); }); next.disabled = step >= act.frames.length; if (s.api) s.api.step(step); sa.step = step; persist(); };
         var next = btn(act.buttonLabel, "nthview-primary", function () { step++; sfx("step"); draw(); });
         var reset = btn(act.resetLabel || "Start over", "", function () { step = 1; draw(); });
         row.appendChild(next); row.appendChild(reset); w.appendChild(row); w.appendChild(story); if (act.caption) w.appendChild(p("nthview-cap", act.caption)); pbody.appendChild(w); draw(); return true;
       },
       tune: function (s, act) {
         var w = box(act.title || "Try it"); pbody.appendChild(w);
-        var env = {}; act.controls.forEach(function (c) { env[c.id] = c.value; });
+        var ta = answersFor(s.id), env = tuneEnv(act, ta);
         var exprs = function (src) { var c = compileExpr(src); return c.fn ? String(Math.round(c.fn(env) * 100) / 100) : null; };
         var readout = el("p", { class: "nthview-readout" }), pile = el("div", { class: "nthview-pile", "aria-hidden": "true" }), fb = el("p", { class: "nthview-fb", "aria-live": "polite" });
         var out = el("div"); out.appendChild(readout); if (act.tally) out.appendChild(pile);
@@ -2618,7 +2669,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
           if (act.tally) { var n = Math.max(0, Math.round(evalExpr(act.tally.count, env))); pile.textContent = act.tally.icon.repeat(Math.min(n, act.tally.max || 30)); }
           fb.textContent = ""; fb.className = "nthview-fb";
         };
-        act.controls.forEach(function (c) { stepper(w, c.label, c.min, c.max, c.value, function (v) { env[c.id] = v; if (ready) { sfx("step"); upd(); } }); });
+        act.controls.forEach(function (c) { stepper(w, c.label, c.min, c.max, env[c.id], function (v) { env[c.id] = v; if (ready) { ta.env = Object.assign({}, env); persist(); sfx("step"); upd(); } }); });
         if (act.outcomes) {
           var row = el("div", { class: "nthview-row" }); row.style.marginTop = "10px";
           row.appendChild(btn(act.outcomes.buttonLabel, "nthview-primary", function () {
@@ -2645,13 +2696,15 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       truefalse: function (s, act, done) {
         var w = box(act.title || "True or false?"); w.appendChild(p("nthview-q", act.statement));
         var fb = feedback(), grid = el("div", { class: "nthview-tf" }), locked = done;
+        var tfa = answersFor(s.id), tfWrong = (Array.isArray(tfa.wrong) ? tfa.wrong : []).filter(function (x) { return x === !act.answer; }).slice(0, 1);
         [true, false].forEach(function (v) {
           var b = el("button", { type: "button", class: "nthview-opt", text: v ? (act.trueLabel || "True") : (act.falseLabel || "False") });
           if (done) { b.disabled = true; if (v === act.answer) b.classList.add("nthview-right"); }
+          else if (tfWrong.indexOf(v) !== -1) { b.classList.add("nthview-wrong"); b.disabled = true; }
           b.addEventListener("click", function () {
             if (locked) return;
             if (v === act.answer) { locked = true; b.classList.add("nthview-right"); Array.prototype.forEach.call(grid.children, function (x) { x.disabled = true; }); judge(s, true, fb, act.why || "Correct!"); }
-            else { b.classList.add("nthview-wrong"); b.disabled = true; judge(s, false, fb, "", act.why ? "Not quite. " + act.why : "Not quite. It's the other one."); }
+            else { b.classList.add("nthview-wrong"); b.disabled = true; tfa.wrong = [v]; judge(s, false, fb, "", act.why ? "Not quite. " + act.why : "Not quite. It's the other one."); }
           });
           grid.appendChild(b);
         });
@@ -2660,10 +2713,12 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       multi: function (s, act, done) {
         var w = box(act.title || "Pick all that apply"); w.appendChild(p("nthview-q", act.question));
         var list = el("div", { class: "nthview-opts" }), fb = feedback(), inputs = [], labels = [];
+        var ma = answersFor(s.id), checked = done ? [] : idxList(ma.checked, act.options.length);
         act.options.forEach(function (o, i) {
           var cb = el("input", { type: "checkbox" }); var lab = el("label", { class: "nthview-cb" + (done && o.correct ? " nthview-right" : "") }, [cb, el("span", { text: o.text })]);
           if (done) { cb.checked = !!o.correct; cb.disabled = true; }
-          cb.addEventListener("change", function () { if (s.api) s.api.select(inputs.map(function (c, k) { return c.checked ? k : -1; }).filter(function (k) { return k >= 0; })); markRows(labels, null); });
+          else if (checked.indexOf(i) !== -1) cb.checked = true;
+          cb.addEventListener("change", function () { var sel = inputs.map(function (c, k) { return c.checked ? k : -1; }).filter(function (k) { return k >= 0; }); ma.checked = sel; persist(); if (s.api) s.api.select(sel); markRows(labels, null); });
           inputs.push(cb); labels.push(lab); list.appendChild(lab);
         });
         w.appendChild(list);
@@ -2680,7 +2735,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         w.appendChild(fb); pbody.appendChild(w); return done;
       },
       order: function (s, act, done) {
-        var n = act.items.length, cur = done ? act.items.map(function (_, i) { return i; }) : shuffledIdx(n, s.id + ":order");
+        var oa = answersFor(s.id), n = act.items.length, cur = done ? act.items.map(function (_, i) { return i; }) : isPerm(oa.cur, n) ? oa.cur.slice() : shuffledIdx(n, s.id + ":order");
         var w = box(act.title || "Put these in order"); w.appendChild(p("nthview-q", act.prompt));
         var list = el("div", { class: "nthview-list" }), fb = feedback();
         function draw(marks, focusPos, focusDir) {
@@ -2699,7 +2754,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
             list.appendChild(row);
           });
         }
-        function swap(a, b, dir) { var t = cur[a]; cur[a] = cur[b]; cur[b] = t; sfx("step"); draw(null, b, dir); }
+        function swap(a, b, dir) { var t = cur[a]; cur[a] = cur[b]; cur[b] = t; oa.cur = cur.slice(); persist(); sfx("step"); draw(null, b, dir); }
         draw(); w.appendChild(list);
         if (!done) w.appendChild(checkRow("Check the order", function () {
           var marks = cur.map(function (idx, pos) { return idx === pos; }); var right = marks.filter(Boolean).length;
@@ -2710,7 +2765,10 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       },
       match: function (s, act, done) {
         var n = act.pairs.length, perm = shuffledIdx(n, s.id + ":match"), pairOf = {}, selLeft = null;
+        var mt = answersFor(s.id);
         if (done) { act.pairs.forEach(function (_, i) { pairOf[i] = perm.indexOf(i); }); }
+        else if (mt.pairs && typeof mt.pairs === "object") { var usedR = {}; Object.keys(mt.pairs).forEach(function (k) { var li = Number(k), ri = mt.pairs[k]; if (isIdx(li, n) && isIdx(ri, n) && !usedR[ri]) { usedR[ri] = true; pairOf[li] = ri; } }); }
+        var savePairs = function () { mt.pairs = Object.assign({}, pairOf); persist(); };
         var w = box(act.title || "Match the pairs"); w.appendChild(p("nthview-q", act.prompt));
         var leftCol = el("div", { class: "nthview-opts", role: "group", "aria-label": "Left items" }), rightCol = el("div", { class: "nthview-opts", role: "group", "aria-label": "Right items" }), fb = feedback();
         var leftBtns = [], rightBtns = [], check;
@@ -2728,7 +2786,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
             var li = leftFor(i);
             if (selLeft !== null) { if (li !== null) delete pairOf[li]; pairOf[selLeft] = i; selLeft = null; sfx("pick"); }
             else if (li !== null) { delete pairOf[li]; sfx("step"); }
-            draw();
+            savePairs(); draw();
           }); rightBtns.push(rb); rightCol.appendChild(rb);
         });
         w.appendChild(el("div", { class: "nthview-cols" }, [leftCol, rightCol]));
@@ -2737,20 +2795,20 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
           check = checkRow("Check the pairs", function () {
             var marks = act.pairs.map(function (_, i) { return pairOf[i] !== undefined && perm[pairOf[i]] === i; }); var right = marks.filter(Boolean).length;
             if (right === n) { done = true; leftBtns.concat(rightBtns).forEach(function (b) { b.disabled = true; }); draw(); judge(s, true, fb, "All " + n + " pairs matched!"); }
-            else { act.pairs.forEach(function (_, i) { if (!marks[i]) delete pairOf[i]; }); draw(marks); judge(s, false, fb, "", right + " of " + n + " pairs are right. The wrong pairs were undone; try them again."); }
+            else { act.pairs.forEach(function (_, i) { if (!marks[i]) delete pairOf[i]; }); savePairs(); draw(marks); judge(s, false, fb, "", right + " of " + n + " pairs are right. The wrong pairs were undone; try them again."); }
           }); w.appendChild(check);
         }
         w.appendChild(fb); draw(); pbody.appendChild(w); return done;
       },
       sort: function (s, act, done) {
         var w = box(act.title || "Sort them"); w.appendChild(p("nthview-q", act.prompt));
-        var choice = act.items.map(function (it) { return done ? act.buckets.map(function (b) { return b.id; }).indexOf(it.bucket) : -1; });
+        var sa2 = answersFor(s.id), choice = act.items.map(function (it, i) { if (done) return act.buckets.map(function (b) { return b.id; }).indexOf(it.bucket); var v = Array.isArray(sa2.choice) ? sa2.choice[i] : -1; return isIdx(v, act.buckets.length) ? v : -1; });
         var bins = el("div", { class: "nthview-bins", "aria-hidden": "true" }), binEls = act.buckets.map(function (b) { var d = el("div", { class: "nthview-bin" }, [el("b", { text: b.label })]); bins.appendChild(d); return d; });
         var list = el("div", { class: "nthview-list" }), rows = [], fb = feedback();
         function drawBins() { binEls.forEach(function (d, k) { d.textContent = ""; d.appendChild(el("b", { text: act.buckets[k].label })); var any = false; act.items.forEach(function (it, i) { if (choice[i] === k) { any = true; d.appendChild(el("span", { class: "nthview-stamp", text: it.text })); } }); d.classList.toggle("nthview-full", any); }); }
         act.items.forEach(function (it, i) {
           var row = el("div", { class: "nthview-item" + (done ? " nthview-right" : "") }); var txt = el("div", { class: "nthview-txt" }); txt.appendChild(rich(it.text)); row.appendChild(txt);
-          var seg = segControl(act.buckets.map(function (b) { return b.label; }), choice[i], function (k) { choice[i] = k; sfx("step"); row.classList.remove("nthview-wrong"); drawBins(); }, "Bucket for " + it.text);
+          var seg = segControl(act.buckets.map(function (b) { return b.label; }), choice[i], function (k) { choice[i] = k; sa2.choice = choice.slice(); persist(); sfx("step"); row.classList.remove("nthview-wrong"); drawBins(); }, "Bucket for " + it.text);
           if (done) seg.buttons.forEach(function (b) { b.disabled = true; });
           row.appendChild(seg); rows.push(row); list.appendChild(row);
         });
@@ -2764,7 +2822,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         w.appendChild(fb); pbody.appendChild(w); return done;
       },
       rank: function (s, act, done) {
-        var n = act.items.length, cur = done ? act.items.map(function (_, i) { return i; }) : shuffledIdx(n, s.id + ":rank");
+        var ra = answersFor(s.id), n = act.items.length, cur = done ? act.items.map(function (_, i) { return i; }) : isPerm(ra.cur, n) ? ra.cur.slice() : shuffledIdx(n, s.id + ":rank");
         var w = box(act.title || "Rank them"); w.appendChild(p("nthview-q", act.prompt));
         var list = el("div", { class: "nthview-list" }), fb = feedback(), reveal = el("div");
         function draw(marks, focusPos, focusDir) {
@@ -2782,7 +2840,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
             list.appendChild(row);
           });
         }
-        function swap(a, b, dir) { var t = cur[a]; cur[a] = cur[b]; cur[b] = t; sfx("step"); draw(null, b, dir); }
+        function swap(a, b, dir) { var t = cur[a]; cur[a] = cur[b]; cur[b] = t; ra.cur = cur.slice(); persist(); sfx("step"); draw(null, b, dir); }
         function showValues() { reveal.textContent = ""; var d = box("The real numbers"); act.items.forEach(function (it) { d.appendChild(barRow(it.text, it.value, it.show, "normal")); }); if (act.caption) d.appendChild(p("nthview-cap", act.caption)); reveal.appendChild(d); }
         draw(); w.appendChild(list);
         if (!done) w.appendChild(checkRow("Check my ranking", function () {
@@ -2794,13 +2852,15 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       },
       cloze: function (s, act, done) {
         var w = box(act.title || "Fill the gaps"); var parts = act.text.split("___"), selects = [], para = el("p", { class: "nthview-cloze" }), fb = feedback();
+        var ca = answersFor(s.id), vals = Array.isArray(ca.vals) ? ca.vals : [];
         parts.forEach(function (pt, i) {
           para.appendChild(rich(pt));
           if (i < act.gaps.length) {
             var sel = el("select", { class: "nthview-select" + (done ? " nthview-right" : ""), "aria-label": "Gap " + (i + 1) }); sel.appendChild(el("option", { value: "", text: "…" }));
             act.gaps[i].options.forEach(function (o, k) { sel.appendChild(el("option", { value: String(k), text: o })); });
             if (done) { sel.value = String(act.gaps[i].answer); sel.disabled = true; }
-            sel.addEventListener("change", function () { sel.classList.remove("nthview-wrong"); });
+            else if (typeof vals[i] === "string" && vals[i] !== "" && isIdx(Number(vals[i]), act.gaps[i].options.length)) sel.value = String(Number(vals[i]));
+            sel.addEventListener("change", function () { sel.classList.remove("nthview-wrong"); ca.vals = selects.map(function (x) { return x.value; }); persist(); });
             selects.push(sel); para.appendChild(sel);
           }
         });
@@ -2815,13 +2875,14 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       },
       estimate: function (s, act, done) {
         var w = box(act.title || "Make an estimate"); w.appendChild(p("nthview-q", act.question));
-        var step = act.step || 1, unit = act.unit ? " " + act.unit : "", start = done ? act.answer : Math.round((act.min + act.max) / 2 / step) * step;
+        var ea = answersFor(s.id), saved0 = estimateValue(act, ea);
+        var step = act.step || 1, unit = act.unit ? " " + act.unit : "", start = done ? act.answer : saved0 !== null ? saved0 : Math.round((act.min + act.max) / 2 / step) * step;
         var range = el("input", { type: "range", class: "nthview-range", min: String(act.min), max: String(act.max), step: String(step), value: String(start), "aria-label": "Estimate" });
         var num = el("input", { type: "number", min: String(act.min), max: String(act.max), step: String(step), value: String(start), "aria-label": "Estimate as a number" });
         var bar = el("div", { class: "nthview-bar" }), track = el("div", { class: "nthview-track" }, [bar]), fb = feedback();
         var frac = function (v) { return Math.max(0, Math.min(1, (v - act.min) / (act.max - act.min))); };
         var sync = function (v) { v = Math.max(act.min, Math.min(act.max, v)); range.value = String(v); num.value = String(v); bar.style.width = frac(v) * 100 + "%"; if (s.api) s.api.set(frac(v)); };
-        range.addEventListener("input", function () { sync(Number(range.value)); }); num.addEventListener("input", function () { if (num.value !== "") sync(Number(num.value)); });
+        range.addEventListener("input", function () { sync(Number(range.value)); ea.value = Number(range.value); persist(); }); num.addEventListener("input", function () { if (num.value !== "") { sync(Number(num.value)); ea.value = Number(num.value); persist(); } });
         w.appendChild(range); w.appendChild(el("div", { class: "nthview-numrow" }, [num, el("span", { text: act.unit || "" }), el("span", { class: "nthview-cap", text: "from " + act.min + " to " + act.max + unit })]));
         w.appendChild(el("div", { class: "nthview-fline" }, [track, el("b", { text: "" })])); sync(start);
         if (done) { range.disabled = true; num.disabled = true; var mk = el("span", { class: "nthview-mark" }); mk.style.left = frac(act.answer) * 100 + "%"; track.appendChild(mk); w.appendChild(p("nthview-readout", "Answer: " + act.answer + unit)); if (act.reveal) w.appendChild(p("nthview-cap", act.reveal)); }
@@ -2836,12 +2897,14 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       odd: function (s, act, done) {
         var w = box(act.title || "Spot the odd one out"); w.appendChild(p("nthview-q", act.prompt));
         var list = el("div", { class: "nthview-opts" }), fb = feedback(), locked = done;
+        var da = answersFor(s.id), oddWrong = done ? [] : idxList(da.wrong, act.items.length).filter(function (k) { return k !== act.answer; });
         act.items.forEach(function (it, i) {
           var b = el("button", { type: "button", class: "nthview-opt", text: it }); if (done) { b.disabled = true; if (i === act.answer) b.classList.add("nthview-right"); }
+          else if (oddWrong.indexOf(i) !== -1) { b.classList.add("nthview-wrong"); b.disabled = true; }
           b.addEventListener("click", function () {
             if (locked) return;
             if (i === act.answer) { locked = true; b.classList.add("nthview-right"); Array.prototype.forEach.call(list.children, function (x) { x.disabled = true; }); judge(s, true, fb, act.why || "That's the odd one!"); }
-            else { b.classList.add("nthview-wrong"); b.disabled = true; judge(s, false, fb, "", "That one belongs with the others. Which one is different?"); }
+            else { b.classList.add("nthview-wrong"); b.disabled = true; oddWrong.push(i); da.wrong = oddWrong.slice(); judge(s, false, fb, "", "That one belongs with the others. Which one is different?"); }
           });
           list.appendChild(b);
         });
@@ -2886,8 +2949,8 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       },
       compare: function (s, act) {
         var w = box(act.title || "Before and after"); if (act.prompt) w.appendChild(p("", act.prompt));
-        var sides = [act.before, act.after], which = 0, body = el("div");
-        var seg = segControl([act.before.label, act.after.label], 0, function (i) { which = i; sfx("step"); draw(true); }, "Before or after");
+        var cpa = answersFor(s.id), sides = [act.before, act.after], which = cpa.which === 1 ? 1 : 0, body = el("div");
+        var seg = segControl([act.before.label, act.after.label], which, function (i) { which = i; cpa.which = i; persist(); sfx("step"); draw(true); }, "Before or after");
         function draw(animate) {
           var side = sides[which]; body.textContent = ""; var t = p("", side.text); t.style.marginTop = "8px"; body.appendChild(t);
           side.rows.forEach(function (r) { var row = barRow(r.label, animate ? 0 : r.value, r.show, which === 0 ? "grey" : "normal"); body.appendChild(row); if (animate) requestAnimationFrame(function () { row.querySelector(".nthview-bar").style.width = r.value + "%"; }); });
@@ -2896,25 +2959,29 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         w.appendChild(seg); w.appendChild(body); if (act.caption) w.appendChild(p("nthview-cap", act.caption)); pbody.appendChild(w); draw(false); return true;
       },
       bars: function (s, act) {
-        var w = box(act.title || "Build the bars"); w.appendChild(p("", act.prompt)); var guesses = act.items.map(function () { return 50; }), rows = [], revealed = false;
+        var w = box(act.title || "Build the bars"); w.appendChild(p("", act.prompt)); var ba = answersFor(s.id), guesses = barGuesses(act, ba), rows = [], revealed = false;
         act.items.forEach(function (it, i) {
-          var r = barRow(it.label, 50, "50", "normal"); var bar = r.querySelector(".nthview-bar"), val = r.querySelector("b"), track = r.querySelector(".nthview-track");
-          var range = el("input", { type: "range", class: "nthview-range", min: "0", max: "100", step: "1", value: "50", "aria-label": "Your guess for " + it.label }); range.style.marginTop = "2px";
-          range.addEventListener("input", function () { guesses[i] = Number(range.value); bar.style.width = guesses[i] + "%"; bar.style.transition = "none"; val.textContent = String(guesses[i]); if (s.api) s.api.set(guesses.map(function (g) { return g / 100; })); });
+          var r = barRow(it.label, guesses[i], String(guesses[i]), "normal"); var bar = r.querySelector(".nthview-bar"), val = r.querySelector("b"), track = r.querySelector(".nthview-track");
+          var range = el("input", { type: "range", class: "nthview-range", min: "0", max: "100", step: "1", value: String(guesses[i]), "aria-label": "Your guess for " + it.label }); range.style.marginTop = "2px";
+          range.addEventListener("input", function () { guesses[i] = Number(range.value); bar.style.width = guesses[i] + "%"; bar.style.transition = "none"; val.textContent = String(guesses[i]); ba.guesses = guesses.slice(); persist(); if (s.api) s.api.set(guesses.map(function (g) { return g / 100; })); });
           r.appendChild(range); rows.push({ range: range, track: track, val: val, bar: bar }); w.appendChild(r);
         });
         if (s.api) s.api.set(guesses.map(function (g) { return g / 100; }));
         var fb = feedback();
-        w.appendChild(checkRow(act.buttonLabel || "Reveal the real numbers", function () {
-          if (revealed) return; revealed = true; sfx("pick");
+        var reveal = function () {
+          revealed = true;
           rows.forEach(function (r, i) { r.range.disabled = true; var mk = el("span", { class: "nthview-mark" }); mk.style.left = act.items[i].value + "%"; r.track.appendChild(mk); r.val.textContent = act.items[i].show; });
           if (s.api) s.api.reveal(); fb.className = "nthview-fb nthview-ok"; fb.textContent = act.revealText || "The green marks show the real values.";
+        };
+        w.appendChild(checkRow(act.buttonLabel || "Reveal the real numbers", function () {
+          if (revealed) return; sfx("pick"); reveal(); ba.revealed = true; persist();
         }));
+        if (ba.revealed === true) reveal();
         w.appendChild(fb); pbody.appendChild(w); return true;
       },
       switches: function (s, act) {
         var w = box(act.title || "Flip the switches"); if (act.prompt) w.appendChild(p("", act.prompt));
-        var env = {}; act.switches.forEach(function (sw) { env[sw.id] = sw.on ? 1 : 0; });
+        var swa = answersFor(s.id), env = switchEnv(act, swa);
         var readout = el("p", { class: "nthview-readout" }), lamp = el("span", { class: "nthview-lamp", "aria-hidden": "true" });
         function upd() {
           var r = null; for (var i = 0; i < act.readout.length; i++) { var c = act.readout[i]; if (c.when === undefined || evalExpr(c.when, env)) { r = c; break; } }
@@ -2922,19 +2989,19 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
           if (s.api) s.api.set(act.switches.map(function (sw) { return env[sw.id]; }), r ? r.tone : null);
         }
         act.switches.forEach(function (sw) {
-          var tg = el("button", { type: "button", class: "nthview-toggle", role: "switch", "aria-checked": String(!!sw.on), "aria-label": sw.label });
-          tg.addEventListener("click", function () { env[sw.id] = env[sw.id] ? 0 : 1; tg.setAttribute("aria-checked", String(!!env[sw.id])); sfx("step"); upd(); });
+          var tg = el("button", { type: "button", class: "nthview-toggle", role: "switch", "aria-checked": String(!!env[sw.id]), "aria-label": sw.label });
+          tg.addEventListener("click", function () { env[sw.id] = env[sw.id] ? 0 : 1; tg.setAttribute("aria-checked", String(!!env[sw.id])); swa.env = Object.assign({}, env); persist(); sfx("step"); upd(); });
           w.appendChild(el("div", { class: "nthview-sw" }, [el("span", { text: sw.label }), tg]));
         });
         w.appendChild(readout); if (act.caption) w.appendChild(p("nthview-cap", act.caption)); pbody.appendChild(w); upd(); return true;
       },
       predict: function (s, act, done) {
         var w = box(act.title || "Predict, then watch"); w.appendChild(p("nthview-q", act.question)); var wasDone = done;
-        var picked = done ? (state.picks[s.id] !== undefined ? state.picks[s.id] : act.options.map(function (o) { return !!o.correct; }).indexOf(true)) : null;
+        var pa = answersFor(s.id), picked = done ? (state.picks[s.id] !== undefined ? state.picks[s.id] : act.options.map(function (o) { return !!o.correct; }).indexOf(true)) : isIdx(pa.picked, act.options.length) ? pa.picked : null;
         var list = el("div", { class: "nthview-opts" }), fb = feedback(), frames = el("div", { class: "nthview-story" }), opts = [];
         act.options.forEach(function (o, i) {
           var b = el("button", { type: "button", class: "nthview-opt", text: o.text }); if (done) { b.disabled = true; if (o.correct) b.classList.add("nthview-right"); else if (i === picked) b.classList.add("nthview-wrong"); }
-          b.addEventListener("click", function () { if (done) return; picked = i; opts.forEach(function (x, k) { x.classList.toggle("nthview-sel", k === i); x.setAttribute("aria-pressed", String(k === i)); }); run.button.disabled = false; sfx("step"); });
+          b.addEventListener("click", function () { if (done) return; picked = i; pa.picked = i; persist(); opts.forEach(function (x, k) { x.classList.toggle("nthview-sel", k === i); x.setAttribute("aria-pressed", String(k === i)); }); run.button.disabled = false; sfx("step"); });
           opts.push(b); list.appendChild(b);
         });
         w.appendChild(list);
@@ -2948,43 +3015,46 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
             if (s.api && s.api.solved) s.api.solved(st); earn(s); setTimeout(function () { if (state.panelOpen) openLesson(s, true); }, 1800);
           }; show();
         }); run.button.disabled = true;
+        if (!done && picked !== null) { opts.forEach(function (x, k) { x.classList.toggle("nthview-sel", k === picked); x.setAttribute("aria-pressed", String(k === picked)); }); run.button.disabled = false; }
         if (!done) w.appendChild(run);
         w.appendChild(frames); if (wasDone) { act.frames.forEach(function (f) { frames.appendChild(p("", f)); }); w.appendChild(p("nthview-readout", act.result)); }
         w.appendChild(fb); pbody.appendChild(w); return done;
       },
       confidence: function (s, act, done) {
         var w = box(act.title || "How sure are you?"); w.appendChild(p("nthview-q", act.question));
-        var list = el("div", { class: "nthview-opts" }), fb = feedback(), picked = null, conf = 1, opts = [];
+        var list = el("div", { class: "nthview-opts" }), fb = feedback(), picked = null, opts = [];
+        var cfa = answersFor(s.id), conf = isIdx(cfa.conf, 3) ? cfa.conf : 1, cfWrong = done ? [] : idxList(cfa.wrong, act.options.length).filter(function (k) { return !act.options[k].correct; });
         var LEVELS = ["I'm sure", "I think so", "Just guessing"];
         act.options.forEach(function (o, i) {
           var b = el("button", { type: "button", class: "nthview-opt", text: o.text, "aria-pressed": "false" }); if (done) { b.disabled = true; if (o.correct) b.classList.add("nthview-right"); }
+          else if (cfWrong.indexOf(i) !== -1) { b.classList.add("nthview-wrong"); b.disabled = true; }
           b.addEventListener("click", function () { if (done || b.disabled) return; picked = i; opts.forEach(function (x, k) { x.classList.toggle("nthview-sel", k === i); x.setAttribute("aria-pressed", String(k === i)); }); lock.button.disabled = false; sfx("step"); });
           opts.push(b); list.appendChild(b);
         });
         w.appendChild(list);
-        var seg = segControl(LEVELS, conf, function (i) { conf = i; sfx("step"); }, "Confidence");
+        var seg = segControl(LEVELS, conf, function (i) { conf = i; cfa.conf = i; persist(); sfx("step"); }, "Confidence");
         var lock = checkRow("Lock in my answer", function () {
           if (picked === null || done) return; var o = act.options[picked];
           if (o.correct) { done = true; attempt(s.id, 1); opts.forEach(function (x) { x.disabled = true; }); opts[picked].classList.add("nthview-right"); var st = awardStars(s.id, 3 - conf); sfx("ok"); fb.className = "nthview-fb nthview-ok"; fb.textContent = (act.okText || "Correct!") + " " + starsText(st) + (conf === 0 ? " Sure and right: full marks." : conf === 1 ? " Right, and you half knew it." : " Right, but a guess: one star."); if (s.api) s.api.solved(st); earn(s); setTimeout(function () { if (state.panelOpen) openLesson(s, true); }, 1400); }
-          else { attempt(s.id, conf === 0 ? 2 : 1); opts[picked].classList.add("nthview-wrong"); opts[picked].classList.remove("nthview-sel"); opts[picked].disabled = true; picked = null; lock.button.disabled = true; sfx("no"); fb.className = "nthview-fb nthview-no"; fb.textContent = (conf === 0 ? "Sure, but wrong: that cost two coins. " : "Not quite. ") + (o.why || "Try again."); }
+          else { cfWrong.push(picked); cfa.wrong = cfWrong.slice(); attempt(s.id, conf === 0 ? 2 : 1); opts[picked].classList.add("nthview-wrong"); opts[picked].classList.remove("nthview-sel"); opts[picked].disabled = true; picked = null; lock.button.disabled = true; sfx("no"); fb.className = "nthview-fb nthview-no"; fb.textContent = (conf === 0 ? "Sure, but wrong: that cost two coins. " : "Not quite. ") + (o.why || "Try again."); }
         }); lock.button.disabled = true;
         if (!done) { w.appendChild(p("nthview-cap", "Pick an answer, say how sure you are, then lock it in. Being sure and right earns 3 stars; being sure and wrong costs 2 coins.")); w.appendChild(seg); w.appendChild(lock); }
         w.appendChild(fb); if (done && act.okText) w.appendChild(p("nthview-cap", act.okText)); pbody.appendChild(w); return done;
       },
       flashcards: function (s, act) {
         var w = box(act.title || "Flip the cards"); if (act.prompt) w.appendChild(p("", act.prompt));
-        var i = 0, flipped = false, known = {}; var front = el("div", { class: "nthview-face" }), back = el("div", { class: "nthview-face nthview-back" });
+        var fa = answersFor(s.id), i = isIdx(fa.i, act.cards.length) ? fa.i : 0, flipped = false, known = {}; idxList(fa.known, act.cards.length).forEach(function (k) { known[k] = true; }); var front = el("div", { class: "nthview-face" }), back = el("div", { class: "nthview-face nthview-back" });
         var card = el("div", { class: "nthview-flip" }, [front, back]); var holder = el("div", { class: "nthview-card3" }, [card]);
         var counter = el("span", { class: "nthview-cap", "aria-live": "polite" }); var flipBtn = btn("Flip", "nthview-primary", function () { flipped = !flipped; card.classList.toggle("nthview-flipped", flipped); if (s.api) s.api.flip(flipped); sfx("step"); });
         var prev = btn("Previous", "", function () { i = (i + act.cards.length - 1) % act.cards.length; draw(); }), next = btn("Next", "", function () { i = (i + 1) % act.cards.length; draw(); });
         var got = btn("Got it", "", function () { known[i] = !known[i]; draw(); sfx("pick"); });
-        function draw() { flipped = false; card.classList.remove("nthview-flipped"); if (s.api) s.api.flip(false); front.textContent = ""; front.appendChild(rich(act.cards[i].front)); back.textContent = ""; back.appendChild(rich(act.cards[i].back)); counter.textContent = "Card " + (i + 1) + " of " + act.cards.length + " · " + Object.keys(known).filter(function (k) { return known[k]; }).length + " marked as known"; got.textContent = known[i] ? "Got it ✓" : "Got it"; got.setAttribute("aria-pressed", String(!!known[i])); }
+        function draw() { flipped = false; card.classList.remove("nthview-flipped"); if (s.api) s.api.flip(false); front.textContent = ""; front.appendChild(rich(act.cards[i].front)); back.textContent = ""; back.appendChild(rich(act.cards[i].back)); counter.textContent = "Card " + (i + 1) + " of " + act.cards.length + " · " + Object.keys(known).filter(function (k) { return known[k]; }).length + " marked as known"; got.textContent = known[i] ? "Got it ✓" : "Got it"; got.setAttribute("aria-pressed", String(!!known[i])); fa.i = i; fa.known = Object.keys(known).filter(function (k) { return known[k]; }).map(Number); persist(); }
         w.appendChild(holder); w.appendChild(el("div", { class: "nthview-check" }, [flipBtn, prev, next, got])); w.appendChild(counter); pbody.appendChild(w); draw(); return true;
       }
     };
 
     function openLesson(s, toEnd) {
-      stopWalk();
+      stopWalk(); panelFor = s.id;
       var isl = s.data, done = !!state.done[s.id];
       head(s); pbody.appendChild(p("nthview-lead", isl.lead)); (isl.body || []).forEach(function (t) { pbody.appendChild(p("", t)); });
       var replaces = isl.activity && REPLACES_QUIZ.indexOf(isl.activity.type) !== -1;
@@ -3017,7 +3087,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       if (state.done[s.id] || !part) return;
       attempt(s.id);
       if (part.id === s.task.answer) { burst(s.x, 4, s.z, s.color, 60); fieldSolve(s); if (state.panelOpen) setTimeout(function () { openLesson(s, true); }, 600); }
-      else { sfx("no"); part.mesh.userData.lock = true; part.mesh.material.emissiveIntensity = .05; toast(part.hint || "Not that part. Try another."); }
+      else { sfx("no"); part.mesh.userData.lock = true; part.mesh.material.emissiveIntensity = .05; persist(); toast(part.hint || "Not that part. Try another."); }
     }
     function chooseFork(s, path) {
       if (state.done[s.id]) return;
@@ -3025,7 +3095,8 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       if (path.id === s.task.answer) { burst(path.x, 3, path.z, s.color, 80); fieldSolve(s); }
       else { sfx("no"); toast(path.hint || "Not that way. Back to the signpost."); burst(player.position.x, 1.5, player.position.z, "#9aa3b8", 30); player.position.set(s.task.home.x, 0, s.task.home.z); robo.position.set(s.task.home.x, 0, s.task.home.z + 1.5); s.task.cool = .8; }
     }
-    function setBeacon(s, it, on) { if (state.done[s.id]) return; it.on = on; it.flame.visible = on; it.bowl.material = on ? glow(s.color, .6) : stoneMat; sfx(on ? "pick" : "step"); guideKey = ""; }
+    function applyBeacon(s, it, on) { it.on = on; it.flame.visible = on; it.bowl.material = on ? glow(s.color, .6) : stoneMat; }
+    function setBeacon(s, it, on) { if (state.done[s.id]) return; applyBeacon(s, it, on); sfx(on ? "pick" : "step"); guideKey = ""; persist(); }
     function checkBeacons(s, fb) {
       if (state.done[s.id]) return; var task = s.task;
       var lit = task.items.filter(function (it) { return it.on; }).length; if (!lit) { toast("Light at least one beacon first."); return; }
@@ -3037,18 +3108,29 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     function dropOrb(s) {
       var task = s.task, it = task.carrying, bin = task.nearBin; if (!it || !bin || state.done[s.id]) return;
       if (it.bin === bin.id) {
-        it.where = "binned"; task.carrying = null; task.sorted++; carryGroup.remove(it.mesh); bin.count++;
-        it.mesh.position.set(bin.mesh.position.x + ((bin.count % 3) - 1) * .6, 1.5 + Math.floor((bin.count - 1) / 3) * .5, bin.mesh.position.z); s.g.add(it.mesh); sfx("pick"); burst(bin.x, 2, bin.z, s.color, 30); guideKey = "";
+        task.carrying = null; carryGroup.remove(it.mesh); binItem(s, it, bin); persist(); sfx("pick"); burst(bin.x, 2, bin.z, s.color, 30); guideKey = "";
         if (task.sorted >= task.total) { fieldSolve(s); } else toast("Yes! " + it.label + " goes in " + bin.label + ". " + (task.total - task.sorted) + " to go.");
       } else { attempt(s.id); sfx("no"); toast(it.label + " doesn't belong in " + bin.label + ". Try the other bin."); }
     }
 
+    /* drop an orb into its bin: used when playing and when restoring saved progress */
+    function binItem(s, it, bin) {
+      var task = s.task; it.where = "binned"; task.sorted++; bin.count++; task.binnedIdx.push(task.items.indexOf(it));
+      it.mesh.position.set(bin.mesh.position.x + ((bin.count % 3) - 1) * .6, 1.5 + Math.floor((bin.count - 1) / 3) * .5, bin.mesh.position.z); s.g.add(it.mesh);
+    }
+
     function openExam() {
-      stopWalk();
+      stopWalk(); panelFor = "finale";
       pbody.textContent = ""; pbody.appendChild(el("p", { class: "nthview-kicker", text: "Final step" })); pbody.appendChild(el("h2", { text: data.finale.name })); pbody.appendChild(p("nthview-lead", data.finale.lead));
       var host = el("div"); pbody.appendChild(host);
       var qs = data.finale.questions;
-      var next = function (i) { if (i >= qs.length) { setTimeout(finish, 1100); return; } quiz(host, { key: "exam" + i, q: qs[i], onSolve: function () { setTimeout(function () { next(i + 1); }, 500); } }); };
+      /* questions already answered (this visit or a saved one) show as solved; play resumes at the first open one */
+      var next = function (i) {
+        if (i >= qs.length) { setTimeout(finish, 1100); return; }
+        var solved = state.stars["exam" + i] !== undefined;
+        quiz(host, { key: "exam" + i, q: qs[i], solved: solved, onSolve: function () { setTimeout(function () { next(i + 1); }, 500); } });
+        if (solved) next(i + 1);
+      };
       next(0);
       openPanel("#ffd76a");
     }
@@ -3078,12 +3160,12 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         if (r.source.note) sp.appendChild(doc.createTextNode(" " + r.source.note));
         endCard.appendChild(sp);
       }
-      var again = btn("Play again", "nthview-primary", function () { root.location.reload(); });
-      var roam = btn("Keep exploring", "", function () { end.classList.add("nthview-hidden"); guideKey = ""; canvas.focus(); });
-      endCard.appendChild(el("div", { class: "nthview-actions" }, [again, roam]));
-      end.classList.remove("nthview-hidden"); again.focus();
+      var again = btn("Play again", "nthview-primary", function () { stopped = true; clearState(key); root.location.reload(); });
+      var roam = btn("Keep exploring", "", function () { end.classList.add("nthview-hidden"); guideKey = ""; canvas.focus(); persist(); });
+      endCard.appendChild(el("div", { class: "nthview-actions" }, [again, roam, restartButton(container, data, key)]));
+      end.classList.remove("nthview-hidden"); again.focus(); persist();
     }
-    function finish() { if (!state.finished) { state.finished = true; sfx("win"); burst(0, 6, 0, "#ffd76a", 200); roboJump = 1; } closePanel(); showReport(); }
+    function finish() { if (!state.finished) { state.finished = true; sfx("win"); burst(0, 6, 0, "#ffd76a", 200); roboJump = 1; persist(); } closePanel(); showReport(); }
 
     /* ---------- auto-walk over the causeway graph ---------- */
     var auto = null, faceTarget = null;
@@ -3278,7 +3360,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     var keys = {};
     var MOVE_KEYS = ["w", "a", "s", "d", "arrowup", "arrowdown", "arrowleft", "arrowright"];
     function onKeyDown(e) {
-      if (!container.isConnected) return;
+      if (!canvas.isConnected) return;
       if (e.key === "Escape") { if (state.panelOpen) closePanel(); return; }
       if (state.panelOpen || !state.started) return;
       if (!intro.classList.contains("nthview-hidden") || !end.classList.contains("nthview-hidden")) return;
@@ -3311,15 +3393,15 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     joy.addEventListener("pointerup", joyEnd); joy.addEventListener("pointercancel", joyEnd);
 
     helpBtn.addEventListener("click", function () { intro.classList.remove("nthview-hidden"); startBtn.textContent = "Back to the islands"; startBtn.focus(); });
-    function onStart() { intro.classList.add("nthview-hidden"); guideKey = ""; sfx("open"); if (!state.started) { state.started = true; toast("Press \"Walk me there\" at the bottom to reach lesson 1. Grab the coins on the bridge!"); } canvas.focus(); }
+    function onStart() { intro.classList.add("nthview-hidden"); guideKey = ""; sfx("open"); if (!state.started) { state.started = true; toast("Press \"Walk me there\" at the bottom to reach lesson 1. Grab the coins on the bridge!"); } canvas.focus(); persist(); }
 
     /* ---------- per-frame field task checks ---------- */
     function fieldTick(near, pp, t, dt) {
       var task = near.task;
       if (task.type === "collect") {
-        task.items.forEach(function (it) {
+        task.items.forEach(function (it, idx) {
           if (it.got || Math.hypot(pp.x - it.x, pp.z - it.z) >= 1.4) return;
-          it.got = true; near.g.remove(it.mesh); near.g.remove(it.tag); task.collected.push(it.L); if (near.pulse) near.pulse(); sfx("pick"); burst(it.x, 1.5, it.z, near.color, 30); guideKey = "";
+          it.got = true; near.g.remove(it.mesh); near.g.remove(it.tag); task.collected.push(it.L); task.gotIdx.push(idx); persist(); if (near.pulse) near.pulse(); sfx("pick"); burst(it.x, 1.5, it.z, near.color, 30); guideKey = "";
           if (task.collected.length >= task.total) {
             var counts = {}; task.collected.forEach(function (a) { counts[a] = (counts[a] || 0) + 1; }); var top = Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a]; })[0];
             sfx("win"); roboJump = 1; toast("All " + task.total + " answers collected! Most popular: " + top + "."); setTimeout(function () { if (!state.panelOpen && !auto) openLesson(near); }, 700);
@@ -3333,8 +3415,8 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         if (st !== task.standing) {
           task.standing = st;
           if (st) {
-            if (st.id === task.order[task.pos]) { task.pos++; st.mesh.material.emissiveIntensity = .8; st.ring.material.emissiveIntensity = 1; sfx("pick"); burst(st.x, 1.5, st.z, near.color, 20); guideKey = ""; if (task.pos >= task.order.length) fieldSolve(near); }
-            else { attempt(near.id); sfx("no"); toast(task.pos ? "Not that one next. Start again from the first step." : "Not the first step. Which comes first?"); task.pos = 0; task.pads.forEach(function (pd) { pd.mesh.material.emissiveIntensity = 0; pd.ring.material.emissiveIntensity = .5; }); guideKey = ""; }
+            if (st.id === task.order[task.pos]) { task.pos++; persist(); st.mesh.material.emissiveIntensity = .8; st.ring.material.emissiveIntensity = 1; sfx("pick"); burst(st.x, 1.5, st.z, near.color, 20); guideKey = ""; if (task.pos >= task.order.length) fieldSolve(near); }
+            else { attempt(near.id); sfx("no"); toast(task.pos ? "Not that one next. Start again from the first step." : "Not the first step. Which comes first?"); task.pos = 0; task.pads.forEach(function (pd) { pd.mesh.material.emissiveIntensity = 0; pd.ring.material.emissiveIntensity = .5; }); guideKey = ""; persist(); }
           }
         }
       } else if (task.type === "beacons") {
@@ -3354,7 +3436,8 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     /* ---------- loop ---------- */
     var clock = new THREE.Clock(); var frame = 0; var camTarget = new THREE.Vector3(); var alive = true;
     function tick() {
-      if (!alive || !container.isConnected) { alive = false; renderer.dispose(); root.removeEventListener("keydown", onKeyDown); root.removeEventListener("keyup", onKeyUp); root.removeEventListener("blur", onBlur); return; }
+      /* the canvas leaves the page when the container is removed or rebuilt (Restart): stop this instance and its saving */
+      if (!alive || !canvas.isConnected) { alive = false; renderer.dispose(); root.removeEventListener("keydown", onKeyDown); root.removeEventListener("keyup", onKeyUp); root.removeEventListener("blur", onBlur); doc.removeEventListener("visibilitychange", onVisibility); root.removeEventListener("pagehide", saveNow); return; }
       var dt = Math.min(clock.getDelta(), .05), t = clock.elapsedTime; frame++;
       var pp = player.position;
       var mx = 0, mz = 0;
@@ -3402,7 +3485,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       })();
       coinPickups.forEach(function (c) {
         if (c.got) return; c.mesh.rotation.z = t * 2.4; c.mesh.position.y = 1.2 + Math.sin(t * 3 + c.x) * .12;
-        if (!ride && Math.hypot(pp.x - c.x, pp.z - c.z) < 1.3) { c.got = true; scene.remove(c.mesh); state.coins++; renderScore(); sfx("coin"); burst(c.x, 1.4, c.z, "#f4c55b", 25); }
+        if (!ride && Math.hypot(pp.x - c.x, pp.z - c.z) < 1.3) { c.got = true; scene.remove(c.mesh); state.coins++; renderScore(); persist(); sfx("coin"); burst(c.x, 1.4, c.z, "#f4c55b", 25); }
       });
       var near = null;
       if (Math.hypot(pp.x, pp.z) < 5) near = "summit";
@@ -3410,6 +3493,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       if (near !== nearby) { nearby = near; guideKey = ""; }
       if (!ride && near && near !== "summit" && near.task && isUnlocked(near) && !state.done[near.id]) fieldTick(near, pp, t, dt);
       updateGuide();
+      if (state.started && !ride && Date.now() - lastSave.t > 2000 && (Math.hypot(pp.x - lastSave.x, pp.z - lastSave.z) > .5 || Math.abs(yaw - lastSave.yaw) > .1)) saveNow();
       var dist = ride && ride.phase === "carry" ? 15 : 10.5; camTarget.set(pp.x, pp.y + 1.8, pp.z);
       camera.position.set(pp.x + Math.sin(yaw) * dist * Math.cos(pitch), pp.y + 1.8 + dist * Math.sin(pitch), pp.z + Math.cos(yaw) * dist * Math.cos(pitch));
       camera.lookAt(camTarget);
@@ -3431,8 +3515,140 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     if (mq) { if (mq.addEventListener) mq.addEventListener("change", applyTheme); else if (mq.addListener) mq.addListener(applyTheme); }
 
     state.picks = {};
+
+    /* ---------- progress storage (§5.5): snapshot, save, restore ---------- */
+    function persist() { if (flushQueued) return; flushQueued = true; Promise.resolve().then(function () { flushQueued = false; saveNow(); }); }
+    function saveNow() {
+      if (stopped || !canvas.isConnected) return;
+      lastSave.x = player.position.x; lastSave.z = player.position.z; lastSave.yaw = yaw; lastSave.t = Date.now();
+      saveState(key, snapshot());
+    }
+    function onVisibility() { if (doc.visibilityState === "hidden") saveNow(); }
+    function placeOf(x, z) {
+      for (var i = 0; i < N; i++) if (Math.hypot(x - STATIONS[i].x, z - STATIONS[i].z) < R_ISLE) return STATIONS[i].id;
+      return Math.hypot(x, z) < R_HUB ? "hub" : "causeway";
+    }
+    /* where the learner stands; mid-ride counts as already standing at the destination */
+    function standSpot() {
+      if (ride) { var t = ride.target; return t === "summit" ? { place: "hub", x: 0, z: 6.5 } : { place: t.id, x: nodes[t.arrive].x, z: nodes[t.arrive].z }; }
+      var pp = player.position; return { place: placeOf(pp.x, pp.z), x: Math.round(pp.x * 100) / 100, z: Math.round(pp.z * 100) / 100 };
+    }
+    function snapshot() {
+      var spot = standSpot(), tasks = {};
+      STATIONS.forEach(function (s) {
+        var t = s.task; if (!t) return;
+        if (t.type === "collect") tasks[s.id] = { got: t.gotIdx.slice() };
+        else if (t.type === "steps") tasks[s.id] = { pos: t.pos };
+        else if (t.type === "beacons") tasks[s.id] = { on: t.items.map(function (it) { return it.on; }) };
+        else if (t.type === "gather") tasks[s.id] = { binned: t.binnedIdx.slice() };
+        else if (t.type === "hotspot") tasks[s.id] = { locked: t.parts.map(function (pt, i) { return pt.mesh.userData.lock ? i : -1; }).filter(function (i) { return i >= 0; }) };
+      });
+      return {
+        started: state.started, finished: state.finished, muted: state.muted, coins: state.coins,
+        done: STATIONS.filter(function (s) { return state.done[s.id]; }).map(function (s) { return s.id; }),
+        stars: state.stars, attempts: state.attempts, picks: state.picks, answers: state.answers, tasks: tasks,
+        coinsGot: coinPickups.map(function (c, i) { return c.got ? i : -1; }).filter(function (i) { return i >= 0; }),
+        panel: state.panelOpen ? panelFor : null, report: !end.classList.contains("nthview-hidden"),
+        place: spot.place, x: spot.x, z: spot.z, yaw: yaw, pitch: pitch, face: player.rotation.y
+      };
+    }
+    function plainObj(o) { return o !== null && typeof o === "object" && !Array.isArray(o); }
+    function finite(v) { return typeof v === "number" && isFinite(v); }
+    /* field-task progress on the island itself; a finished island is shown complete */
+    function restoreTask(s, t, done) {
+      var task = s.task; if (!task) return;
+      var all = function (list, n) { if (done) for (var i = 0; i < n; i++) if (list.indexOf(i) === -1) list.push(i); return list; };
+      if (task.type === "collect") {
+        all(idxList(t.got, task.items.length), task.items.length).forEach(function (i) { var it = task.items[i]; it.got = true; s.g.remove(it.mesh); s.g.remove(it.tag); task.collected.push(it.L); task.gotIdx.push(i); });
+      } else if (task.type === "steps") {
+        task.pos = done ? task.order.length : isIdx(t.pos, task.order.length) ? t.pos : 0;
+        task.pads.forEach(function (pd, i) { if (i < task.pos) { pd.mesh.material.emissiveIntensity = .8; pd.ring.material.emissiveIntensity = 1; } });
+      } else if (task.type === "beacons") {
+        task.items.forEach(function (it, i) { if (done ? !!it.want : Array.isArray(t.on) && t.on[i] === true) applyBeacon(s, it, true); });
+      } else if (task.type === "gather") {
+        all(idxList(t.binned, task.items.length), task.items.length).forEach(function (i) { var it = task.items[i], bin = task.bins.filter(function (b) { return b.id === it.bin; })[0]; if (bin) { s.g.remove(it.tag); binItem(s, it, bin); } });
+      } else if (task.type === "hotspot" && !done) {
+        idxList(t.locked, task.parts.length).forEach(function (i) { var pt = task.parts[i]; if (pt.id === task.answer) return; pt.mesh.userData.lock = true; pt.mesh.material.emissiveIntensity = .05; });
+      }
+    }
+    /* the 3D props that mirror an activity: solved look, or the learner's saved settings */
+    function restoreProp(s) {
+      var act = s.data.activity; if (!act || !s.api) return;
+      if (state.done[s.id] && s.api.solved) { s.api.solved(state.stars[s.id] || 1); return; }
+      var a = state.answers[s.id]; if (!a) return;
+      if (act.type === "tune" && s.api.build) s.api.build(tuneEnv(act, a));
+      else if (act.type === "story") s.api.step(storyStep(act, a));
+      else if (act.type === "compare" && (a.which === 0 || a.which === 1)) s.api.show(a.which);
+      else if (act.type === "bars") { s.api.set(barGuesses(act, a).map(function (g) { return g / 100; })); if (a.revealed === true) s.api.reveal(); }
+      else if (act.type === "multi") s.api.select(idxList(a.checked, act.options.length));
+      else if (act.type === "estimate") { var v = estimateValue(act, a); if (v !== null) s.api.set((v - act.min) / (act.max - act.min)); }
+      else if (act.type === "switches") {
+        var env = switchEnv(act, a), r = null;
+        for (var i = 0; i < act.readout.length; i++) { var c = act.readout[i]; if (c.when === undefined || evalExpr(c.when, env)) { r = c; break; } }
+        s.api.set(act.switches.map(function (sw) { return env[sw.id]; }), r ? r.tone : null);
+      }
+    }
+    /* apply a saved record field by field; anything that no longer fits the data is ignored. Returns the place name. */
+    function restore(sv) {
+      var ids = {}, qn = data.finale.questions.length;
+      STATIONS.forEach(function (s) { ids[s.id] = s; });
+      var scoreKey = function (k) { if (Object.prototype.hasOwnProperty.call(ids, k)) return true; var m = /^exam(\d+)$/.exec(k); return !!m && Number(m[1]) < qn; };
+      state.started = true; intro.classList.add("nthview-hidden");
+      if (typeof sv.muted === "boolean") { state.muted = sv.muted; soundBtn.textContent = state.muted ? "Sound off" : "Sound on"; soundBtn.setAttribute("aria-pressed", String(!state.muted)); }
+      if (isInt(sv.coins) && sv.coins >= 0) state.coins = sv.coins;
+      var doneSet = {}; if (Array.isArray(sv.done)) sv.done.forEach(function (id) { if (typeof id === "string") doneSet[id] = true; });
+      for (var i = 0; i < N && doneSet[STATIONS[i].id] === true; i++) { state.done[STATIONS[i].id] = true; state.doneCount++; }
+      if (plainObj(sv.stars)) Object.keys(sv.stars).forEach(function (k) { var v = sv.stars[k]; if (scoreKey(k) && isInt(v) && v >= 1 && v <= 3) state.stars[k] = v; });
+      if (plainObj(sv.attempts)) Object.keys(sv.attempts).forEach(function (k) { var v = sv.attempts[k]; if (scoreKey(k) && isInt(v) && v >= 0 && v <= 10000) state.attempts[k] = v; });
+      if (plainObj(sv.picks)) Object.keys(sv.picks).forEach(function (k) { var s = ids[k], v = sv.picks[k]; if (s && s.data.activity && Array.isArray(s.data.activity.options) && isIdx(v, s.data.activity.options.length)) state.picks[k] = v; });
+      if (plainObj(sv.answers)) Object.keys(sv.answers).forEach(function (k) { var ok = k.indexOf("q:") === 0 ? scoreKey(k.slice(2)) : Object.prototype.hasOwnProperty.call(ids, k); if (ok && plainObj(sv.answers[k])) state.answers[k] = sv.answers[k]; });
+      state.finished = sv.finished === true && state.doneCount === N;
+      if (Array.isArray(sv.coinsGot)) sv.coinsGot.forEach(function (ci) { if (isIdx(ci, coinPickups.length) && !coinPickups[ci].got) { coinPickups[ci].got = true; scene.remove(coinPickups[ci].mesh); } });
+      var tasks = plainObj(sv.tasks) ? sv.tasks : {};
+      STATIONS.forEach(function (s) { restoreTask(s, plainObj(tasks[s.id]) ? tasks[s.id] : {}, !!state.done[s.id]); restoreProp(s); });
+      /* position: on an island, its arrival spot facing the centre (never on a pad, gate or mid-ride); on the hub or a causeway, where they stood */
+      var pp = player.position, st = typeof sv.place === "string" && Object.prototype.hasOwnProperty.call(ids, sv.place) ? ids[sv.place] : null;
+      if (st) {
+        var a = nodes[st.arrive], fx = st.x - a.x, fz = st.z - a.z;
+        pp.set(a.x, 0, a.z); player.rotation.y = Math.atan2(fx, fz); yaw = Math.atan2(-fx, -fz);
+      } else if ((sv.place === "hub" || sv.place === "causeway") && finite(sv.x) && finite(sv.z) && walkable(sv.x, sv.z)) {
+        pp.set(sv.x, 0, sv.z); if (finite(sv.yaw)) yaw = sv.yaw; if (finite(sv.face)) player.rotation.y = sv.face;
+      }
+      if (finite(sv.pitch)) pitch = Math.max(.05, Math.min(1.1, sv.pitch));
+      robo.position.set(pp.x - Math.sin(player.rotation.y) * 1.9, 0, pp.z - Math.cos(player.rotation.y) * 1.9);
+      if (typeof sv.panel === "string" && Object.prototype.hasOwnProperty.call(ids, sv.panel)) return ids[sv.panel].name;
+      if (sv.panel === "finale" || state.finished) return data.finale.name;
+      var name = data.finale.name, best = Math.hypot(pp.x, pp.z) - R_HUB;
+      STATIONS.forEach(function (s) { var d = Math.hypot(pp.x - s.x, pp.z - s.z) - R_ISLE; if (d < best) { best = d; name = s.name; } });
+      return name;
+    }
+    /* a short notice that fades on its own or at the first click or key press */
+    function showResume(name) {
+      var note = el("div", { class: "nthview-resume", role: "status", text: "Welcome back, continuing from " + name });
+      container.appendChild(note);
+      var gone = false;
+      var hide = function () {
+        if (gone) return; gone = true; note.classList.add("nthview-gone");
+        container.removeEventListener("pointerdown", hide, true); root.removeEventListener("keydown", hide, true);
+        setTimeout(function () { if (note.parentNode) note.parentNode.removeChild(note); }, reduceMotion ? 0 : 450);
+      };
+      container.addEventListener("pointerdown", hide, true); root.addEventListener("keydown", hide, true);
+      setTimeout(hide, 6000);
+    }
+
+    var resumeName = saved && saved.started === true ? restore(saved) : null;
     applyTheme(); renderTray(); renderScore(); refreshWorld();
     tick();
+    if (resumeName !== null) {
+      var openId = typeof saved.panel === "string" ? STATIONS.filter(function (s) { return s.id === saved.panel; })[0] : null;
+      if (state.finished && saved.report === true) showReport();
+      else if (saved.panel === "finale" && state.doneCount === N && !state.finished) openExam();
+      else if (openId && isUnlocked(openId)) openLesson(openId);
+      else canvas.focus({ preventScroll: true });
+      showResume(resumeName);
+    }
+    doc.addEventListener("visibilitychange", onVisibility); root.addEventListener("pagehide", saveNow);
+    saveNow();
     if (doc.fonts && doc.fonts.ready) doc.fonts.ready.then(function () {
       STATIONS.forEach(function (s) { var old = s.label; s.label = makeLabel(s.name, s.color, s.idx + 1); s.label.position.copy(old.position); scene.remove(old); scene.add(s.label); });
       var nl = makeLabel(data.finale.name, "#ffffff"); nl.position.copy(examLabel.position); scene.remove(examLabel); scene.add(nl); examLabel = nl;

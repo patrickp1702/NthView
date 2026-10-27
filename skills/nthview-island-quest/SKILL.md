@@ -22,6 +22,10 @@ over instead: a bird swoops in and carries the coach, a hot-air balloon drifts
 down, or the halo unfolds into a glider. The ride is cosmetic, needs no data,
 lands at the same spot, and is skipped for short hops and under reduced motion.
 
+Progress and restart: the game saves progress in the browser as the learner
+plays (islands, answers, coins, position) and resumes there when the file is
+reopened; the Restart button clears it and starts over.
+
 ## When to use
 - Research papers, long articles, lecture notes or a whole topic with 5–25
   separable ideas (the layout supports 3–60 islands)

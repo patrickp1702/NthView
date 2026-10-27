@@ -729,7 +729,13 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     ".nthview-scenario-quiz .nthview-confetti i{position:absolute;top:-3vh;width:.6rem;height:.9rem;border-radius:.15rem;animation:nthview-fall linear forwards}",
     ".nthview-scenario-quiz .nthview-ol{padding-left:1.3rem}",
     ".nthview-scenario-quiz .nthview-ol li{margin:.45rem 0;padding-left:.2rem}",
-    ".nthview-scenario-quiz .nthview-ol li::marker{color:var(--accent);font-weight:800;font-family:var(--display)}"
+    ".nthview-scenario-quiz .nthview-ol li::marker{color:var(--accent);font-weight:800;font-family:var(--display)}",
+    /* progress storage (§5.5): Restart control and resume notice */
+    ".nthview-scenario-quiz .nthview-toolbar{display:flex;justify-content:flex-end;align-items:center;gap:.6rem;margin:0 0 .4rem}",
+    ".nthview-scenario-quiz .nthview-restart{font:inherit;font-size:.8rem;font-weight:700;color:var(--muted);background:var(--surface);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:999px;padding:.3rem .85rem;cursor:pointer;white-space:nowrap;transition:color .18s,border-color .18s,transform .18s}",
+    ".nthview-scenario-quiz .nthview-restart:hover{color:var(--ink);border-color:var(--nv-accent);transform:translateY(-1px)}",
+    ".nthview-scenario-quiz .nthview-resume{display:flex;align-items:center;gap:.6rem;background:var(--surface-2);color:var(--ink);border:1px solid var(--line);border-left:4px solid var(--nv-accent);border-radius:calc(var(--radius) * .6);padding:.6rem .9rem;margin:0 0 1rem;font-size:.92rem;font-weight:600;transition:opacity .4s ease,transform .4s ease}",
+    ".nthview-scenario-quiz .nthview-resume.nthview-resume-hide{opacity:0;transform:translateY(-6px)}"
   ].join("\n");
 
   function injectStyles() {
@@ -759,6 +765,32 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       el("p", { text: "The data has " + result.errors.length + " problem(s). Fix them and rebuild the file." }),
       el("ul", {}, items)
     ]));
+  }
+
+  // ---- progress storage (identical in every view, §5.5) ------------------
+  var STORE_VERSION = 1;
+  function storageKey(data) {
+    var s = JSON.stringify(data), h = 2166136261;
+    for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return "nthview:scenario-quiz:" + (h >>> 0).toString(36);
+  }
+  function loadState(key) {
+    try { var raw = root.localStorage.getItem(key); if (!raw) return null; var st = JSON.parse(raw); return st && st.v === STORE_VERSION ? st : null; }
+    catch (e) { return null; }
+  }
+  function saveState(key, state) {
+    try { state.v = STORE_VERSION; state.savedAt = Date.now(); root.localStorage.setItem(key, JSON.stringify(state)); }
+    catch (e) { /* storage unavailable or full: keep playing without saving */ }
+  }
+  function clearState(key) { try { root.localStorage.removeItem(key); } catch (e) {} }
+  function restartButton(container, data, key) {
+    var b = el("button", { type: "button", class: "nthview-restart", text: "Restart", title: "Start again from the beginning" });
+    b.addEventListener("click", function () {
+      if (!root.confirm("Start again from the beginning? Your progress here will be erased.")) return;
+      clearState(key);
+      NthView.build(container, data);
+    });
+    return b;
   }
 
   // ---- view-specific rendering: data is already valid here ---------------
@@ -819,13 +851,33 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     var reduceMotion = root.matchMedia && root.matchMedia("(prefers-reduced-motion: reduce)").matches;
     var Q = data.questions, N = Q.length;
     var state = { index: -1, answers: {}, screen: null, answered: false };
+    var key = storageKey(data);
     container.setAttribute("data-theme", pickTheme(data));
 
     var backdrop = el("div", { class: "nthview-backdrop", "aria-hidden": "true" }, [el("div", { class: "nthview-blob" }), el("div", { class: "nthview-blob" }), el("div", { class: "nthview-blob" }), el("div", { class: "nthview-blob" }), el("div", { class: "nthview-blob" }), el("div", { class: "nthview-grain" })]);
     var frame = el("div", { class: "nthview-frame" });
     var stage = el("div", { class: "nthview-stage" });
     var status = el("div", { class: "nthview-status", "aria-live": "polite" });
-    frame.appendChild(stage); container.appendChild(backdrop); container.appendChild(frame); container.appendChild(status);
+    var toolbar = el("div", { class: "nthview-toolbar" }, [restartButton(container, data, key)]);
+    frame.appendChild(toolbar); frame.appendChild(stage); container.appendChild(backdrop); container.appendChild(frame); container.appendChild(status);
+
+    /* ---------- progress (§5.5): saved on every change, restored below ---------- */
+    function persist() {
+      if (state.index < 0 && !Object.keys(state.answers).length) return; /* untouched intro: no record, as before */
+      saveState(key, { index: state.index, answers: state.answers });
+    }
+    function resumeNotice(text) {
+      var n = el("div", { class: "nthview-resume", role: "status" }, [el("span", { text: text })]);
+      function hide() {
+        container.removeEventListener("pointerdown", hide, true); container.removeEventListener("keydown", hide, true);
+        if (!n.parentNode) return;
+        n.classList.add("nthview-resume-hide");
+        setTimeout(function () { if (n.parentNode) n.parentNode.removeChild(n); }, reduceMotion ? 0 : 450);
+      }
+      container.addEventListener("pointerdown", hide, true); container.addEventListener("keydown", hide, true);
+      setTimeout(hide, 8000);
+      return n;
+    }
 
     /* ---------- screen transitions ---------- */
     function show(screen, focusEl) {
@@ -948,7 +1000,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         list.appendChild(rise(el("li", {}, [b]), k + j)); return b;
       });
       s.appendChild(list); k += q.options.length;
-      var skip = btn("Skip, I know this one", "nthview-ghost", function () { state.answers[q.id] = { skipped: true }; status.textContent = "Skipped."; go(i + 1); });
+      var skip = btn("Skip, I know this one", "nthview-ghost", function () { state.answers[q.id] = { skipped: true }; persist(); status.textContent = "Skipped."; go(i + 1); });
       var actions = el("div", { class: "nthview-actions" }, [skip]);
       s.appendChild(rise(actions, k));
       var after = el("div"); s.appendChild(after);
@@ -979,10 +1031,15 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       }
 
       function choose(j) {
-        if (state.answered) { explain(j); setTimeout(function () { h3.focus({ preventScroll: true }); }, 50); return; }
+        if (state.answered) {
+          if (state.answers[q.id]) state.answers[q.id].viewing = j;
+          persist();
+          explain(j); setTimeout(function () { h3.focus({ preventScroll: true }); }, 50); return;
+        }
         state.answered = true; firstPick = j;
         var o = q.options[j];
         state.answers[q.id] = { picked: j, correct: !!o.correct };
+        persist();
         buttons.forEach(function (b, m) {
           if (m === correctIdx) b.classList.add("nthview-right");
           else if (m === j) b.classList.add("nthview-wrong");
@@ -1043,7 +1100,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         review.appendChild(card);
       });
       s.appendChild(review);
-      s.appendChild(el("div", { class: "nthview-actions" }, [btn("Start again", "nthview-primary", function () { state.answers = {}; go(-1); }), btn("Back to top", "nthview-ghost", function () { root.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" }); h1.focus(); })]));
+      s.appendChild(el("div", { class: "nthview-actions" }, [btn("Start again", "nthview-primary", function () { clearState(key); state.answers = {}; go(-1); }), btn("Back to top", "nthview-ghost", function () { root.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" }); h1.focus(); })]));
       setTimeout(function () { counters.forEach(function (c) { countUp(c[0], c[1]); }); confetti(); }, reduceMotion ? 0 : 350);
       return { node: s, focus: h1 };
     }
@@ -1053,6 +1110,12 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       state.index = i; state.nextBtn = null; state.choose = null;
       var scr = i < 0 ? introScreen() : i >= N ? summaryScreen() : questionScreen(i);
       show(scr.node, scr.focus);
+      persist();
+      /* a restored question that was already answered: replay the first pick, then the option last viewed */
+      if (i >= 0 && i < N && state.choose) {
+        var a = state.answers[Q[i].id];
+        if (a && typeof a.picked === "number") { var v = a.viewing; state.choose(a.picked); if (typeof v === "number" && v !== a.picked) state.choose(v); }
+      }
     }
     container.addEventListener("keydown", function (e) {
       if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
@@ -1061,7 +1124,25 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       else if (e.key === "Enter" && state.answered && state.nextBtn && e.target && e.target.tagName !== "BUTTON" && e.target.tagName !== "SUMMARY") { state.nextBtn.click(); e.preventDefault(); }
     });
     container.setAttribute("tabindex", "-1");
-    go(-1);
+
+    /* restore saved progress; fields that no longer fit the data are ignored */
+    var startAt = -1, saved = loadState(key);
+    if (saved) {
+      var restored = {};
+      Q.forEach(function (q) {
+        var a = saved.answers && typeof saved.answers === "object" ? saved.answers[q.id] : null;
+        if (!a || typeof a !== "object") return;
+        if (a.skipped === true) { restored[q.id] = { skipped: true }; return; }
+        if (!Number.isInteger(a.picked) || a.picked < 0 || a.picked >= q.options.length) return;
+        var r = { picked: a.picked, correct: !!q.options[a.picked].correct };
+        if (Number.isInteger(a.viewing) && a.viewing >= 0 && a.viewing < q.options.length) r.viewing = a.viewing;
+        restored[q.id] = r;
+      });
+      state.answers = restored;
+      if (Number.isInteger(saved.index) && saved.index >= 0 && saved.index <= N) startAt = saved.index;
+    }
+    go(startAt);
+    if (startAt >= 0) frame.insertBefore(resumeNotice(startAt < N ? "Welcome back, continuing from decision " + (startAt + 1) + " of " + N + "." : "Welcome back, continuing from the review."), stage);
   }
 
   NthView.build = function (container, data) {

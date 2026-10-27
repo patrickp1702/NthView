@@ -28,7 +28,10 @@ The output is one self-contained HTML file; the layout, camera, transitions
 and minimap are plain JavaScript. The only external resource is Google Fonts
 (Space Grotesk, Fraunces, Manrope, Sora, Bricolage Grotesque, Inter,
 JetBrains Mono), which needs internet access the first time the file opens
-and falls back to system fonts without it.
+and falls back to system fonts without it. Progress (mode, zoomed region,
+viewport, open accordions, scroll position, colour scheme) is saved in the
+browser's localStorage and restored when the file is reopened; the Restart
+button in the top bar clears it and starts from the overview.
 
 ## When to use
 - A codebase, library, framework or repository the learner wants to

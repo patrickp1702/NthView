@@ -1153,6 +1153,14 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     ".nthview-courier .nthview-hbtn.nthview-main{background:var(--accent);color:var(--accent-ink);border-color:transparent}",
     ".nthview-courier .nthview-badge{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;border-radius:10px;padding:0 5px;background:var(--ink);color:var(--glass-solid);font-size:.75rem;display:grid;place-items:center;font-family:var(--display)}",
     "@media (max-width:620px){.nthview-courier .nthview-hbtn .nthview-hl{display:none}.nthview-courier .nthview-hbtn{padding:9px}.nthview-courier .nthview-brand{font-size:.95rem;max-width:44vw}.nthview-courier .nthview-tray{display:none}}",
+    /* progress: Restart in the HUD band (above overlays) and the welcome-back notice */
+    ".nthview-courier .nthview-hud{padding-left:134px}",
+    ".nthview-courier > .nthview-restart{position:absolute;top:12px;left:14px;z-index:21;width:112px;justify-content:center;color:var(--ink,var(--nv-fg));border-color:var(--line,var(--nv-border))}",
+    ".nthview-courier > .nthview-restart:hover{border-color:var(--accent,var(--nv-accent))}",
+    "@media (max-width:620px){.nthview-courier .nthview-hud{padding-left:61px}.nthview-courier > .nthview-restart{width:39px}}",
+    ".nthview-courier .nthview-resume{position:absolute;left:50%;top:112px;transform:translateX(-50%);z-index:22;max-width:calc(100% - 32px);padding:9px 16px;border-radius:16px;font-weight:700;line-height:1.35;text-align:center;pointer-events:none;color:var(--ink,var(--nv-fg));border:1px solid var(--accent,var(--nv-accent));transition:opacity .45s}",
+    ".nthview-courier .nthview-resume.nthview-gone{opacity:0}",
+    "@media (max-width:620px){.nthview-courier .nthview-resume{font-size:.92rem}}",
     /* compass */
     ".nthview-courier .nthview-compass{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:clamp(200px,34vw,440px);height:38px;border-radius:19px;overflow:hidden;z-index:4;pointer-events:none;",
     "  background-image:repeating-linear-gradient(90deg,transparent 0 23px,var(--line) 23px 24px);background-color:var(--glass)}",
@@ -1283,6 +1291,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     /* overlays */
     ".nthview-courier .nthview-overlay{position:absolute;inset:0;z-index:20;display:grid;place-items:center;padding:20px 16px;background:color-mix(in srgb,var(--sky) 45%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);overflow-y:auto;transition:opacity .35s}",
     ".nthview-courier .nthview-overlay.nthview-fading{opacity:0}",
+    "@media (max-width:620px){.nthview-courier .nthview-overlay{padding-top:60px}}",   /* clear the Restart button */
     ".nthview-courier .nthview-card{border-radius:26px;padding:28px;max-width:620px;width:100%;animation:nthview-rise .5s var(--ease)}",
     ".nthview-courier .nthview-card.nthview-wide{max-width:760px}",
     ".nthview-courier .nthview-card h1{font-family:var(--display);font-weight:600;font-size:clamp(2.3rem,7vw,3.6rem);line-height:.98;letter-spacing:-.02em;margin:0 0 10px;overflow-wrap:anywhere}",
@@ -1351,6 +1360,42 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       el("p", { text: "The data has " + result.errors.length + " problem(s). Fix them and rebuild the file." }),
       el("ul", {}, items)
     ]));
+  }
+
+  // ---- progress storage (identical in every view, §5.5) ------------------
+  var STORE_VERSION = 1;
+  function storageKey(data) {
+    var s = JSON.stringify(data), h = 2166136261;
+    for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return "nthview:courier:" + (h >>> 0).toString(36);
+  }
+  function loadState(key) {
+    try { var raw = root.localStorage.getItem(key); if (!raw) return null; var st = JSON.parse(raw); return st && st.v === STORE_VERSION ? st : null; }
+    catch (e) { return null; }
+  }
+  function saveState(key, state) {
+    try { state.v = STORE_VERSION; state.savedAt = Date.now(); root.localStorage.setItem(key, JSON.stringify(state)); }
+    catch (e) { /* storage unavailable or full: keep playing without saving */ }
+  }
+  function clearState(key) { try { root.localStorage.removeItem(key); } catch (e) {} }
+  function restartButton(container, data, key) {
+    var b = el("button", { type: "button", class: "nthview-restart", text: "Restart", title: "Start again from the beginning" });
+    b.addEventListener("click", function () {
+      if (!root.confirm("Start again from the beginning? Your progress here will be erased.")) return;
+      clearState(key);
+      NthView.build(container, data);
+    });
+    return b;
+  }
+  /* render() hangs scene objects on the data (d._dir, e._i, ...); this copy
+     drops every "_" key so the storage key and a Restart rebuild always see
+     the document exactly as it was written */
+  function pristine(v) {
+    if (Array.isArray(v)) return v.map(pristine);
+    if (v === null || typeof v !== "object") return v;
+    var o = {};
+    Object.keys(v).forEach(function (k) { if (k.charAt(0) !== "_") o[k] = pristine(v[k]); });
+    return o;
   }
 
   // ---- view-specific rendering: data is already valid here ---------------
@@ -1424,7 +1469,8 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     mute: ["M4 9h4l5-4v14l-5-4H4z", "M17 9l5 6", "M22 9l-5 6"],
     help: ["M12 21a9 9 0 100-18 9 9 0 000 18z", "M9.5 9a2.5 2.5 0 015 .5c0 2-2.5 2-2.5 4", "M12 17h.01"],
     office: ["M3 10l9-6 9 6", "M5 10v10h14V10", "M9 20v-6h6v6"],
-    star: ["M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"]
+    star: ["M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"],
+    restart: ["M20 12a8 8 0 1 1-2.34-5.66", "M20 3.5V8h-4.5"]
   };
   function icon(name) {
     var s = root.document.createElementNS(SVGNS, "svg");
@@ -1477,6 +1523,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
 
   function render(container, data) {
     var THREE = root.THREE, doc = root.document;
+    var clean = pristine(data), storeKey = storageKey(clean), saved = loadState(storeKey);
     var themeName = data.theme || "morning";
     var T3 = THEME3D[themeName] || THEME3D.morning;
     Object.keys(THEME3D).forEach(function (k) { container.classList.remove("nthview-theme-" + k); });
@@ -1529,16 +1576,41 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     var popWard = el("div", { class: "nthview-pop nthview-glass nthview-hidden", role: "dialog", "aria-label": "Wardrobe" });
     var popEmote = el("div", { class: "nthview-pop nthview-glass nthview-hidden", role: "dialog", "aria-label": "Emotes" });
     var overlay = el("div", { class: "nthview-overlay nthview-hidden", role: "dialog", "aria-modal": "true" });
-    [canvas, hud, compass, prompt, toastEl, joy, panel, popWard, popEmote, overlay].forEach(function (n) { container.appendChild(n); });
+    /* Restart sits at the top-left of the HUD band, above the overlays, so it shows on the intro, the town and the review */
+    var restartBtn = restartButton(container, clean, storeKey);
+    restartBtn.classList.add("nthview-hbtn", "nthview-glass"); restartBtn.textContent = ""; restartBtn.setAttribute("aria-label", "Restart");
+    restartBtn.appendChild(icon("restart")); restartBtn.appendChild(el("span", { class: "nthview-hl", text: "Restart" }));
+    [canvas, hud, compass, prompt, toastEl, joy, panel, popWard, popEmote, overlay, restartBtn].forEach(function (n) { container.appendChild(n); });
 
     /* ---------- state ---------- */
     var state = { started: false, met: {}, talkIdx: {}, es: {}, newStamp: null, muted: false, guide: false, panel: null, closingShown: false, overlay: null, read: {} };
+    var ready = false, lastSaved = "";   /* ready: saving starts once the scene is built and restored */
     var dress = { hair: WARDROBE.hair.colors[0], top: WARDROBE.top.colors[0], bottom: WARDROBE.bottom.colors[0], shoes: WARDROBE.shoes.colors[0] };
-    try { var savedDress = root.sessionStorage && JSON.parse(root.sessionStorage.getItem("nthview-courier-dress") || "null"); if (savedDress) Object.keys(dress).forEach(function (k) { if (typeof savedDress[k] === "string" && /^#[0-9a-f]{6}$/i.test(savedDress[k])) dress[k] = savedDress[k]; }); } catch (e) { /* session storage is optional */ }
     data.errands.forEach(function (e) {
       var st = { letter: e.from ? "pickup" : "carry", parcel: e.from ? "pickup" : "carry", reply: "ask", sort: "office", telegram: "office", weigh: "office", chain: "chain", notice: "read" }[e.kind];
       state.es[e.id] = { stage: st, pos: 0, mix: [], seen: {}, placed: {}, tries: 0, firstTry: true };
     });
+    restoreProgress();
+    /* put back the saved progress, field by field; anything that no longer fits the data is skipped */
+    function restoreProgress() {
+      if (!saved) return;
+      var obj = function (v) { return v !== null && typeof v === "object" && !Array.isArray(v); };
+      var count = function (v, max) { return typeof v === "number" && v >= 0 && v <= max && Math.floor(v) === v; };
+      var STAGES = { letter: ["pickup", "carry", "done"], parcel: ["pickup", "carry", "done"], reply: ["ask", "carry", "done"], sort: ["office", "done"], telegram: ["office", "done"], weigh: ["office", "carry", "done"], chain: ["chain", "done"], notice: ["read", "done"] };
+      ["started", "muted", "guide", "closingShown"].forEach(function (k) { if (typeof saved[k] === "boolean") state[k] = saved[k]; });
+      if (obj(saved.met)) Object.keys(saved.met).forEach(function (id) { if (saved.met[id] === true && (RES[id] || id === "_postmaster")) state.met[id] = true; });
+      if (obj(saved.talkIdx)) Object.keys(saved.talkIdx).forEach(function (id) { if (RES[id] && count(saved.talkIdx[id], 1e6)) state.talkIdx[id] = saved.talkIdx[id]; });
+      if (obj(saved.dress)) Object.keys(dress).forEach(function (k) { if (typeof saved.dress[k] === "string" && /^#[0-9a-f]{6}$/i.test(saved.dress[k])) dress[k] = saved.dress[k]; });
+      if (obj(saved.es)) data.errands.forEach(function (e) {
+        var r = saved.es[e.id], s = state.es[e.id]; if (!obj(r)) return;
+        if (STAGES[e.kind].indexOf(r.stage) !== -1 && (r.stage !== "pickup" || e.from)) s.stage = r.stage;
+        if (e.kind === "chain" && count(r.pos, s.stage === "done" ? e.steps.length : e.steps.length - 1)) s.pos = r.pos;
+        if (e.kind === "sort" && obj(r.placed)) Object.keys(r.placed).forEach(function (k) { if (r.placed[k] === true && /^\d+$/.test(k) && Number(k) < e.envelopes.length) s.placed[k] = true; });
+        if (Array.isArray(r.mix)) r.mix.forEach(function (m) { if (obj(m) && typeof m.picked === "string" && typeof m.why === "string" && !s.seen[m.picked]) { s.seen[m.picked] = true; s.mix.push({ picked: m.picked, why: m.why }); } });
+        if (count(r.tries, 1e6)) s.tries = r.tries;
+        if (typeof r.firstTry === "boolean") s.firstTry = r.firstTry;
+      });
+    }
     function ES(e) { return state.es[e.id]; }
     function isDone(e) { return ES(e).stage === "done"; }
     function isLocked(e) { return !!(e.after && !isDone(ERR[e.after])); }
@@ -1546,7 +1618,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     function mixup(e, picked, why) {
       var s = ES(e); s.firstTry = false;
       if (s.seen[picked]) return; s.seen[picked] = true;
-      s.mix.push({ picked: picked, why: why });
+      s.mix.push({ picked: picked, why: why }); persist();
     }
 
     var toastTimer;
@@ -1607,7 +1679,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       if (t >= ambient.chime) { tone(PENTA[Math.floor(Math.random() * PENTA.length)], 0, 1.6, "sine", .018); ambient.chime = t + 2.5 + Math.random() * 4; }
     }
     function setMuted(m) {
-      state.muted = m; soundBtn.setAttribute("aria-pressed", String(!m));
+      state.muted = m; persist(); soundBtn.setAttribute("aria-pressed", String(!m));
       soundBtn.replaceChild(icon(m ? "mute" : "sound"), soundBtn.firstChild);
       soundBtn.querySelector(".nthview-hl").textContent = m ? "Muted" : "Sound";
       soundBtn.setAttribute("aria-label", m ? "Sound off" : "Sound on");
@@ -2475,7 +2547,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
           if (sel === null) { fb.className = "nthview-fb"; fb.textContent = "Pick an envelope first."; return; }
           var en = e.envelopes[sel];
           if (en.district === d.id) {
-            s.placed[sel] = true; sel = null; sfx("ok"); fb.className = "nthview-fb nthview-ok"; fb.textContent = ""; fb.appendChild(rich("Right pigeonhole. " + en.note));
+            s.placed[sel] = true; sel = null; persist(); sfx("ok"); fb.className = "nthview-fb nthview-ok"; fb.textContent = ""; fb.appendChild(rich("Right pigeonhole. " + en.note));
             redrawBins(); drawEnvs();
             if (e.envelopes.every(function (x, k) { return s.placed[k]; })) complete(e, pmName, host, pmDir);
           } else {
@@ -2546,7 +2618,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         sfx(right ? "ok" : "pick"); toast("Weighed parcel for " + who(e.to).name + " is in your bag"); refreshAll();
       }
       go.addEventListener("click", function () {
-        s.tries++;
+        s.tries++; persist();
         if (Math.abs(val - e.answer) <= e.tolerance + 1e-9) { finish(true); return; }
         sfx("no"); fb.className = "nthview-fb nthview-no"; fb.textContent = val < e.answer ? "Heavier than that. Try again." : "Lighter than that. Try again.";
         mixup(e, "First guess: " + fmtNum(val, step) + " " + e.unit, e.reveal); show.classList.remove("nthview-hidden"); seeFb(fb);
@@ -2612,7 +2684,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       openPanel("Mail bag"); sfx("open");
     }
     bagBtn.addEventListener("click", function () { if (state.panel === "Mail bag") closePanel(); else if (state.started) openBag(); });
-    function setGuide(on) { state.guide = on; trailDirty = true; promptKey = ""; if (!on) stopWalk(); toast(on ? "Guide me is on: follow the glowing trail" : "Guide me is off"); }
+    function setGuide(on) { state.guide = on; persist(); trailDirty = true; promptKey = ""; if (!on) stopWalk(); toast(on ? "Guide me is on: follow the glowing trail" : "Guide me is off"); }
 
     function renderTray() {
       tray.textContent = ""; var n = 0;
@@ -2631,7 +2703,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       setMarker(pmMk, officeOpen() || !state.met._postmaster || (allRequiredDone() && !state.closingShown) ? "hot" : "idle");
       boards.forEach(function (b) { setMarker(b.mk, isDone(b.e) ? "none" : "new"); });
     }
-    function refreshAll() { renderTray(); updateBadge(); updateMarkers(); trailDirty = true; promptKey = ""; buildCompass(); }
+    function refreshAll() { renderTray(); updateBadge(); updateMarkers(); trailDirty = true; promptKey = ""; buildCompass(); persist(); }
 
     /* ---------- compass strip: the post office and every resident you have met ---------- */
     var cmarks = [];
@@ -2665,12 +2737,12 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         var row = el("div", { class: "nthview-swrow" }, [el("b", { text: WARDROBE[k].label })]), sws = el("div", { class: "nthview-sws", role: "group", "aria-label": WARDROBE[k].label + " colour" });
         WARDROBE[k].colors.forEach(function (c, i) {
           var b = el("button", { type: "button", class: "nthview-sw", style: "--c:" + c, "aria-pressed": String(dress[k] === c), "aria-label": WARDROBE[k].label + " colour " + (i + 1) });
-          b.addEventListener("click", function () { dress[k] = c; applyDress(); sfx("pick"); Array.prototype.forEach.call(sws.childNodes, function (x) { x.setAttribute("aria-pressed", String(x === b)); }); try { root.sessionStorage.setItem("nthview-courier-dress", JSON.stringify(dress)); } catch (e) { /* optional */ } });
+          b.addEventListener("click", function () { dress[k] = c; applyDress(); sfx("pick"); Array.prototype.forEach.call(sws.childNodes, function (x) { x.setAttribute("aria-pressed", String(x === b)); }); persist(); });
           sws.appendChild(b);
         });
         row.appendChild(sws); popWard.appendChild(row);
       });
-      popWard.appendChild(p("nthview-small", "Just for fun. It lasts for this visit."));
+      popWard.appendChild(p("nthview-small", "Just for fun. It is saved with your progress."));
       popEmote.appendChild(el("h3", { text: "Emote" }));
       var row = el("div", { class: "nthview-emos" });
       EMOTES.forEach(function (em) { var b = el("button", { type: "button", class: "nthview-emo", "aria-label": em[1], title: em[1], text: em[0] }); b.addEventListener("click", function () { emote(em); closePops(); try { canvas.focus({ preventScroll: true }); } catch (e) { canvas.focus(); } }); row.appendChild(b); });
@@ -2697,11 +2769,11 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     /* ---------- overlays: intro, letters, closing letter, review, controls ---------- */
     function showOverlay(node, opts) {
       overlay.textContent = ""; overlay.appendChild(node); overlay.classList.remove("nthview-hidden", "nthview-fading"); state.overlay = opts || {};
-      overlay.setAttribute("aria-label", (opts && opts.label) || "Letter"); closePops(); keys = {}; stopWalk();
+      overlay.setAttribute("aria-label", (opts && opts.label) || "Letter"); closePops(); keys = {}; stopWalk(); persist();
       overlay.scrollTop = 0; setTimeout(function () { var f = overlay.querySelector(".nthview-primary") || overlay.querySelector("button"); if (f) { try { f.focus({ preventScroll: true }); } catch (e) { f.focus(); } } }, 80);
     }
     function hideOverlay(then) {
-      overlay.classList.add("nthview-fading"); state.overlay = null; promptKey = "";
+      overlay.classList.add("nthview-fading"); state.overlay = null; promptKey = ""; persist();
       setTimeout(function () { overlay.classList.add("nthview-hidden"); overlay.textContent = ""; if (then) then(); else { try { canvas.focus({ preventScroll: true }); } catch (e) { canvas.focus(); } } }, reduceMotion ? 0 : 300);
     }
     function showIntro() {
@@ -2725,15 +2797,15 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       try { canvas.focus({ preventScroll: true }); } catch (e) { canvas.focus(); }
       setTimeout(function () { toast(bagCount() ? "Your bag has mail. Open it to see the errands." : "Open your bag to see the errands."); }, 400);
     }
-    function showClosing() {
-      state.closingShown = true; refreshAll(); sfx("letter");
+    function showClosing(quiet) {
+      state.closingShown = true; refreshAll(); if (quiet !== true) sfx("letter");
       var c = data.postmaster.closing, wrap = el("div", { class: "nthview-letterwrap" }), pap = paper({ heading: c.heading, paragraphs: c.paragraphs }, "DELIVERED");
       var ol = el("ol", { class: "nthview-recap" }); data.errands.forEach(function (e) { var li = el("li"); li.appendChild(rich(e.teaches)); ol.appendChild(li); }); pap.appendChild(ol);
       if (c.signoff) pap.appendChild(el("p", { class: "nthview-sign", text: c.signoff }));
       var stamps = el("div", { class: "nthview-stamps" }); data.errands.forEach(function (e) { stamps.appendChild(stampEl(e, false)); }); pap.appendChild(stamps);
       pap.appendChild(el("div", { class: "nthview-actions" }, [btn("See the review", "nthview-primary", function () { hideOverlay(showReview); }), btn("Keep exploring", "", function () { hideOverlay(); })]));
       wrap.appendChild(pap); showOverlay(wrap, { label: "Closing letter" });
-      burst(P, "#ffd76a", 160);
+      if (quiet !== true) burst(P, "#ffd76a", 160);
     }
     function showReview() {
       var card = el("div", { class: "nthview-card nthview-glass nthview-wide" }), rep = data.report;
@@ -2949,6 +3021,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       if (ro) ro.disconnect(); else root.removeEventListener("resize", onResize);
       if (mq) { if (mq.removeEventListener) mq.removeEventListener("change", applyTheme); else if (mq.removeListener) mq.removeListener(applyTheme); }
       if (actx) { try { actx.close(); } catch (e) { /* ignore */ } }
+      doc.removeEventListener("visibilitychange", onHidden); root.removeEventListener("pagehide", persist); hideResume();
     }
     function tick() {
       if (!alive || !canvas.isConnected) { if (alive) cleanup(); return; }
@@ -3006,6 +3079,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       });
       boards.forEach(function (b, i) { b.mk.position.y = 2.9 + (reduceMotion ? 0 : Math.sin(t * 2.4 + i) * .12); b.mk.rotation.y = reduceMotion ? 0 : t * 1.6; });
       updatePrompt();
+      if (frame % 60 === 0) persist();   /* position and heading; persist() writes only when something changed */
       /* camera follows from behind, upright to the local "up" */
       var eye = eyeFor(), ed = eye.clone().normalize(), minR = R + heightAt(ed) + 1; if (eye.length() < minR) eye.setLength(minR);
       var k = reduceMotion ? 1 : 1 - Math.exp(-dt * 7);
@@ -3034,8 +3108,70 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     var mq = root.matchMedia && root.matchMedia("(prefers-color-scheme: dark)");
     if (mq) { if (mq.addEventListener) mq.addEventListener("change", applyTheme); else if (mq.addListener) mq.addListener(applyTheme); }
 
+    /* ---------- progress: save on every change, restore on open (AGENTS.md §5.5) ---------- */
+    function snapshot() {
+      var r5 = function (v) { return Math.round(v * 1e5) / 1e5; }, vec = function (v) { return [r5(v.x), r5(v.y), r5(v.z)]; }, es = {};
+      data.errands.forEach(function (e) { var s = ES(e); es[e.id] = { stage: s.stage, pos: s.pos, placed: s.placed, mix: s.mix, tries: s.tries, firstTry: s.firstTry }; });
+      var ov = state.overlay && state.overlay.label;
+      return {
+        screen: !state.started ? "intro" : ov === "Review" ? "review" : ov === "Closing letter" ? "closing" : "world",
+        started: state.started, met: state.met, talkIdx: state.talkIdx, es: es, closingShown: state.closingShown,
+        muted: state.muted, guide: state.guide, dress: dress,
+        pos: vec(P), heading: vec(camF), facing: vec(faceF), pitch: r5(pitch)
+      };
+    }
+    function persist() {
+      if (!ready || !alive || !canvas.isConnected) return;
+      var snap = snapshot(), str = JSON.stringify(snap); if (str === lastSaved) return;
+      lastSaved = str; saveState(storeKey, snap);
+    }
+    function onHidden() { if (doc.visibilityState === "hidden") persist(); }
+    doc.addEventListener("visibilitychange", onHidden); root.addEventListener("pagehide", persist);
+    /* the courier comes back standing on the saved spot, facing the saved way */
+    function restoreScene() {
+      if (!saved) return;
+      var vecOf = function (a) { return Array.isArray(a) && a.length === 3 && a.every(function (n) { return typeof n === "number" && isFinite(n); }) ? V(a[0], a[1], a[2]) : null; };
+      var sp = vecOf(saved.pos);
+      if (sp && sp.lengthSq() > .25) {
+        sp.normalize();
+        for (var i = 0; i < obstacles.length; i++) { var o = obstacles[i], lim = o.r + PLAYER_R; if (sp.dot(o.d) >= Math.cos(lim)) sp = o.d.clone().multiplyScalar(Math.cos(lim + 1e-4)).addScaledVector(tangentTo(o.d, sp), Math.sin(lim + 1e-4)).normalize(); }
+        if (land(sp)) P.copy(sp);
+      }
+      var tangent = function (a, fb) { var v = vecOf(a); if (v) { v.addScaledVector(P, -v.dot(P)); if (v.lengthSq() > 1e-6) return v.normalize(); } return fb; };
+      camF.copy(tangent(saved.heading, P.equals(spawnDir) ? camF : tangentTo(P, POLE)));
+      faceF.copy(tangent(saved.facing, camF.clone()));
+      if (typeof saved.pitch === "number" && saved.pitch >= .12 && saved.pitch <= 1.15) pitch = saved.pitch;
+      petDir = offset(P, frameAt(P), 2, .06); camPos.copy(eyeFor()); camUp.copy(P);
+      player.position.copy(surf(P)); orient(player, P, faceF);
+      setMuted(state.muted); trailDirty = true;
+    }
+    /* back in the town, or on the closing letter or review they had open; a short notice says where they are */
+    var resumeEl = null, resumeTimer = null;
+    function resumeWorld() {
+      ambient.next = 0; promptKey = "";
+      if (saved.screen === "review") showReview();
+      else if (saved.screen === "closing" && state.closingShown) showClosing(true);
+      else { try { canvas.focus({ preventScroll: true }); } catch (e) { canvas.focus(); } }
+      var next = required.concat(data.errands.filter(function (e) { return e.kind === "notice"; })).filter(open)[0], where;
+      if (next) where = "with \u201c" + next.title + "\u201d";
+      else if (ang(P, POLE) < .4) where = "at the post office";
+      else { var near = data.districts[0]; data.districts.forEach(function (d) { if (ang(P, d._dir) < ang(P, near._dir)) near = d; }); where = "in " + near.name; }
+      resumeEl = el("div", { class: "nthview-resume nthview-glass", role: "status", "aria-live": "polite", text: "Welcome back, continuing " + where + "." });
+      container.appendChild(resumeEl);
+      resumeTimer = setTimeout(hideResume, 6000);
+      container.addEventListener("pointerdown", onFirstInput, true); root.addEventListener("keydown", onFirstInput, true);
+    }
+    function onFirstInput() { hideResume(); audio(); if (actx && actx.state === "suspended") { try { actx.resume(); } catch (e) { /* ignore */ } } }
+    function hideResume() {
+      container.removeEventListener("pointerdown", onFirstInput, true); root.removeEventListener("keydown", onFirstInput, true); clearTimeout(resumeTimer);
+      if (!resumeEl) return; var n = resumeEl; resumeEl = null; n.classList.add("nthview-gone");
+      setTimeout(function () { if (n.parentNode) n.parentNode.removeChild(n); }, reduceMotion ? 0 : 450);
+    }
+
     applyTheme(); applyDress(); refreshAll(); updateSun(0);
-    showIntro();
+    restoreScene();
+    if (state.started) resumeWorld(); else showIntro();
+    lastSaved = JSON.stringify(snapshot()); ready = true;   /* opening the file writes nothing; the first real change does */
     tick();
     if (doc.fonts && doc.fonts.ready) doc.fonts.ready.then(function () { if (!alive) return; labels.forEach(function (L) { L.draw(); }); data.districts.forEach(function (d) { d._signBoard.material.map = boardTexture(d.name, d._color); d._signBoard.material.needsUpdate = true; }); });
   }
