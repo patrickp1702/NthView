@@ -974,6 +974,9 @@ Copy into the task; every box must be ticked.
 **Repo**
 - [ ] README *Views* section lists the new view in one line.
 - [ ] No other view folder was modified. Only one view was built.
+- [ ] Nothing personal, employer-related or secret in any file or commit
+      (§12 Privacy and secrets); commit identity is the GitHub noreply
+      address.
 
 Quick conformance commands:
 
@@ -1038,6 +1041,33 @@ $: expected an object, got array
 - Errors block; warnings advise. Never put a blocking problem in warnings.
 - The in-page error panel shows the same strings the CLI prints.
 - Avoid `invalid data`, `bad input`, `error in items`.
+
+### Privacy and secrets
+This is a public repository. Nothing in it may identify a person or an
+employer beyond the public GitHub account that owns it, and nothing in it may
+be a credential.
+- **Commit identity.** Author and committer use the GitHub noreply address
+  (`<id>+<user>@users.noreply.github.com`). Never a personal, work or
+  company address. Before the first commit in a fresh clone, set it:
+  `git config user.email <noreply address>`. A commit that carries any other
+  address is rewritten before it is pushed.
+- **Commit messages, code, comments, docs, lessons, examples, notes.** No
+  employer or company names, team names, internal product or project names,
+  internal hostnames or URLs, ticket ids, office locations, phone numbers,
+  or personal email addresses. Fictional names and addresses inside a
+  lesson's story are fine when they are plainly made up (`example.com`,
+  invented companies).
+- **No secrets, ever.** No API keys, tokens, passwords, cookies, connection
+  strings or private keys, not even expired or "test" ones, in any file,
+  including `temp/` and the examples. Configuration that needs a secret
+  reads it from the environment at run time and this repository needs none.
+- **Content the user hands over** (a paper, notes, source code) is used for
+  the learning view only. If it names an employer, an internal system or
+  real people, generalise or anonymise it before it enters a doc or lesson,
+  and say so to the user.
+- Before any commit: search the diff for `@`, `http`, `key`, `token`,
+  `secret`, `password` and any company name you know the user is connected
+  to, and remove what the rules above forbid.
 
 ### Working in this repo
 - One view per task. Do not scaffold future views.
