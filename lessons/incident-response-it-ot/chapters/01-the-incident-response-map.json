@@ -1,0 +1,154 @@
+{
+  "schemaVersion": 1,
+  "title": "The Incident Response Map",
+  "subtitle": "The lifecycle, the people, the tools, the outside obligations, and what changes when the systems run a plant",
+  "theme": "blueprint",
+  "intro": [
+    "When a serious cyber incident hits a large organisation, the response is not one clever engineer at a keyboard. It is a rehearsed process with a leader, a dozen roles, pre-agreed playbooks, legal clocks and, in industrial plants, a hard rule that **safety comes before everything**.",
+    "This map shows how those pieces fit: the six-step lifecycle most teams use, who does what, the tools and evidence that matter, the deadlines and decisions that come from outside, and how operational technology (OT: the systems that run physical processes) changes the playbook. Tour it, then rebuild it from memory."
+  ],
+  "root": "ir",
+  "clusters": [
+    { "id": "lifecycle", "name": "The lifecycle", "color": "gold", "description": "The six steps most teams use (SANS: Preparation, Identification, Containment, Eradication, Recovery, Lessons learned)." },
+    { "id": "people", "name": "People and roles", "color": "violet", "description": "Who is involved in an enterprise response, technical and not." },
+    { "id": "tools", "name": "Tools and evidence", "color": "blue", "description": "What teams see with, act with, and must protect." },
+    { "id": "ot", "name": "OT is different", "color": "red", "description": "What changes when the affected systems control a physical process: a plant, a pipeline, a grid, a water works." },
+    { "id": "outside", "name": "Outside obligations", "color": "teal", "description": "The deadlines, decisions and partners that come from outside the technical team." }
+  ],
+  "nodes": [
+    { "id": "ir", "label": "Incident response", "cluster": "lifecycle", "definition": "The organised way an enterprise detects, contains, recovers from and learns from a security incident, while meeting its legal and safety duties.", "note": "Two reference frameworks dominate. The SANS six steps give the classic lifecycle used in this map. NIST SP 800-61 Rev. 3 (April 2025) now folds incident response into the NIST Cybersecurity Framework 2.0 functions (Govern, Identify, Protect, Detect, Respond, Recover), treating it as part of everyday risk management rather than a separate procedure." },
+    { "id": "prep", "label": "Preparation", "cluster": "lifecycle", "definition": "Everything done before an incident: plans, roles, playbooks, tools, tested backups, contact lists, retainer contracts and practice exercises.", "note": "Most of what goes well in a real incident was decided here. Tabletop exercises, where the team talks through a realistic scenario, expose gaps while they are cheap to fix." },
+    { "id": "detect", "label": "Detection and analysis", "cluster": "lifecycle", "definition": "Noticing that something is wrong, confirming it is real, and working out its scope and severity.", "note": "SANS calls this step Identification. Attackers often go unnoticed for a long time: Mandiant's M-Trends 2026 puts the global median at about two weeks." },
+    { "id": "contain", "label": "Containment", "cluster": "lifecycle", "definition": "Stopping the incident from spreading: isolating machines, disabling accounts, blocking connections, separating networks.", "note": "Short-term containment stops the bleeding fast; longer-term containment keeps the business running safely while the clean-up is prepared." },
+    { "id": "eradicate", "label": "Eradication", "cluster": "lifecycle", "definition": "Removing the attacker's foothold: malicious software, rogue accounts and the weakness they came in through.", "note": "Eradicate too early, before you know the full scope, and the attacker often keeps a way back in." },
+    { "id": "recover", "label": "Recovery", "cluster": "lifecycle", "definition": "Restoring systems from clean sources, in the right order, and watching closely for the attacker's return.", "note": "Order matters: identity systems (who can log in) usually come first, then core infrastructure, then business applications." },
+    { "id": "lessons", "label": "Lessons learned", "cluster": "lifecycle", "definition": "A blameless review of what happened and how the response went, turned into concrete fixes.", "note": "Blameless means asking what made the mistake easy, not who to punish; people only report honestly when it is safe to." },
+    { "id": "commander", "label": "Incident commander", "cluster": "people", "definition": "The one person who runs the response: sets priorities, makes or escalates decisions and keeps everyone coordinated.", "note": "Often not the most technical person. Their job is the whole picture, so the technical experts can stay heads-down. In industrial settings, ISA's ICS4ICS programme adapts the emergency services' Incident Command System for exactly this." },
+    { "id": "soc", "label": "SOC analysts", "cluster": "people", "definition": "The Security Operations Centre team that watches alerts around the clock, triages them and starts investigations." },
+    { "id": "legal", "label": "Legal and privacy", "cluster": "people", "definition": "Lawyers and privacy officers who work out notification duties, contracts and regulator contact, and protect sensitive findings.", "note": "Teams often bring legal in on day one, both to track deadlines and to keep investigation reports under legal privilege where the law allows." },
+    { "id": "comms", "label": "Communications", "cluster": "people", "definition": "The people who tell employees, customers, partners and the media what is happening, clearly and consistently.", "note": "During a compromise, normal email and chat may be watched by the attacker, so teams plan out-of-band channels in advance." },
+    { "id": "execs", "label": "Executives and board", "cluster": "people", "definition": "The leaders who make the business calls: shutting operations down, paying or refusing a ransom, and public disclosure." },
+    { "id": "ot-eng", "label": "Plant engineers and operators", "cluster": "people", "definition": "The people who understand the physical process and decide what is safe to touch, isolate or restart in a plant." },
+    { "id": "siem", "label": "SIEM", "cluster": "tools", "definition": "A system that collects logs from across the organisation so analysts can search and correlate them in one place." },
+    { "id": "edr", "label": "EDR", "cluster": "tools", "definition": "Endpoint detection and response: an agent on each computer that records activity and can isolate a machine from the network in one click.", "note": "Many industrial controllers and older plant computers can't run such agents, which is why OT relies more on passive network monitoring." },
+    { "id": "playbooks", "label": "Playbooks", "cluster": "tools", "definition": "Pre-agreed, step-by-step responses for each incident type, including who may take which action without waiting for approval." },
+    { "id": "evidence", "label": "Forensic evidence", "cluster": "tools", "definition": "Memory captures, disk images and logs, collected carefully so they can explain what happened and stand up later.", "note": "RFC 3227's order of volatility says to collect the most fleeting first: memory and running processes before disk, disk before archives. Chain of custody records who handled the evidence and when." },
+    { "id": "backups", "label": "Offline backups", "cluster": "tools", "definition": "Copies of data and systems kept where an attacker can't reach or change them, and restored in regular tests.", "note": "Online backups are often found and encrypted along with everything else. Only backups that are offline or immutable, and actually tested, are a real recovery plan." },
+    { "id": "safety", "label": "Safety first", "cluster": "ot", "definition": "In OT, the priorities are human safety and keeping the process stable; protecting data comes after.", "note": "In office IT, a suspicious machine can simply be unplugged. Abruptly cutting a controller in a chemical plant or a grid can itself create a dangerous state, so every action is checked with the people who run the process." },
+    { "id": "purdue", "label": "Purdue levels", "cluster": "ot", "definition": "A layered model of an industrial network, from field devices at level 0 up through control and site operations to business IT at levels 4–5." },
+    { "id": "dmz", "label": "IT/OT DMZ", "cluster": "ot", "definition": "A buffer zone (often called level 3.5) between business IT and the plant, through which only controlled connections pass.", "note": "IEC 62443 describes the same idea as zones (groups of assets with the same security needs) joined by conduits (controlled communication paths)." },
+    { "id": "manual", "label": "Manual operation", "cluster": "ot", "definition": "Running the process by hand or with local controls when the digital systems can't be trusted.", "example": "In December 2015, after attackers cut power to about 225,000 customers in Ukraine, operators restored supply by switching to manual control. Norsk Hydro ran parts of its business manually after ransomware in 2019." },
+    { "id": "sis", "label": "Safety instrumented system", "cluster": "ot", "definition": "An independent automatic system that shuts a process down safely if it goes outside safe limits: the last line of defence.", "note": "In 2017 the TRITON malware targeted exactly such a system at a Saudi petrochemical plant; the safety system tripped and shut the plant down, which helped expose the intrusion." },
+    { "id": "clocks", "label": "Notification clocks", "cluster": "outside", "definition": "Legal deadlines for reporting incidents, many of which start at awareness, not when the investigation ends.", "note": "Examples: India's CERT-In, 6 hours for listed incidents; EU NIS2, a 24-hour early warning, 72-hour notification and a final report within a month; GDPR, 72 hours for personal-data breaches; US SEC Form 8-K, 4 business days after deciding an incident is material. India's DPDP breach duties take effect on 13 May 2027, and the US CIRCIA rule is still only proposed." },
+    { "id": "ransom", "label": "Ransom decision", "cluster": "outside", "definition": "Whether to pay attackers for a decryption key or to keep stolen data quiet. Payment guarantees nothing and can be illegal.", "note": "The US Treasury's OFAC warns that paying a sanctioned group can bring penalties even if you didn't know who they were; reporting promptly and cooperating with authorities count in your favour." },
+    { "id": "law", "label": "Law enforcement and CERTs", "cluster": "outside", "definition": "Police cyber units and national response teams such as CERT-In, which take reports, share intelligence and sometimes recover funds.", "example": "After Colonial Pipeline paid about $4.4 million in 2021, the US Justice Department recovered roughly $2.3 million of it." }
+  ],
+  "edges": [
+    { "id": "e-ir-prep", "from": "ir", "to": "prep", "relation": "begins with", "explanation": "The response starts long before the incident. Plans, roles, backups and practice decide most of how the real day goes." },
+    { "id": "e-ir-commander", "from": "ir", "to": "commander", "relation": "is led by", "explanation": "A single, clear leader prevents the most common failure in big incidents: many smart people acting in different directions." },
+    { "id": "e-ir-clocks", "from": "ir", "to": "clocks", "relation": "is bound by", "explanation": "A response is also a legal process. Regulators' deadlines shape what must be known, and said, by when." },
+    { "id": "e-prep-detect", "from": "prep", "to": "detect", "relation": "enables", "explanation": "You can only spot what you collect logs for and have people watching. Preparation decides what detection is even possible." },
+    { "id": "e-detect-contain", "from": "detect", "to": "contain", "relation": "triggers", "explanation": "Once an incident is confirmed and scoped, containment starts, as fast as the playbook allows." },
+    { "id": "e-contain-eradicate", "from": "contain", "to": "eradicate", "relation": "is followed by", "explanation": "First stop the spread, then remove the foothold. Doing it the other way round often warns the attacker while they still have access." },
+    { "id": "e-eradicate-recover", "from": "eradicate", "to": "recover", "relation": "clears the way for", "explanation": "Restoring systems before the attacker is out just gives them fresh machines to take over." },
+    { "id": "e-recover-lessons", "from": "recover", "to": "lessons", "relation": "ends in", "explanation": "When systems are back, the team reviews what happened while memories are fresh." },
+    { "id": "e-lessons-prep", "from": "lessons", "to": "prep", "relation": "improves", "explanation": "The lifecycle is a loop: every review should change the plans, tools and training for next time." },
+    { "id": "e-commander-playbooks", "from": "commander", "to": "playbooks", "relation": "follows", "explanation": "Playbooks let the commander act on decisions made calmly in advance instead of improvising under pressure." },
+    { "id": "e-commander-execs", "from": "commander", "to": "execs", "relation": "briefs", "explanation": "Executives need short, regular updates: what we know, what we don't, what we need decided." },
+    { "id": "e-commander-comms", "from": "commander", "to": "comms", "relation": "coordinates", "explanation": "What is said publicly must match what is technically true, so communications works from the commander's picture." },
+    { "id": "e-execs-ransom", "from": "execs", "to": "ransom", "relation": "decide on", "explanation": "Paying is a business, legal and ethical decision, not a technical one, and it belongs with leadership and counsel." },
+    { "id": "e-soc-detect", "from": "soc", "to": "detect", "relation": "performs", "explanation": "Analysts turn alerts into confirmed incidents, or into closed false alarms." },
+    { "id": "e-soc-siem", "from": "soc", "to": "siem", "relation": "works in", "explanation": "The SIEM is where analysts search across logs from many systems at once." },
+    { "id": "e-siem-detect", "from": "siem", "to": "detect", "relation": "feeds", "explanation": "Correlating events from many sources reveals patterns no single system shows." },
+    { "id": "e-edr-contain", "from": "edr", "to": "contain", "relation": "speeds up", "explanation": "One click can cut a machine off the network while keeping it running for investigation." },
+    { "id": "e-playbooks-contain", "from": "playbooks", "to": "contain", "relation": "pre-approve", "explanation": "Saying in advance who may isolate what, without waiting for a manager, can save the minutes that decide how many machines are lost." },
+    { "id": "e-contain-evidence", "from": "contain", "to": "evidence", "relation": "must preserve", "explanation": "Isolating a machine is better than wiping or rebooting it: memory and logs disappear, and with them the explanation of what happened." },
+    { "id": "e-evidence-legal", "from": "evidence", "to": "legal", "relation": "supports", "explanation": "Evidence tells legal what data was really affected, which decides who must be notified." },
+    { "id": "e-legal-clocks", "from": "legal", "to": "clocks", "relation": "tracks", "explanation": "Legal keeps the list of which deadlines apply, when each started and who signs each report." },
+    { "id": "e-detect-clocks", "from": "detect", "to": "clocks", "relation": "starts", "explanation": "Most clocks start when you become aware of an incident, not when you finish understanding it. Some, like CERT-In's, give only hours." },
+    { "id": "e-legal-law", "from": "legal", "to": "law", "relation": "liaises with", "explanation": "Involving law enforcement and national CERTs is often required, can bring help and intelligence, and counts in your favour with sanctions regulators." },
+    { "id": "e-prep-backups", "from": "prep", "to": "backups", "relation": "includes", "explanation": "Recovery is only as good as the backups prepared, and tested, before the incident." },
+    { "id": "e-backups-recover", "from": "backups", "to": "recover", "relation": "make possible", "explanation": "Clean, reachable copies are what you rebuild from." },
+    { "id": "e-backups-ransom", "from": "backups", "to": "ransom", "relation": "reduce the pressure for", "explanation": "With clean offline backups you can restore without paying. They don't solve everything: attackers who stole data may still threaten to publish it." },
+    { "id": "e-lessons-playbooks", "from": "lessons", "to": "playbooks", "relation": "update", "explanation": "Every review should leave the playbooks a little more accurate than before." },
+    { "id": "e-oteng-safety", "from": "ot-eng", "to": "safety", "relation": "guards", "explanation": "The people who run the process know which actions could create a dangerous state; their judgement overrides the security playbook." },
+    { "id": "e-oteng-manual", "from": "ot-eng", "to": "manual", "relation": "can switch to", "explanation": "When control systems are in doubt, operators can often run the process by hand, slower but safe." },
+    { "id": "e-safety-contain", "from": "safety", "to": "contain", "relation": "constrains", "explanation": "In a plant you can't just unplug things. Containment is planned with operations so the process stays safe and stable while the intruder is cut off." },
+    { "id": "e-contain-dmz", "from": "contain", "to": "dmz", "relation": "cuts links at", "explanation": "A common first OT move is to sever the connections between business IT and the plant at the DMZ, so an IT incident can't reach the control systems." },
+    { "id": "e-dmz-purdue", "from": "dmz", "to": "purdue", "relation": "is level 3.5 of", "explanation": "The DMZ sits between site operations (level 3) and business IT (level 4), which is why people call it level 3.5." },
+    { "id": "e-manual-recover", "from": "manual", "to": "recover", "relation": "bridges the gap to", "explanation": "Manual operation keeps output going, at reduced capacity, while digital systems are restored." },
+    { "id": "e-sis-safety", "from": "sis", "to": "safety", "relation": "protects", "explanation": "The safety instrumented system can shut the process down safely even if everything above it is compromised, which is why tampering with it is so alarming." }
+  ],
+  "tour": [
+    { "title": "A process, a leader, a clock", "text": "**Incident response** begins with preparation, is led by one incident commander and is bound by legal deadlines from the moment you know. Everything else on this map hangs off those three.", "focus": ["ir", "prep", "commander", "clocks", "e-ir-prep", "e-ir-commander", "e-ir-clocks"] },
+    { "title": "The lifecycle loop", "text": "Prepare, detect, contain, eradicate, recover, learn, and then the **lessons** improve the preparation. The order matters: contain before you clean up, and clean up before you restore.", "focus": ["prep", "detect", "contain", "eradicate", "recover", "lessons", "e-prep-detect", "e-detect-contain", "e-contain-eradicate", "e-eradicate-recover", "e-recover-lessons", "e-lessons-prep"] },
+    { "title": "Who does what", "text": "The **incident commander** follows playbooks, briefs executives and coordinates communications. Analysts detect; legal tracks the clocks; executives make the business calls; plant engineers guard safety.", "focus": ["commander", "soc", "legal", "comms", "execs", "ot-eng", "playbooks", "detect", "e-commander-playbooks", "e-commander-execs", "e-commander-comms", "e-soc-detect", "e-execs-ransom", "e-legal-clocks"] },
+    { "title": "Tools and evidence", "text": "The SIEM and EDR let a team see and act fast; **playbooks** pre-approve the urgent moves. Containment must preserve evidence, and tested offline backups are what recovery stands on.", "focus": ["siem", "edr", "playbooks", "evidence", "backups", "soc", "contain", "recover", "e-soc-siem", "e-siem-detect", "e-edr-contain", "e-playbooks-contain", "e-contain-evidence", "e-backups-recover", "e-prep-backups", "e-lessons-playbooks"] },
+    { "title": "When the systems run a plant", "text": "In OT, **safety first** constrains containment. Teams cut the IT/OT links at the DMZ, switch to manual operation if needed, and rely on the safety instrumented system as the last line of defence.", "focus": ["safety", "purdue", "dmz", "manual", "sis", "ot-eng", "contain", "recover", "e-safety-contain", "e-contain-dmz", "e-dmz-purdue", "e-oteng-safety", "e-oteng-manual", "e-manual-recover", "e-sis-safety"] },
+    { "title": "The outside world", "text": "Detection **starts** the notification clocks. Evidence tells legal who must be told; legal liaises with law enforcement; executives decide on any ransom, under less pressure if backups are good.", "focus": ["clocks", "ransom", "law", "legal", "evidence", "execs", "backups", "detect", "e-detect-clocks", "e-evidence-legal", "e-legal-law", "e-execs-ransom", "e-backups-ransom"] }
+  ],
+  "rebuild": {
+    "intro": "Three pieces have drifted out of their regions, the lifecycle has lost its order, a few labels have gone blank, one link has vanished and one now says something false. Rebuild the map from memory.",
+    "tasks": [
+      { "id": "place-three", "type": "place", "nodes": ["playbooks", "sis", "law"], "hint": "Ask what each one is: something the team works with, something specific to plants, or a partner from outside.", "why": "Playbooks are a tool the team prepares in advance. The safety instrumented system belongs to OT: it shuts a process down safely. Law enforcement and CERTs are outside partners who take reports and can help." },
+      { "id": "order-cycle", "type": "order", "prompt": "Put the six steps of the lifecycle in order.", "nodes": ["prep", "detect", "contain", "eradicate", "recover", "lessons"], "hint": "Before, notice, stop the spread, remove, restore, review.", "why": "Preparation, detection, containment, eradication, recovery, lessons learned. Restoring before eradicating hands the attacker fresh systems; eradicating before containing can tip them off while they still have access." },
+      { "id": "rel-safety", "type": "relation", "edge": "e-safety-contain", "hint": "Can you unplug a controller in a chemical plant the way you unplug a laptop?", "why": "Safety constrains containment in OT. Abruptly cutting a controller can itself cause a dangerous state, so every containment step is planned with the people who run the process.",
+        "options": [
+          { "label": "constrains", "correct": true },
+          { "label": "doesn't affect", "why": "In office IT that's nearly true, but in a plant safety shapes every containment decision." },
+          { "label": "speeds up", "why": "Safety checks usually slow containment down a little, on purpose. A fast but unsafe action can turn a cyber incident into a physical one." }
+        ] },
+      { "id": "connect-clocks", "type": "connect", "edge": "e-detect-clocks", "prompt": "The arrow that starts the legal deadlines has vanished. Draw it.", "hint": "When do most reporting deadlines begin: at the end of the investigation, or earlier?", "why": "Most notification clocks start at awareness, during detection and analysis, not when you finish understanding the incident. CERT-In allows only 6 hours, so reports are often filed with partial information and updated later." },
+      { "id": "spot-evidence", "type": "spot", "edge": "e-contain-evidence", "wrongRelation": "wipes before imaging", "candidates": ["e-contain-evidence", "e-edr-contain", "e-playbooks-contain", "e-contain-dmz"], "hint": "What disappears when you reboot or reimage a machine?", "why": "Containment must preserve evidence. Wiping or rebooting first destroys memory and logs, and with them the answer to how the attacker got in and what they touched, which legal needs for notifications. Isolate, capture, then clean." },
+      { "id": "label-commander", "type": "label", "node": "commander", "hint": "One person, not necessarily the most technical, who keeps the whole response coordinated.", "why": "The incident commander owns priorities and decisions so specialists can focus. Many large-incident failures come from no one being clearly in charge.",
+        "options": [
+          { "label": "Incident commander", "correct": true },
+          { "label": "SOC analysts", "why": "Analysts investigate and detect; they don't run the whole response." },
+          { "label": "Executives and board", "why": "Executives make the big business calls, but they rely on the commander to run the response day to day." },
+          { "label": "Legal and privacy", "why": "Legal handles obligations and privilege, not the overall coordination." }
+        ] },
+      { "id": "rel-backups", "type": "relation", "edge": "e-backups-ransom", "hint": "If you can restore everything yourself, how much do you need the attacker's key?", "why": "Clean offline backups reduce the pressure to pay because you can restore without the attacker. They don't remove it entirely: if data was stolen, the attacker may still threaten to publish it.",
+        "options": [
+          { "label": "reduce the pressure for", "correct": true },
+          { "label": "make no difference to", "why": "Organisations with tested offline backups regularly refuse to pay; Norsk Hydro did in 2019." },
+          { "label": "guarantee you avoid", "why": "Not quite: backups fix encryption, not data theft. Extortion over stolen data can continue." }
+        ] },
+      { "id": "label-dmz", "type": "label", "node": "dmz", "hint": "The buffer zone between business IT and the plant, often called level 3.5.", "why": "The IT/OT DMZ is where only controlled connections cross between the business network and the plant, and where teams often cut links first in an incident.",
+        "options": [
+          { "label": "IT/OT DMZ", "correct": true },
+          { "label": "Purdue levels", "why": "Purdue is the whole layered model; the DMZ is one layer in it." },
+          { "label": "Safety instrumented system", "why": "That is the automatic safety shutdown system inside the process, not a network zone." },
+          { "label": "SIEM", "why": "The SIEM collects logs; it isn't a network boundary." }
+        ] }
+    ]
+  },
+  "reflection": {
+    "prompt": "If you could keep only three links from this map, which would they be?",
+    "keyEdges": [
+      { "edge": "e-lessons-prep", "why": "Incident response is a loop. Organisations that turn each incident into better preparation get steadily harder to hurt." },
+      { "edge": "e-safety-contain", "why": "The single biggest difference in OT: containment must never make the physical process unsafe." },
+      { "edge": "e-detect-clocks", "why": "Legal deadlines start at awareness and can be hours long, so reporting has to be prepared before the incident, not during it." }
+    ],
+    "candidates": ["e-lessons-prep", "e-safety-contain", "e-detect-clocks", "e-playbooks-contain", "e-contain-evidence", "e-backups-ransom", "e-ir-commander", "e-contain-dmz", "e-sis-safety", "e-prep-detect", "e-execs-ransom", "e-manual-recover"],
+    "closing": "Prepare and learn in a loop, keep plants safe while you contain, and know your clocks: those three ideas carry most of enterprise incident response."
+  },
+  "glossary": [
+    { "term": "IT", "meaning": "Information technology: business computers, servers, networks and cloud services that handle data." },
+    { "term": "OT", "meaning": "Operational technology: the systems that monitor and control physical processes, such as controllers, sensors and operator screens in plants, grids and pipelines." },
+    { "term": "ICS / SCADA", "meaning": "Industrial control systems, and the supervisory systems that monitor and control them across a site or a wide area." },
+    { "term": "Ransomware", "meaning": "Malicious software that encrypts systems and demands payment, often combined with theft of data." },
+    { "term": "Tabletop exercise", "meaning": "A rehearsal where the response team talks through a realistic incident scenario to find gaps in plans." },
+    { "term": "Chain of custody", "meaning": "A record of who collected, handled and stored each piece of evidence, and when." },
+    { "term": "Order of volatility", "meaning": "Collect the most short-lived evidence first, such as memory before disk (RFC 3227)." },
+    { "term": "CERT-In", "meaning": "India's national Computer Emergency Response Team, which sets incident-reporting rules for many organisations in India." },
+    { "term": "NIS2", "meaning": "The EU directive setting cybersecurity and incident-reporting duties for essential and important organisations." },
+    { "term": "Materiality", "meaning": "Whether an event matters enough that investors would want to know; it triggers SEC disclosure for US-listed companies." }
+  ],
+  "summary": {
+    "heading": "The map, rebuilt",
+    "paragraphs": [
+      "Enterprise incident response is a loop: prepare, detect, contain, eradicate, recover, learn and prepare better. It works when one commander leads, playbooks pre-approve the urgent moves, containment preserves evidence and recovery stands on tested offline backups.",
+      "In OT the same loop runs under a stricter rule: safety and stable operations come first, so teams cut IT/OT links, fall back to manual control and protect the safety systems. And from the moment anyone knows, legal clocks tick, some in hours."
+    ]
+  }
+}

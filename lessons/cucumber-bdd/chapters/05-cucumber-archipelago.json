@@ -1,0 +1,302 @@
+{
+  "schemaVersion": 1,
+  "title": "Cucumber Archipelago",
+  "subtitle": "Seven islands, one green build: BDD and Cucumber from the first conversation to a trustworthy suite",
+  "theme": "lagoon",
+  "companion": { "name": "Kip" },
+  "coins": 10,
+  "intro": {
+    "paragraphs": [
+      "Kip has just joined a team that uses Cucumber-JVM with JUnit 5. On day one Kip opened a feature file, saw Given, When and Then, and wondered: is this a test, a spec, or both?",
+      "Walk Kip across seven islands: where BDD came from, how Cucumber grew up, the Gherkin language, the glue code behind it, how a suite runs, how to write scenarios worth keeping, and how to keep a big suite green."
+    ],
+    "steps": [
+      "Press **Walk me there** or follow the arrow. Pick up coins on the causeways.",
+      "Read the short lesson, then do the activity. Some islands are played on foot: carry orbs to bins, or walk up to the right part.",
+      "Each wrong try costs a coin. Getting it right first time earns 3 stars. Finish all seven to open the exam at the hub."
+    ],
+    "note": "Facts checked against cucumber.io documentation and the Cucumber project's own announcements, October 2026. Examples use Java with Cucumber-JVM."
+  },
+  "islands": [
+    {
+      "id": "talk-first",
+      "name": "Talk First",
+      "theme": "hall",
+      "lead": "**Behaviour-Driven Development** (BDD) grew out of test-driven development. Dan North described it in his 2006 article \"Introducing BDD\": instead of thinking about tests, think about the **behaviour** the software should have, and describe it with concrete examples everyone understands.",
+      "body": [
+        "BDD is usually described in three practices. **Discovery**: product, development and testing talk through real examples of a feature before it is built. **Formulation**: the agreed examples are written down in Gherkin. **Automation**: step definitions connect each line to code, so the examples run as tests.",
+        "The order matters. The conversation comes first; Cucumber is how the results of that conversation keep being checked."
+      ],
+      "activity": {
+        "type": "order",
+        "title": "From idea to green build",
+        "prompt": "Put Kip's team's BDD workflow in the right order.",
+        "items": [
+          { "text": "Product, development and testing discuss concrete examples of the feature", "note": "Discovery. Example Mapping is a popular way to run it." },
+          { "text": "The agreed examples are written as Gherkin scenarios", "note": "Formulation: plain-language specifications." },
+          { "text": "Step definitions connect each step to code", "note": "Automation, written while the feature is built." },
+          { "text": "The feature is built until the scenarios pass", "note": "The scenarios guide development, not just check it afterwards." },
+          { "text": "The scenarios keep running in CI as living documentation", "note": "If behaviour changes, a scenario goes red." }
+        ]
+      },
+      "remember": "BDD is a conversation before code: discover examples, formulate them in Gherkin, then automate."
+    },
+    {
+      "id": "cucumber-story",
+      "name": "Vine Clocktower",
+      "theme": "clock",
+      "lead": "Cucumber was created by **Aslak Hellesøy**, an early contributor to RSpec. Around 2008, Cucumber replaced RSpec's Story Runner as a tool for whole teams, not just programmers, and it started life in Ruby.",
+      "body": [
+        "Today there are official implementations for many languages: **Cucumber-JVM** (currently version 8) for Java and other JVM languages, and **cucumber-js** (version 13) for JavaScript. In .NET, SpecFlow reached end of life on 31 December 2024; the community carries on with its fork, **Reqnroll**.",
+        "SmartBear acquired Cucumber in 2019. On 19 December 2024 the project returned to community ownership under the Open Source Collective, a non-profit."
+      ],
+      "activity": {
+        "type": "match",
+        "title": "Match the milestones",
+        "prompt": "Pair each date with what happened.",
+        "pairs": [
+          { "left": "2006", "right": "Dan North publishes \"Introducing BDD\"" },
+          { "left": "Around 2008", "right": "Cucumber takes over from RSpec's Story Runner" },
+          { "left": "2019", "right": "SmartBear acquires Cucumber" },
+          { "left": "19 December 2024", "right": "Cucumber returns to community ownership" },
+          { "left": "31 December 2024", "right": "SpecFlow reaches end of life; Reqnroll continues" }
+        ]
+      },
+      "remember": "Cucumber started in Ruby around 2008, now runs on many platforms, and is community-owned again since December 2024."
+    },
+    {
+      "id": "gherkin-grove",
+      "name": "Gherkin Grove",
+      "theme": "grove",
+      "lead": "Feature files are written in **Gherkin**, a small language of keywords followed by plain text. A file starts with **Feature**; **Rule** (since Gherkin 6) groups scenarios under one business rule; each **Scenario** (or Example) is a list of steps.",
+      "body": [
+        "Steps start with **Given** (the context), **When** (the event) and **Then** (the outcome), plus **And**, **But** or * to continue. **Background** holds steps shared by every scenario in the file; a **Scenario Outline** runs once per row of its **Examples** table.",
+        "Extras: data tables (rows between | bars), doc strings (text between triple quotes), @tags to label scenarios and # comments. Gherkin's keywords are translated into over 70 spoken languages."
+      ],
+      "activity": {
+        "type": "gather",
+        "title": "Sort the Gherkin",
+        "prompt": "Walk into each orb and carry it to the right bin: does it give a file its structure, start a step, or add extra syntax?",
+        "bins": [
+          { "id": "structure", "label": "Structure" },
+          { "id": "step", "label": "Step keyword" },
+          { "id": "extra", "label": "Extra syntax" }
+        ],
+        "items": [
+          { "label": "Feature", "bin": "structure" },
+          { "label": "Rule", "bin": "structure" },
+          { "label": "Background", "bin": "structure" },
+          { "label": "Given", "bin": "step" },
+          { "label": "When", "bin": "step" },
+          { "label": "Then", "bin": "step" },
+          { "label": "@smoke tag", "bin": "extra" },
+          { "label": "Data table", "bin": "extra" }
+        ]
+      },
+      "remember": "Gherkin gives structure (Feature, Rule, Background, Scenario, Outline) and steps (Given, When, Then), plus tables, doc strings and tags."
+    },
+    {
+      "id": "glue-workshop",
+      "name": "Glue Workshop",
+      "theme": "workshop",
+      "lead": "Each Gherkin step runs a **step definition**: a Java method with an annotation whose text matches the step. Matching usually uses a **Cucumber Expression**, such as @Given(\"the basket has {int} items\") on a method basketHas(int count).",
+      "body": [
+        "Built-in parameter types include {int}, {float}, {word}, {string} and the anything-goes {}. You can add custom parameter types with a name, a pattern and a converter. An expression that starts with ^ or ends with $ is treated as a regular expression instead.",
+        "When no definition matches a step, Cucumber reports it as **undefined** and suggests a snippet. A definition that isn't finished can mark itself **pending**. If two definitions match the same step, the step is **ambiguous**."
+      ],
+      "activity": {
+        "type": "cloze",
+        "title": "Finish Kip's notes",
+        "text": "The step \"the basket has 3 items\" matches @Given(\"the basket has ___ items\"). A step with no matching definition is reported as ___. A step that two definitions match is ___. An expression anchored with ^ and $ is read as a ___.",
+        "gaps": [
+          { "options": ["{int}", "{string}", "(.*)"], "answer": 0 },
+          { "options": ["undefined", "pending", "skipped"], "answer": 0 },
+          { "options": ["ambiguous", "undefined", "failed"], "answer": 0 },
+          { "options": ["regular expression", "Cucumber Expression", "tag expression"], "answer": 0 }
+        ]
+      },
+      "remember": "Step definitions match steps with Cucumber Expressions like {int}; undefined, pending and ambiguous steps are reported, not silently skipped."
+    },
+    {
+      "id": "run-harbour",
+      "name": "Run Harbour",
+      "theme": "tower",
+      "lead": "With JUnit 5, Cucumber-JVM runs through the **JUnit Platform engine**. A suite class marked @Suite, @IncludeEngines(\"cucumber\") and @SelectClasspathResource(\"features\") finds the feature files; configuration parameters such as **cucumber.glue** (where the step definitions live), **cucumber.plugin** (which reports to write) and **cucumber.filter.tags** (which scenarios to run) shape the run.",
+      "body": [
+        "**Hooks** run code around scenarios: Before and After around each scenario (After runs even when a step failed), BeforeStep and AfterStep around each step, BeforeAll and AfterAll once per run. A tagged hook, such as one for \"@browser and not @headless\", runs only for matching scenarios.",
+        "Cucumber creates fresh instances of your step-definition classes for every scenario. To share state between step classes within one scenario, use dependency injection: PicoContainer, Spring or Guice."
+      ],
+      "activity": {
+        "type": "hotspot",
+        "title": "Find the right setting",
+        "prompt": "Kip wants every commit to run only the scenarios tagged @smoke that aren't tagged @wip. Walk up to, or pick, the setting that decides which scenarios run.",
+        "parts": [
+          { "id": "suite", "label": "@Suite class", "hint": "The suite class tells JUnit where Cucumber lives, but not which scenarios to pick." },
+          { "id": "glue", "label": "cucumber.glue", "hint": "Glue says where to find step definitions, not which scenarios run." },
+          { "id": "plugin", "label": "cucumber.plugin", "hint": "Plugins choose reports such as pretty, html or json." },
+          { "id": "tags", "label": "filter.tags" },
+          { "id": "hook", "label": "@Before hook", "hint": "Hooks run code around scenarios; they don't choose which ones run." },
+          { "id": "pico", "label": "PicoContainer", "hint": "PicoContainer shares state between step classes within a scenario." }
+        ],
+        "answer": "tags"
+      },
+      "aside": { "title": "The tag expression", "text": "Set cucumber.filter.tags to \"@smoke and not @wip\". Tag expressions combine tags with and, or, not and parentheses, so one set of feature files can serve every kind of run." },
+      "remember": "The JUnit Platform engine runs the suite; glue finds steps, plugins write reports, tag filters pick scenarios, and hooks run around them."
+    },
+    {
+      "id": "scenario-forge",
+      "name": "Scenario Forge",
+      "theme": "arena",
+      "lead": "Good scenarios read like specifications. Cucumber's guidance prefers **declarative** steps that describe behaviour (\"When Sam logs in with valid details\") over **imperative** ones that script the screen (\"When I click #login-btn\").",
+      "body": [
+        "A few widely used habits keep a suite healthy: one behaviour per scenario, a short Background that every scenario really needs, a few telling examples per Rule instead of every combination, and no state shared between scenarios."
+      ],
+      "activity": {
+        "type": "sort",
+        "title": "Good habit or smell?",
+        "prompt": "Sort each thing Kip found in the suite: is it a good habit, or a smell to fix?",
+        "buckets": [
+          { "id": "good", "label": "Good habit" },
+          { "id": "smell", "label": "Smell to fix" }
+        ],
+        "items": [
+          { "text": "Steps describe behaviour in business language", "bucket": "good" },
+          { "text": "One behaviour per scenario", "bucket": "good" },
+          { "text": "A short Background every scenario needs", "bucket": "good" },
+          { "text": "A few boundary examples per Rule", "bucket": "good" },
+          { "text": "CSS selectors and waits in the steps", "bucket": "smell" },
+          { "text": "A 46-step end-to-end journey", "bucket": "smell" },
+          { "text": "An Outline with every combination of values", "bucket": "smell" },
+          { "text": "Static fields to pass data between steps", "bucket": "smell" }
+        ]
+      },
+      "remember": "Write declarative steps, one behaviour per scenario, a short Background and a few telling examples per rule."
+    },
+    {
+      "id": "green-lighthouse",
+      "name": "Green Lighthouse",
+      "theme": "plain",
+      "lead": "A **flaky** scenario sometimes fails for reasons that have nothing to do with the code: a slow page, a timing race, a shared test account. One flaky scenario is annoying. Hundreds of them, each only a little flaky, are something else.",
+      "body": [
+        "Retrying failed scenarios makes builds green, but it also lets real intermittent bugs slip through. The lasting fixes are independent scenarios, automation below the UI where possible, and fixing flakiness where it starts. Reports (pretty, html, json, message, junit) show what actually happened."
+      ],
+      "activity": {
+        "type": "predict",
+        "title": "Predict the build",
+        "question": "Kip's suite has 300 scenarios, and each one fails randomly 1% of the time. How often does a whole run come back green?",
+        "options": [
+          { "text": "About 99% of the time", "why": "That's the odds for one scenario. All 300 have to pass at once, so the 99%s multiply." },
+          { "text": "About 70% of the time", "why": "Closer, but still too optimistic: 0.99 multiplied by itself 300 times is much smaller." },
+          { "text": "About 5% of the time", "correct": true }
+        ],
+        "runLabel": "Run 300 scenarios",
+        "frames": [
+          "10 scenarios: green about 90% of the time.",
+          "100 scenarios: green about 37% of the time.",
+          "300 scenarios: green about 5% of the time. Nineteen runs in twenty fail somewhere, with nothing actually broken."
+        ],
+        "result": "Small flakiness multiplies across a suite until a red build means nothing. Fix it at the source; don't just retry."
+      },
+      "findings": {
+        "caption": "Chance a whole run is green when each scenario is 1% flaky (illustrative)",
+        "rows": [
+          { "label": "10 scenarios", "value": 90, "show": "90%" },
+          { "label": "100 scenarios", "value": 37, "show": "37%" },
+          { "label": "300 scenarios", "value": 5, "show": "5%" }
+        ],
+        "text": "0.99 to the power of the number of scenarios: the more scenarios, the faster trust disappears.",
+        "after": true
+      },
+      "remember": "Flakiness multiplies across a suite; keep scenarios independent and fix flakiness at the source instead of retrying."
+    }
+  ],
+  "finale": {
+    "name": "The Green Build",
+    "lead": "Kip's first sprint review is tomorrow. Help Kip answer the team's questions with everything you've learned.",
+    "questions": [
+      {
+        "question": "The product owner suggests: \"Build first, and QA writes the feature files after we ship.\" What does BDD recommend?",
+        "options": [
+          { "text": "Agree concrete examples together before building, then write and automate them", "correct": true },
+          { "text": "Yes: feature files are test scripts, so QA should write them at the end", "why": "Written after the fact, scenarios can't shape what gets built; they just become slow regression tests." },
+          { "text": "Developers should write them alone in code", "why": "Then the business perspective is missing; BDD is collaborative." }
+        ],
+        "okText": "Right: discovery first, then formulation, then automation."
+      },
+      {
+        "question": "A pull request adds the step \"When I click #submit-quote\". What's the better step?",
+        "options": [
+          { "text": "When Sam requests a quote", "correct": true },
+          { "text": "When I click the element with id submit-quote after 3 seconds", "why": "More UI detail makes the step even more fragile." },
+          { "text": "When the POST /quotes endpoint returns 201", "why": "That's still implementation detail, just at the API rather than the UI." }
+        ],
+        "okText": "Declarative steps describe behaviour; the how lives in the step definitions."
+      },
+      {
+        "question": "Which setting runs only smoke scenarios that aren't still in progress?",
+        "options": [
+          { "text": "cucumber.filter.tags=\"@smoke and not @wip\"", "correct": true },
+          { "text": "cucumber.glue=\"@smoke\"", "why": "Glue tells Cucumber where the step definitions live." },
+          { "text": "cucumber.plugin=\"smoke\"", "why": "Plugins choose report formats, not which scenarios run." }
+        ],
+        "okText": "Tag expressions pick subsets from one set of feature files."
+      },
+      {
+        "question": "Two step classes need the same quote object during a scenario. How should they share it?",
+        "options": [
+          { "text": "Through a per-scenario context object injected with PicoContainer", "correct": true },
+          { "text": "Through a static field", "why": "Statics leak between scenarios and break parallel runs." },
+          { "text": "By writing it to a file between steps", "why": "That's shared state too, just slower." }
+        ],
+        "okText": "Fresh glue per scenario plus dependency injection keeps scenarios independent."
+      },
+      {
+        "question": "Cucumber reports a step as ambiguous. What happened?",
+        "options": [
+          { "text": "Two step definitions match the same step", "correct": true },
+          { "text": "No step definition matches the step", "why": "That would be undefined." },
+          { "text": "The step definition isn't finished yet", "why": "That would be pending." }
+        ],
+        "okText": "Make one expression more specific, or merge the two."
+      },
+      {
+        "question": "A Scenario Outline tests every combination of four parameters, 256 rows. What would you suggest?",
+        "options": [
+          { "text": "Keep a few telling examples per rule in Gherkin and test the full matrix in fast unit tests", "correct": true },
+          { "text": "Keep all 256 rows: more rows, more coverage", "why": "Each row is a full scenario run, and the rule disappears in the noise." },
+          { "text": "Split it into 256 separate scenarios", "why": "That keeps all the noise and adds repetition." }
+        ],
+        "okText": "BDD examples illustrate rules for people; exhaustive checks belong lower down."
+      }
+    ]
+  },
+  "report": {
+    "heading": "Kip's build is green!",
+    "tiers": {
+      "perfect": "Every island first time. Kip's team has a new BDD champion.",
+      "great": "Kip is ready to review feature files with confidence.",
+      "pass": "Kip made it across. Revisit any island to brush up."
+    },
+    "lessons": [
+      "BDD starts with a conversation: discovery, then formulation, then automation.",
+      "Cucumber began in Ruby around 2008, runs on many platforms and is community-owned again since December 2024.",
+      "Gherkin gives structure (Feature, Rule, Background, Scenario, Outline) and steps (Given, When, Then).",
+      "Step definitions match steps with Cucumber Expressions; undefined, pending and ambiguous steps are reported.",
+      "The JUnit Platform engine runs the suite; tag filters pick scenarios; hooks run around them; DI shares per-scenario state.",
+      "Good scenarios are declarative, focused, and use a few telling examples per rule.",
+      "Flakiness multiplies across a suite; fix it at the source instead of retrying."
+    ],
+    "glossaryIntro": "Island names and the real terms behind them:",
+    "glossaryColumns": ["In this game", "In Cucumber and BDD"],
+    "glossary": [
+      { "term": "Talk First", "meaning": "Discovery: agreeing concrete examples before building" },
+      { "term": "Vine Clocktower", "meaning": "Cucumber's history and implementations (Cucumber-JVM, cucumber-js, Reqnroll)" },
+      { "term": "Gherkin Grove", "meaning": "The Gherkin language: keywords, steps, tables, tags" },
+      { "term": "Glue Workshop", "meaning": "Step definitions and Cucumber Expressions" },
+      { "term": "Run Harbour", "meaning": "JUnit Platform engine, configuration, hooks, dependency injection" },
+      { "term": "Scenario Forge", "meaning": "Writing declarative, focused scenarios" },
+      { "term": "Green Lighthouse", "meaning": "Flaky tests, retries and suite health" }
+    ],
+    "source": { "label": "Cucumber documentation", "url": "https://cucumber.io/docs/", "note": "Versions and dates as of October 2026." }
+  }
+}

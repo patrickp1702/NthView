@@ -1,0 +1,135 @@
+{
+  "schemaVersion": 1,
+  "title": "Zorba the Buddha",
+  "subtitle": "Nine everyday situations seen through Osho's teaching",
+  "theme": "sunrise",
+  "scenario": {
+    "heading": "The scenario",
+    "setting": [
+      "Meera is a 30-year-old software engineer in Pune. Her flatmate keeps leaving books of **Osho**'s talks on the kitchen table: transcripts of the thousands of discourses he gave between the 1960s and his death in 1990. Curious, and a little sceptical, she starts reading, and then trying things out.",
+      "Over a few weeks ordinary life keeps testing what she has read: a restless mind, an infuriating manager, her family's rituals, a friend who says spirituality must be serious. Each time she asks herself the same question: what did Osho actually teach about this?"
+    ],
+    "role": {
+      "title": "You are Meera, a curious beginner reading Osho for the first time",
+      "description": "You don't have to agree with Osho. Your job in each moment is to pick the response that best reflects his teaching as he gave it, and to notice the popular misreadings along the way."
+    },
+    "goal": "Understand what Osho taught well enough to tell it apart from the myths about him."
+  },
+  "questions": [
+    {
+      "id": "restless",
+      "situation": "Meera sits cross-legged for silent meditation. Within two minutes her knee itches, her mind replays a meeting and she is planning dinner. She feels she is failing.",
+      "prompt": "Which approach is closest to Osho's teaching?",
+      "options": [
+        { "text": "Start with an active meditation: move, breathe hard and let tension out first, then sit still and watch.", "correct": true, "why": "Osho argued that modern people carry too much tension to begin with stillness. His Dynamic Meditation, first presented in 1970, runs through fast breathing, catharsis and jumping before 15 minutes of stillness and 15 of dance." },
+        { "text": "Force yourself to sit still for longer each day until the mind gives in.", "trap": true, "tempting": "Discipline is how most traditions teach meditation, and it does work for some people.", "why": "Osho saw forced stillness as another form of repression: the restlessness is pushed down rather than released. He put the release first." },
+        { "text": "Accept that meditation isn't for restless people.", "tempting": "If sitting feels impossible, giving up seems honest.", "why": "Osho designed his active meditations precisely for restless people; restlessness was his starting point, not a disqualification." },
+        { "text": "Replace the thoughts with positive affirmations.", "tempting": "Changing what you think sounds like a direct fix.", "why": "For Osho meditation is watching thoughts, not swapping them for better ones. Affirmations keep the mind busy; witnessing lets it settle." }
+      ],
+      "takeaway": "Osho's meditations often begin with movement and release, because a tense mind can't simply be told to be still."
+    },
+    {
+      "id": "anger",
+      "situation": "Meera's manager takes credit for her work in a meeting. She is shaking with anger on the way home.",
+      "prompt": "What would fit Osho's teaching on anger?",
+      "options": [
+        { "text": "Smile, swallow it and be the bigger person.", "trap": true, "tempting": "Most moral and religious upbringing praises exactly this, and it keeps the peace at work.", "why": "Osho saw swallowed anger as repression: it doesn't vanish, it festers and leaks out elsewhere. He criticised moral codes that teach people to suppress what they feel." },
+        { "text": "Let the anger out physically somewhere safe, such as in a cathartic meditation, then watch what remains.", "correct": true, "why": "This is his pattern of catharsis followed by witnessing: release the energy without harming anyone, then watch the feeling as an onlooker, without being identified with it." },
+        { "text": "Tell the manager exactly what she thinks, loudly: Osho said to be authentic.", "tempting": "Osho did criticise suppression and praise authenticity, so this can sound like his advice.", "why": "Not suppressing is not the same as dumping anger on another person. His catharsis happens in meditation, aimed at no one; the point is release and awareness, not a fight." },
+        { "text": "Spend the evening analysing which childhood experience made her so sensitive.", "tempting": "Understanding the roots of a reaction seems sensible.", "why": "Osho was wary of endless analysis, which keeps the mind busy. His emphasis was on releasing and watching the energy as it is, now." }
+      ],
+      "takeaway": "Osho's way with strong emotion: neither suppress it nor aim it at someone; release it safely, then watch."
+    },
+    {
+      "id": "sexuality",
+      "situation": "Meera's cousin hears about her reading and laughs: \"Osho? The sex guru? He just told people to do whatever they wanted.\"",
+      "prompt": "What did Osho actually teach about sexuality?",
+      "options": [
+        { "text": "Exactly that: total indulgence is the path.", "trap": true, "tempting": "His 1968 talks, published as Sex Matters: From Sex to Superconsciousness, made the Indian press call him the \"sex guru\", and the label stuck.", "why": "The book's own title points elsewhere: from sex to superconsciousness. He argued that sexual energy should be accepted and understood, not repressed, so that awareness can transform it." },
+        { "text": "That repressing sexuality distorts people; accepting and understanding it with awareness lets it transform into something higher.", "correct": true, "why": "This is his position: sexuality is natural energy; suppressing it, as many religions teach, keeps people obsessed with it; meeting it with awareness can open toward meditation. \"Tantra is a great yea-sayer; it says yes to everything.\" (Tantra: The Supreme Understanding, 1975)" },
+        { "text": "That celibacy is the higher spiritual path.", "tempting": "Many traditions teach this, and seekers often assume all gurus do.", "why": "Osho was one of the loudest critics of enforced celibacy. He saw it as repression dressed up as virtue." },
+        { "text": "Nothing: he thought sexuality was irrelevant to spirituality.", "tempting": "Some teachers do keep the topic out of their teaching.", "why": "Few teachers talked about it more. For Osho, how you relate to sexual energy was central to the spiritual life." }
+      ],
+      "takeaway": "Osho taught acceptance and awareness of sexuality, not indulgence and not suppression."
+    },
+    {
+      "id": "quit-job",
+      "situation": "A few weeks in, Meera feels a pull to drop everything: quit her job, give away her things and go to an ashram for good.",
+      "prompt": "What does Osho's idea of Zorba the Buddha suggest?",
+      "options": [
+        { "text": "Renounce the world: real spirituality means leaving ordinary life behind.", "trap": true, "tempting": "That is what sannyas has meant in India for centuries, and Osho himself used the word sannyas.", "why": "Osho kept the word but changed its meaning: his neo-sannyasins stayed in the world, with jobs, families and relationships. Renunciation was exactly what he rejected." },
+        { "text": "Don't choose: live the worldly life fully, like Zorba, and meditate, like the Buddha.", "correct": true, "why": "Zorba the Buddha is Osho's \"new man\" who embraces both worldly joy and inner stillness, and both science and spirituality. Neither half is to be given up for the other." },
+        { "text": "Focus on career and pleasure now; spirituality can wait until retirement.", "tempting": "It sounds balanced to do one thing at a time.", "why": "That keeps the two halves apart. Osho's point is that the meditative and the worldly belong in the same life, at the same time." },
+        { "text": "Spirituality is the real life; work is an illusion to be endured.", "tempting": "Many spiritual books treat the everyday world as less real.", "why": "Osho valued the world and the body. Calling them illusions is the life-denial he criticised." }
+      ],
+      "takeaway": "Zorba the Buddha: embrace the world and meditation together, not one instead of the other."
+    },
+    {
+      "id": "rituals",
+      "situation": "Meera's family asks her to take part in rituals she no longer believes in. Her mother says faith is about trusting what the elders taught.",
+      "prompt": "How does Osho's teaching treat inherited belief?",
+      "options": [
+        { "text": "As an obstacle: religiousness is personal discovery, and belief gets in the way of meditation.", "correct": true, "why": "\"If you believe in any religion you cannot meditate.\" (Autobiography of a Spiritually Incorrect Mystic, published 2000). He also said \"Rebellion is the very foundation of religion\": real religiousness begins by questioning what you were handed." },
+        { "text": "Swap the old beliefs for Osho's beliefs instead.", "trap": true, "tempting": "If you leave one belief system, joining another feels like the natural next step.", "why": "Osho said he was against belief as such, including belief in him. Replacing one creed with another misses his point that the experience has to be your own." },
+        { "text": "Follow the rituals faithfully: tradition carries wisdom.", "tempting": "Respecting elders and tradition is a real value, and rituals hold families together.", "why": "Osho was openly hostile to organized religion and inherited ritual. Whatever their social value, for him they were not the path." },
+        { "text": "Avoid the question: spirituality and family life should never mix.", "tempting": "Keeping the peace is understandable.", "why": "Osho didn't counsel avoidance; he talked about rebellion, not quietly splitting life into compartments." }
+      ],
+      "takeaway": "For Osho, real religiousness begins where inherited belief ends."
+    },
+    {
+      "id": "laughter",
+      "situation": "A friend from a meditation group tells Meera that laughing during satsang is disrespectful: \"spiritual people are serious\".",
+      "prompt": "What would Osho say about seriousness?",
+      "options": [
+        { "text": "That seriousness is a sign of depth.", "trap": true, "tempting": "Solemn faces and silence are what most of us picture when we think of holy people.", "why": "Osho saw seriousness as a disease of traditional religion. Many of his talks were full of jokes, and many of his meditations end in dance." },
+        { "text": "That laughter, dance and celebration belong to the spiritual life.", "correct": true, "why": "Celebration is central to his teaching: the Zorba half of Zorba the Buddha. A spirituality that cannot laugh had, for him, gone wrong somewhere." },
+        { "text": "That laughter is fine, but only outside meditation.", "tempting": "It seems a reasonable compromise.", "why": "Osho even designed meditations built around laughing and dancing. He didn't keep celebration out of the practice." },
+        { "text": "That emotions of any kind should be avoided while meditating.", "tempting": "Calm is often taken to mean feeling nothing.", "why": "His meditations deliberately include strong expression, from catharsis to celebration. Avoiding feeling is closer to the repression he criticised." }
+      ],
+      "takeaway": "For Osho, laughter and celebration are part of spirituality, not a breach of it."
+    },
+    {
+      "id": "everyday-witnessing",
+      "situation": "Meera only has time for one formal meditation a week. She wonders whether the rest of the week counts at all.",
+      "prompt": "How does Osho's idea of witnessing apply?",
+      "options": [
+        { "text": "Witnessing can go on in any activity: walking, eating, working, arguing.", "correct": true, "why": "Witnessing means watching body, thoughts and feelings as an onlooker. Osho's many techniques change the activity, but the watching can be carried into everything you do." },
+        { "text": "Only formal sitting counts; the rest is just ordinary life.", "trap": true, "tempting": "That is how many people think of meditation: a special activity at a special time.", "why": "Osho deliberately dissolved the line between meditation and life. For Zorba the Buddha, ordinary activity is where the watching happens." },
+        { "text": "Witnessing means judging each thought as good or bad.", "tempting": "Being watchful sounds like keeping an eye on yourself.", "why": "Witnessing doesn't judge. Judging is the mind taking sides; the witness just sees." },
+        { "text": "Witnessing means thinking about yourself as much as possible.", "tempting": "Self-awareness can sound like self-reflection.", "why": "Thinking about yourself is more thought. Witnessing watches the thinking itself." }
+      ],
+      "takeaway": "Witnessing is watching without judging, and it can be carried into any activity."
+    },
+    {
+      "id": "ego",
+      "situation": "Meera reads that spiritual people should have no ego, so she starts agreeing with everyone and never asking for anything.",
+      "prompt": "What did Osho say about the ego?",
+      "options": [
+        { "text": "\"A weak ego cannot be dissolved\": you first become a strong, clear individual, and only then can you go beyond the ego.", "correct": true, "why": "The quote is from My Way: The Way of the White Clouds (published 1995). Meekness is not egolessness; for Osho a crushed ego isn't transcended, it's just hidden." },
+        { "text": "Make yourself small: self-effacement is the road to egolessness.", "trap": true, "tempting": "Humility is praised everywhere, and \"no ego\" sounds like \"no self-assertion\".", "why": "Osho turned this around: a weak ego cannot be dissolved. Pretending to have no needs is still an ego, a humble-looking one." },
+        { "text": "The ego is good and should be built up as large as possible.", "tempting": "If a weak ego is the problem, a big one might seem the solution.", "why": "Strength comes first, but it isn't the goal. The point of a strong ego, in his view, is that it can then be dropped." },
+        { "text": "The ego is a myth, so there's nothing to work on.", "tempting": "Some teachings do say the self is illusory.", "why": "Whatever its ultimate status, Osho treated the ego as something very real in daily life, which has to mature before it can be let go." }
+      ],
+      "takeaway": "For Osho, a strong ego can be dissolved; a weak, hidden one cannot."
+    },
+    {
+      "id": "legacy",
+      "situation": "At a dinner, one friend says Oregon proves every word Osho said was a con. Another says the scandal was invented by his enemies. They both look at Meera.",
+      "prompt": "Which view fits the record best?",
+      "options": [
+        { "text": "The crimes were real: in 1984 commune leaders around his secretary Sheela poisoned 751 people, and she was convicted. People still weigh his teachings, and his responsibility as leader, differently.", "correct": true, "why": "This keeps the facts and the judgement apart. The attack and the convictions are documented; Osho left the US in 1985 after a plea on immigration charges. Whether that discredits his ideas, and how much blame he bears as the leader, is something people weigh for themselves." },
+        { "text": "The scandal was invented by his enemies.", "trap": true, "tempting": "Followers often heard it that way, and the commune did face fierce local hostility.", "why": "The salmonella attack is one of the best-documented bioterror attacks in US history, and commune leaders were convicted for it. Hostility from neighbours does not erase that." },
+        { "text": "It proves every idea he taught was false.", "tempting": "When a movement ends in crimes, distrusting everything about it is a natural reaction.", "why": "What happened in Oregon is serious evidence about the movement and its leadership. Whether ideas such as witnessing or Dynamic Meditation are useful is a separate question, which people can test on its own merits." },
+        { "text": "Osho personally carried out the attack.", "tempting": "As the commune's leader, it can seem he must have done it.", "why": "The attack was carried out by members of the commune's leadership around Sheela, who was convicted. Osho accused her group publicly. How much he knew or should have known remains debated." }
+      ],
+      "takeaway": "Hold the record and the teaching separately: the Oregon crimes were real, and each person still judges the ideas on their own merits."
+    }
+  ],
+  "summary": {
+    "heading": "What you've learned",
+    "closing": [
+      "Osho's teaching is less about beliefs than about energy and awareness. Don't suppress what you feel; release it safely and watch it. Meditate actively if you are restless. Live the world fully and stay inwardly still: Zorba and the Buddha in one person. Laugh, dance and question everything you were handed, including him.",
+      "His life was as provocative as his talks: a philosophy lecturer turned guru, a worldwide movement, a commune that ended in crimes by its leaders, and dozens of meditation techniques still practised today. Next, set him beside Krishnamurti, who reached for the same freedom and refused nearly every method Osho offered."
+    ]
+  }
+}
