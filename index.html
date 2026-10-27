@@ -511,6 +511,7 @@
             code("node scripts/build-html.js skills/nthview-<view> docs/<slug>-<view>.json docs/<slug>-<view>.html\nnode scripts/build-registry.js"),
             h3("3. Check and publish"),
             code("node scripts/build-registry.js --check\ngit add -A && git commit -m \"Add lesson: <title>\"\ngit push"),
+            p("Commit with your GitHub noreply address (GitHub Settings, Emails, \"Keep my email address private\") and keep personal, employer and secret information out of the lesson and the commit: the repository is public.", "nv-note"),
             p("Open index.html from the clone to see it listed. Then open a pull request against patrickp1702/NthView. Once merged, it appears on this site under Docs and lessons for everyone."),
             pLink("Rules of the house are in ", REPO + "/blob/main/AGENTS.md", "AGENTS.md", ": one view per chapter, generated files never hand-edited, registry.js always rebuilt."),
             pLink("Live site: ", SITE, SITE, "")
