@@ -23,6 +23,9 @@ scatter of generated points, agent simulation, cellular grid, gauge, number
 readouts, stacked proportions, animated flow, timeline replay and a two
 scenario comparison. The output is one HTML file; it loads its typefaces
 from Google Fonts (internet needed once) and falls back to system fonts.
+Progress (current step, predictions, slider values, solved challenges and
+the colour-scheme choice) is saved in the browser's localStorage and resumed
+on the next open; the Restart button in the top bar clears it.
 
 ## When to use
 - Systems with quantities and cause and effect: growth and decay, rates,

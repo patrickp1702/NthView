@@ -31,6 +31,11 @@ strings drawn between pins, stamps that thud onto ruled-out theories. It is
 keyboard operable, respects reduced motion, works from 320px up, and has
 light and dark variants of every theme. The output is one HTML file; it loads
 its typefaces from Google Fonts and falls back to system fonts offline.
+Progress is saved in the browser (localStorage) on every change: locations
+visited, clues found and pinned, questions asked, links made, theories ruled
+out and the final accusation, so reopening the file continues the case where
+it was left. The Restart button in the case bar (and on the briefing) clears
+that saved progress and reopens the case from scratch.
 
 ## When to use
 - Concepts surrounded by misconceptions: compliance, security incidents,

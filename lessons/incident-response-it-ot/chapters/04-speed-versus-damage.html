@@ -1879,6 +1879,12 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     X + ".nthview-tool:hover{border-color:var(--accent);transform:translateY(-1px)}",
     X + ".nthview-tool svg{width:1rem;height:1rem}",
     "@media (max-width:520px){" + X + ".nthview-tool .nthview-tlabel{display:none}" + X + ".nthview-tool{padding:.42rem}}",
+    /* progress: restart control in the top bar, resume toast (§5.5) */
+    X + ".nthview-restart{display:inline-flex;align-items:center;border:1px solid var(--line,var(--nv-border));background:var(--surface,var(--nv-bg));color:var(--muted,var(--nv-muted));border-radius:999px;padding:.38rem .75rem;font-size:.82rem;font-weight:700;white-space:nowrap;transition:border-color .2s,color .2s,transform .2s}",
+    X + ".nthview-restart:hover{border-color:var(--nv-error);color:var(--nv-error);transform:translateY(-1px)}",
+    "@media (max-width:520px){" + X + ".nthview-restart{padding:.42rem .6rem;font-size:.78rem}" + X + ".nthview-brand{flex-basis:7rem}}",
+    X + ".nthview-resume{position:fixed;left:50%;bottom:1.2rem;transform:translateX(-50%);z-index:30;width:max-content;max-width:calc(100vw - 2rem);background:var(--surface-2,var(--nv-bg));color:var(--ink,var(--nv-fg));border:1px solid var(--nv-accent);border-left:4px solid var(--nv-accent);border-radius:calc(var(--radius,.6rem) * .7);padding:.6rem .95rem;font-size:.9rem;font-weight:700;text-align:center;box-shadow:0 18px 40px -20px rgba(0,0,0,.55);pointer-events:none;transition:opacity .4s}",
+    X + ".nthview-resume.nthview-gone{opacity:0}",
     /* stage + transitions */
     X + ".nthview-frame{max-width:76rem;margin:0 auto;padding:clamp(1rem,3vw,2.2rem) clamp(1rem,3vw,1.6rem) 5rem}",
     X + ".nthview-stage{position:relative}",
@@ -2164,6 +2170,32 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     ]));
   }
 
+  // ---- progress storage (identical in every view, §5.5) ------------------
+  var STORE_VERSION = 1;
+  function storageKey(data) {
+    var s = JSON.stringify(data), h = 2166136261;
+    for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return "nthview:explorable:" + (h >>> 0).toString(36);
+  }
+  function loadState(key) {
+    try { var raw = root.localStorage.getItem(key); if (!raw) return null; var st = JSON.parse(raw); return st && st.v === STORE_VERSION ? st : null; }
+    catch (e) { return null; }
+  }
+  function saveState(key, state) {
+    try { state.v = STORE_VERSION; state.savedAt = Date.now(); root.localStorage.setItem(key, JSON.stringify(state)); }
+    catch (e) { /* storage unavailable or full: keep playing without saving */ }
+  }
+  function clearState(key) { try { root.localStorage.removeItem(key); } catch (e) {} }
+  function restartButton(container, data, key) {
+    var b = el("button", { type: "button", class: "nthview-restart", text: "Restart", title: "Start again from the beginning" });
+    b.addEventListener("click", function () {
+      if (!root.confirm("Start again from the beginning? Your progress here will be erased.")) return;
+      clearState(key);
+      NthView.build(container, data);
+    });
+    return b;
+  }
+
   // ---- view-specific rendering: data is already valid here ---------------
   var SVG_NS = "http://www.w3.org/2000/svg";
   var LETTERS = "ABCDE";
@@ -2376,6 +2408,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     var GLOSS = {};
     data.glossary.forEach(function (g) { GLOSS[g.term.trim().toLowerCase()] = g; });
     container.setAttribute("data-theme", pickTheme(data));
+    var KEY = storageKey(data), SAVED = loadState(KEY);
 
     /* ---------- model ---------- */
     var cache = {};
@@ -2394,7 +2427,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     function targetsFor(set, env) { var t = {}; Object.keys(set).forEach(function (id) { t[id] = clampVar(id, ev(set[id], env)); }); return t; }
     var subs = [], ENV = null;
     function notify() { ENV = computeEnv(); subs.slice().forEach(function (f) { f(ENV); }); }
-    function setVars(obj) { Object.keys(obj).forEach(function (id) { vars[id] = clampVar(id, obj[id]); }); notify(); }
+    function setVars(obj) { Object.keys(obj).forEach(function (id) { vars[id] = clampVar(id, obj[id]); }); notify(); queueSave(); }
     function watch(fn) { subs.push(fn); }
     function fmtId(id, x) { var m = META[id] || {}; return fmt(x, m.format, m.prefix, m.unit); }
     function fmtV(v, x) { return fmt(x, v.format, v.prefix, v.unit); }
@@ -2457,7 +2490,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     top.appendChild(rail);
     var glossBtn = el("button", { type: "button", class: "nthview-tool", "aria-haspopup": "dialog", "aria-expanded": "false" }, [icon("book"), el("span", { class: "nthview-tlabel", text: "Glossary" })]);
     var schemeBtn = el("button", { type: "button", class: "nthview-tool" });
-    top.appendChild(el("div", { class: "nthview-tools" }, [glossBtn, schemeBtn]));
+    top.appendChild(el("div", { class: "nthview-tools" }, [glossBtn, schemeBtn, restartButton(container, data, KEY)]));
     var frame = el("main", { class: "nthview-frame" });
     var stage = el("div", { class: "nthview-stage" });
     frame.appendChild(stage);
@@ -2466,6 +2499,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
 
     /* colour scheme toggle: auto -> light -> dark */
     var schemes = ["auto", "light", "dark"], scheme = 0;
+    if (SAVED && [0, 1, 2].indexOf(SAVED.scheme) !== -1) scheme = SAVED.scheme;
     function paintScheme() {
       var s = schemes[scheme], nextS = schemes[(scheme + 1) % 3];
       if (s === "auto") container.removeAttribute("data-scheme"); else container.setAttribute("data-scheme", s);
@@ -2474,7 +2508,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       schemeBtn.appendChild(el("span", { class: "nthview-tlabel", text: s === "auto" ? "Auto" : s === "light" ? "Light" : "Dark" }));
       schemeBtn.setAttribute("aria-label", "Colour scheme: " + s + (s === "auto" ? " (follows your system)" : "") + ". Switch to " + nextS + ".");
     }
-    schemeBtn.addEventListener("click", function () { scheme = (scheme + 1) % 3; paintScheme(); schemeChanged(); });
+    schemeBtn.addEventListener("click", function () { scheme = (scheme + 1) % 3; paintScheme(); schemeChanged(); saveNow(); });
     paintScheme();
 
     /* glossary drawer + term popovers */
@@ -3409,6 +3443,59 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     var screen = null, current = -2, record = {};
     STEPS.forEach(function (s) { record[s.id] = { visited: false, vars: null, pick: -1, revealed: false, skipped: false, solved: false }; });
 
+    /* ---------- progress (§5.5): restore field by field, ignoring anything that no longer fits the data ---------- */
+    var startAt = -1, resumed = false, saveTimer = 0;
+    if (SAVED) {
+      var savedSteps = SAVED.steps && typeof SAVED.steps === "object" ? SAVED.steps : {};
+      STEPS.forEach(function (st) {
+        var r = record[st.id], o = savedSteps[st.id];
+        if (!o || typeof o !== "object") return;
+        r.visited = o.visited === true; r.skipped = o.skipped === true; r.solved = o.solved === true;
+        r.pick = st.predict && Number.isInteger(o.pick) && o.pick >= 0 && o.pick < st.predict.options.length ? o.pick : -1;
+        r.revealed = o.revealed === true && (!st.predict || r.skipped || r.pick >= 0);
+        if (o.vars && typeof o.vars === "object") {
+          var fresh = defaults(st.start), vv = {};
+          VARS.forEach(function (v) { var x = o.vars[v.id]; vv[v.id] = typeof x === "number" && isFinite(x) ? clampVar(v.id, x) : fresh[v.id]; });
+          r.vars = vv;
+        }
+        if (r.visited || r.revealed || r.solved) resumed = true;
+      });
+      if (Number.isInteger(SAVED.current) && SAVED.current >= -1 && SAVED.current <= N) startAt = SAVED.current;
+      if (startAt !== -1) resumed = true;
+    }
+    function snapshot() {
+      var steps = {};
+      STEPS.forEach(function (st, i) {
+        var r = record[st.id];
+        steps[st.id] = { visited: r.visited, vars: i === current ? Object.assign({}, vars) : r.vars, pick: r.pick, revealed: r.revealed, skipped: r.skipped, solved: r.solved };
+      });
+      return { current: current, scheme: scheme, steps: steps };
+    }
+    function untouched() { return current === -1 && scheme === 0 && !STEPS.some(function (st) { return record[st.id].visited; }); }
+    function saveNow() { clearTimeout(saveTimer); saveTimer = 0; if (!untouched()) saveState(KEY, snapshot()); }
+    function queueSave() { if (saveTimer) return; saveTimer = setTimeout(function () { saveTimer = 0; if (wrap.isConnected) saveNow(); }, 300); }
+    function flushSave() {
+      if (!wrap.isConnected) { doc.removeEventListener("visibilitychange", onHide); root.removeEventListener("pagehide", flushSave); return; }
+      if (saveTimer) saveNow();
+    }
+    function onHide() { if (doc.visibilityState === "hidden") flushSave(); }
+    doc.addEventListener("visibilitychange", onHide);
+    root.addEventListener("pagehide", flushSave);
+    function resumeNotice() {
+      var where = startAt >= 0 && startAt < N ? "step " + (startAt + 1) + " of " + N : startAt === N ? "the wrap-up" : "the introduction";
+      var note = el("div", { class: "nthview-resume", role: "status", text: "Welcome back, continuing from " + where + "." });
+      wrap.appendChild(note);
+      var gone = false;
+      function hide() {
+        if (gone) return; gone = true;
+        note.classList.add("nthview-gone");
+        setTimeout(function () { if (note.parentNode) note.parentNode.removeChild(note); }, 450);
+        doc.removeEventListener("pointerdown", hide); doc.removeEventListener("keydown", hide);
+      }
+      doc.addEventListener("pointerdown", hide); doc.addEventListener("keydown", hide);
+      setTimeout(hide, 7000);
+    }
+
     function show(node, focusEl, dir) {
       var old = screen; screen = node;
       node.classList.add("nthview-screen", "nthview-enter");
@@ -3444,6 +3531,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       paintRail();
       show(scr.node, scr.focus, dir);
       notify();
+      saveNow();
     }
 
     /* ---------- intro ---------- */
@@ -3555,7 +3643,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         chal.appendChild(success);
         watch(function (env) {
           var ok = !!ev(ch.when, env);
-          if (ok && !rec.solved && chal.style.display !== "none") { rec.solved = true; burst(chal); status.textContent = "Challenge solved."; }
+          if (ok && !rec.solved && chal.style.display !== "none") { rec.solved = true; saveNow(); burst(chal); status.textContent = "Challenge solved."; }
           if (rec.solved) { chal.classList.add("nthview-solved"); pill.textContent = "Solved"; success.style.display = ""; }
         });
         after.appendChild(chal);
@@ -3582,7 +3670,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
           list.appendChild(el("li", {}, [b])); return b;
         });
         pc.appendChild(list);
-        var skipB = btn("Skip the prediction and just play", "nthview-ghost nthview-small-btn", function () { rec.skipped = true; reveal(false); });
+        var skipB = btn("Skip the prediction and just play", "nthview-ghost nthview-small-btn", function () { rec.skipped = true; saveNow(); reveal(false); });
         var pcActions = el("div", { class: "nthview-ctl-actions" }, [skipB]);
         pc.appendChild(pcActions);
         var outcome = el("div"); pc.appendChild(outcome);
@@ -3607,7 +3695,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         };
         var showResult = function (quiet) {
           if (!s.isConnected) return;
-          rec.revealed = true;
+          rec.revealed = true; saveNow();
           outcome.textContent = "";
           paintOptions();
           if (!rec.skipped) {
@@ -3647,7 +3735,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         var reveal = function (animate) { paintOptions(); observeAndReveal(animate); };
         var pick = function (j) {
           if (rec.revealed || rec.pick >= 0 || rec.skipped) return;
-          rec.pick = j; paintOptions();
+          rec.pick = j; paintOptions(); saveNow();
           status.textContent = "You predicted " + LETTERS[j] + ". Watch the model.";
           reveal(true);
         };
@@ -3691,7 +3779,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       }
       s.appendChild(el("div", { class: "nthview-nav" }, [
         btn("Back to the last step", "nthview-ghost", function () { go(N - 1); }, "prev"),
-        btn("Explore again from scratch", "nthview-primary", function () { STEPS.forEach(function (st) { record[st.id] = { visited: false, vars: null, pick: -1, revealed: false, skipped: false, solved: false }; }); go(0); }, "restart")
+        btn("Explore again from scratch", "nthview-primary", function () { clearState(KEY); STEPS.forEach(function (st) { record[st.id] = { visited: false, vars: null, pick: -1, revealed: false, skipped: false, solved: false }; }); go(0); }, "restart")
       ]));
       watch(function (env) { takeLive.forEach(function (f) { f(env); }); });
       setTimeout(function () {
@@ -3718,7 +3806,8 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     };
     doc.addEventListener("keydown", onKey);
 
-    go(-1);
+    go(startAt);
+    if (resumed) resumeNotice();
   }
 
   NthView.build = function (container, data) {

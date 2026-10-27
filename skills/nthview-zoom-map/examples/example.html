@@ -1606,6 +1606,12 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     X + ".nthview-ibtn:hover{border-color:var(--accent);color:var(--accent)}",
     X + ".nthview-ibtn svg{width:1.05rem;height:1.05rem}",
     X + ".nthview-ibtn[aria-expanded=true]{border-color:var(--accent);color:var(--accent)}",
+    /* progress: restart control (top bar, both modes) and the resume notice (§5.5) */
+    X + ".nthview-restart{flex:none;display:inline-flex;align-items:center;gap:.3rem;height:2.3rem;padding:0 .8rem;border-radius:999px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font-size:.8rem;font-weight:700;white-space:nowrap;transition:border-color .2s,color .2s}",
+    X + ".nthview-restart::before{content:'\\21BA';font-size:1.15em;line-height:1}",
+    X + ".nthview-restart:hover{border-color:var(--nv-accent);color:var(--nv-accent)}",
+    X + ".nthview-resume{position:absolute;z-index:35;left:50%;top:68px;transform:translateX(-50%);max-width:calc(100% - 24px);padding:.45rem .95rem;border-radius:999px;background:var(--surface-2);border:1px solid var(--nv-accent);color:var(--ink);font-size:.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 14px 30px -18px var(--shadow);pointer-events:none;animation:nthview-swapin .4s cubic-bezier(.2,.8,.2,1);transition:opacity .5s}",
+    X + ".nthview-resume.nthview-resume-out{opacity:0}",
     /* panes */
     X + ".nthview-pane{position:absolute;inset:0;z-index:2;transition:opacity .45s ease,visibility 0s linear 0s}",
     X + ".nthview-pane.nthview-off{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .35s ease,visibility 0s linear .35s}",
@@ -1892,6 +1898,9 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       X + ".nthview-brandtext{display:none}" +
       X + ".nthview-seg button{padding:.4rem .62rem}" +
       X + ".nthview-ibtn{width:2.15rem;height:2.15rem}" +
+      X + ".nthview-restart{width:2.15rem;height:2.15rem;padding:0;font-size:0;display:grid;place-items:center}" +
+      X + ".nthview-restart::before{font-size:1.15rem}" +
+      X + ".nthview-resume{top:58px;font-size:.78rem;padding:.38rem .8rem;max-width:calc(100% - 16px)}" +
       X + ".nthview-where{left:8px;right:8px;top:62px;padding:.5rem .7rem .6rem;grid-template-columns:minmax(0,1fr)}" +
       X + ".nthview-wacts{justify-self:start}" +
       X + ".nthview-where p{-webkit-line-clamp:1;font-size:.86rem}" +
@@ -1906,7 +1915,9 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       X + ".nthview-sec{padding:1rem .95rem}" +
       X + ".nthview-filelist li{grid-template-columns:minmax(0,1fr)}" +
     "}",
-    "@media (prefers-reduced-motion:reduce){" + X + ".nthview-blob," + X + ".nthview-enter," + X + ".nthview-swapin," + X + ".nthview-ladder button," + X + ".nthview-step," + X + ".nthview-about," + X + ".nthview-pop," + X + ".nthview-deeper .nthview-dbody2," + X + ".nthview-cg.nthview-pipe .nthview-conn{animation:none !important}" + X + ".nthview-pane," + X + ".nthview-drawer," + X + ".nthview-toc," + X + ".nthview-scrim{transition:none !important}" + X + ".nthview-docpane{scroll-behavior:auto}}"
+    /* very narrow: the mode switch shows icons only so the tool buttons, Restart included, fit in the bar */
+    "@media (max-width:400px){" + X + ".nthview-seg button span{display:none}" + X + ".nthview-seg button{padding:.42rem .6rem}" + X + ".nthview-tools{gap:.2rem}}",
+    "@media (prefers-reduced-motion:reduce){" + X + ".nthview-blob," + X + ".nthview-enter," + X + ".nthview-swapin," + X + ".nthview-resume," + X + ".nthview-ladder button," + X + ".nthview-step," + X + ".nthview-about," + X + ".nthview-pop," + X + ".nthview-deeper .nthview-dbody2," + X + ".nthview-cg.nthview-pipe .nthview-conn{animation:none !important}" + X + ".nthview-pane," + X + ".nthview-drawer," + X + ".nthview-toc," + X + ".nthview-scrim{transition:none !important}" + X + ".nthview-docpane{scroll-behavior:auto}}"
   ].join("\n");
 
   function injectStyles() {
@@ -1936,6 +1947,32 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       el("p", { text: "The data has " + result.errors.length + " problem(s). Fix them and rebuild the file." }),
       el("ul", {}, items)
     ]));
+  }
+
+  // ---- progress storage (identical in every view, §5.5) ------------------
+  var STORE_VERSION = 1;
+  function storageKey(data) {
+    var s = JSON.stringify(data), h = 2166136261;
+    for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return "nthview:zoom-map:" + (h >>> 0).toString(36);
+  }
+  function loadState(key) {
+    try { var raw = root.localStorage.getItem(key); if (!raw) return null; var st = JSON.parse(raw); return st && st.v === STORE_VERSION ? st : null; }
+    catch (e) { return null; }
+  }
+  function saveState(key, state) {
+    try { state.v = STORE_VERSION; state.savedAt = Date.now(); root.localStorage.setItem(key, JSON.stringify(state)); }
+    catch (e) { /* storage unavailable or full: keep playing without saving */ }
+  }
+  function clearState(key) { try { root.localStorage.removeItem(key); } catch (e) {} }
+  function restartButton(container, data, key) {
+    var b = el("button", { type: "button", class: "nthview-restart", text: "Restart", title: "Start again from the beginning" });
+    b.addEventListener("click", function () {
+      if (!root.confirm("Start again from the beginning? Your progress here will be erased.")) return;
+      clearState(key);
+      NthView.build(container, data);
+    });
+    return b;
   }
 
   // ---- view-specific helpers ---------------------------------------------
@@ -2132,6 +2169,27 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
 
     var S = { mode: "map", F: null, A: null, showLinks: true, pipe: null, hot: null };
 
+    /* ---------- progress (§5.5): one record per document, saved on every change ---------- */
+    var key = storageKey(data), started = false, saveTimer = null;
+    function snapshot() {
+      var v = vpSize(), c = anim ? anim.to : cam, open = [];
+      Array.prototype.forEach.call(article.querySelectorAll("details.nthview-deeper"), function (d, i) { if (d.open) open.push(i); });
+      return {
+        mode: S.mode, focus: S.F.id, active: S.A ? S.A.id : null,
+        cam: { x: c.x, y: c.y, k: c.k }, vp: { w: v.w, h: v.h },
+        showLinks: S.showLinks, pipe: S.pipe, scheme: schemes[scheme], about: !about.hidden,
+        drawer: openDrawer ? (openDrawer.d === outline ? "outline" : "glossary") : (toc.classList.contains("nthview-open") ? "toc" : null),
+        docScroll: docPane.scrollTop, openDeeper: open
+      };
+    }
+    /* discrete changes save at once; pan, zoom and scroll are debounced */
+    function persist() { clearTimeout(saveTimer); saveTimer = null; if (!started || !alive()) return; saveState(key, snapshot()); }
+    function persistSoon() { if (!started || !alive()) return; clearTimeout(saveTimer); saveTimer = setTimeout(persist, 300); }
+    function flush() { if (!alive()) { doc.removeEventListener("visibilitychange", onHide); root.removeEventListener("pagehide", onHide); return; } if (saveTimer) persist(); }
+    function onHide(ev) { if (ev.type === "pagehide" || doc.visibilityState === "hidden") flush(); }
+    doc.addEventListener("visibilitychange", onHide);
+    root.addEventListener("pagehide", onHide);
+
     /* ---------- skeleton ---------- */
     var backdrop = el("div", { class: "nthview-backdrop", "aria-hidden": "true" }, [
       el("div", {}, [el("div", { class: "nthview-blob" }), el("div", { class: "nthview-blob" }), el("div", { class: "nthview-blob" })]),
@@ -2149,8 +2207,8 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     /* top bar */
     var logo = el("span", { class: "nthview-logo", "aria-hidden": "true" }, [icon("logo")]);
     var brand = el("div", { class: "nthview-brand" }, [logo, el("span", { class: "nthview-brandtext" }, [el("small", { text: "Zoom map" }), el("b", { text: data.title })])]);
-    var mapBtn = el("button", { type: "button", "aria-pressed": "true" }, [icon("map"), el("span", { text: "Map" })]);
-    var docBtn = el("button", { type: "button", "aria-pressed": "false" }, [icon("doc"), el("span", { text: "Doc" })]);
+    var mapBtn = el("button", { type: "button", "aria-pressed": "true", "aria-label": "Map", title: "Map" }, [icon("map"), el("span", { text: "Map" })]);
+    var docBtn = el("button", { type: "button", "aria-pressed": "false", "aria-label": "Doc", title: "Doc" }, [icon("doc"), el("span", { text: "Doc" })]);
     var seg = el("div", { class: "nthview-seg", role: "group", "aria-label": "View mode" }, [mapBtn, docBtn]);
     var outlineBtn = iconBtn("tree", "Outline of the whole system");
     outlineBtn.setAttribute("aria-expanded", "false");
@@ -2160,7 +2218,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     var glossBtn = (data.glossary && data.glossary.length) ? iconBtn("book", "Glossary") : null;
     if (glossBtn) glossBtn.setAttribute("aria-expanded", "false");
     var schemeBtn = iconBtn("auto", "Colour scheme");
-    var tools = el("div", { class: "nthview-tools" }, [outlineBtn, tocBtn].concat(glossBtn ? [glossBtn] : []).concat([schemeBtn]));
+    var tools = el("div", { class: "nthview-tools" }, [outlineBtn, tocBtn].concat(glossBtn ? [glossBtn] : []).concat([schemeBtn, restartButton(container, data, key)]));
     var top = el("header", { class: "nthview-top nthview-glass" }, [brand, seg, tools]);
     container.appendChild(top);
 
@@ -2180,7 +2238,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       var label = "Colour scheme: " + s + (s === "auto" ? " (follows your system)" : "") + ". Switch to " + schemes[(scheme + 1) % 3] + ".";
       schemeBtn.setAttribute("aria-label", label); schemeBtn.setAttribute("title", label);
     }
-    schemeBtn.addEventListener("click", function () { scheme = (scheme + 1) % 3; paintScheme(); });
+    schemeBtn.addEventListener("click", function () { scheme = (scheme + 1) % 3; paintScheme(); persist(); });
     paintScheme();
 
     /* ---------- rich text ---------- */
@@ -2319,6 +2377,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       var sum = el("summary", {}, [icon("chev"), el("span", { text: "Go deeper" + (d.title ? " — " + d.title : "") })]);
       det.appendChild(sum);
       var b = el("div", { class: "nthview-dbody2" }); b.appendChild(blocks(d.text)); det.appendChild(b);
+      det.addEventListener("toggle", function () { persist(); });
       return det;
     }
     function topContent(obj, c) {
@@ -2384,11 +2443,13 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     var corner = el("div", { class: "nthview-corner" }, [mini, zbtns]);
     [viewport, where, about, legend, corner].forEach(function (n) { mapPane.appendChild(n); });
 
-    linksChip.addEventListener("click", function () { S.showLinks = !S.showLinks; linksChip.setAttribute("aria-pressed", String(S.showLinks)); rebuild(true); });
+    linksChip.addEventListener("click", function () { S.showLinks = !S.showLinks; linksChip.setAttribute("aria-pressed", String(S.showLinks)); rebuild(true); persist(); });
+    function paintPipeChips() { pipeChips.forEach(function (b, i) { b.setAttribute("aria-pressed", String(pipelines[i].id === S.pipe)); }); }
     function togglePipe(id) {
       S.pipe = S.pipe === id ? null : id;
-      pipeChips.forEach(function (b, i) { b.setAttribute("aria-pressed", String(pipelines[i].id === S.pipe)); });
+      paintPipeChips();
       rebuild(true);
+      persist();
       if (S.pipe) { var pl = pipelines.filter(function (p) { return p.id === S.pipe; })[0]; announce("Showing " + pl.title + ": " + pl.steps.length + " steps."); }
     }
     zUp.addEventListener("click", function () { zoomOut(); });
@@ -2437,6 +2498,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     function applyCam() {
       if (layer) layer.el.style.transform = layerTransform(layer.cam, cam);
       updateMiniView();
+      persistSoon();
       var px = ((cam.x * 0.08) % 120 + 120) % 120, py = ((cam.y * 0.08) % 120 + 120) % 120;
       pattern.style.transform = "translate(" + (px - 120).toFixed(1) + "px," + (py - 120).toFixed(1) + "px)";
     }
@@ -2781,8 +2843,9 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       about.style.top = (wr.bottom - pr.top + 8) + "px";
       about.hidden = false;
       b.setAttribute("aria-expanded", "true");
+      persist();
     }
-    function closeAbout() { about.hidden = true; if (aboutBtn) aboutBtn.setAttribute("aria-expanded", "false"); aboutBtn = null; }
+    function closeAbout() { var was = !about.hidden; about.hidden = true; if (aboutBtn) aboutBtn.setAttribute("aria-expanded", "false"); aboutBtn = null; if (was) persist(); }
 
     /* ---------- zooming ---------- */
     function ease(t) { return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
@@ -2850,6 +2913,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       S.A = opts.active && opts.active.parent === n ? opts.active : (n.children.length ? n.children[0] : null);
       closePop();
       updateHud();
+      persist();
       relayout();
       var to = homeCam(n);
       var neu = buildLayer(to, n, { enter: opts.enter });
@@ -2915,7 +2979,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         var i = pool.indexOf(from), j = (dx + dy > 0) ? (i + 1) % pool.length : (i - 1 + pool.length) % pool.length;
         best = pool[j];
       }
-      if (F.children.length) { S.A = best; updateRoving(); focusActive(true); announce(kindLabel(best) + " " + (best.idx + 1) + " of " + pool.length + ": " + best.d.title + ". " + best.d.oneLiner); }
+      if (F.children.length) { S.A = best; updateRoving(); focusActive(true); persist(); announce(kindLabel(best) + " " + (best.idx + 1) + " of " + pool.length + ": " + best.d.title + ". " + best.d.oneLiner); }
       else zoomTo(best, { keepFocus: true });
       return true;
     }
@@ -3005,7 +3069,8 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     viewport.addEventListener("pointerleave", function () { if (!gesture) setHot(S.A && doc.activeElement && doc.activeElement.getAttribute && doc.activeElement.getAttribute("data-id") ? S.A.id : null); });
     viewport.addEventListener("focusin", function (ev) {
       var id = ev.target.getAttribute && ev.target.getAttribute("data-id");
-      if (id && M.byId[id] && M.byId[id].parent === S.F) { S.A = M.byId[id]; updateRoving(); setHot(id); }
+      if (id && M.byId[id] && M.byId[id].parent === S.F && S.A !== M.byId[id]) { S.A = M.byId[id]; updateRoving(); setHot(id); persist(); }
+      else if (id && M.byId[id] && M.byId[id].parent === S.F) { updateRoving(); setHot(id); }
     });
     function canScroll(elm, dy) {
       for (var n = elm; n && n !== viewport; n = n.parentNode) {
@@ -3072,6 +3137,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         S.F = cur;
         S.A = cur.children.length ? (prev && prev.parent === cur ? prev : cur.children[0]) : null;
         updateHud();
+        persist();
         announce(kindLabel(cur) + ": " + cur.d.title + ". " + cur.d.oneLiner);
       }
       rebuild(false);
@@ -3183,6 +3249,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       closeDrawers(true);
       drawerReturn = doc.activeElement; openDrawer = { d: d, b: b };
       d.classList.add("nthview-open"); scrim.classList.add("nthview-open"); b.setAttribute("aria-expanded", "true");
+      persist();
       setTimeout(function () {
         if (!alive()) return;
         var f = focusEl || d;
@@ -3194,6 +3261,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       if (!openDrawer) return false;
       openDrawer.d.classList.remove("nthview-open"); scrim.classList.remove("nthview-open"); openDrawer.b.setAttribute("aria-expanded", "false");
       openDrawer = null;
+      persist();
       if (!silent && drawerReturn && drawerReturn.focus && doc.contains(drawerReturn)) drawerReturn.focus();
       return true;
     }
@@ -3325,7 +3393,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     }
     function showPipeOnMap(pl) {
       var at = pipeHome(pl);
-      if (S.pipe !== pl.id) { S.pipe = pl.id; pipeChips.forEach(function (b, i) { b.setAttribute("aria-pressed", String(pipelines[i].id === S.pipe)); }); }
+      if (S.pipe !== pl.id) { S.pipe = pl.id; paintPipeChips(); }
       if (S.F === at && S.mode === "map") rebuild(true);
       setMode("map", { silent: true });
       zoomTo(at, { force: true });
@@ -3480,14 +3548,14 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       var li = el("li");
       var a = el("a", { href: "#" + g.target.id }, [el("span", { class: "nthview-badge", text: g.lv.label }), el("span", { text: g.lv.name })]);
       a.addEventListener("click", function (e) { e.preventDefault(); scrollToEl(g.target); closeToc(); });
-      tocLinks.push({ a: a, target: g.target });
+      tocLinks.push({ a: a, target: g.target, name: g.lv.name });
       li.appendChild(el("div", { class: "nthview-tocrow" }, [a]));
       if (g.entries.length > 1) {
         var sub = el("ol");
         g.entries.forEach(function (en) {
           var a2 = el("a", { href: "#" + en.target.id }, [el("span", { text: en.text })]);
           a2.addEventListener("click", function (e) { e.preventDefault(); scrollToEl(en.target); closeToc(); });
-          tocLinks.push({ a: a2, target: en.target, parent: a });
+          tocLinks.push({ a: a2, target: en.target, parent: a, name: en.text });
           sub.appendChild(el("li", {}, [a2]));
         });
         li.appendChild(sub);
@@ -3495,17 +3563,19 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       tocList.appendChild(li);
     });
     toc.appendChild(tocList);
-    function closeToc() { if (toc.classList.contains("nthview-open")) { toc.classList.remove("nthview-open"); scrim.classList.remove("nthview-open"); tocBtn.setAttribute("aria-expanded", "false"); } }
-    tocBtn.addEventListener("click", function () {
-      var open = !toc.classList.contains("nthview-open");
-      toc.classList.toggle("nthview-open", open); scrim.classList.toggle("nthview-open", open); tocBtn.setAttribute("aria-expanded", String(open));
-      if (open) { var first = toc.querySelector("a"); if (first) setTimeout(function () { first.focus(); }, 60); }
-    });
+    function closeToc() { if (toc.classList.contains("nthview-open")) { toc.classList.remove("nthview-open"); scrim.classList.remove("nthview-open"); tocBtn.setAttribute("aria-expanded", "false"); persist(); } }
+    function openToc(quiet) {
+      toc.classList.add("nthview-open"); scrim.classList.add("nthview-open"); tocBtn.setAttribute("aria-expanded", "true");
+      persist();
+      if (!quiet) { var first = toc.querySelector("a"); if (first) setTimeout(function () { first.focus(); }, 60); }
+    }
+    tocBtn.addEventListener("click", function () { if (toc.classList.contains("nthview-open")) closeToc(); else openToc(); });
     scrim.addEventListener("click", closeToc);
 
     /* scroll spy */
     var spyTick = false;
     docPane.addEventListener("scroll", function () {
+      persistSoon();
       if (spyTick) return; spyTick = true;
       raf(function () {
         spyTick = false;
@@ -3556,6 +3626,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       tocBtn.hidden = toMap;
       if (toMap && !opts.silent) { relayout(); zoomTo(S.F, { instant: true, quiet: true }); }
       if (!opts.silent) announce(toMap ? "Map mode." : "Doc mode.");
+      persist();
     }
     mapBtn.addEventListener("click", function () { setMode("map"); });
     docBtn.addEventListener("click", function () { setMode("doc"); docPane.focus({ preventScroll: true }); });
@@ -3593,17 +3664,71 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       ro.observe(viewport);
     }
 
-    /* ---------- start ---------- */
-    S.F = M.root;
-    S.A = M.root.children[0];
+    /* ---------- start: fresh, or back where the reader left off (§5.5) ---------- */
+    var saved = loadState(key);
+    function isNum(v) { return typeof v === "number" && isFinite(v); }
+    /* every saved field is checked against this document; anything that no longer fits is ignored */
+    var F0 = saved && typeof saved.focus === "string" && M.byId[saved.focus] ? M.byId[saved.focus] : M.root;
+    var A0 = saved && typeof saved.active === "string" && M.byId[saved.active] && M.byId[saved.active].parent === F0 ? M.byId[saved.active] : (F0.children.length ? F0.children[0] : null);
+    if (saved) {
+      if (typeof saved.showLinks === "boolean") { S.showLinks = saved.showLinks; linksChip.setAttribute("aria-pressed", String(S.showLinks)); }
+      if (typeof saved.pipe === "string" && pipelines.some(function (p) { return p.id === saved.pipe; })) { S.pipe = saved.pipe; paintPipeChips(); }
+      if (schemes.indexOf(saved.scheme) !== -1) { scheme = schemes.indexOf(saved.scheme); paintScheme(); }
+    }
+    S.F = F0;
+    S.A = A0;
     updateHud();
     relayout();
-    var start = homeCam(M.root);
+    var start = homeCam(F0), v0 = vpSize();
+    if (saved && saved.cam && saved.vp && isNum(saved.cam.x) && isNum(saved.cam.y) && isNum(saved.cam.k) && saved.cam.k > 0 && saved.vp.w === v0.w && saved.vp.h === v0.h) {
+      start = clampCam({ k: clampK(saved.cam.k), x: saved.cam.x, y: saved.cam.y });
+    }
     cam = start;
-    layer = buildLayer(start, M.root, { enter: !reduceMotion });
+    layer = buildLayer(start, F0, { enter: !reduceMotion && !saved });
     mountLayer(layer, 1);
     applyCam();
     updateRoving();
+    if (saved) {
+      if (Array.isArray(saved.openDeeper)) {
+        var dets = article.querySelectorAll("details.nthview-deeper");
+        saved.openDeeper.forEach(function (i) { if (isNum(i) && i >= 0 && i < dets.length && i === Math.floor(i)) dets[i].open = true; });
+      }
+      if (saved.mode === "doc") {
+        setMode("doc", { silent: true });
+        if (isNum(saved.docScroll) && saved.docScroll > 0) {
+          docPane.style.scrollBehavior = "auto";
+          docPane.scrollTop = saved.docScroll;
+          raf(function () { docPane.style.scrollBehavior = ""; });
+        }
+      }
+      if (saved.about === true && S.mode === "map") { var ab0 = wacts.querySelector("[aria-expanded]"); if (ab0) toggleAbout(ab0); }
+      if (saved.drawer === "outline" && S.mode === "map") { markOutline(); showDrawer(outline, outlineBtn, treeItems[S.F.id]); }
+      else if (saved.drawer === "glossary" && glossDrawer) showDrawer(glossDrawer, glossBtn, glossClose);
+      else if (saved.drawer === "toc" && S.mode === "doc" && root.innerWidth < 900) openToc(true);
+      /* a short notice that fades on its own or on the first interaction */
+      var at = S.F.depth ? S.F.d.title : levelOf(S.F).name;
+      if (S.mode === "doc") {
+        var line = docPane.getBoundingClientRect().top + 120, curT = null;
+        tocLinks.forEach(function (t) { if (t.target.getBoundingClientRect().top <= line) curT = t; });
+        if (curT) at = curT.name;
+      }
+      var resume = el("div", { class: "nthview-resume", role: "status", text: "Welcome back, continuing " + (S.mode === "doc" ? "in the doc at " : "at ") + at });
+      container.appendChild(resume);
+      var gone = false;
+      var hideResume = function () {
+        if (gone) return; gone = true;
+        ["pointerdown", "keydown", "wheel"].forEach(function (t) { container.removeEventListener(t, hideResume, true); });
+        resume.classList.add("nthview-resume-out");
+        setTimeout(function () { if (resume.parentNode) resume.parentNode.removeChild(resume); }, 550);
+      };
+      ["pointerdown", "keydown", "wheel"].forEach(function (t) { container.addEventListener(t, hideResume, true); });
+      setTimeout(function () { if (alive()) hideResume(); }, 6000);
+    }
+    /* saving arms on the first real input: a fresh open the reader never touches leaves no record,
+       and a restored record stays as it is until the reader changes something */
+    var startOn = ["pointerdown", "keydown", "wheel"];
+    var onFirstInput = function () { started = true; startOn.forEach(function (t) { container.removeEventListener(t, onFirstInput, true); }); };
+    startOn.forEach(function (t) { container.addEventListener(t, onFirstInput, true); });
     void hintTimer;
   }
   var CONTENT = ["summary", "facts", "snippet", "table", "stack", "note", "deeper"];

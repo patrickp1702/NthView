@@ -1474,6 +1474,11 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     M + " .nthview-tools{display:flex;gap:.4rem;flex:none}",
     M + " .nthview-chipbtn{display:inline-flex;align-items:center;gap:.4rem;padding:.55rem .85rem;font-size:.84rem;font-weight:700;border-radius:999px}",
     M + " .nthview-chipbtn:hover{border-color:var(--accent)}",
+    /* progress: restart control in the top bar, resume notice (§5.5) */
+    M + " .nthview-restart{display:inline-flex;align-items:center;padding:.55rem .85rem;font-size:.84rem;font-weight:700;white-space:nowrap;border-radius:999px;background:var(--surface,var(--nv-bg));color:var(--muted,var(--nv-muted));border:1px solid var(--line,var(--nv-border));backdrop-filter:blur(18px) saturate(1.3);-webkit-backdrop-filter:blur(18px) saturate(1.3);box-shadow:0 30px 80px -40px var(--shadow,rgba(0,0,0,.3));transition:border-color .2s,color .2s}",
+    M + " .nthview-restart:hover{border-color:var(--nv-error);color:var(--nv-error)}",
+    M + " .nthview-resume{position:absolute;left:50%;top:76px;transform:translateX(-50%);z-index:7;width:max-content;max-width:calc(100% - 32px);background:var(--surface-2,var(--nv-bg));color:var(--ink,var(--nv-fg));border:1px solid var(--nv-accent);border-left:4px solid var(--nv-accent);border-radius:calc(var(--radius,.6rem) * .7);padding:.6rem .95rem;font-size:.9rem;font-weight:700;text-align:center;box-shadow:0 18px 40px -20px var(--shadow,rgba(0,0,0,.4));pointer-events:none;transition:opacity .4s}",
+    M + " .nthview-resume.nthview-gone{opacity:0}",
     /* legend */
     M + " .nthview-legend{position:absolute;z-index:3;left:16px;width:380px;bottom:16px;display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;pointer-events:none}",
     M + " .nthview-legend > *{pointer-events:auto}",
@@ -1609,6 +1614,8 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       M + " .nthview-steps li span{font-size:.68rem}" +
       M + " .nthview-chipbtn{padding:.5rem .6rem}" +
       M + " .nthview-chipbtn .nthview-cbtext{display:none}" +
+      M + " .nthview-restart{padding:.5rem .6rem;font-size:.76rem}" +
+      M + " .nthview-resume{top:108px;font-size:.84rem}" +
       M + " .nthview-legend{left:0;right:0;width:auto;top:64px;bottom:auto;flex-wrap:nowrap;overflow-x:auto;padding:0 8px 4px;scrollbar-width:none}" +
       M + " .nthview-legend::-webkit-scrollbar{display:none}" +
       M + " .nthview-guide{left:0;right:0;bottom:0;top:auto;width:auto;max-height:min(52%,30rem);border-radius:var(--radius) var(--radius) 0 0;padding:.4rem 1rem 1rem;border-bottom:0}" +
@@ -1620,7 +1627,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       M + " .nthview-mini{display:none}" +
       M + " .nthview-tiles{grid-template-columns:repeat(2,1fr)}" +
     "}",
-    "@media (max-width:560px){" + M + " .nthview-phases{grid-template-columns:1fr}" + M + " .nthview-brandtext small{display:none}" + M + " .nthview-selects{grid-template-columns:1fr}}",
+    "@media (max-width:560px){" + M + " .nthview-phases{grid-template-columns:1fr}" + M + " .nthview-brandtext small{display:none}" + M + " .nthview-selects{grid-template-columns:1fr}" + M + " .nthview-restart{padding:.45rem .5rem;font-size:.72rem}}",
     "@media (prefers-reduced-motion:reduce){" + M + " .nthview-blob," + M + " .nthview-node," + M + " .nthview-elabel," + M + " .nthview-flow," + M + " .nthview-rubber," + M + " .nthview-introcard," + M + " .nthview-phases li," + M + " .nthview-swap," + M + " .nthview-fb," + M + " .nthview-node::after{animation:none !important}" + M + " .nthview-details," + M + " .nthview-intro," + M + " .nthview-bar," + M + " .nthview-node," + M + " .nthview-hull," + M + " .nthview-eg{transition:none !important}}"
   ].join("\n");
 
@@ -1651,6 +1658,32 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       el("p", { text: "The data has " + result.errors.length + " problem(s). Fix them and rebuild the file." }),
       el("ul", {}, items)
     ]));
+  }
+
+  // ---- progress storage (identical in every view, §5.5) ------------------
+  var STORE_VERSION = 1;
+  function storageKey(data) {
+    var s = JSON.stringify(data), h = 2166136261;
+    for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return "nthview:concept-map:" + (h >>> 0).toString(36);
+  }
+  function loadState(key) {
+    try { var raw = root.localStorage.getItem(key); if (!raw) return null; var st = JSON.parse(raw); return st && st.v === STORE_VERSION ? st : null; }
+    catch (e) { return null; }
+  }
+  function saveState(key, state) {
+    try { state.v = STORE_VERSION; state.savedAt = Date.now(); root.localStorage.setItem(key, JSON.stringify(state)); }
+    catch (e) { /* storage unavailable or full: keep playing without saving */ }
+  }
+  function clearState(key) { try { root.localStorage.removeItem(key); } catch (e) {} }
+  function restartButton(container, data, key) {
+    var b = el("button", { type: "button", class: "nthview-restart", text: "Restart", title: "Start again from the beginning" });
+    b.addEventListener("click", function () {
+      if (!root.confirm("Start again from the beginning? Your progress here will be erased.")) return;
+      clearState(key);
+      NthView.build(container, data);
+    });
+    return b;
   }
 
   // ---- view-specific rendering: data is already valid here ---------------
@@ -1998,6 +2031,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     function raf(fn) { return root.requestAnimationFrame(fn); }
     container.setAttribute("data-theme", pickTheme(data));
     container.classList.remove("nthview-far", "nthview-celebrate");
+    var KEY = storageKey(data), SAVED = loadState(KEY);
 
     /* ---------- model ---------- */
     var clusters = data.clusters.map(function (c, i) {
@@ -2023,6 +2057,14 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     var BIG = nodes.length >= 30;
     var seedStr = data.title + "|" + nodes.map(function (n) { return n.id; }).join(",");
     runLayout(nodes, edges, clusters, rootNode, hash(seedStr));
+    nodes.forEach(function (n) { n.hx = n.x; n.hy = n.y; });
+    /* positions the learner dragged to (§5.5): only ids that still exist, only finite numbers */
+    if (SAVED && SAVED.pos && typeof SAVED.pos === "object") {
+      Object.keys(SAVED.pos).forEach(function (id) {
+        var q = SAVED.pos[id], n = ND[id];
+        if (n && Array.isArray(q) && typeof q[0] === "number" && isFinite(q[0]) && typeof q[1] === "number" && isFinite(q[1])) { n.x = Math.round(q[0]); n.y = Math.round(q[1]); }
+      });
+    }
     /* each edge takes the smallest bend whose curve clears every other node */
     function computeBends() {
       edges.forEach(function (e) {
@@ -2048,9 +2090,118 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
 
     var S = {
       phase: "intro", tour: 0, task: -1, done: {}, slips: [], skipped: [], collapsed: {},
-      sel: null, src: null, picks: [], revealed: false, detailsFor: null, lastBox: null, lastMaxK: 1.25, ts: null
+      sel: null, src: null, picks: [], revealed: false, detailsFor: null, detailsKey: null, lastBox: null, lastMaxK: 1.25, ts: null
     };
     var cam = { x: 0, y: 0, k: 1 };
+
+    /* ---------- progress (§5.5): one record per document, saved on every change ---------- */
+    var saveTimer = 0;
+    function snapshot() {
+      var moved = {};
+      nodes.forEach(function (n) { if (n.x !== n.hx || n.y !== n.hy) moved[n.id] = [n.x, n.y]; });
+      return {
+        phase: S.phase, tour: S.tour, task: S.task,
+        done: Object.keys(S.done),
+        slips: S.slips.map(function (s) { return { task: s.task.id, kind: s.kind, chose: s.chose, answer: s.answer, why: s.why }; }),
+        skipped: S.skipped.map(function (s) { return { task: s.task.id }; }),
+        collapsed: Object.keys(S.collapsed).filter(function (k) { return S.collapsed[k]; }),
+        picks: S.picks.map(function (e) { return e.id; }), revealed: S.revealed,
+        details: S.detailsKey || null,
+        ts: S.ts ? { solved: S.ts.solved, placed: Object.keys(S.ts.placed || {}), slipsHere: S.ts.slipsHere, hint: !!(S.ts.hintBtn && S.ts.hintBtn.disabled), tried: S.ts.tried || [] } : null,
+        cam: { x: cam.x, y: cam.y, k: cam.k }, pos: moved
+      };
+    }
+    function saveNow() { clearTimeout(saveTimer); saveTimer = 0; if (S.phase === "intro") return; saveState(KEY, snapshot()); }
+    function queueSave() { if (saveTimer) return; saveTimer = setTimeout(function () { saveTimer = 0; if (alive()) saveNow(); }, 300); }
+    function flushSave() {
+      if (!alive()) { doc.removeEventListener("visibilitychange", onHide); root.removeEventListener("pagehide", flushSave); return; }
+      if (saveTimer) saveNow();
+    }
+    function onHide() { if (doc.visibilityState === "hidden") flushSave(); }
+    doc.addEventListener("visibilitychange", onHide);
+    root.addEventListener("pagehide", flushSave);
+    function num(x) { return typeof x === "number" && isFinite(x); }
+    /* returns a function that puts the view back where it was, or null when the record is unusable;
+       every field is checked against the data and ignored when it no longer fits */
+    function restoreProgress() {
+      var sv = SAVED, ph = sv.phase;
+      if (["tour", "explore", "rebuild", "reflect", "end"].indexOf(ph) === -1) return null;
+      var TID = {}; tasks.forEach(function (t) { TID[t.id] = t; });
+      var tour = Number.isInteger(sv.tour) && sv.tour >= 0 && sv.tour < data.tour.length ? sv.tour : 0;
+      var task = Number.isInteger(sv.task) && sv.task >= -1 && sv.task < tasks.length ? sv.task : -1;
+      var ts = sv.ts && typeof sv.ts === "object" ? sv.ts : null;
+      var picks = Array.isArray(sv.picks) ? sv.picks.filter(function (id) { return ED[id]; }).slice(0, 3) : [];
+      var det = sv.details && typeof sv.details === "object" ? sv.details : null;
+      var camS = sv.cam && typeof sv.cam === "object" && num(sv.cam.x) && num(sv.cam.y) && num(sv.cam.k) && sv.cam.k >= .14 && sv.cam.k <= 2.6 ? { x: sv.cam.x, y: sv.cam.y, k: sv.cam.k } : null;
+      function applySaved() {
+        if (Array.isArray(sv.done)) sv.done.forEach(function (id) { if (TID[id]) S.done[id] = true; });
+        if (Array.isArray(sv.slips)) sv.slips.forEach(function (s) { if (s && TID[s.task] && KIND[s.kind]) S.slips.push({ task: TID[s.task], kind: s.kind, chose: String(s.chose || ""), answer: String(s.answer || ""), why: String(s.why || "") }); });
+        if (Array.isArray(sv.skipped)) sv.skipped.forEach(function (s) { if (s && TID[s.task]) S.skipped.push({ task: TID[s.task], index: tasks.indexOf(TID[s.task]) }); });
+      }
+      function restoreTask() {
+        var t = S.ts.task;
+        if (Number.isInteger(ts.slipsHere) && ts.slipsHere > 0) S.ts.slipsHere = ts.slipsHere;
+        if (t.type === "place" && Array.isArray(ts.placed)) {
+          ts.placed.forEach(function (id) {
+            var n = ND[id];
+            if (!n || t.nodes.indexOf(id) === -1 || !n.loose) return;
+            S.ts.placed[id] = true; n.loose = false; n.el.classList.remove("nthview-loose", "nthview-later"); setNodeAria(n);
+            var b = S.ts.looseBtns[id]; if (b) b.disabled = true;
+          });
+          redraw();
+          if (!t.nodes.some(function (id) { return ND[id].loose; })) { solve("ok"); return; }
+        }
+        if (Array.isArray(ts.tried) && S.ts.markTried) ts.tried.forEach(function (x) { if (S.ts.markTried(x)) S.ts.tried.push(x); });
+        if (ts.hint === true && S.ts.hintBtn) S.ts.hintBtn.click();
+      }
+      return function () {
+        intro.hidden = true; intro.classList.add("nthview-gone");
+        restoreAll(); redraw(); setupMini();
+        if (ph === "rebuild") {
+          startRebuild(); applySaved();
+          if (task >= 0) {
+            var t = tasks[task], solvedAlready = !!(ts && ts.solved === true && S.done[t.id]);
+            showTask(solvedAlready ? task + 1 : task);
+            if (!solvedAlready && ts && S.ts) restoreTask();
+          } else { applyDisassembly(); redraw(); }
+        } else {
+          applySaved();
+          if (BIG && Array.isArray(sv.collapsed)) sv.collapsed.forEach(function (id) { if (CL[id] && CL[id] !== rootNode.cluster) S.collapsed[id] = true; });
+          if (ph === "tour") showTour(tour);
+          else if (ph === "explore") showExplore(false);
+          else if (ph === "reflect") { showReflect(); picks.forEach(function (id) { togglePick(ED[id]); }); if (sv.revealed === true) revealKeys(); }
+          else showEnd();
+          if (det && S.phase !== "reflect") {
+            if (det.t === "node" && ND[det.id]) openNodeDetails(ND[det.id]);
+            else if (det.t === "edge" && ED[det.id]) openEdgeDetails(ED[det.id]);
+            else if (det.t === "cluster" && CL[det.id]) openClusterDetails(CL[det.id]);
+            else if (det.t === "glossary" && data.glossary && data.glossary.length) openGlossary();
+          }
+        }
+        if (camS) {
+          var bx = allBox(), v = vpSize(), ccx = (v.w / 2 - camS.x) / camS.k, ccy = (v.h / 2 - camS.y) / camS.k, mw = bx.x1 - bx.x0, mh = bx.y1 - bx.y0;
+          if (ccx > bx.x0 - mw && ccx < bx.x1 + mw && ccy > bx.y0 - mh && ccy < bx.y1 + mh) { stopCam(); cam = camS; applyCam(); }
+        }
+        saveNow();
+        resumeNotice();
+      };
+    }
+    function resumeNotice() {
+      var where = S.phase === "tour" ? "tour stop " + (S.tour + 1) + " of " + data.tour.length
+        : S.phase === "rebuild" ? (S.task >= 0 ? "rebuild task " + (S.task + 1) + " of " + tasks.length : "the rebuild")
+        : S.phase === "reflect" ? "the reflection" : S.phase === "end" ? "your review" : "where you left the map";
+      var note = el("div", { class: "nthview-resume", role: "status", text: "Welcome back, continuing from " + where + "." });
+      container.appendChild(note);
+      var gone = false;
+      function hide() {
+        if (gone) return; gone = true;
+        note.classList.add("nthview-gone");
+        setTimeout(function () { if (note.parentNode) note.parentNode.removeChild(note); }, 450);
+        doc.removeEventListener("pointerdown", hide); doc.removeEventListener("keydown", hide);
+      }
+      doc.addEventListener("pointerdown", hide); doc.addEventListener("keydown", hide);
+      setTimeout(hide, 7000);
+    }
 
     /* ---------- DOM scaffold ---------- */
     var pattern = el("div", { class: "nthview-pattern" });
@@ -2080,10 +2231,12 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       glossBtn.addEventListener("click", function () { openGlossary(); });
       tools.appendChild(glossBtn);
     }
+    tools.appendChild(restartButton(container, data, KEY));
     var top = el("header", { class: "nthview-top" }, [brand, steps, tools]);
     function setPhase(ph) {
       ["intro", "tour", "explore", "rebuild", "reflect", "end"].forEach(function (x) { container.classList.toggle("nthview-phase-" + x, x === ph); });
       S.phase = ph;
+      saveNow();
       setTimeout(syncSheet, 0);
     }
     function setStage(i) {
@@ -2316,6 +2469,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         miniView.setAttribute("x", r1(-cam.x / cam.k)); miniView.setAttribute("y", r1(-cam.y / cam.k));
         miniView.setAttribute("width", r1(v.w / cam.k)); miniView.setAttribute("height", r1(v.h / cam.k));
       }
+      queueSave();
     }
     function safeRect() {
       var v = vpSize(), l = 12, t = top.offsetTop + top.offsetHeight + 10, r = 12, b = 12;
@@ -2497,7 +2651,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         n.suppress = true; setTimeout(function () { n.suppress = false; }, 400);
         var at = n.drag; delete n.drag;
         highlightTarget(null);
-        if (mode === "move") { n.x = at.x; n.y = at.y; computeBends(); redraw(); return; }
+        if (mode === "move") { n.x = at.x; n.y = at.y; computeBends(); redraw(); saveNow(); return; }
         var c = clusterAt(at);
         n.prev = at;
         if (c) attemptPlace(n, c);
@@ -2577,6 +2731,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         c.toggle.disabled = !collapseAllowed();
       });
       redraw();
+      saveNow();
     }
     function expandFor(list) { var changed = false; list.forEach(function (n) { if (S.collapsed[n.cluster.id]) { S.collapsed[n.cluster.id] = false; changed = true; } }); if (changed) syncCollapse(); }
     function expandAll() { var any = Object.keys(S.collapsed).some(function (k) { return S.collapsed[k]; }); S.collapsed = {}; if (any || BIG) syncCollapse(); }
@@ -2636,23 +2791,26 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     }
 
     /* ---------- details panel ---------- */
-    function openDetails(kids, forNode) {
+    function openDetails(kids, forNode, key) {
       detailsBody.textContent = "";
       kids.forEach(function (k) { if (k) detailsBody.appendChild(k); });
       nodes.forEach(function (n) { n.el.classList.toggle("nthview-open", n === forNode); });
       S.detailsFor = forNode || null;
+      S.detailsKey = key || null;
       details.classList.add("nthview-open"); details.setAttribute("aria-hidden", "false");
       details.scrollTop = 0;
       syncSheet();
+      saveNow();
       var h = detailsBody.querySelector("h3");
       setTimeout(function () { if (h) h.focus({ preventScroll: true }); }, 60);
     }
     function closeDetails(restoreFocus) {
       if (!details.classList.contains("nthview-open")) return;
       details.classList.remove("nthview-open"); details.setAttribute("aria-hidden", "true");
-      var n = S.detailsFor; S.detailsFor = null;
+      var n = S.detailsFor; S.detailsFor = null; S.detailsKey = null;
       nodes.forEach(function (x) { x.el.classList.remove("nthview-open"); });
       syncSheet();
+      saveNow();
       if (restoreFocus && n && !n.el.hidden) n.el.focus({ preventScroll: true });
     }
     function clusterTag(c) { return el("span", { class: "nthview-cl", style: "--c:var(--k-" + c.color + ")" }, [el("span", { class: "nthview-ldot", "aria-hidden": "true" }), root.document.createTextNode(c.name)]); }
@@ -2684,7 +2842,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         });
         kids.push(ul);
       }
-      openDetails(kids, n);
+      openDetails(kids, n, { t: "node", id: n.id });
       setTimeout(function () { if (alive()) ensureVisible(n); }, 80);
     }
     function openEdgeDetails(e) {
@@ -2693,18 +2851,18 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       a.addEventListener("click", function () { openNodeDetails(e.from); });
       var b = el("button", { type: "button", class: "nthview-linkbtn", text: "Open " + e.to.d.label });
       b.addEventListener("click", function () { openNodeDetails(e.to); });
-      openDetails([el("p", { class: "nthview-eyebrow", text: "Link" }), el("h3", { tabindex: "-1", text: e.from.d.label + " " + e.d.relation + " " + e.to.d.label }), sent, p("", e.d.explanation), el("div", { class: "nthview-actions" }, [a, b])], null);
+      openDetails([el("p", { class: "nthview-eyebrow", text: "Link" }), el("h3", { tabindex: "-1", text: e.from.d.label + " " + e.d.relation + " " + e.to.d.label }), sent, p("", e.d.explanation), el("div", { class: "nthview-actions" }, [a, b])], null, { t: "edge", id: e.id });
       focusEdge(e);
     }
     function openClusterDetails(c) {
       var list = el("div", { class: "nthview-chips" });
       c.members.forEach(function (n) { var b2 = el("button", { type: "button", class: "nthview-chip", style: "--c:var(--k-" + c.color + ")", text: n.d.label }); b2.addEventListener("click", function () { openNodeDetails(n); }); list.appendChild(b2); });
-      openDetails([el("p", { class: "nthview-eyebrow", text: "Cluster" }), el("h3", { tabindex: "-1", text: c.name }), clusterTag(c), c.desc ? p("", c.desc) : null, list], null);
+      openDetails([el("p", { class: "nthview-eyebrow", text: "Cluster" }), el("h3", { tabindex: "-1", text: c.name }), clusterTag(c), c.desc ? p("", c.desc) : null, list], null, { t: "cluster", id: c.id });
     }
     function openGlossary() {
       var dl = el("dl", { class: "nthview-gloss" });
       data.glossary.forEach(function (g) { dl.appendChild(el("dt", { text: g.term })); var dd = el("dd"); dd.appendChild(rich(g.meaning)); dl.appendChild(dd); });
-      openDetails([el("p", { class: "nthview-eyebrow", text: "Glossary" }), el("h3", { tabindex: "-1", text: "Key terms" }), dl], null);
+      openDetails([el("p", { class: "nthview-eyebrow", text: "Glossary" }), el("h3", { tabindex: "-1", text: "Key terms" }), dl], null, { t: "glossary" });
     }
     function focusEdge(e) {
       if (S.phase !== "explore" && S.phase !== "end" && S.phase !== "tour") return;
@@ -2808,6 +2966,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       setGuide([eyebrow("Guided tour · stop " + (i + 1) + " of " + data.tour.length), dots, h, body, chips, p("nthview-small nthview-muted", "Tap a concept on the map or above to read more."), acts], h);
       announce("Tour stop " + (i + 1) + ": " + st.title);
       fitBox(boxFor(Object.keys(fs.ns).map(function (id) { return ND[id]; })), 1.05, 1000);
+      saveNow();
     }
 
     /* ---------- free exploration ---------- */
@@ -2908,7 +3067,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       if (i >= tasks.length) { showReflect(); return; }
       S.task = i; selectLoose(null); clearSource();
       var t = tasks[i];
-      S.ts = { task: t, solved: false, placed: {}, slipsHere: 0 };
+      S.ts = { task: t, solved: false, placed: {}, slipsHere: 0, tried: [] };
       applyDisassembly(); clearMarks(); setFocus(null); redraw();
       var kids = [], h = heading(promptFor(t));
       kids.push(eyebrow("Rebuild · task " + (i + 1) + " of " + tasks.length + " ", el("span", { class: "nthview-kind", text: KIND[t.type] })));
@@ -2928,6 +3087,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         hintBtn.disabled = true;
         if (t.type === "connect") ED[t.edge].from.el.classList.add("nthview-hinted");
         syncSheet();
+        saveNow();
       });
       var skip = btn("Skip, show me", "nthview-ghost", function () { S.skipped.push({ task: t, index: i }); solve("skip"); });
       S.ts.hintBtn = hintBtn; S.ts.skip = skip;
@@ -2936,6 +3096,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       setGuide(kids, h);
       announce("Task " + (i + 1) + ": " + KIND[t.type]);
       fitBox(taskBox(t), 1.15, 900);
+      saveNow();
     }
     function slip(record, title, texts) {
       S.slips.push(record); S.ts.slipsHere++;
@@ -2943,6 +3104,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       S.ts.fb.appendChild(feedback(false, title, texts));
       syncSheet(); revealFb();
       announce(title);
+      saveNow();
     }
     /* mark the task done, restore its piece, explain, offer Next */
     function solve(how) {
@@ -2982,6 +3144,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       S.ts.body.querySelectorAll("button,select").forEach(function (b) { b.disabled = true; });
       syncSheet(); revealFb();
       announce(title);
+      saveNow();
       setTimeout(function () { if (alive()) next.focus({ preventScroll: true }); }, 80);
     }
 
@@ -3030,6 +3193,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
           S.ts.fb.textContent = "";
           S.ts.fb.appendChild(feedback(true, n.d.label + " belongs in " + c.name, [n.d.definition]));
           syncSheet(); revealFb(); announce(n.d.label + " placed in " + c.name);
+          saveNow();
         }
       } else {
         glide([n]);
@@ -3052,13 +3216,15 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         if (clues.length) body.appendChild(el("ul", { class: "nthview-small", style: "margin:.2rem 0 .6rem;padding-left:1.1rem" }, clues.map(function (c) { return el("li", { text: c }); })));
       }
       var opts = shuffled(t.options, t.id);
-      var list = el("ul", { class: "nthview-opts" });
+      var list = el("ul", { class: "nthview-opts" }), optBtns = {};
+      S.ts.markTried = function (label) { var b = optBtns[label]; if (!b || b.disabled) return false; b.classList.add("nthview-no"); b.disabled = true; return true; };
       opts.forEach(function (o, k) {
         var b = el("button", { type: "button", class: "nthview-opt" }, [el("span", { class: "nthview-key", "aria-hidden": "true", text: LETTERS[k] }), el("span", { text: o.label })]);
+        optBtns[o.label] = b;
         b.addEventListener("click", function () {
           if (S.ts.solved) return;
           if (o.correct) { b.classList.add("nthview-yes"); solve("ok"); return; }
-          b.classList.add("nthview-no"); b.disabled = true;
+          S.ts.markTried(o.label); S.ts.tried.push(o.label);
           var whyText = o.why || t.why;
           slip({ task: t, kind: t.type, chose: o.label, answer: e ? e.d.relation : ND[t.node].d.label, why: whyText }, "Not “" + o.label + "”", [whyText, "Try another."]);
         });
@@ -3123,6 +3289,13 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       var ns = {}, es = {};
       t.candidates.forEach(function (id) { es[id] = true; ns[ED[id].from.id] = ns[ED[id].to.id] = true; });
       setFocus(ns, es);
+      S.ts.markTried = function (id) {
+        var e = ED[id], b = S.ts.spotBtns[id];
+        if (!e || !b || b.disabled || id === t.edge) return false;
+        b.classList.add("nthview-no"); b.disabled = true;
+        e.lab.classList.remove("nthview-cand"); e.lab.classList.add("nthview-cleared"); e.lab.setAttribute("tabindex", "-1");
+        return true;
+      };
       body.appendChild(p("nthview-small nthview-muted", "Tap the suspicious label on the map, or choose here:"));
       body.appendChild(list);
     }
@@ -3130,8 +3303,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       var t = S.ts.task;
       if (S.ts.solved) return;
       if (e.id === t.edge) { S.ts.spotBtns[e.id].classList.add("nthview-yes"); solve("ok"); return; }
-      var b = S.ts.spotBtns[e.id]; b.classList.add("nthview-no"); b.disabled = true;
-      e.lab.classList.remove("nthview-cand"); e.lab.classList.add("nthview-cleared"); e.lab.setAttribute("tabindex", "-1");
+      S.ts.markTried(e.id); S.ts.tried.push(e.id);
       slip({ task: t, kind: "spot", chose: e.from.d.label + " " + e.d.relation + " " + e.to.d.label, answer: ED[t.edge].from.d.label + " " + ED[t.edge].d.relation + " " + ED[t.edge].to.d.label, why: e.d.explanation },
         "That link is right", ["**" + e.from.d.label + " " + e.d.relation + " " + e.to.d.label + ".** " + e.d.explanation, "Look again at the others."]);
     }
@@ -3240,6 +3412,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       S.reflectActs = acts;
       setGuide([eyebrow("Reflect"), h, p("", (r.prompt ? "" : "If you could keep only three links from this map, which would they be? ") + "There is no wrong pick: afterwards you will see which three the map was built around, and why. Pick from the list or tap the labels on the map."), counter, list, acts], h);
       fitAll(900);
+      saveNow();
     }
     function togglePick(e) {
       if (S.revealed) return;
@@ -3247,6 +3420,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       if (i !== -1) S.picks.splice(i, 1);
       else { if (S.picks.length >= 3) { announce("You have picked three. Unpick one first."); return; } S.picks.push(e); }
       updatePicks();
+      saveNow();
     }
     function updatePicks() {
       S.cands.forEach(function (e) {
@@ -3288,6 +3462,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       setGuide(kids, h);
       fitBox(boxFor(Object.keys(ns).map(function (id) { return ND[id]; })), 1.1, 900);
       announce("Key links revealed.");
+      saveNow();
     }
 
     /* ---------- end screen ---------- */
@@ -3334,7 +3509,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         data.glossary.forEach(function (g) { dl.appendChild(el("dt", { text: g.term })); var dd = el("dd"); dd.appendChild(rich(g.meaning)); dl.appendChild(dd); });
         kids.push(dl);
       }
-      kids.push(el("div", { class: "nthview-actions" }, [btn("Explore the finished map", "nthview-primary", function () { guide.classList.add("nthview-min"); if (isWide()) { setGuide([eyebrow("Review"), heading("The finished map"), p("", "Tap any concept or link to revisit it."), el("div", { class: "nthview-actions" }, [btn("Back to the review", "", showEnd), btn("Start again", "nthview-ghost", function () { showIntro(); })])]); } syncSheet(); fitAll(700); }), btn("Start again", "", function () { showIntro(); })]));
+      kids.push(el("div", { class: "nthview-actions" }, [btn("Explore the finished map", "nthview-primary", function () { guide.classList.add("nthview-min"); if (isWide()) { setGuide([eyebrow("Review"), heading("The finished map"), p("", "Tap any concept or link to revisit it."), el("div", { class: "nthview-actions" }, [btn("Back to the review", "", showEnd), btn("Start again", "nthview-ghost", function () { clearState(KEY); showIntro(); })])]); } syncSheet(); fitAll(700); }), btn("Start again", "", function () { clearState(KEY); showIntro(); })]));
       setGuide(kids, h);
       fitAll(1000);
       announce("Review. " + S.slips.length + " slips explained.");
@@ -3365,7 +3540,8 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       ro.observe(guide); ro.observe(details);
     }
 
-    showIntro();
+    var resume = SAVED ? restoreProgress() : null;
+    if (resume) resume(); else showIntro();
   }
 
   NthView.build = function (container, data) {

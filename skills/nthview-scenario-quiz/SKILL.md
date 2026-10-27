@@ -25,6 +25,10 @@ finish, in the spirit of the best consumer learning products (Duolingo's
 feedback rhythm, Brilliant's clean interactivity, Headspace's warmth, Linear
 and Stripe's gradients and glass). Eight named themes keep documents from
 looking alike.
+Progress is saved in the browser (localStorage) after every pick, skip and
+screen change, so closing the tab or reopening the file resumes at the same
+decision with the same options highlighted; the Restart button in the top
+right clears that saved progress and starts over.
 
 ## When to use
 - Concepts that are really about judgement: compliance, security hygiene,
