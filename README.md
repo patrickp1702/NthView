@@ -50,6 +50,11 @@ One concept, many dimensions, one view at a time.
   of 31 activity types, in a card or as a trial on the track; learning or quiz
   mode, four themes. Demo: `skills/nthview-temple-run/examples/example.html`.
 
+- **Sequence** (`skills/nthview-sequence`) — a protocol or any exchange between
+  parties, one message at a time: what travels on each arrow, over which
+  channel, and what every party holds afterwards, plus a full UML-style
+  sequence diagram. Demo: `skills/nthview-sequence/examples/example.html`.
+
 Open `index.html` for the gallery of all views, or visit the hosted copy at
 https://patrickp1702.github.io/NthView/ (served by GitHub Pages straight from
 the `main` branch; every demo, doc and lesson there is the same file that is

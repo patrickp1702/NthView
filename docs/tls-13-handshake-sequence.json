@@ -1,0 +1,277 @@
+{
+  "schemaVersion": 1,
+  "title": "The TLS 1.3 handshake, message by message",
+  "subtitle": "What a browser and a web server send each other before the first encrypted byte of a page, which keys each side holds after every message, and why the whole thing takes a single round trip.",
+  "theme": "blueprint",
+  "compareLabel": "Show how TLS 1.2 did it",
+  "zones": [
+    { "id": "device", "name": "Your device", "description": "The browser and the root certificates it trusts" },
+    { "id": "site", "name": "example.com", "description": "The web server you are connecting to" },
+    { "id": "authority", "name": "Certificate authority", "description": "A third party trusted to vouch for server keys" }
+  ],
+  "participants": [
+    { "id": "trust", "name": "Trust store", "role": "root certificates on your device", "kind": "database", "zone": "device", "holds": ["root CA certificates"] },
+    { "id": "browser", "name": "Browser", "role": "the TLS client", "kind": "browser", "zone": "device", "holds": ["the URL https://example.com"] },
+    { "id": "server", "name": "Web server", "role": "example.com, the TLS server", "kind": "server", "zone": "site", "holds": ["private key for example.com"] },
+    { "id": "ca", "name": "Certificate authority", "role": "vouches for the server's key", "kind": "service", "zone": "authority", "holds": ["CA signing key"] }
+  ],
+  "channels": [
+    { "id": "offline", "name": "Out of band, before any visit", "color": "violet", "description": "Happens days or weeks before the connection, not part of the handshake." },
+    { "id": "local", "name": "Local, nothing sent", "color": "slate", "description": "Computation or a lookup inside your device." },
+    { "id": "clear", "name": "In the clear", "color": "amber", "description": "Readable by anyone on the network path. Tampering is detected later, by the Finished messages." },
+    { "id": "hs", "name": "Encrypted with handshake keys", "color": "blue", "description": "Hidden from passive observers, keyed by the fresh key exchange." },
+    { "id": "app", "name": "Encrypted with application keys", "color": "green", "description": "The protected connection the page actually uses." },
+    { "id": "early", "name": "0-RTT early data, replayable", "color": "red", "description": "Encrypted with a key from an earlier session; an attacker can replay it." }
+  ],
+  "steps": [
+    {
+      "from": "ca", "to": "server", "kind": "async", "channel": "offline", "payload": "signed certificate",
+      "title": "Weeks earlier: a certificate authority vouches for the server's key",
+      "wire": "Certificate (X.509 v3)\n  subject          CN=example.com\n  subjectAltName   DNS:example.com, DNS:www.example.com\n  public key       ECDSA P-256 (the server's own key pair)\n  validity         90 days\n  issuer           Example Issuing CA\n  signature        made with the CA's private key\n\n→ issued after the server proved it controls example.com\n  (for example with the ACME protocol)",
+      "why": "The server generated its own key pair and kept the private half. The CA signs a statement binding the public half to the name example.com. Without that signature, a browser could not tell the real server from anyone who answers on the network.",
+      "detail": [
+        { "label": "Who's involved", "text": "The certificate authority and the server operator. No browser is involved yet." },
+        { "label": "What's in play", "text": "A leaf certificate for example.com and an intermediate certificate for the issuing CA, which chains up to a root certificate that browsers ship with." },
+        { "label": "Which spec", "text": "X.509 certificates and path validation, RFC 5280. Automated issuance, RFC 8555 (ACME)." }
+      ],
+      "holds": { "server": { "add": ["certificate chain"] } }
+    },
+    {
+      "from": "browser", "to": "browser", "channel": "local", "payload": "fresh key pair",
+      "title": "The browser makes a one-time key pair",
+      "wire": "client_random      = 32 random bytes\nephemeral private  = 32 random bytes            (x25519)\nephemeral public   = X25519(private, base point)\n\n→ a brand-new pair for this connection only",
+      "why": "TLS 1.3 agrees on keys with ((ECDHE)): each side makes a throwaway key pair and sends only the public half. Making the pair now lets the browser put its public key in the very first message.",
+      "detail": [
+        { "label": "Who's involved", "text": "The browser alone." },
+        { "label": "Worth knowing", "text": "Browsers often prepare shares for one or two likely groups (x25519 is the usual first guess) and may also offer a post-quantum hybrid group; which groups are offered varies by browser and version." }
+      ],
+      "holds": { "browser": { "add": ["ephemeral private key", "client random"] } }
+    },
+    {
+      "from": "browser", "to": "server", "kind": "async", "channel": "clear", "payload": "ClientHello + key share",
+      "title": "ClientHello: the browser proposes, and already sends its key share",
+      "wire": "Handshake: ClientHello\n  legacy_version     0x0303          (\"TLS 1.2\", for old middleboxes)\n  random             32 random bytes\n  legacy_session_id  32 bytes        (compatibility mode)\n  cipher_suites      TLS_AES_128_GCM_SHA256\n                     TLS_AES_256_GCM_SHA384\n                     TLS_CHACHA20_POLY1305_SHA256\n  extensions\n    server_name           example.com\n    supported_versions    TLS 1.3 (0x0304), TLS 1.2\n    supported_groups      x25519, secp256r1\n    key_share             x25519: 32-byte public key\n    signature_algorithms  ecdsa_secp256r1_sha256, rsa_pss_rsae_sha256, …\n    application_layer_protocol_negotiation  h2, http/1.1",
+      "why": "The real version lives in `supported_versions`; the old version field is frozen at TLS 1.2 so that equipment which never heard of 1.3 lets the packet through. The key share is a guess at the group the server will pick. When the guess is right, keys exist after a single reply.",
+      "compare": { "label": "In TLS 1.2", "text": "The ClientHello only proposed. The key exchange came one round trip later, so a full handshake needed two round trips before the first byte of the page could be sent." },
+      "check": {
+        "type": "choice",
+        "prompt": "Why does the browser send a key share before it knows which groups the server supports?",
+        "options": [
+          { "text": "To save a round trip: if the guess is right, both sides have keys after one reply", "correct": true, "why": "That is the design. A wrong guess costs one extra round trip (a HelloRetryRequest); a right one makes the handshake 1-RTT." },
+          { "text": "Because the key share encrypts the ClientHello", "why": "The ClientHello travels in the clear. Hiding it needs a separate extension, Encrypted Client Hello, which uses a key published in DNS." },
+          { "text": "So that the server can check who the browser is", "why": "An ephemeral public key says nothing about identity; it was made seconds ago. Client authentication, when used, is a separate certificate." },
+          { "text": "Because the server must accept the first share it gets", "why": "It need not. A server that supports none of the offered groups answers with a HelloRetryRequest naming the group it wants." }
+        ]
+      },
+      "detail": [
+        { "label": "Who can read it", "text": "Everyone on the path, including the name in ((server_name|SNI)) and the protocols in ((ALPN))." },
+        { "label": "Which spec", "text": "RFC 8446 §4.1.2 (ClientHello) and §4.2 (extensions). Middlebox compatibility mode, Appendix D.4." }
+      ],
+      "holds": { "server": { "add": ["browser's key share", "client random"] } }
+    },
+    {
+      "from": "server", "to": "browser", "kind": "async", "channel": "clear", "payload": "HelloRetryRequest",
+      "title": "Only if the guess was wrong: the server asks for another group",
+      "wire": "Handshake: ServerHello   (acting as HelloRetryRequest)\n  random        SHA-256(\"HelloRetryRequest\")   — a fixed, recognisable value\n  cipher_suite  TLS_AES_128_GCM_SHA256\n  extensions\n    supported_versions  TLS 1.3\n    key_share           selected_group: secp256r1\n    cookie              (optional)",
+      "why": "A server that supports none of the offered groups does not fail; it names the one it wants. This costs one extra round trip and is why browsers guess the most common group first.",
+      "detail": [
+        { "label": "Worth knowing", "text": "The transcript replaces the first ClientHello with a hash of it, so both sides still agree on exactly what was said. The holds strip skips this detour: had it happened, the browser would swap its key share and carry on." },
+        { "label": "Which spec", "text": "RFC 8446 §4.1.4." }
+      ]
+    },
+    {
+      "from": "browser", "to": "server", "kind": "async", "channel": "clear", "payload": "ClientHello again",
+      "title": "Only if asked: the browser retries with the requested group",
+      "wire": "Handshake: ClientHello   (second attempt)\n  … the same fields as before, except\n    key_share   secp256r1: 65-byte public key\n    cookie      echoed back, if the server sent one",
+      "why": "Everything else stays identical, so an attacker cannot use the retry to quietly downgrade the other choices.",
+      "detail": [
+        { "label": "Which spec", "text": "RFC 8446 §4.1.2, the rules for the second ClientHello." }
+      ]
+    },
+    {
+      "from": "server", "to": "browser", "kind": "async", "channel": "clear", "payload": "ServerHello + key share",
+      "title": "ServerHello: the server picks, and sends its own key share",
+      "wire": "Handshake: ServerHello\n  legacy_version   0x0303\n  random           32 random bytes\n  cipher_suite     TLS_AES_128_GCM_SHA256\n  extensions\n    supported_versions  TLS 1.3 (0x0304)\n    key_share           x25519: the server's 32-byte public key\n\n→ the server already computes the shared secret and its handshake keys",
+      "why": "With both public keys on the wire, each side can now compute the same shared secret, which nobody watching can. From the next message on, everything the server sends is encrypted.",
+      "compare": { "label": "In TLS 1.2", "text": "RSA key transport was still allowed: the browser encrypted the secret with the server's long-term RSA key. Whoever later steals that key can decrypt every recorded session. TLS 1.3 removed it and offers only ((ECDHE)) and ((PSK)) modes." },
+      "check": { "type": "who", "answer": "server", "why": "The browser has made its offer; it is the server's turn to choose a cipher suite and answer with its own key share." },
+      "detail": [
+        { "label": "Who's involved", "text": "The server, answering in the clear." },
+        { "label": "What's in play", "text": "The chosen cipher suite names the ((AEAD)) and the hash for ((HKDF)); the certificate's signature algorithm is negotiated separately." },
+        { "label": "Which spec", "text": "RFC 8446 §4.1.3." }
+      ],
+      "holds": { "server": { "add": ["handshake traffic keys"] }, "browser": { "add": ["server's key share", "server random"] } }
+    },
+    {
+      "from": "browser", "to": "browser", "channel": "local", "payload": "derive handshake keys",
+      "title": "The browser computes the same secret and derives the handshake keys",
+      "wire": "shared  = X25519(browser private key, server public key)\nearly   = HKDF-Extract(0, 0)                  (no PSK this time)\nhs      = HKDF-Extract(Derive-Secret(early, \"derived\", \"\"), shared)\nc_hs    = Derive-Secret(hs, \"c hs traffic\", ClientHello…ServerHello)\ns_hs    = Derive-Secret(hs, \"s hs traffic\", ClientHello…ServerHello)\n\n→ the ephemeral private key is no longer needed and can be erased",
+      "why": "Every key is derived from the shared secret and a hash of the messages so far, the ((transcript hash)). Erasing the ephemeral private key is what gives ((forward secrecy)): a later theft of the server's certificate key cannot recover this session.",
+      "note": { "severity": "info", "text": "Two different keys come out: one for each direction. Each side encrypts with its own and decrypts with the other's." },
+      "detail": [
+        { "label": "Which spec", "text": "RFC 8446 §7.1, the key schedule." }
+      ],
+      "holds": { "browser": { "remove": ["ephemeral private key"], "add": ["handshake traffic keys"] } }
+    },
+    {
+      "from": "server", "to": "browser", "kind": "async", "channel": "hs", "payload": "EncryptedExtensions",
+      "title": "EncryptedExtensions: the rest of the server's answers, now hidden",
+      "wire": "record: application_data   (outer type 23; the real type is inside the encryption)\nHandshake: EncryptedExtensions\n  application_layer_protocol_negotiation  h2\n  server_name                             (empty: acknowledged)",
+      "why": "Anything not needed to agree on keys moves behind encryption. An observer can no longer see which application protocol was chosen.",
+      "compare": { "label": "In TLS 1.2", "text": "All server extensions travelled in the clear inside the ServerHello." },
+      "detail": [
+        { "label": "Worth knowing", "text": "Every encrypted record carries the outer type application_data, so an observer cannot even tell handshake messages from page data by their headers." },
+        { "label": "Which spec", "text": "RFC 8446 §4.3.1, and §5.2 for the record format." }
+      ]
+    },
+    {
+      "from": "server", "to": "browser", "kind": "async", "channel": "hs", "payload": "Certificate",
+      "title": "Certificate: the server presents its chain",
+      "wire": "Handshake: Certificate\n  certificate_request_context  (empty)\n  certificate_list\n    [0] example.com          issued by Example Issuing CA\n        extensions: OCSP status, SCTs   (optional)\n    [1] Example Issuing CA   issued by Example Root CA\n\n→ the root itself is not sent; the browser must already have it",
+      "why": "The chain is the CA's statement from the first step. It proves nothing yet: anyone can replay a public certificate. The next message proves the server holds the matching private key.",
+      "compare": { "label": "In TLS 1.2", "text": "The certificate was sent in the clear, so anyone on the path could see exactly which site's certificate you received. The site name can still leak through ((SNI)) unless Encrypted Client Hello is used." },
+      "detail": [
+        { "label": "What's in play", "text": "The leaf certificate and any intermediates, in order. An OCSP response stapled here saves the browser a separate revocation check." },
+        { "label": "Which spec", "text": "RFC 8446 §4.4.2." }
+      ],
+      "holds": { "browser": { "add": ["server certificate chain"] } }
+    },
+    {
+      "from": "server", "to": "browser", "kind": "async", "channel": "hs", "payload": "CertificateVerify",
+      "title": "CertificateVerify: the server signs the conversation so far",
+      "wire": "Handshake: CertificateVerify\n  algorithm  ecdsa_secp256r1_sha256\n  signature  Sign(server private key,\n                  64 × 0x20 ‖ \"TLS 1.3, server CertificateVerify\" ‖ 0x00\n                  ‖ Transcript-Hash(ClientHello … Certificate))",
+      "why": "Only the holder of the certificate's private key can make this signature, and it covers this exact handshake, including both fresh key shares. A replayed certificate without the key fails here.",
+      "check": {
+        "type": "choice",
+        "prompt": "What does CertificateVerify prove that the Certificate message alone does not?",
+        "options": [
+          { "text": "That the server holds the private key for the certificate, in this very handshake", "correct": true, "why": "The signature covers the transcript, which includes the browser's fresh random value and key share, so it cannot have been made in advance or copied from another connection." },
+          { "text": "That the certificate was issued by a trusted CA", "why": "That is checked against the trust store, using the CA signatures inside the chain. CertificateVerify is the server's own signature." },
+          { "text": "That the certificate has not expired", "why": "Validity dates are fields of the certificate, checked during path validation." },
+          { "text": "That nobody changed the ClientHello", "why": "The transcript is covered, so tampering would break the signature, but the main purpose is proof of key possession. Tampering is caught again by both Finished messages." }
+        ]
+      },
+      "note": { "severity": "info", "text": "The fixed prefix of 64 spaces and a context string keeps this signature from ever being mistaken for a signature made in another protocol or role." },
+      "detail": [
+        { "label": "Which spec", "text": "RFC 8446 §4.4.3." }
+      ]
+    },
+    {
+      "from": "server", "to": "browser", "kind": "async", "channel": "hs", "payload": "Finished",
+      "title": "Server Finished: a MAC over the whole handshake",
+      "wire": "Handshake: Finished\n  verify_data = HMAC(finished_key,\n                Transcript-Hash(ClientHello … CertificateVerify))\n  finished_key = HKDF-Expand-Label(s_hs, \"finished\", \"\", Hash.length)\n\n→ the server can now derive the application keys:\n  s_ap, c_ap = Derive-Secret(master, \"s ap traffic\" / \"c ap traffic\",\n                             ClientHello … server Finished)",
+      "why": "The Finished message ties every earlier byte, including the clear-text hellos, to the shared secret. If an attacker had changed anything, the two sides would compute different values and the handshake fails.",
+      "note": { "severity": "info", "text": "From here a server may already send application data (sometimes called 0.5-RTT), before it has seen the browser's Finished. It is protected but sent to a client that is not yet confirmed." },
+      "detail": [
+        { "label": "Which spec", "text": "RFC 8446 §4.4.4, and §7.1 for the application traffic secrets." }
+      ],
+      "holds": { "server": { "add": ["application traffic keys"] } }
+    },
+    {
+      "from": "browser", "to": "trust", "channel": "local", "payload": "validate chain",
+      "title": "The browser checks the chain against its trust store",
+      "wire": "check the chain for example.com\n  [0] example.com        signed by Example Issuing CA?   ✓ signature\n  [1] Example Issuing CA signed by Example Root CA?      ✓ signature\n  Example Root CA in the trust store?                    ?\n  name: example.com in subjectAltName                    ✓\n  dates: now within notBefore … notAfter                 ✓\n  revocation, transparency: per browser policy",
+      "why": "The CA is not contacted during the handshake. Trust comes from the root certificates already on your device, installed with the operating system or the browser.",
+      "detail": [
+        { "label": "Who's involved", "text": "The browser and the local trust store. Nothing leaves the device for this lookup, apart from optional revocation checks that some clients make." },
+        { "label": "Which spec", "text": "Path validation, RFC 5280. Name matching rules, RFC 9525. Revocation and Certificate Transparency requirements differ between browsers." }
+      ]
+    },
+    {
+      "from": "trust", "to": "browser", "kind": "return", "channel": "local", "payload": "trusted root found",
+      "title": "The trust store knows the root: the chain is good",
+      "wire": "Example Root CA   found, trusted for website authentication\n→ chain valid for example.com",
+      "why": "Every link checks out, so the public key in the leaf certificate really belongs to example.com, as far as the CAs you trust can tell.",
+      "detail": [
+        { "label": "Worth knowing", "text": "This is the main path. The next step shows what happens when the chain does not check out." }
+      ]
+    },
+    {
+      "from": "browser", "to": "server", "kind": "async", "channel": "hs", "payload": "alert unknown_ca",
+      "title": "If the chain fails, the browser aborts",
+      "wire": "Alert   (encrypted with the client handshake key)\n  level        fatal\n  description  unknown_ca (48)\n               or bad_certificate, certificate_expired, …\n\n→ the connection closes; the browser shows a full-page warning",
+      "why": "An unknown root, a wrong name or an expired certificate means the browser cannot be sure who holds the other end. Continuing would encrypt the page for a possible impostor.",
+      "note": { "severity": "danger", "text": "Clicking through a certificate warning gives up exactly the guarantee this whole exchange exists to provide." },
+      "detail": [
+        { "label": "Which spec", "text": "RFC 8446 §6 (alerts) and §6.2 (error alerts)." }
+      ],
+      "holds": { "browser": { "remove": ["handshake traffic keys"] } }
+    },
+    {
+      "from": "browser", "to": "browser", "channel": "local", "payload": "verify, derive app keys",
+      "title": "The browser checks the signature and the server's Finished",
+      "wire": "verify CertificateVerify with the public key in [0]   ✓\nrecompute the server's Finished over the transcript   ✓\nderive c_ap, s_ap from the master secret\nderive resumption_master_secret later, after its own Finished",
+      "why": "Now the browser knows three things: the key exchange was not tampered with, the server holds the certificate's key, and the certificate is for example.com.",
+      "detail": [
+        { "label": "Which spec", "text": "RFC 8446 §4.4.3, §4.4.4 and §7.1." }
+      ],
+      "holds": { "browser": { "add": ["application traffic keys"] } }
+    },
+    {
+      "from": "browser", "to": "server", "kind": "async", "channel": "hs", "payload": "Finished",
+      "title": "Client Finished: the browser confirms its side",
+      "wire": "Handshake: Finished   (encrypted with the client handshake key)\n  verify_data = HMAC(client finished_key,\n                Transcript-Hash(ClientHello … server Finished))",
+      "why": "The server learns that the browser saw the same handshake. Right behind this message, in the same flight, the browser may already send the request: one round trip after its first message.",
+      "compare": { "label": "In TLS 1.2", "text": "Both sides also sent a ChangeCipherSpec message to switch on encryption. TLS 1.3 dropped it; some stacks still send a dummy one so that old middleboxes stay calm." },
+      "detail": [
+        { "label": "Which spec", "text": "RFC 8446 §4.4.4; client certificates, when requested, would come just before this." }
+      ],
+      "holds": { "browser": { "remove": ["handshake traffic keys"] }, "server": { "remove": ["handshake traffic keys"], "add": ["resumption master secret"] } }
+    },
+    {
+      "from": "browser", "to": "server", "kind": "async", "channel": "app", "payload": "GET / (encrypted)",
+      "title": "Application data: the page request, under the application keys",
+      "wire": "record: application_data   (encrypted with c_ap)\n  HTTP/2 HEADERS  :method GET  :path /  :authority example.com …\n\n→ an observer sees record sizes and timing, not content",
+      "why": "This is what the handshake was for. Each record is sealed with an ((AEAD)) cipher, so any change in transit is detected and the record is rejected.",
+      "detail": [
+        { "label": "Worth knowing", "text": "Keys can be refreshed mid-connection with a KeyUpdate message, without a new handshake." },
+        { "label": "Which spec", "text": "RFC 8446 §5 (record protocol) and §4.6.3 (KeyUpdate)." }
+      ]
+    },
+    {
+      "from": "server", "to": "browser", "kind": "async", "channel": "app", "payload": "NewSessionTicket",
+      "title": "NewSessionTicket: a ticket for next time",
+      "wire": "Handshake: NewSessionTicket   (encrypted with s_ap)\n  ticket_lifetime  for example 86400 seconds (at most 7 days)\n  ticket_age_add   a random 32-bit value\n  ticket_nonce     …\n  ticket           opaque; only the server can read it\n  extensions       early_data: max_early_data_size\n\n→ PSK = HKDF-Expand-Label(resumption_master_secret,\n                          \"resumption\", ticket_nonce, Hash.length)",
+      "why": "The ticket lets the browser skip certificate checks on its next visit by proving it shares a ((PSK)) with the server. A fresh key exchange is still normally done alongside, to keep forward secrecy.",
+      "detail": [
+        { "label": "Which spec", "text": "RFC 8446 §4.6.1 and §2.2 (resumption)." }
+      ],
+      "holds": { "browser": { "add": ["session ticket (PSK)"] } }
+    },
+    {
+      "from": "browser", "to": "server", "kind": "async", "channel": "early", "payload": "ClientHello + early data",
+      "title": "A later visit: 0-RTT sends a request in the very first flight",
+      "wire": "Handshake: ClientHello\n  … as before, plus\n    key_share                fresh x25519 public key\n    psk_key_exchange_modes   psk_dhe_ke\n    early_data               (empty)\n    pre_shared_key           ticket identity + binder   (always the last extension)\nrecord: application_data   (encrypted with client_early_traffic_secret)\n  GET /news   ← sent before the server has replied at all",
+      "why": "With a ticket from last time, the browser can encrypt a request immediately. The page can start loading with zero round trips of waiting. The server says in its EncryptedExtensions whether it accepted the early data.",
+      "compare": { "label": "In TLS 1.2", "text": "Session resumption existed and saved a round trip and the certificate checks, but no application data could travel before the handshake finished." },
+      "note": { "severity": "danger", "text": "Early data is not protected against replay: an attacker can resend the same flight. Servers should accept only requests that are safe to repeat, such as plain page loads." },
+      "detail": [
+        { "label": "Which spec", "text": "RFC 8446 §2.3 and §8 (0-RTT and anti-replay); RFC 8470 for how HTTP handles early data." }
+      ],
+      "holds": { "browser": { "add": ["early traffic key"] } }
+    }
+  ],
+  "fragments": [
+    { "kind": "opt", "label": "HelloRetryRequest", "condition": "the server supports none of the offered key-share groups", "start": 3, "end": 4 },
+    { "kind": "alt", "label": "chain check", "start": 12, "end": 13,
+      "branches": [
+        { "condition": "the chain ends at a trusted root and names example.com", "start": 12, "end": 12 },
+        { "condition": "unknown root, wrong name or expired", "start": 13, "end": 13 }
+      ] },
+    { "kind": "opt", "label": "0-RTT", "condition": "a later visit, holding a ticket that allows early data", "start": 18, "end": 18 }
+  ],
+  "glossary": [
+    { "term": "ECDHE", "definition": "Elliptic-curve Diffie–Hellman, ephemeral: both sides combine their own throwaway private key with the other's public key and arrive at the same secret, which an eavesdropper cannot compute." },
+    { "term": "HKDF", "definition": "A key derivation function built on HMAC. TLS 1.3 uses it to turn one shared secret into many independent keys." },
+    { "term": "transcript hash", "definition": "A running hash of every handshake message so far. Mixing it into keys and signatures binds them to this exact conversation." },
+    { "term": "forward secrecy", "definition": "The property that stealing a long-term key later does not decrypt sessions recorded earlier, because their keys came from throwaway key pairs that were erased." },
+    { "term": "PSK", "definition": "Pre-shared key. In TLS 1.3 usually a secret derived from an earlier session and referenced by a session ticket." },
+    { "term": "AEAD", "definition": "Authenticated encryption with associated data, such as AES-GCM or ChaCha20-Poly1305: encrypts and detects any tampering in one operation." },
+    { "term": "SNI", "definition": "Server Name Indication: the ClientHello extension carrying the site name, so one server can host many sites." },
+    { "term": "ALPN", "definition": "Application-Layer Protocol Negotiation: agrees inside the handshake whether the connection will speak HTTP/2, HTTP/1.1 or another protocol." }
+  ],
+  "closing": [
+    "One round trip carries the whole agreement. The browser guesses a key-share group in its first message, the server answers with its own share and from then on encrypts everything, including its certificate.",
+    "Three checks make the result trustworthy: the CA's signatures, verified against roots already on your device; the server's signature over this very handshake; and the two Finished messages, which catch any tampering with the parts that travelled in the clear."
+  ]
+}
