@@ -1,13 +1,142 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "title": "Krishnamurti and Osho: Two Teachers of Freedom",
   "description": "What J. Krishnamurti and Osho taught about freedom, awareness, thought, love and meditation, where their teachings meet, and where they sharply part.",
   "audience": "Curious beginners. No background in philosophy or spirituality needed.",
   "chapters": [
-    { "file": "01-two-teachers-one-map", "title": "Two Teachers, One Map", "view": "nthview-concept-map", "summary": "Tour the core ideas of both teachers and how they connect, then rebuild the map from memory." },
-    { "file": "02-the-pathless-land-case", "title": "The Pathless Land Case", "view": "nthview-detective", "summary": "Why did the young man raised to be a 'World Teacher' walk away in 1929? Crack the case and find what Krishnamurti taught instead." },
-    { "file": "03-zorba-the-buddha", "title": "Zorba the Buddha", "view": "nthview-scenario-quiz", "summary": "Everyday situations seen through Osho's teaching: meditation, desire, love, religion and celebration." },
-    { "file": "04-krishnamurti-or-osho", "title": "Krishnamurti or Osho?", "view": "nthview-scenario-quiz", "summary": "Ten situations, two teachers: work out how each would respond, and why they differ." },
-    { "file": "05-islands-of-awareness", "title": "Islands of Awareness", "view": "nthview-island-quest", "summary": "One island per big idea from both teachers, hands-on activities, then a final exam." }
-  ]
+    {
+      "file": "00-highlights",
+      "title": "Highlights",
+      "view": "nthview-highlights",
+      "summary": "Nine cards on two teachers of freedom: what binds us, how each says to see through it, and where they meet and part.",
+      "role": "preview",
+      "minutes": 5
+    },
+    {
+      "file": "01-two-teachers-one-map",
+      "title": "Two Teachers, One Map",
+      "view": "nthview-concept-map",
+      "summary": "Tour the core ideas of both teachers and how they connect, then rebuild the map from memory.",
+      "role": "structure",
+      "minutes": 12,
+      "objectives": [
+        0,
+        1
+      ]
+    },
+    {
+      "file": "02-the-pathless-land-case",
+      "title": "The Pathless Land Case",
+      "view": "nthview-detective",
+      "summary": "Why did the young man raised to be a 'World Teacher' walk away in 1929? Crack the case and find what Krishnamurti taught instead.",
+      "role": "confront",
+      "minutes": 15,
+      "objectives": [
+        2
+      ]
+    },
+    {
+      "file": "03-zorba-the-buddha",
+      "title": "Zorba the Buddha",
+      "view": "nthview-scenario-quiz",
+      "summary": "Everyday situations seen through Osho's teaching: meditation, desire, love, religion and celebration.",
+      "role": "apply",
+      "minutes": 15,
+      "objectives": [
+        0,
+        1
+      ]
+    },
+    {
+      "file": "04-krishnamurti-or-osho",
+      "title": "Krishnamurti or Osho?",
+      "view": "nthview-scenario-quiz",
+      "summary": "Ten situations, two teachers: work out how each would respond, and why they differ.",
+      "role": "apply",
+      "minutes": 15,
+      "objectives": [
+        3
+      ]
+    },
+    {
+      "file": "05-islands-of-awareness",
+      "title": "Islands of Awareness",
+      "view": "nthview-island-quest",
+      "summary": "One island per big idea from both teachers, hands-on activities, then a final exam.",
+      "role": "consolidate",
+      "minutes": 20,
+      "objectives": [
+        0,
+        1,
+        2,
+        3
+      ]
+    }
+  ],
+  "level": "beginner",
+  "domain": "philosophy",
+  "tags": [
+    "krishnamurti",
+    "osho",
+    "meditation",
+    "awareness",
+    "freedom",
+    "spirituality"
+  ],
+  "objectives": [
+    "Explain what each teacher meant by freedom, conditioning, thought and awareness",
+    "Tell apart Krishnamurti's choiceless awareness from Osho's catharsis-then-witnessing",
+    "Describe the 1929 dissolution of the Order of the Star and what Krishnamurti taught instead",
+    "Predict how each teacher would respond to an everyday situation, and say where they agree and part"
+  ],
+  "glossary": [
+    {
+      "term": "Conditioning",
+      "definition": "The habits of thought and feeling a mind picks up from family, culture, religion and experience, which both teachers say stand between us and seeing clearly.",
+      "chapter": "01-two-teachers-one-map"
+    },
+    {
+      "term": "Choiceless awareness",
+      "definition": "Krishnamurti's term for watching what is happening, inside and out, without judging, choosing or trying to change it.",
+      "chapter": "01-two-teachers-one-map"
+    },
+    {
+      "term": "Psychological time",
+      "definition": "The sense of becoming something later; Krishnamurti held that it is the root of fear and conflict.",
+      "chapter": "01-two-teachers-one-map"
+    },
+    {
+      "term": "Dynamic Meditation",
+      "definition": "Osho's hour-long technique that moves from chaotic breathing and catharsis to stillness and celebration.",
+      "chapter": "03-zorba-the-buddha"
+    },
+    {
+      "term": "Witnessing",
+      "definition": "Osho's word for observing thoughts and emotions without becoming them; close to, but reached differently from, choiceless awareness.",
+      "chapter": "03-zorba-the-buddha"
+    },
+    {
+      "term": "Zorba the Buddha",
+      "definition": "Osho's image of a complete human being: worldly joy and inner silence in one person.",
+      "chapter": "03-zorba-the-buddha"
+    },
+    {
+      "term": "Order of the Star",
+      "definition": "The organisation built around Krishnamurti as the coming World Teacher, which he dissolved in 1929.",
+      "chapter": "02-the-pathless-land-case"
+    }
+  ],
+  "references": [
+    {
+      "title": "Krishnamurti Foundation Trust",
+      "url": "https://www.kfoundation.org/"
+    },
+    {
+      "title": "OSHO International",
+      "url": "https://www.osho.com/"
+    }
+  ],
+  "created": "2026-10-26",
+  "updated": "2026-10-30",
+  "estimatedMinutes": 82
 }

@@ -108,29 +108,36 @@ Minimal guidance only; each view's `SKILL.md` has the detail.
 | An overview before diving in, or a recap after | Concept Map | Explorable Lab |
 | A big system or codebase to understand top down, down to its files | Zoom Map | Concept Map |
 | Roles and parts that can be personified; relaxed, exploratory learning | Courier | Island Quest |
+| A preview of what a lesson or document covers, one idea per card | Highlights | Concept Map |
 | Fast-paced recall, a lesson that should feel like a game run, phones | Temple Run | Island Quest |
 | A protocol, handshake, workflow or any exchange between parties, step by step | Sequence | Zoom Map |
 
 Skill names: `nthview-concept-map`, `nthview-explorable`,
 `nthview-scenario-quiz`, `nthview-detective`, `nthview-island-quest`,
 `nthview-zoom-map`, `nthview-courier`, `nthview-temple-run`,
-`nthview-sequence`.
+`nthview-sequence`, `nthview-highlights`.
 
 Views that have a `strictMode` (Temple Run) keep it off by default; turn it
 on only when the user says quiz, test, exam, evaluate or grade.
 
 ### Shaping a lesson
-- 3–10 chapters, each with one learning objective and one view.
-- A pattern that works: open with structure or a hook (Concept Map or
-  Detective Case), build intuition (Explorable Lab), apply it (Scenario
-  Quiz), consolidate (Island Quest). Vary it to fit the content.
+- Chapter `00-highlights` first, always: a `nthview-highlights` deck that
+  previews every chapter in one card each, with a hook, a recap and a cta.
+- Then 5–7 chapters, each with one objective, one view and a `role` (see the
+  role table and the four templates in `references/lesson-format.md`):
+  structure, demonstrate, apply, confront, consolidate or assess.
+- Fill the metadata: `level`, `domain`, 3–6 `tags` (reuse existing ones),
+  `objectives` with verbs, `prerequisites`, a 5–15 term `glossary`, `created`
+  and `updated` dates, `minutes` per chapter.
 - Reuse the same cast, setting or example across chapters when the views
   allow it; the lesson reads as one story.
-- Chapter files are numbered `01-`, `02-`, … so the order is visible on disk.
+- Chapter files are numbered `00-`, `01-`, `02-`, … so the order is visible on disk.
 
 ## Common mistakes
 - Asking more than two questions → decide the rest yourself and state it.
 - Two views in one chapter → split into two chapters.
+- A lesson without `00-highlights`, tags, dates or objectives → the builder
+  rejects it; fill the metadata, it is what makes the lesson findable.
 - Building a lesson when the user asked for a doc, or the reverse.
 - Writing chapter JSON without reading that view's `SKILL.md` → the
   validator will reject it; read the skill first.
@@ -139,4 +146,4 @@ on only when the user says quiz, test, exam, evaluate or grade.
 
 ## Files
 - `references/lesson-format.md` — the `lesson.json` format, folder layout and build commands
-- `../nthview-concept-map/SKILL.md`, `../nthview-explorable/SKILL.md`, `../nthview-scenario-quiz/SKILL.md`, `../nthview-detective/SKILL.md`, `../nthview-island-quest/SKILL.md`, `../nthview-zoom-map/SKILL.md`, `../nthview-courier/SKILL.md`, `../nthview-temple-run/SKILL.md`, `../nthview-sequence/SKILL.md` — the view skills this one hands off to
+- `../nthview-concept-map/SKILL.md`, `../nthview-explorable/SKILL.md`, `../nthview-scenario-quiz/SKILL.md`, `../nthview-detective/SKILL.md`, `../nthview-island-quest/SKILL.md`, `../nthview-zoom-map/SKILL.md`, `../nthview-courier/SKILL.md`, `../nthview-temple-run/SKILL.md`, `../nthview-sequence/SKILL.md`, `../nthview-highlights/SKILL.md` — the view skills this one hands off to

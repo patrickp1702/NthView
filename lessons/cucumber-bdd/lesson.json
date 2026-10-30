@@ -1,13 +1,146 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "title": "Cucumber and BDD: Specs Everyone Can Read",
   "description": "What Behaviour-Driven Development is, how Cucumber turns plain-language Gherkin scenarios into automated tests, and how to keep a Cucumber suite readable, fast and trustworthy.",
   "audience": "Developers and testers new to BDD; examples use Java with Cucumber-JVM and JUnit 5.",
   "chapters": [
-    { "file": "01-how-cucumber-fits-together", "title": "How Cucumber Fits Together", "view": "nthview-concept-map", "summary": "From the BDD conversation to Gherkin, step definitions, the runner, hooks and reports, on one map you rebuild from memory." },
-    { "file": "02-writing-good-scenarios", "title": "Writing Good Scenarios", "view": "nthview-scenario-quiz", "summary": "Ten review decisions on real-looking scenarios: declarative steps, one behaviour each, Backgrounds, Outlines, tags and shared state." },
-    { "file": "03-why-our-bdd-failed", "title": "Why Our BDD Failed", "view": "nthview-detective", "summary": "A team adopted Cucumber and got slow, brittle tests nobody reads. Find out what really went wrong." },
-    { "file": "04-suite-maths", "title": "Suite Maths", "view": "nthview-explorable", "summary": "Play with flaky odds, retries, UI versus API steps, parallel runs and exploding Scenario Outlines." },
-    { "file": "05-cucumber-archipelago", "title": "Cucumber Archipelago", "view": "nthview-island-quest", "summary": "One island per big idea, hands-on activities, then a final exam." }
-  ]
+    {
+      "file": "00-highlights",
+      "title": "Highlights",
+      "view": "nthview-highlights",
+      "summary": "The whole lesson in nine cards: the BDD conversation, Gherkin, glue, what goes wrong and the maths of a suite.",
+      "role": "preview",
+      "minutes": 5
+    },
+    {
+      "file": "01-how-cucumber-fits-together",
+      "title": "How Cucumber Fits Together",
+      "view": "nthview-concept-map",
+      "summary": "From the BDD conversation to Gherkin, step definitions, the runner, hooks and reports, on one map you rebuild from memory.",
+      "role": "structure",
+      "minutes": 12,
+      "objectives": [
+        0
+      ]
+    },
+    {
+      "file": "02-writing-good-scenarios",
+      "title": "Writing Good Scenarios",
+      "view": "nthview-scenario-quiz",
+      "summary": "Ten review decisions on real-looking scenarios: declarative steps, one behaviour each, Backgrounds, Outlines, tags and shared state.",
+      "role": "apply",
+      "minutes": 15,
+      "objectives": [
+        1
+      ]
+    },
+    {
+      "file": "03-why-our-bdd-failed",
+      "title": "Why Our BDD Failed",
+      "view": "nthview-detective",
+      "summary": "A team adopted Cucumber and got slow, brittle tests nobody reads. Find out what really went wrong.",
+      "role": "confront",
+      "minutes": 15,
+      "objectives": [
+        2
+      ]
+    },
+    {
+      "file": "04-suite-maths",
+      "title": "Suite Maths",
+      "view": "nthview-explorable",
+      "summary": "Play with flaky odds, retries, UI versus API steps, parallel runs and exploding Scenario Outlines.",
+      "role": "demonstrate",
+      "minutes": 12,
+      "objectives": [
+        3
+      ]
+    },
+    {
+      "file": "05-cucumber-archipelago",
+      "title": "Cucumber Archipelago",
+      "view": "nthview-island-quest",
+      "summary": "One island per big idea, hands-on activities, then a final exam.",
+      "role": "consolidate",
+      "minutes": 20,
+      "objectives": [
+        0,
+        1,
+        2,
+        3
+      ]
+    }
+  ],
+  "level": "intermediate",
+  "domain": "software",
+  "tags": [
+    "bdd",
+    "cucumber",
+    "gherkin",
+    "testing",
+    "java",
+    "junit"
+  ],
+  "objectives": [
+    "Explain how a BDD conversation becomes a Gherkin scenario and then an automated test",
+    "Write declarative scenarios that test one behaviour each and read like documentation",
+    "Diagnose why a Cucumber suite became slow, brittle or ignored",
+    "Estimate how flakiness, retries and Scenario Outlines change a suite's run time and trust"
+  ],
+  "prerequisites": [
+    "Basic Java and JUnit",
+    "Some experience writing or reading automated tests"
+  ],
+  "glossary": [
+    {
+      "term": "BDD",
+      "definition": "Behaviour-Driven Development: agreeing on behaviour in concrete examples before writing code, then automating those examples.",
+      "chapter": "01-how-cucumber-fits-together"
+    },
+    {
+      "term": "Gherkin",
+      "definition": "The plain-language format of feature files: Feature, Scenario, Given, When, Then.",
+      "chapter": "01-how-cucumber-fits-together"
+    },
+    {
+      "term": "Step definition",
+      "definition": "The code that runs for one Given, When or Then line; the glue between the scenario and the system.",
+      "chapter": "01-how-cucumber-fits-together"
+    },
+    {
+      "term": "Three amigos",
+      "definition": "A product, development and test person working out examples together before anything is built.",
+      "chapter": "01-how-cucumber-fits-together"
+    },
+    {
+      "term": "Scenario Outline",
+      "definition": "One scenario template run once per row of an Examples table.",
+      "chapter": "02-writing-good-scenarios"
+    },
+    {
+      "term": "Hook",
+      "definition": "Code that runs before or after each scenario or step, for set-up and clean-up.",
+      "chapter": "01-how-cucumber-fits-together"
+    },
+    {
+      "term": "Flaky test",
+      "definition": "A test that passes and fails without any change to the code, usually from timing, shared state or external dependencies.",
+      "chapter": "04-suite-maths"
+    },
+    {
+      "term": "Living documentation",
+      "definition": "Feature files that stay true because the suite runs them; the spec and the tests are the same text.",
+      "chapter": "01-how-cucumber-fits-together"
+    }
+  ],
+  "references": [
+    {
+      "title": "Cucumber documentation",
+      "url": "https://cucumber.io/docs/",
+      "note": "Gherkin reference, Cucumber-JVM, best practices"
+    }
+  ],
+  "created": "2026-10-26",
+  "updated": "2026-10-30",
+  "estimatedMinutes": 79
 }

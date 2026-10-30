@@ -7,7 +7,7 @@ window.NthViewRegistry = {
       "title": "NthView",
       "kind": "skill",
       "hidden": true,
-      "skillMd": "\n# NthView — the parent skill\n\n## Overview\nNthView has several views, each a separate skill that turns content into one\nstandalone HTML file. This skill is the front door: it works out whether the\nuser wants one document or a lesson of several chapters, recommends the view\nthat fits each piece of content, asks at most two questions, and then follows\nthe chosen view skills to build the files. The detailed instructions for each\nview live in that view's own `SKILL.md`; this file only carries the knowledge\nneeded to choose well and to assemble a lesson.\n\n## When to use\n- The user asks to learn, understand, explain or teach a topic, paper or\n  document and has not named a view\n- The user asks for a lesson, course, series, chapters or \"a full treatment\"\n- The user names a view but the content plainly suits another, so a\n  recommendation is worth one sentence before proceeding\n\nDo not use when:\n- The user names a view and just wants that one document: load that view's\n  skill directly\n\n## Procedure\n\n### 1. Understand the content\nRead what the user wants to learn. Note its size (one idea or many), its\nshape (facts, a process, a system of causes, judgement calls, numbers that\ncompare), and the audience (child, layperson, practitioner).\n\n### 2. Prepare the JSON\nFirst settle the format, then the view. Ask only what the user has not said.\n- **Document or lesson?** One idea, or the user said \"a doc\" or \"a page\": one\n  document. Several ideas that build on each other, or the user said lesson,\n  course, chapters: a lesson of 3–10 chapters.\n- **Which view?** Recommend from the table below and say why in one line.\n  For a lesson, also ask: the same view for every chapter, or the best view\n  per chapter (recommended). Offer the recommended plan as a list of chapter\n  titles with a view each, and let the user adjust.\n- Then follow the chosen view's `SKILL.md` for each document or chapter:\n  it defines the JSON format, validation and content guidance. One chapter\n  is exactly one view; a second angle on the same idea is another chapter.\n\n### 3. Validate\nEach view's validator checks its own JSON:\n\n    node ${CLAUDE_SKILL_DIR}/../<view>/scripts/validate.js <path-to-json>\n\nFor a lesson, also keep `lesson.json` valid (see `references/lesson-format.md`).\n\nWithout `node`, try `bun` or `deno run -A`. With no JavaScript runtime at\nall, each view's `SKILL.md` says how to check the JSON by hand against its\n`references/schema.md`; the lesson manifest is checked against the table in\n`references/lesson-format.md`.\n\n### 4. Build the HTML file\n- **Document:** build with the view's tool, JSON next to HTML:\n\n      node ${CLAUDE_SKILL_DIR}/../../scripts/build-html.js ${CLAUDE_SKILL_DIR}/../<view> <out-dir>/<slug>.json <out-dir>/<slug>.html\n\n  `<out-dir>` is `docs/` inside the NthView repository. Anywhere else it is\n  the current folder or where the user asks; never a `docs/` folder created\n  for the purpose, since the project may keep its own documentation there.\n\n- **Lesson:** create `lessons/<lesson-slug>/lesson.json` (inside the NthView\n  repository; elsewhere `<lesson-slug>/lesson.json` in the current folder) and one\n  `chapters/NN-<slug>.json` per chapter, then build everything, including the\n  contents page and the previous/next bar on every chapter:\n\n      node ${CLAUDE_SKILL_DIR}/../../scripts/build-lesson.js <path-to-lesson-folder>\n\nInside this repository both also register the result in the gallery\n(`index.html`). Used as an installed plugin from another project, the files\nare simply written where you point them; there is no gallery to update and\nthe lesson tool skips that step on its own.\n`${CLAUDE_SKILL_DIR}` is the folder of the skill being followed; Claude Code\nfills it in, other agents replace it with that path.\n\nWith no JavaScript runtime, build a document by hand as its view's\n`SKILL.md` step 4 describes. For a lesson, read `scripts/build-lesson.js`\nand reproduce exactly what it writes: each chapter page assembled as\n`build-html.js` does, the lesson bar block from `lessonBar()` appended\nverbatim with that chapter's links filled in, and the contents page. Tell\nthe user it was built by hand; a script run is faster and surer.\n\n### 5. Deliver\nHand over the file (or the lesson's `index.html`) and say which views were\nused. Build only what was asked for.\n\n## Content guidance\n\n### Which view for which use case\nMinimal guidance only; each view's `SKILL.md` has the detail.\n\n| Use case | Prefer | Also works |\n| :- | :- | :- |\n| A system of causes and effects, \"how it all fits together\" | Concept Map | Explorable Lab |\n| Something with numbers or a model worth playing with | Explorable Lab | Island Quest |\n| Judgement calls, rules, ethics, \"what would you do\" | Scenario Quiz | Detective Case |\n| A puzzle with misconceptions to rule out, a story with a reveal | Detective Case | Scenario Quiz |\n| A paper or article with 5–7 separable findings | Island Quest | Concept Map |\n| Beginners, children, anyone asking for a game | Island Quest | Detective Case |\n| Consolidating several ideas at the end of a lesson | Island Quest | Scenario Quiz |\n| An overview before diving in, or a recap after | Concept Map | Explorable Lab |\n| A big system or codebase to understand top down, down to its files | Zoom Map | Concept Map |\n| Roles and parts that can be personified; relaxed, exploratory learning | Courier | Island Quest |\n| Fast-paced recall, a lesson that should feel like a game run, phones | Temple Run | Island Quest |\n| A protocol, handshake, workflow or any exchange between parties, step by step | Sequence | Zoom Map |\n\nSkill names: `nthview-concept-map`, `nthview-explorable`,\n`nthview-scenario-quiz`, `nthview-detective`, `nthview-island-quest`,\n`nthview-zoom-map`, `nthview-courier`, `nthview-temple-run`,\n`nthview-sequence`.\n\nViews that have a `strictMode` (Temple Run) keep it off by default; turn it\non only when the user says quiz, test, exam, evaluate or grade.\n\n### Shaping a lesson\n- 3–10 chapters, each with one learning objective and one view.\n- A pattern that works: open with structure or a hook (Concept Map or\n  Detective Case), build intuition (Explorable Lab), apply it (Scenario\n  Quiz), consolidate (Island Quest). Vary it to fit the content.\n- Reuse the same cast, setting or example across chapters when the views\n  allow it; the lesson reads as one story.\n- Chapter files are numbered `01-`, `02-`, … so the order is visible on disk.\n\n## Common mistakes\n- Asking more than two questions → decide the rest yourself and state it.\n- Two views in one chapter → split into two chapters.\n- Building a lesson when the user asked for a doc, or the reverse.\n- Writing chapter JSON without reading that view's `SKILL.md` → the\n  validator will reject it; read the skill first.\n- Forgetting to run the build tool → the gallery and the lesson bar come\n  from it, not from hand-written HTML.\n\n## Files\n- `references/lesson-format.md` — the `lesson.json` format, folder layout and build commands\n- `../nthview-concept-map/SKILL.md`, `../nthview-explorable/SKILL.md`, `../nthview-scenario-quiz/SKILL.md`, `../nthview-detective/SKILL.md`, `../nthview-island-quest/SKILL.md`, `../nthview-zoom-map/SKILL.md`, `../nthview-courier/SKILL.md`, `../nthview-temple-run/SKILL.md`, `../nthview-sequence/SKILL.md` — the view skills this one hands off to\n",
+      "skillMd": "\n# NthView — the parent skill\n\n## Overview\nNthView has several views, each a separate skill that turns content into one\nstandalone HTML file. This skill is the front door: it works out whether the\nuser wants one document or a lesson of several chapters, recommends the view\nthat fits each piece of content, asks at most two questions, and then follows\nthe chosen view skills to build the files. The detailed instructions for each\nview live in that view's own `SKILL.md`; this file only carries the knowledge\nneeded to choose well and to assemble a lesson.\n\n## When to use\n- The user asks to learn, understand, explain or teach a topic, paper or\n  document and has not named a view\n- The user asks for a lesson, course, series, chapters or \"a full treatment\"\n- The user names a view but the content plainly suits another, so a\n  recommendation is worth one sentence before proceeding\n\nDo not use when:\n- The user names a view and just wants that one document: load that view's\n  skill directly\n\n## Procedure\n\n### 1. Understand the content\nRead what the user wants to learn. Note its size (one idea or many), its\nshape (facts, a process, a system of causes, judgement calls, numbers that\ncompare), and the audience (child, layperson, practitioner).\n\n### 2. Prepare the JSON\nFirst settle the format, then the view. Ask only what the user has not said.\n- **Document or lesson?** One idea, or the user said \"a doc\" or \"a page\": one\n  document. Several ideas that build on each other, or the user said lesson,\n  course, chapters: a lesson of 3–10 chapters.\n- **Which view?** Recommend from the table below and say why in one line.\n  For a lesson, also ask: the same view for every chapter, or the best view\n  per chapter (recommended). Offer the recommended plan as a list of chapter\n  titles with a view each, and let the user adjust.\n- Then follow the chosen view's `SKILL.md` for each document or chapter:\n  it defines the JSON format, validation and content guidance. One chapter\n  is exactly one view; a second angle on the same idea is another chapter.\n\n### 3. Validate\nEach view's validator checks its own JSON:\n\n    node ${CLAUDE_SKILL_DIR}/../<view>/scripts/validate.js <path-to-json>\n\nFor a lesson, also keep `lesson.json` valid (see `references/lesson-format.md`).\n\nWithout `node`, try `bun` or `deno run -A`. With no JavaScript runtime at\nall, each view's `SKILL.md` says how to check the JSON by hand against its\n`references/schema.md`; the lesson manifest is checked against the table in\n`references/lesson-format.md`.\n\n### 4. Build the HTML file\n- **Document:** build with the view's tool, JSON next to HTML:\n\n      node ${CLAUDE_SKILL_DIR}/../../scripts/build-html.js ${CLAUDE_SKILL_DIR}/../<view> <out-dir>/<slug>.json <out-dir>/<slug>.html\n\n  `<out-dir>` is `docs/` inside the NthView repository. Anywhere else it is\n  the current folder or where the user asks; never a `docs/` folder created\n  for the purpose, since the project may keep its own documentation there.\n\n- **Lesson:** create `lessons/<lesson-slug>/lesson.json` (inside the NthView\n  repository; elsewhere `<lesson-slug>/lesson.json` in the current folder) and one\n  `chapters/NN-<slug>.json` per chapter, then build everything, including the\n  contents page and the previous/next bar on every chapter:\n\n      node ${CLAUDE_SKILL_DIR}/../../scripts/build-lesson.js <path-to-lesson-folder>\n\nInside this repository both also register the result in the gallery\n(`index.html`). Used as an installed plugin from another project, the files\nare simply written where you point them; there is no gallery to update and\nthe lesson tool skips that step on its own.\n`${CLAUDE_SKILL_DIR}` is the folder of the skill being followed; Claude Code\nfills it in, other agents replace it with that path.\n\nWith no JavaScript runtime, build a document by hand as its view's\n`SKILL.md` step 4 describes. For a lesson, read `scripts/build-lesson.js`\nand reproduce exactly what it writes: each chapter page assembled as\n`build-html.js` does, the lesson bar block from `lessonBar()` appended\nverbatim with that chapter's links filled in, and the contents page. Tell\nthe user it was built by hand; a script run is faster and surer.\n\n### 5. Deliver\nHand over the file (or the lesson's `index.html`) and say which views were\nused. Build only what was asked for.\n\n## Content guidance\n\n### Which view for which use case\nMinimal guidance only; each view's `SKILL.md` has the detail.\n\n| Use case | Prefer | Also works |\n| :- | :- | :- |\n| A system of causes and effects, \"how it all fits together\" | Concept Map | Explorable Lab |\n| Something with numbers or a model worth playing with | Explorable Lab | Island Quest |\n| Judgement calls, rules, ethics, \"what would you do\" | Scenario Quiz | Detective Case |\n| A puzzle with misconceptions to rule out, a story with a reveal | Detective Case | Scenario Quiz |\n| A paper or article with 5–7 separable findings | Island Quest | Concept Map |\n| Beginners, children, anyone asking for a game | Island Quest | Detective Case |\n| Consolidating several ideas at the end of a lesson | Island Quest | Scenario Quiz |\n| An overview before diving in, or a recap after | Concept Map | Explorable Lab |\n| A big system or codebase to understand top down, down to its files | Zoom Map | Concept Map |\n| Roles and parts that can be personified; relaxed, exploratory learning | Courier | Island Quest |\n| A preview of what a lesson or document covers, one idea per card | Highlights | Concept Map |\n| Fast-paced recall, a lesson that should feel like a game run, phones | Temple Run | Island Quest |\n| A protocol, handshake, workflow or any exchange between parties, step by step | Sequence | Zoom Map |\n\nSkill names: `nthview-concept-map`, `nthview-explorable`,\n`nthview-scenario-quiz`, `nthview-detective`, `nthview-island-quest`,\n`nthview-zoom-map`, `nthview-courier`, `nthview-temple-run`,\n`nthview-sequence`, `nthview-highlights`.\n\nViews that have a `strictMode` (Temple Run) keep it off by default; turn it\non only when the user says quiz, test, exam, evaluate or grade.\n\n### Shaping a lesson\n- Chapter `00-highlights` first, always: a `nthview-highlights` deck that\n  previews every chapter in one card each, with a hook, a recap and a cta.\n- Then 5–7 chapters, each with one objective, one view and a `role` (see the\n  role table and the four templates in `references/lesson-format.md`):\n  structure, demonstrate, apply, confront, consolidate or assess.\n- Fill the metadata: `level`, `domain`, 3–6 `tags` (reuse existing ones),\n  `objectives` with verbs, `prerequisites`, a 5–15 term `glossary`, `created`\n  and `updated` dates, `minutes` per chapter.\n- Reuse the same cast, setting or example across chapters when the views\n  allow it; the lesson reads as one story.\n- Chapter files are numbered `00-`, `01-`, `02-`, … so the order is visible on disk.\n\n## Common mistakes\n- Asking more than two questions → decide the rest yourself and state it.\n- Two views in one chapter → split into two chapters.\n- A lesson without `00-highlights`, tags, dates or objectives → the builder\n  rejects it; fill the metadata, it is what makes the lesson findable.\n- Building a lesson when the user asked for a doc, or the reverse.\n- Writing chapter JSON without reading that view's `SKILL.md` → the\n  validator will reject it; read the skill first.\n- Forgetting to run the build tool → the gallery and the lesson bar come\n  from it, not from hand-written HTML.\n\n## Files\n- `references/lesson-format.md` — the `lesson.json` format, folder layout and build commands\n- `../nthview-concept-map/SKILL.md`, `../nthview-explorable/SKILL.md`, `../nthview-scenario-quiz/SKILL.md`, `../nthview-detective/SKILL.md`, `../nthview-island-quest/SKILL.md`, `../nthview-zoom-map/SKILL.md`, `../nthview-courier/SKILL.md`, `../nthview-temple-run/SKILL.md`, `../nthview-sequence/SKILL.md`, `../nthview-highlights/SKILL.md` — the view skills this one hands off to\n",
       "schemaMd": null,
       "description": "Entry point for NthView. Turns any concept, paper, article or document into one learning view (a single HTML document) or a multi-chapter lesson that mixes views, recommending the view that suits each use case and handing the work to the nthview-<view> skills. Use when the user wants to learn, understand or teach something with NthView, asks for a lesson, course, series or chapters, or has not said which view they want.",
       "path": "skills/nthview",
@@ -66,6 +66,19 @@ window.NthViewRegistry = {
       "skill": "skills/nthview-explorable/SKILL.md",
       "schema": "skills/nthview-explorable/references/schema.md",
       "demo": "skills/nthview-explorable/examples/example.html"
+    },
+    {
+      "name": "nthview-highlights",
+      "title": "Highlights",
+      "kind": "view",
+      "hidden": false,
+      "skillMd": "\n# NthView — Highlights\n\n## Overview\nThe learner sees one portrait card at a time, like a carousel post: a hook on the cover, then one card per thing the lesson or document covers, a recap checklist that ticks off what they have read, and a last card that sends them on. A grid button shows every card at once. It is an advance organiser: it tells the learner what is coming and why it matters, so the detailed chapters land on prepared ground. Progress is saved in the browser; Restart clears it.\n\n## When to use\n- The first chapter of every lesson: the overview of all chapters\n- A preview of a long document, paper or course before the learner commits\n- A recap that lists what was covered, for the end of a lesson\n- Anything that is a list of ideas worth one line each\n\nDo not use when:\n- The content must be explained, practised or tested: use the view that fits the shape (Concept Map, Explorable Lab, Scenario Quiz, Island Quest, …)\n- There is only one idea: a Highlights with three cards is thin; write it into the chapter instead\n\n## Procedure\n\n### 1. Understand the content\nList what the lesson or document will cover, one line each, in the order the learner will meet it. For a lesson that is the chapter list with each chapter's single learning objective. Note one striking number, one quotable sentence and the reason a learner should care.\n\n### 2. Prepare the JSON\nFollow `references/schema.md` exactly. Set `\"schemaVersion\": 1`.\n- Open with a `cover` card: the hook, why this matters, in one headline and one sentence.\n- One `topic`, `list`, `number` or `quote` card per thing covered. Use the chapter name as the `kicker`. Vary the kinds; two `number` cards in a row read as a spreadsheet.\n- Close with a `recap` card, then a `cta` card whose `href` opens the first chapter (`01-….html` from inside a lesson's `chapters/` folder, or the document itself).\n- `theme`: dark (`midnight`, `ocean`, `forest`, `berry`) for evening topics and technology, light (`sunrise`, `paper`) for health, children and warm subjects. Match the lesson's tone.\n- `tags`: the lesson's tags, lowercase kebab-case.\n- Keep every card readable on a phone: headline under 60 characters where you can, body under 200, at most 4 points.\n\n### 3. Validate\nWrite the JSON to a file and run:\n\n    node ${CLAUDE_SKILL_DIR}/scripts/validate.js <path-to-json>\n\nFix every error and re-run until it prints `valid`. Address warnings where\nreasonable: a missing cover or recap usually means the preview has no hook or\nno close.\n\nIf `node` is not installed, try `bun` or `deno run -A` with the same\nscript; both run it unchanged. If no JavaScript runtime exists, do the\nvalidator's job yourself: check the JSON against every table, cross-field\nrule and warning in `references/schema.md`, which is exactly what\n`scripts/validate.js` implements, and fix what you find. Say that the check\nwas done by hand; the file also validates itself when opened and shows an\nerror panel if anything was missed.\n\n### 4. Build the HTML file\nProduce one standalone file using the template in AGENTS.md §6. The\nrepository tool does this exactly, including the Google Fonts tag declared\nin `NthView.libs`:\n\n    node ${CLAUDE_SKILL_DIR}/../../scripts/build-html.js ${CLAUDE_SKILL_DIR} <path-to-json> <out-dir>/<concept-slug>-highlights.html\n\nIf building by hand:\n- the JSON in `<script type=\"application/json\" id=\"nthview-data\">`, with\n  every `<` in the serialised JSON replaced by the six characters `\\u003c`,\n- the one `<link rel=\"stylesheet\">` tag from `NthView.libs` before the scripts,\n- the full contents of `scripts/validate.js`, then `assets/view.js`, inlined,\n- the bootstrap script that calls `NthView.build(document.getElementById(\"app\"), data)`.\nName the file `<concept-slug>-highlights.html`.\n\nWhere the files go: inside the NthView repository, `docs/` for a document\n(JSON next to HTML) and `lessons/<lesson>/chapters/` for a lesson chapter built\nby `scripts/build-lesson.js`. Anywhere else, such as a project using NthView\nas a plugin, write to the current folder or where the user asks; do not create\nor reuse a `docs/` folder there, it may hold the project's own documentation.\nNever write inside `skills/`.\n\nThe hand build is the fallback when no JavaScript runtime is available; the\ntool does nothing beyond that template, so the result is identical.\n\n### 5. Deliver\nHand the user the single file. Build no other view unless asked. Inside a lesson the file is chapter `01-highlights` and the lesson builder adds the navigation bar.\n\n## Content guidance\n- 6–10 cards. Fewer than 5 is thin; more than 12 stops being a preview.\n- One idea per card. If a card needs a second paragraph, it is two cards or it belongs in the chapter.\n- Headlines are claims, not labels: \"A vaccine is a rehearsal\" beats \"Introduction\".\n- The cover answers \"why should I care\" in one breath. The cta answers \"what do I do now\".\n- Use one `number` card and one `quote` card at most; they are seasoning.\n- Every card may carry `href` to the chapter it previews; the \"Open\" button then lets a learner jump straight in.\n- Hashtags are the lesson's tags; do not invent new ones per card unless the card introduces a term.\n- Text only. No emoji strings standing in for images; the gradient and shapes are the visual.\n\n## Common mistakes\n- Teaching inside the preview → one line per topic; the detail belongs to the chapter.\n- Cover card that names the subject but gives no reason to care → lead with the surprising or useful claim.\n- Every card the same kind → mix `topic`, `list`, `number`, `quote`.\n- Points longer than a line each → shorten, or move to body.\n- Forgetting the `cta` href → the learner reaches the end with nowhere to go.\n- Kicker repeating the headline → kicker is the chapter name or a label, headline is the idea.\n\n## Files\n- `references/schema.md` — the JSON format (single source of truth)\n- `scripts/validate.js` — `NthView.validate(data)`, Node CLI and browser\n- `assets/view.js` — `NthView.build(container, data)`\n- `examples/example.html` — a working standalone sample\n",
+      "schemaMd": "# Highlights data schema — schemaVersion 1\n\n## Overview\nA short stack of text-only cards, in the rhythm of an educational social-media carousel, that previews everything a lesson or document is going to cover without teaching it in detail. One idea per card, a hook first, a recap and a call to action last.\n\n## External libraries\nThe renderer loads two Google Fonts (Fraunces for headlines, Inter for text) from `fonts.googleapis.com`. The page falls back to system fonts when offline.\n\n## Root object\n\n| Field | Type | Required | Constraints | Description |\n| :- | :- | :- | :- | :- |\n| `schemaVersion` | integer | yes | must be `1` | Format version |\n| `title` | string | yes | 1–120 chars | Name shown in the post header and used for the avatar initials |\n| `subtitle` | string | no | ≤200 chars | One sentence shown as the post caption under the cards |\n| `kicker` | string | no | ≤60 chars | Small line under the title in the header, e.g. \"Lesson · 5 chapters · 45 min\"; default \"Highlights · N cards\" |\n| `theme` | string | no | one of `midnight`, `sunrise`, `ocean`, `forest`, `berry`, `paper`; default `midnight` | Page and card palette. `midnight`, `ocean`, `forest`, `berry` are dark; `sunrise`, `paper` are light. Every card gradient stays on one brightness side |\n| `tags` | string[] | no | 0–10 items, each 1–30 chars, lowercase kebab-case | Shown as hashtags in the caption and on the cover card when it has no tags of its own |\n| `cards` | array | yes | 3–24 Card objects | In reading order |\n\n## Card object\n\n| Field | Type | Required | Constraints | Description |\n| :- | :- | :- | :- | :- |\n| `id` | string | yes | 1–40 chars, lowercase kebab-case, unique | Stable key for read-state |\n| `kind` | string | no | one of `cover`, `topic`, `list`, `quote`, `number`, `recap`, `cta`; default `topic` | Layout of the card (see Kinds) |\n| `kicker` | string | no | ≤40 chars | Small uppercase line above the headline, e.g. the chapter name |\n| `headline` | string | yes | 1–90 chars | The one idea of the card. For `quote` and `number` it is read by screen readers only |\n| `body` | string | no | ≤320 chars | One short paragraph |\n| `points` | string[] | no | 0–6 items, each ≤90 chars | Numbered points; required (≥2) for `list` |\n| `quote` | object | conditional | `text` 1–200, `by` ≤60 | Required for `quote` |\n| `number` | object | conditional | `value` 1–12 chars, `label` 1–80 | Required for `number`; `value` is shown huge, e.g. \"14\", \"3×\", \"1 in 5\" |\n| `tags` | string[] | no | 0–6 items, each ≤24 chars, kebab-case | Hashtags at the card's foot |\n| `accent` | string | no | one of `violet`, `coral`, `teal`, `amber`, `blue`, `rose`, `lime`, `slate` | Card gradient; default rotates through the list by position |\n| `href` | string | no | ≤200 chars, not `javascript:` | A page to open: a chapter, a doc, a source. Shown as an \"Open\" button; required for `cta` |\n| `cta` | string | no | ≤40 chars, needs `href` | Button label on the card, e.g. \"Start chapter 1\" |\n\n## Kinds\n\n| Kind | Shows | Use for |\n| :- | :- | :- |\n| `cover` | Headline large, body, tags | The hook: what this is and why it matters. First card |\n| `topic` | Kicker, headline, body, optional points | One thing the lesson will cover |\n| `list` | Headline, 2–6 big numbered points | Several things in one breath: the chapters, the steps, the parts |\n| `quote` | A quotation and who said it | A line worth remembering, or the one-sentence version of the idea |\n| `number` | One huge figure and its label | A number that makes the point |\n| `recap` | Headline and a checklist of every topic card, ticked once read | Second to last |\n| `cta` | Headline, body, one button | Last: where to go next |\n\n## Cross-field rules\n- `cards[i].id` values are unique.\n- A `list` card has at least 2 `points`; a `quote` card has `quote`; a `number` card has `number`; a `cta` card has `href`; `cta` (the label) needs `href` on the same card.\n\n## Warnings (non-blocking)\n- No `cover` card, or the cover is not first.\n- No `recap` or `cta` card at the end.\n- Fewer than 5 cards.\n- A `topic` card with neither `body` nor `points`.\n- A card with `body` and more than 3 `points` (may overflow on a phone).\n\n## Complete example\n```json\n{\n  \"schemaVersion\": 1,\n  \"title\": \"How Vaccines Train Your Immune System\",\n  \"subtitle\": \"Eight cards on what a vaccine actually does inside you, before the full lesson.\",\n  \"kicker\": \"Lesson preview · 5 chapters · about 40 min\",\n  \"theme\": \"midnight\",\n  \"tags\": [\"immunology\", \"vaccines\", \"health\", \"biology\"],\n  \"cards\": [\n    {\n      \"id\": \"cover\",\n      \"kind\": \"cover\",\n      \"headline\": \"A vaccine is a rehearsal, not the real show.\",\n      \"body\": \"It lets your immune system practise against a harmless stand-in, so the real pathogen meets a trained defence.\",\n      \"accent\": \"violet\"\n    },\n    {\n      \"id\": \"memory\",\n      \"kind\": \"number\",\n      \"kicker\": \"Chapter 1 · The problem\",\n      \"headline\": \"Memory is the whole point\",\n      \"number\": { \"value\": \"7–10\", \"label\": \"days for a first-time immune response to peak\" },\n      \"body\": \"Too slow for many infections. Memory cells cut that to hours.\",\n      \"accent\": \"coral\"\n    },\n    {\n      \"id\": \"antigen\",\n      \"kind\": \"topic\",\n      \"kicker\": \"Chapter 2 · The stand-in\",\n      \"headline\": \"Every vaccine shows your body an antigen\",\n      \"body\": \"A piece, a weakened form, or instructions to make a piece of the pathogen. Enough to recognise, never enough to cause the disease.\",\n      \"tags\": [\"antigen\", \"mrna\", \"inactivated\"],\n      \"accent\": \"teal\"\n    },\n    {\n      \"id\": \"players\",\n      \"kind\": \"list\",\n      \"kicker\": \"Chapter 3 · The team\",\n      \"headline\": \"Four players you will meet\",\n      \"points\": [\"Dendritic cells carry the antigen to the lymph node\", \"Helper T cells raise the alarm\", \"B cells make antibodies that fit\", \"Memory cells remember for years\"],\n      \"accent\": \"amber\"\n    },\n    {\n      \"id\": \"quote\",\n      \"kind\": \"quote\",\n      \"kicker\": \"Chapter 4 · Herd immunity\",\n      \"headline\": \"Why your shot protects other people\",\n      \"quote\": { \"text\": \"Immunity is a wall. Every vaccinated person is a brick the virus cannot pass through.\", \"by\": \"the lesson, chapter 4\" },\n      \"accent\": \"blue\"\n    },\n    {\n      \"id\": \"safety\",\n      \"kind\": \"topic\",\n      \"kicker\": \"Chapter 5 · Safety and side effects\",\n      \"headline\": \"A sore arm is the training in progress\",\n      \"body\": \"Fever, tiredness and swelling are the immune response itself. The lesson explains what is normal, what is rare, and how trials and monitoring work.\",\n      \"points\": [\"Common: 1–2 days of soreness or tiredness\", \"Rare: allergic reactions, watched for 15 minutes\", \"Monitored: safety reporting continues after approval\"],\n      \"accent\": \"rose\"\n    },\n    {\n      \"id\": \"recap\",\n      \"kind\": \"recap\",\n      \"headline\": \"What this lesson covers\",\n      \"body\": \"Tap any line to jump back to its card.\",\n      \"accent\": \"lime\"\n    },\n    {\n      \"id\": \"start\",\n      \"kind\": \"cta\",\n      \"headline\": \"Ready to start?\",\n      \"body\": \"Chapter 1 opens with the problem a vaccine solves: why a first infection is so slow to fight.\",\n      \"href\": \"https://www.who.int/news-room/questions-and-answers/item/vaccines-and-immunization-how-do-vaccines-work\",\n      \"cta\": \"Read how vaccines work\",\n      \"accent\": \"slate\"\n    }\n  ]\n}\n```\n",
+      "description": "Produces a swipeable stack of text-only cards, in the feel of an educational social-media carousel, that previews everything a lesson or document will cover, one idea per card, with a recap and a call to action. Use when the user asks for highlights, an overview, a preview, a syllabus card, a \"what you will learn\", a teaser, or when building the first chapter of a lesson; not for teaching the detail itself, which belongs to the other views.",
+      "path": "skills/nthview-highlights",
+      "skill": "skills/nthview-highlights/SKILL.md",
+      "schema": "skills/nthview-highlights/references/schema.md",
+      "demo": "skills/nthview-highlights/examples/example.html"
     },
     {
       "name": "nthview-island-quest",
@@ -201,37 +214,71 @@ window.NthViewRegistry = {
       "title": "ARTEX Explained: An AI Team That Pentests on Its Own",
       "description": "What ARTEX is, what makes it different from a scanner or a single chatbot, and how its team of AI agents plans, works, remembers and finishes a security test with little human help.",
       "audience": "Anyone curious how an autonomous multi-agent AI system works, no code reading needed.",
-      "chapters": 4,
+      "chapters": 5,
       "views": [
+        "nthview-highlights",
         "nthview-concept-map",
         "nthview-scenario-quiz",
         "nthview-detective",
         "nthview-island-quest"
       ],
       "path": "lessons/artex-global-explained/index.html",
-      "next": null
+      "next": null,
+      "domain": "security",
+      "level": "intermediate",
+      "tags": [
+        "ai-agents",
+        "penetration-testing",
+        "multi-agent",
+        "llm",
+        "cybersecurity",
+        "autonomy"
+      ],
+      "minutes": 67,
+      "created": "2026-10-26",
+      "updated": "2026-10-30",
+      "objectives": 4,
+      "glossary": 8,
+      "highlights": "lessons/artex-global-explained/chapters/00-highlights.html"
     },
     {
       "slug": "compliance-for-everyone",
       "title": "Compliance for Everyone",
       "description": "What compliance really means, why the rules exist, and how they are used day to day, told three ways: crack a case, make the calls yourself, then play it through.",
       "audience": "Anyone starting a job where rules matter, no legal background needed.",
-      "chapters": 3,
+      "chapters": 4,
       "views": [
+        "nthview-highlights",
         "nthview-detective",
         "nthview-scenario-quiz",
         "nthview-island-quest"
       ],
       "path": "lessons/compliance-for-everyone/index.html",
-      "next": null
+      "next": null,
+      "domain": "business",
+      "level": "beginner",
+      "tags": [
+        "compliance",
+        "workplace",
+        "food-safety",
+        "data-protection",
+        "ethics"
+      ],
+      "minutes": 55,
+      "created": "2026-10-22",
+      "updated": "2026-10-30",
+      "objectives": 4,
+      "glossary": 7,
+      "highlights": "lessons/compliance-for-everyone/chapters/00-highlights.html"
     },
     {
       "slug": "cucumber-bdd",
       "title": "Cucumber and BDD: Specs Everyone Can Read",
       "description": "What Behaviour-Driven Development is, how Cucumber turns plain-language Gherkin scenarios into automated tests, and how to keep a Cucumber suite readable, fast and trustworthy.",
       "audience": "Developers and testers new to BDD; examples use Java with Cucumber-JVM and JUnit 5.",
-      "chapters": 5,
+      "chapters": 6,
       "views": [
+        "nthview-highlights",
         "nthview-concept-map",
         "nthview-scenario-quiz",
         "nthview-detective",
@@ -239,15 +286,32 @@ window.NthViewRegistry = {
         "nthview-island-quest"
       ],
       "path": "lessons/cucumber-bdd/index.html",
-      "next": null
+      "next": null,
+      "domain": "software",
+      "level": "intermediate",
+      "tags": [
+        "bdd",
+        "cucumber",
+        "gherkin",
+        "testing",
+        "java",
+        "junit"
+      ],
+      "minutes": 79,
+      "created": "2026-10-26",
+      "updated": "2026-10-30",
+      "objectives": 4,
+      "glossary": 8,
+      "highlights": "lessons/cucumber-bdd/chapters/00-highlights.html"
     },
     {
       "slug": "incident-response-it-ot",
       "title": "Incident Response in IT and OT",
       "description": "How enterprises detect, contain, recover from and report cybersecurity incidents, and why the playbook changes when the systems run factories, pipelines and power grids.",
       "audience": "Developers, IT staff and managers who want an enterprise-level picture of incident response; no security background needed.",
-      "chapters": 5,
+      "chapters": 6,
       "views": [
+        "nthview-highlights",
         "nthview-concept-map",
         "nthview-scenario-quiz",
         "nthview-detective",
@@ -255,22 +319,55 @@ window.NthViewRegistry = {
         "nthview-island-quest"
       ],
       "path": "lessons/incident-response-it-ot/index.html",
-      "next": null
+      "next": null,
+      "domain": "security",
+      "level": "intermediate",
+      "tags": [
+        "incident-response",
+        "cybersecurity",
+        "ot",
+        "ics",
+        "ransomware",
+        "enterprise"
+      ],
+      "minutes": 82,
+      "created": "2026-10-26",
+      "updated": "2026-10-30",
+      "objectives": 4,
+      "glossary": 8,
+      "highlights": "lessons/incident-response-it-ot/chapters/00-highlights.html"
     },
     {
       "slug": "krishnamurti-and-osho",
       "title": "Krishnamurti and Osho: Two Teachers of Freedom",
       "description": "What J. Krishnamurti and Osho taught about freedom, awareness, thought, love and meditation, where their teachings meet, and where they sharply part.",
       "audience": "Curious beginners. No background in philosophy or spirituality needed.",
-      "chapters": 5,
+      "chapters": 6,
       "views": [
+        "nthview-highlights",
         "nthview-concept-map",
         "nthview-detective",
         "nthview-scenario-quiz",
         "nthview-island-quest"
       ],
       "path": "lessons/krishnamurti-and-osho/index.html",
-      "next": null
+      "next": null,
+      "domain": "philosophy",
+      "level": "beginner",
+      "tags": [
+        "krishnamurti",
+        "osho",
+        "meditation",
+        "awareness",
+        "freedom",
+        "spirituality"
+      ],
+      "minutes": 82,
+      "created": "2026-10-26",
+      "updated": "2026-10-30",
+      "objectives": 4,
+      "glossary": 7,
+      "highlights": "lessons/krishnamurti-and-osho/chapters/00-highlights.html"
     }
   ]
 };

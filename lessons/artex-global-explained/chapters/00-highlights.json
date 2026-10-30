@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "title": "ARTEX Explained",
+  "subtitle": "Eight cards on an AI team that pentests on its own, before the full lesson.",
+  "kicker": "Lesson preview · 5 chapters · about 65 min",
+  "theme": "ocean",
+  "tags": [
+    "ai-agents",
+    "penetration-testing",
+    "multi-agent",
+    "llm",
+    "cybersecurity",
+    "autonomy"
+  ],
+  "cards": [
+    {
+      "id": "cover",
+      "kind": "cover",
+      "headline": "Not a smarter scanner. A team that remembers.",
+      "body": "ARTEX runs a penetration test with a team of AI agents that plan, work, record what they learn and know when to stop. The difference from a chatbot with tools is the memory and the roles.",
+      "accent": "teal"
+    },
+    {
+      "id": "roles",
+      "kind": "list",
+      "headline": "Four roles you will meet",
+      "kicker": "Chapter 1 · How it fits together",
+      "points": [
+        "Goals agent: turns the brief into goals",
+        "Planner: writes work orders and keeps the to-do list",
+        "Workers: run real tools and record facts",
+        "Main agent: holds the loop together"
+      ],
+      "href": "01-how-artex-fits-together.html",
+      "accent": "blue"
+    },
+    {
+      "id": "memory",
+      "kind": "topic",
+      "headline": "Shared graphs are the team's memory",
+      "kicker": "Chapter 1 · How it fits together",
+      "body": "An exploration graph of what was found and tried, an asset graph of what exists, facts with evidence, findings built from facts. Nobody repeats work; nobody forgets a lead.",
+      "tags": [
+        "memory",
+        "graphs"
+      ],
+      "href": "01-how-artex-fits-together.html",
+      "accent": "violet"
+    },
+    {
+      "id": "rails",
+      "kind": "topic",
+      "headline": "Autonomy inside a fence",
+      "kicker": "Chapter 2 · You are the planner",
+      "body": "Authorized scope, approval gates for risky actions, a traffic recorder, a human operator who can say no. The planner's decisions live inside those rails.",
+      "tags": [
+        "scope",
+        "approval"
+      ],
+      "href": "02-you-are-the-planner.html",
+      "accent": "amber"
+    },
+    {
+      "id": "decide",
+      "kind": "topic",
+      "headline": "Ten wake-ups, ten decisions",
+      "kicker": "Chapter 2 · You are the planner",
+      "body": "Step into the team lead's seat: what should the team do next, given its state? Every option explained, right or wrong.",
+      "href": "02-you-are-the-planner.html",
+      "accent": "coral"
+    },
+    {
+      "id": "stall",
+      "kind": "topic",
+      "headline": "When the loop stops, the records tell you where",
+      "kicker": "Chapter 3 · The stalled task",
+      "body": "A lab task made no progress overnight. Use the team's own notes, graphs and work orders to find which part of the loop was waiting, and on what.",
+      "href": "03-the-stalled-task.html",
+      "accent": "rose"
+    },
+    {
+      "id": "recap",
+      "kind": "recap",
+      "headline": "What this lesson covers",
+      "body": "Tap any line to jump back to its card.",
+      "accent": "slate"
+    },
+    {
+      "id": "start",
+      "kind": "cta",
+      "headline": "Start with the map",
+      "body": "Chapter 1 lays out the agent team, its memory and its guard rails on one map you rebuild from memory.",
+      "href": "01-how-artex-fits-together.html",
+      "cta": "Open chapter 1",
+      "accent": "teal"
+    }
+  ]
+}
