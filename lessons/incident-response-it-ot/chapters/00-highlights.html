@@ -1,0 +1,794 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Incident Response in IT and OT — NthView</title>
+</head>
+<body>
+  <div id="app"></div>
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Inter:wght@400;600;700;800&display=swap">
+
+  <script type="application/json" id="nthview-data">
+{
+  "schemaVersion": 1,
+  "title": "Incident Response in IT and OT",
+  "subtitle": "Nine cards on how enterprises handle a cyber incident, and what changes when the systems run a factory.",
+  "kicker": "Lesson preview · 6 chapters · about 80 min",
+  "theme": "midnight",
+  "tags": [
+    "incident-response",
+    "cybersecurity",
+    "ot",
+    "ics",
+    "ransomware",
+    "enterprise"
+  ],
+  "cards": [
+    {
+      "id": "cover",
+      "kind": "cover",
+      "headline": "Every incident is handled twice: once in the network, once in the room.",
+      "body": "Technical containment is half the job. The other half is decisions under pressure: who to tell, what to shut down, what to keep as evidence.",
+      "accent": "blue"
+    },
+    {
+      "id": "lifecycle",
+      "kind": "list",
+      "headline": "Six phases you will keep coming back to",
+      "kicker": "Chapter 1 · The map",
+      "points": [
+        "Preparation",
+        "Detection and analysis",
+        "Containment",
+        "Eradication",
+        "Recovery",
+        "Lessons learned"
+      ],
+      "href": "01-the-incident-response-map.html",
+      "accent": "teal"
+    },
+    {
+      "id": "people",
+      "kind": "topic",
+      "headline": "It takes a commander, analysts, lawyers and the plant floor",
+      "kicker": "Chapter 1 · The map",
+      "body": "SOC analysts read the SIEM and EDR, legal watches the notification clocks, executives decide on the ransom, engineers keep the process safe.",
+      "href": "01-the-incident-response-map.html",
+      "accent": "violet"
+    },
+    {
+      "id": "day1",
+      "kind": "topic",
+      "headline": "The first 24 hours are a chain of decisions",
+      "kicker": "Chapter 2 · The first 24 hours",
+      "body": "A ransomware outbreak spreads while you read this. Triage, isolate, preserve evidence, brief the board, call the regulator. Each choice explained, whichever you pick.",
+      "tags": [
+        "ransomware",
+        "containment"
+      ],
+      "href": "02-the-first-24-hours.html",
+      "accent": "coral"
+    },
+    {
+      "id": "ot",
+      "kind": "topic",
+      "headline": "In a plant, safety comes before containment",
+      "kicker": "Chapter 3 · The night-shift anomaly",
+      "body": "A process misbehaves at 2 a.m. Sensor fault, human error or intrusion? Pulling the plug can be the most dangerous move. Investigate the safe way.",
+      "tags": [
+        "ot",
+        "ics",
+        "safety"
+      ],
+      "href": "03-the-night-shift-anomaly.html",
+      "accent": "amber"
+    },
+    {
+      "id": "number",
+      "kind": "number",
+      "headline": "Notification clocks",
+      "kicker": "Chapter 4 · Speed versus damage",
+      "number": {
+        "value": "72 h",
+        "label": "a common deadline to tell a regulator, counted from when you became aware"
+      },
+      "body": "Play with alert volume, detection time, containment speed and recovery bottlenecks to see what moves damage.",
+      "href": "04-speed-versus-damage.html",
+      "accent": "rose"
+    },
+    {
+      "id": "quote",
+      "kind": "quote",
+      "headline": "Evidence",
+      "kicker": "Chapter 2 · The first 24 hours",
+      "quote": {
+        "text": "Rebuilding the server fixes today. Imaging it first is what lets you explain today in six months.",
+        "by": "the lesson, chapter 2"
+      },
+      "href": "02-the-first-24-hours.html",
+      "accent": "lime"
+    },
+    {
+      "id": "recap",
+      "kind": "recap",
+      "headline": "What this lesson covers",
+      "body": "Tap any line to jump back to its card.",
+      "accent": "slate"
+    },
+    {
+      "id": "start",
+      "kind": "cta",
+      "headline": "Start with the map",
+      "body": "Chapter 1 puts the lifecycle, the people and the IT/OT differences on one map you rebuild from memory.",
+      "href": "01-the-incident-response-map.html",
+      "cta": "Open chapter 1",
+      "accent": "blue"
+    }
+  ]
+}
+  </script>
+
+  <script>
+/* NthView — highlights validator — schemaVersion 1
+ * Usage (Node): node validate.js data.json
+ * Browser: defines window.NthView.validate
+ */
+(function (root, factory) {
+  var api = factory();
+  root.NthView = root.NthView || {};
+  root.NthView.validate = api.validate;
+  root.NthView.SUPPORTED_VERSIONS = api.SUPPORTED_VERSIONS;
+  if (typeof module !== "undefined" && module.exports) {
+    module.exports = api;
+  }
+})(typeof globalThis !== "undefined" ? globalThis : this, function () {
+  "use strict";
+
+  var SUPPORTED_VERSIONS = [1];
+  var THEMES = ["midnight", "sunrise", "ocean", "forest", "berry", "paper"];
+  var KINDS = ["cover", "topic", "list", "quote", "number", "recap", "cta"];
+  var ACCENTS = ["violet", "coral", "teal", "amber", "blue", "rose", "lime", "slate"];
+  var ID = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+  var TAG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+
+  function validate(data) {
+    var errors = [];
+    var warnings = [];
+    function error(path, message) { errors.push({ path: path, message: message }); }
+    function warn(path, message) { warnings.push({ path: path, message: message }); }
+
+    if (data === null || typeof data !== "object" || Array.isArray(data)) {
+      error("$", "expected an object, got " + describe(data));
+      return result();
+    }
+    if (SUPPORTED_VERSIONS.indexOf(data.schemaVersion) === -1) {
+      error("schemaVersion", "expected " + SUPPORTED_VERSIONS.join(" or ") +
+        ", got " + describe(data.schemaVersion) +
+        " (this validator understands version " + SUPPORTED_VERSIONS.join(", ") + ")");
+      return result();
+    }
+
+    checkRoot(data, error, warn);
+    return result();
+
+    function result() {
+      return { valid: errors.length === 0, errors: errors, warnings: warnings };
+    }
+  }
+
+  // ---- view-specific rules: mirror references/schema.md exactly ----------
+  function checkRoot(data, error, warn) {
+    requireString(data, "title", "$", 1, 120, error);
+    optionalString(data, "subtitle", "$", 200, error);
+    optionalString(data, "kicker", "$", 60, error);
+    optionalEnum(data, "theme", "$", THEMES, error);
+    optionalStringArray(data, "tags", "$", 0, 10, 30, error, function (t, p) {
+      if (!TAG.test(t)) error(p, "must be lowercase kebab-case, got " + JSON.stringify(t));
+    });
+
+    if (!requireArray(data, "cards", "$", 3, 24, error)) return;
+    var ids = {}, kinds = {};
+    data.cards.forEach(function (c, i) {
+      var p = "cards[" + i + "]";
+      if (!isObject(c)) { error(p, "must be an object, got " + describe(c)); return; }
+      if (requireString(c, "id", p, 1, 40, error)) {
+        if (!ID.test(c.id)) error(p + ".id", "must be lowercase kebab-case, got " + JSON.stringify(c.id));
+        else if (ids[c.id]) error(p + ".id", "duplicate card id " + JSON.stringify(c.id) + " (first used at " + ids[c.id] + ")");
+        else ids[c.id] = p;
+      }
+      var kind = c.kind === undefined ? "topic" : c.kind;
+      if (c.kind !== undefined && KINDS.indexOf(c.kind) === -1) { error(p + ".kind", "must be one of " + KINDS.join(", ") + ", got " + describe(c.kind)); kind = "topic"; }
+      kinds[kind] = (kinds[kind] || 0) + 1;
+      optionalString(c, "kicker", p, 40, error);
+      requireString(c, "headline", p, 1, 90, error);
+      optionalString(c, "body", p, 320, error);
+      optionalStringArray(c, "points", p, 0, 6, 90, error);
+      optionalStringArray(c, "tags", p, 0, 6, 24, error, function (t, tp) {
+        if (!TAG.test(t)) error(tp, "must be lowercase kebab-case, got " + JSON.stringify(t));
+      });
+      optionalEnum(c, "accent", p, ACCENTS, error);
+      optionalString(c, "href", p, 200, error);
+      if (c.href !== undefined && /^\s*javascript:/i.test(c.href)) error(p + ".href", "must be a page or http(s) link, not a script");
+      optionalString(c, "cta", p, 40, error);
+      if (c.cta !== undefined && c.href === undefined) error(p + ".cta", "needs href on the same card");
+      if (c.quote !== undefined) {
+        var qp = p + ".quote";
+        if (!isObject(c.quote)) error(qp, "must be an object, got " + describe(c.quote));
+        else { requireString(c.quote, "text", qp, 1, 200, error); optionalString(c.quote, "by", qp, 60, error); }
+      }
+      if (c.number !== undefined) {
+        var np = p + ".number";
+        if (!isObject(c.number)) error(np, "must be an object, got " + describe(c.number));
+        else { requireString(c.number, "value", np, 1, 12, error); requireString(c.number, "label", np, 1, 80, error); }
+      }
+      // kind-specific requirements
+      if (kind === "list" && (!Array.isArray(c.points) || c.points.length < 2)) error(p + ".points", "a list card needs at least 2 points");
+      if (kind === "quote" && c.quote === undefined) error(p + ".quote", "a quote card needs a quote object");
+      if (kind === "number" && c.number === undefined) error(p + ".number", "a number card needs a number object");
+      if (kind === "cta" && c.href === undefined) error(p + ".href", "a cta card needs href");
+      if (kind === "topic" && c.body === undefined && (!Array.isArray(c.points) || !c.points.length)) warn(p, "a topic card with neither body nor points shows only its headline");
+      if (c.body !== undefined && Array.isArray(c.points) && c.points.length > 3) warn(p, "body plus more than 3 points may overflow the card on a phone");
+    });
+
+    if (!kinds.cover) warn("cards", "no cover card; the first card is shown as the cover");
+    else if ((data.cards[0].kind || "topic") !== "cover") warn("cards[0]", "the cover card is not first");
+    if (!kinds.recap && !kinds.cta) warn("cards", "no recap or cta card at the end; consider closing with one");
+    if (data.cards.length < 5) warn("cards", "fewer than 5 cards; highlights usually run 6–10");
+  }
+
+  // ---- shared helpers (identical in every view) --------------------------
+  function describe(v) {
+    if (v === null) return "null";
+    if (v === undefined) return "undefined (missing)";
+    if (Array.isArray(v)) return "array";
+    if (typeof v === "string") return JSON.stringify(v);
+    if (typeof v === "object") return "object";
+    return String(v);
+  }
+  function join(parent, key) {
+    return parent === "$" ? key : parent + "." + key;
+  }
+  function requireString(obj, key, parent, min, max, error) {
+    var path = join(parent, key), v = obj[key];
+    if (typeof v !== "string") { error(path, "must be a string, got " + describe(v)); return false; }
+    if (v.trim().length < min) { error(path, "must be a non-empty string"); return false; }
+    if (v.length > max) { error(path, "must be at most " + max + " characters, got " + v.length); return false; }
+    return true;
+  }
+  function requireArray(obj, key, parent, min, max, error) {
+    var path = join(parent, key), v = obj[key];
+    if (!Array.isArray(v)) { error(path, "must be an array, got " + describe(v)); return false; }
+    if (v.length < min) { error(path, "must have at least " + min + " item(s), got " + v.length); return false; }
+    if (max !== null && v.length > max) { error(path, "must have at most " + max + " item(s), got " + v.length); return false; }
+    return true;
+  }
+  // ---- extra helpers this view needs -------------------------------------
+  function isObject(v) { return v !== null && typeof v === "object" && !Array.isArray(v); }
+  function optionalString(obj, key, parent, max, error) {
+    if (obj[key] === undefined) return true;
+    return requireString(obj, key, parent, 1, max, error);
+  }
+  function optionalEnum(obj, key, parent, allowed, error) {
+    if (obj[key] === undefined) return true;
+    if (allowed.indexOf(obj[key]) === -1) { error(join(parent, key), "must be one of " + allowed.join(", ") + ", got " + describe(obj[key])); return false; }
+    return true;
+  }
+  function optionalStringArray(obj, key, parent, min, max, itemMax, error, each) {
+    if (obj[key] === undefined) return true;
+    if (!requireArray(obj, key, parent, min, max, error)) return false;
+    var ok = true;
+    obj[key].forEach(function (s, i) {
+      var p = join(parent, key) + "[" + i + "]";
+      if (typeof s !== "string" || !s.trim()) { error(p, "must be a non-empty string, got " + describe(s)); ok = false; return; }
+      if (s.length > itemMax) { error(p, "must be at most " + itemMax + " characters, got " + s.length); ok = false; return; }
+      if (each) each(s, p);
+    });
+    return ok;
+  }
+
+  return { validate: validate, SUPPORTED_VERSIONS: SUPPORTED_VERSIONS };
+});
+
+/* ---- Node CLI (skipped in the browser) ---------------------------------- */
+if (typeof require !== "undefined" && typeof module !== "undefined" && require.main === module) {
+  var fs = require("fs");
+  var file = process.argv[2];
+  if (!file) {
+    console.error("usage: node validate.js <data.json>");
+    process.exit(2);
+  }
+  var parsed;
+  try {
+    parsed = JSON.parse(fs.readFileSync(file, "utf8"));
+  } catch (e) {
+    console.error("$: could not read or parse JSON (" + e.message + ")");
+    process.exit(1);
+  }
+  var r = module.exports.validate(parsed);
+  r.errors.forEach(function (e) { console.error("error    " + e.path + ": " + e.message); });
+  r.warnings.forEach(function (w) { console.error("warning  " + w.path + ": " + w.message); });
+  console.log(r.valid ? "valid" : "invalid: " + r.errors.length + " error(s)");
+  process.exit(r.valid ? 0 : 1);
+}
+  </script>
+  <script>
+/* NthView — highlights renderer — schemaVersion 1
+ * Requires scripts/validate.js to be loaded first.
+ */
+(function (root) {
+  "use strict";
+  var NthView = root.NthView = root.NthView || {};
+  var STYLE_ID = "nthview-style";
+
+  var CSS = [
+    ".nthview{--nv-bg:#fff;--nv-fg:#111;--nv-muted:#555;--nv-accent:#2563eb;--nv-border:#ddd;--nv-error:#b91c1c;",
+    "  color-scheme:light dark;background:var(--nv-bg);color:var(--nv-fg);",
+    "  font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:60rem;margin:0 auto;padding:1rem;box-sizing:border-box}",
+    "@media (prefers-color-scheme:dark){.nthview{--nv-bg:#111;--nv-fg:#eee;--nv-muted:#aaa;--nv-accent:#60a5fa;--nv-border:#333;--nv-error:#f87171}}",
+    ".nthview *{box-sizing:border-box}",
+    ".nthview :focus-visible{outline:3px solid var(--nv-accent);outline-offset:2px}",
+    ".nthview-error-panel{border:2px solid var(--nv-error);border-radius:.5rem;padding:1rem}",
+    ".nthview-error-panel h2{margin:0 0 .5rem;color:var(--nv-error)}",
+    ".nthview-error-panel code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}",
+    /* ---- view-specific styles below, every class prefixed nthview- ---- */
+    ".nthview-highlights{max-width:none;padding:0;background:transparent}",
+    ".nthview-hl-shell{--hl-display:Fraunces,Georgia,'Times New Roman',serif;--hl-sans:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;",
+    "  background:var(--hl-page);color:var(--hl-ink);font-family:var(--hl-sans);min-height:100vh;padding:clamp(.6rem,2vw,1.5rem) .75rem 3rem}",
+    ".nthview-hl-shell.nthview-hl-dark{color-scheme:dark}.nthview-hl-shell.nthview-hl-light{color-scheme:light}",
+    ".nthview-hl-post{max-width:33rem;margin:0 auto}",
+    ".nthview-hl-head{display:flex;align-items:center;gap:.7rem;padding:.35rem .2rem .7rem}",
+    ".nthview-hl-avatar{flex:none;width:2.6rem;height:2.6rem;border-radius:50%;display:grid;place-items:center;font:800 .95rem/1 var(--hl-display);color:#fff;background:linear-gradient(135deg,var(--hl-av1),var(--hl-av2));box-shadow:0 0 0 2px var(--hl-page),0 0 0 3.5px var(--hl-av2)}",
+    ".nthview-hl-who{flex:1;min-width:0}.nthview-hl-who b{display:block;font-size:.98rem;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.nthview-hl-who span{display:block;font-size:.78rem;color:var(--hl-muted);line-height:1.3}",
+    ".nthview-hl-tools{display:flex;gap:.35rem;flex:none}",
+    ".nthview-hl-tools button,.nthview-restart{border:1px solid var(--hl-line);background:var(--hl-surface);color:var(--hl-ink);border-radius:999px;padding:.4rem .8rem;font:600 .8rem/1 var(--hl-sans);cursor:pointer}",
+    ".nthview-hl-tools button svg{width:1rem;height:1rem;display:block}",
+    ".nthview-hl-tools button[aria-pressed=true]{background:var(--hl-ink);color:var(--hl-page);border-color:var(--hl-ink)}",
+    ".nthview-hl-frame{position:relative;aspect-ratio:4/5;border-radius:1.4rem;overflow:hidden;background:linear-gradient(150deg,var(--hl-c1),var(--hl-c2));color:var(--hl-card-ink);box-shadow:0 30px 70px -30px rgba(0,0,0,.55);isolation:isolate;user-select:none;-webkit-user-select:none;touch-action:pan-y}",
+    "@media (max-height:720px) and (min-width:560px){.nthview-hl-frame{aspect-ratio:1/1}}",
+    ".nthview-hl-shape{position:absolute;border-radius:50%;pointer-events:none;z-index:0}",
+    ".nthview-hl-shape.nthview-hl-ring{border:14px solid var(--hl-deco);background:none}",
+    ".nthview-hl-shape.nthview-hl-disc{background:var(--hl-deco)}",
+    ".nthview-hl-shape.nthview-hl-bar{border-radius:999px;background:var(--hl-deco)}",
+    ".nthview-hl-prog{position:absolute;left:.9rem;right:.9rem;top:.8rem;display:flex;gap:4px;z-index:3}",
+    ".nthview-hl-prog i{flex:1;height:3px;border-radius:2px;background:var(--hl-prog-off)}.nthview-hl-prog i.nthview-hl-on{background:var(--hl-card-ink)}",
+    ".nthview-hl-card{position:absolute;inset:0;display:flex;flex-direction:column;padding:2.4rem 1.6rem 1.4rem;z-index:2;animation:nthview-hl-in .35s cubic-bezier(.2,.8,.2,1)}",
+    "@keyframes nthview-hl-in{from{opacity:0;transform:translateX(var(--hl-dir,12px))}to{opacity:1;transform:none}}",
+    ".nthview-hl-kicker{font:800 .72rem/1.2 var(--hl-sans);letter-spacing:.16em;text-transform:uppercase;opacity:.85;margin:0 0 .6rem}",
+    ".nthview-hl-headline{font:800 clamp(1.5rem,6.2vw,2.3rem)/1.05 var(--hl-display);letter-spacing:-.02em;margin:0 0 .8rem;text-wrap:balance}",
+    ".nthview-hl-card.nthview-hl-kind-cover .nthview-hl-headline{font-size:clamp(1.9rem,8vw,3rem)}",
+    ".nthview-hl-body{font-size:clamp(.95rem,3.4vw,1.1rem);line-height:1.5;margin:0 0 .8rem;max-width:34ch;opacity:.95}",
+    ".nthview-hl-points{list-style:none;margin:0;padding:0;display:grid;gap:.5rem}",
+    ".nthview-hl-points li{display:flex;gap:.65rem;align-items:flex-start;font-size:clamp(.92rem,3.3vw,1.05rem);line-height:1.35}",
+    ".nthview-hl-points li i{flex:none;width:1.55rem;height:1.55rem;border-radius:50%;display:grid;place-items:center;font:800 .78rem/1 var(--hl-sans);font-style:normal;background:var(--hl-chip);color:var(--hl-card-ink)}",
+    ".nthview-hl-card.nthview-hl-kind-list .nthview-hl-points li{font-size:clamp(1rem,3.8vw,1.2rem);line-height:1.3;font-weight:600}",
+    ".nthview-hl-quote{font:600 clamp(1.3rem,5.4vw,1.9rem)/1.2 var(--hl-display);letter-spacing:-.01em;margin:0;text-wrap:balance}",
+    ".nthview-hl-quote::before{content:'\\201C';display:block;font-size:3.4rem;line-height:.6;opacity:.5;margin-bottom:.6rem}",
+    ".nthview-hl-by{font-size:.9rem;opacity:.85;margin:.9rem 0 0}",
+    ".nthview-hl-num{font:800 clamp(3.6rem,18vw,6.5rem)/.95 var(--hl-display);letter-spacing:-.04em;margin:0 0 .3rem}",
+    ".nthview-hl-numlabel{font:700 clamp(1rem,3.8vw,1.25rem)/1.25 var(--hl-sans);margin:0 0 .8rem;max-width:28ch}",
+    ".nthview-hl-recaplist{list-style:none;margin:0;padding:0;display:grid;gap:.4rem}",
+    ".nthview-hl-recaplist li{display:flex;gap:.6rem;align-items:center;font-size:clamp(.88rem,3.2vw,1rem);line-height:1.3}",
+    ".nthview-hl-recaplist li i{flex:none;width:1.3rem;height:1.3rem;border-radius:50%;border:2px solid var(--hl-card-ink);display:grid;place-items:center;font:800 .7rem/1 var(--hl-sans);font-style:normal;opacity:.6}",
+    ".nthview-hl-recaplist li.nthview-hl-read i{background:var(--hl-card-ink);color:var(--hl-c1);opacity:1}",
+    ".nthview-hl-recaplist li button{all:unset;cursor:pointer;flex:1;text-align:left}.nthview-hl-recaplist li button:hover{text-decoration:underline}",
+    ".nthview-hl-cta{display:inline-flex;align-items:center;gap:.5rem;margin-top:.4rem;align-self:flex-start;background:var(--hl-card-ink);color:var(--hl-c1);text-decoration:none;font:800 1rem/1 var(--hl-sans);padding:.9rem 1.3rem;border-radius:999px;box-shadow:0 14px 30px -14px rgba(0,0,0,.6);position:relative;z-index:4}",
+    ".nthview-hl-cta svg{width:1.1rem;height:1.1rem;flex:none}",
+    ".nthview-hl-cta:hover{transform:translateY(-1px)}",
+    ".nthview-hl-main{flex:1;display:flex;flex-direction:column;justify-content:flex-start;min-height:0}",
+    ".nthview-hl-kind-cover .nthview-hl-main,.nthview-hl-kind-quote .nthview-hl-main,.nthview-hl-kind-number .nthview-hl-main,.nthview-hl-kind-cta .nthview-hl-main{justify-content:center}",
+    ".nthview-hl-kind-cta .nthview-hl-cta{margin-top:1rem}",
+    ".nthview-hl-foot{margin-top:.8rem;flex:none;display:flex;align-items:flex-end;justify-content:space-between;gap:.8rem;padding-top:.8rem}",
+    ".nthview-hl-tags{display:flex;flex-wrap:wrap;gap:.25rem .6rem;font:600 .8rem/1.3 var(--hl-sans);opacity:.85;margin:0;padding:0;list-style:none}",
+    ".nthview-hl-idx{font:700 .78rem/1 var(--hl-sans);opacity:.75;flex:none;letter-spacing:.06em}",
+    ".nthview-hl-zone{position:absolute;top:3rem;bottom:4.2rem;width:34%;z-index:3;border:0;background:transparent;cursor:pointer;color:var(--hl-card-ink);display:flex;align-items:center;padding:0;opacity:0;transition:opacity .2s}",
+    ".nthview-hl-zone:hover,.nthview-hl-zone:focus-visible{opacity:.9}.nthview-hl-zone svg{width:2.6rem;height:2.6rem;filter:drop-shadow(0 2px 6px rgba(0,0,0,.4))}",
+    ".nthview-hl-zone.nthview-hl-prev{left:0;justify-content:flex-start;padding-left:.4rem}.nthview-hl-zone.nthview-hl-next{right:0;justify-content:flex-end;padding-right:.4rem}",
+    ".nthview-hl-zone[disabled]{display:none}",
+    ".nthview-hl-actions{display:flex;align-items:center;gap:.6rem;padding:.8rem .2rem .2rem}",
+    ".nthview-hl-actions button{border:1px solid var(--hl-line);background:var(--hl-surface);color:var(--hl-ink);border-radius:999px;width:2.4rem;height:2.4rem;display:grid;place-items:center;cursor:pointer;padding:0}",
+    ".nthview-hl-actions button:disabled{opacity:.35;cursor:default}.nthview-hl-actions button svg{width:1.1rem;height:1.1rem}",
+    ".nthview-hl-dots{flex:1;display:flex;justify-content:center;gap:5px;flex-wrap:wrap}",
+    ".nthview-hl-dots button{width:8px;height:8px;min-width:0;border-radius:50%;border:0;padding:0;background:var(--hl-dot);display:block}.nthview-hl-dots button[aria-current=true]{background:var(--hl-ink);transform:scale(1.3)}",
+    ".nthview-hl-dots button.nthview-hl-read{background:var(--hl-dot-read)}",
+    ".nthview-hl-open{display:inline-flex;align-items:center;gap:.4rem;border:1px solid var(--hl-line);background:var(--hl-surface);color:var(--hl-ink);border-radius:999px;padding:.5rem .9rem;font:700 .8rem/1 var(--hl-sans);text-decoration:none;white-space:nowrap}",
+    ".nthview-hl-caption{padding:.6rem .2rem 0;font-size:.95rem;line-height:1.5;color:var(--hl-ink)}.nthview-hl-caption b{font-weight:700}.nthview-hl-caption p{margin:0 0 .35rem}",
+    ".nthview-hl-caption .nthview-hl-tags{opacity:1;color:var(--hl-link);margin-top:.2rem}",
+    ".nthview-hl-hint{font-size:.78rem;color:var(--hl-muted);margin:.5rem .2rem 0}",
+    ".nthview-hl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;list-style:none;margin:0;padding:0}",
+    ".nthview-hl-tile{aspect-ratio:1/1;border-radius:.6rem;overflow:hidden;position:relative;background:linear-gradient(150deg,var(--hl-c1),var(--hl-c2));color:var(--hl-card-ink);border:0;padding:.7rem;text-align:left;display:flex;flex-direction:column;cursor:pointer;width:100%;isolation:isolate}",
+    ".nthview-hl-tile:hover{filter:brightness(1.06)}.nthview-hl-tile .nthview-hl-shape{opacity:.8}",
+    ".nthview-hl-tile small{position:relative;z-index:1;font:800 .6rem/1 var(--hl-sans);letter-spacing:.12em;text-transform:uppercase;opacity:.8;margin-bottom:.35rem}",
+    ".nthview-hl-tile b{position:relative;z-index:1;font:800 clamp(.8rem,2.6vw,1rem)/1.15 var(--hl-display);letter-spacing:-.01em;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}",
+    ".nthview-hl-tile em{position:absolute;right:.55rem;bottom:.45rem;z-index:1;font:700 .62rem/1 var(--hl-sans);font-style:normal;opacity:.75}",
+    ".nthview-hl-tile.nthview-hl-read::after{content:'\\2713';position:absolute;left:.55rem;bottom:.4rem;z-index:1;width:1.1rem;height:1.1rem;border-radius:50%;background:var(--hl-card-ink);color:var(--hl-c1);font:800 .68rem/1.1rem var(--hl-sans);text-align:center}",
+    ".nthview-hl-gridhead{display:flex;align-items:baseline;justify-content:space-between;padding:.2rem .2rem .6rem;font-size:.85rem;color:var(--hl-muted)}",
+    ".nthview-restart{margin-left:.1rem}",
+    ".nthview-resume{position:fixed;left:50%;bottom:1.2rem;transform:translateX(-50%);z-index:50;background:var(--hl-ink);color:var(--hl-page);padding:.6rem 1rem;border-radius:999px;font:600 .85rem/1.2 var(--hl-sans);box-shadow:0 14px 40px -14px rgba(0,0,0,.6);pointer-events:none;max-width:calc(100vw - 2rem);text-align:center;transition:opacity .5s}",
+    ".nthview-sr{position:absolute;left:-9999px}",
+    "@media (max-width:400px){.nthview-hl-shell{padding:.5rem .5rem 2.5rem}.nthview-hl-frame{border-radius:1rem}.nthview-hl-card{padding:2.1rem 1.1rem 1.1rem}.nthview-hl-tools button{padding:.38rem .6rem}}",
+    "@media (prefers-reduced-motion:reduce){.nthview-hl-card{animation:none}.nthview-hl-zone,.nthview-resume,.nthview-hl-cta{transition:none}.nthview-hl-cta:hover{transform:none}}"
+  ].join("\n");
+
+  function injectStyles() {
+    if (root.document.getElementById(STYLE_ID)) return;
+    var style = root.document.createElement("style");
+    style.id = STYLE_ID;
+    style.textContent = CSS;
+    root.document.head.appendChild(style);
+  }
+
+  function el(tag, attrs, children) {
+    var node = root.document.createElement(tag);
+    Object.keys(attrs || {}).forEach(function (k) {
+      if (k === "text") node.textContent = attrs[k];
+      else node.setAttribute(k, attrs[k]);
+    });
+    (children || []).forEach(function (c) { node.appendChild(c); });
+    return node;
+  }
+
+  function renderErrorPanel(container, result) {
+    var items = result.errors.map(function (e) {
+      return el("li", {}, [el("code", { text: e.path }), root.document.createTextNode(": " + e.message)]);
+    });
+    container.appendChild(el("div", { class: "nthview-error-panel", role: "alert" }, [
+      el("h2", { text: "This view could not be built" }),
+      el("p", { text: "The data has " + result.errors.length + " problem(s). Fix them and rebuild the file." }),
+      el("ul", {}, items)
+    ]));
+  }
+
+  // ---- progress storage (identical in every view, §5.5) ------------------
+  var STORE_VERSION = 1;
+  function storageKey(data) {
+    var s = JSON.stringify(data), h = 2166136261;
+    for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return "nthview:highlights:" + (h >>> 0).toString(36);
+  }
+  function loadState(key) {
+    try { var raw = root.localStorage.getItem(key); if (!raw) return null; var st = JSON.parse(raw); return st && st.v === STORE_VERSION ? st : null; }
+    catch (e) { return null; }
+  }
+  function saveState(key, state) {
+    try { state.v = STORE_VERSION; state.savedAt = Date.now(); root.localStorage.setItem(key, JSON.stringify(state)); }
+    catch (e) { /* storage unavailable or full: keep playing without saving */ }
+  }
+  function clearState(key) { try { root.localStorage.removeItem(key); } catch (e) {} }
+  function restartButton(container, data, key) {
+    var b = el("button", { type: "button", class: "nthview-restart", text: "Restart", title: "Start again from the beginning" });
+    b.addEventListener("click", function () {
+      if (!root.confirm("Start again from the beginning? Your progress here will be erased.")) return;
+      clearState(key);
+      NthView.build(container, data);
+    });
+    return b;
+  }
+
+  // ---- themes: page tokens plus eight card gradients, one brightness side each ----
+  var THEMES = {
+    midnight: { dark: true, page: "#0b0d17", ink: "#f3f4fb", muted: "#9ea3bd", surface: "#161a2b", line: "#2a2f45", link: "#9db4ff", cardInk: "#ffffff", deco: "rgba(255,255,255,.08)", progOff: "rgba(255,255,255,.3)", chip: "rgba(255,255,255,.18)", dot: "#2f3550", dotRead: "#5b6490",
+      accents: { violet: ["#3b2a8a", "#6d3bd6"], coral: ["#8a2a3e", "#d64a5a"], teal: ["#0f5a62", "#13918f"], amber: ["#7a4b0a", "#c9841a"], blue: ["#153a8a", "#2d6bd6"], rose: ["#7a2460", "#c43f9a"], lime: ["#355a12", "#5f9b1f"], slate: ["#2b3440", "#4b5a6e"] } },
+    ocean: { dark: true, page: "#06151f", ink: "#e8f3f8", muted: "#8fb0c0", surface: "#0e2433", line: "#1d3a4d", link: "#7fd3ff", cardInk: "#ffffff", deco: "rgba(255,255,255,.09)", progOff: "rgba(255,255,255,.3)", chip: "rgba(255,255,255,.18)", dot: "#1b3647", dotRead: "#3c6b85",
+      accents: { violet: ["#2b3a8f", "#4f63d9"], coral: ["#8f3a2b", "#d9684f"], teal: ["#0b5f6b", "#1197a6"], amber: ["#7a5a0a", "#c99a1a"], blue: ["#0b3d7a", "#1a6fc9"], rose: ["#7a2a4f", "#c24a86"], lime: ["#1f5f3a", "#2f9a5f"], slate: ["#243744", "#3f5b6e"] } },
+    forest: { dark: true, page: "#0a1410", ink: "#edf5ee", muted: "#95ad9b", surface: "#122019", line: "#22382b", link: "#9be3b0", cardInk: "#ffffff", deco: "rgba(255,255,255,.08)", progOff: "rgba(255,255,255,.3)", chip: "rgba(255,255,255,.18)", dot: "#1f3327", dotRead: "#3f6b4c",
+      accents: { violet: ["#3a3a7a", "#5e5ec4"], coral: ["#7a3a2a", "#c4664a"], teal: ["#0f5a52", "#1a9a8a"], amber: ["#6f5212", "#b8891f"], blue: ["#1f4a7a", "#3a7fc4"], rose: ["#6f2f4a", "#b4517a"], lime: ["#2f5f1a", "#4f9a2a"], slate: ["#2a3a34", "#4a6358"] } },
+    berry: { dark: true, page: "#160a16", ink: "#faeefa", muted: "#b893b6", surface: "#241224", line: "#3c203c", link: "#ff9fd6", cardInk: "#ffffff", deco: "rgba(255,255,255,.09)", progOff: "rgba(255,255,255,.3)", chip: "rgba(255,255,255,.18)", dot: "#3a1f3a", dotRead: "#6f3f6f",
+      accents: { violet: ["#4a1f7a", "#7a3fc4"], coral: ["#8a1f3a", "#d43a5f"], teal: ["#1f5a6f", "#2f93b0"], amber: ["#7a3f1a", "#c4702a"], blue: ["#2a2f8a", "#4a55d4"], rose: ["#7a1f5a", "#c43a94"], lime: ["#4a5a1a", "#7f9a2a"], slate: ["#3a2a3a", "#5f4a5f"] } },
+    sunrise: { dark: false, page: "#fff6ee", ink: "#1f1a24", muted: "#6e6372", surface: "#ffffff", line: "#eadfd6", link: "#b4471f", cardInk: "#1f1a24", deco: "rgba(255,255,255,.45)", progOff: "rgba(0,0,0,.18)", chip: "rgba(255,255,255,.55)", dot: "#e6d9cf", dotRead: "#c9b3a4",
+      accents: { violet: ["#e6dcff", "#c9b8ff"], coral: ["#ffe1d6", "#ffb8a6"], teal: ["#d4f3ef", "#a6e3da"], amber: ["#fff0c2", "#ffd68a"], blue: ["#dde9ff", "#b6ccff"], rose: ["#ffe0ee", "#ffb6d3"], lime: ["#e9f7c9", "#cdeb9a"], slate: ["#e9edf2", "#cfd7e0"] } },
+    paper: { dark: false, page: "#f6f4ef", ink: "#15181c", muted: "#5d6570", surface: "#ffffff", line: "#e2ded6", link: "#2d4fb3", cardInk: "#15181c", deco: "rgba(255,255,255,.5)", progOff: "rgba(0,0,0,.18)", chip: "rgba(255,255,255,.6)", dot: "#dcd8cf", dotRead: "#b9b3a7",
+      accents: { violet: ["#ebe6ff", "#d3c9ff"], coral: ["#ffe7df", "#ffc6b6"], teal: ["#dcf4f0", "#b4e6dd"], amber: ["#fff2cf", "#ffe0a0"], blue: ["#e2ecff", "#c2d6ff"], rose: ["#ffe4ef", "#ffc2d9"], lime: ["#eef8d6", "#d6edaa"], slate: ["#eceff3", "#d5dbe3"] } }
+  };
+  var ACCENT_ORDER = ["violet", "coral", "teal", "amber", "blue", "rose", "lime", "slate"];
+  NthView.THEMES = Object.keys(THEMES);
+
+  /* decorative shapes per card, deterministic by index, kept away from the text column */
+  var SHAPES = [
+    [["ring", "62%", "-18%", "60%"], ["disc", "-12%", "70%", "38%"]],
+    [["disc", "70%", "60%", "55%"], ["ring", "-20%", "-10%", "45%"]],
+    [["bar", "55%", "-6%", "70%", "12%"], ["disc", "72%", "72%", "40%"]],
+    [["ring", "-25%", "60%", "62%"], ["disc", "75%", "8%", "30%"]],
+    [["disc", "60%", "-20%", "62%"], ["bar", "-10%", "80%", "60%", "10%"]],
+    [["ring", "68%", "55%", "58%"], ["disc", "-15%", "-10%", "38%"]]
+  ];
+
+  function icon(name) {
+    var SVG = "http://www.w3.org/2000/svg";
+    var s = root.document.createElementNS(SVG, "svg");
+    s.setAttribute("viewBox", "0 0 24 24"); s.setAttribute("aria-hidden", "true"); s.setAttribute("fill", "none");
+    s.setAttribute("stroke", "currentColor"); s.setAttribute("stroke-width", "2.2"); s.setAttribute("stroke-linecap", "round"); s.setAttribute("stroke-linejoin", "round");
+    var p = root.document.createElementNS(SVG, "path");
+    p.setAttribute("d", name === "left" ? "M15 5l-7 7 7 7" : name === "right" ? "M9 5l7 7-7 7" : name === "grid" ? "M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" : name === "story" ? "M6 4h12a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zM8 9h8M8 13h5" : "M5 12h14M13 6l6 6-6 6");
+    s.appendChild(p);
+    return s;
+  }
+
+  function initials(title) {
+    var words = String(title).replace(/[^A-Za-z0-9 ]/g, " ").trim().split(/\s+/).filter(Boolean);
+    if (!words.length) return "N";
+    return (words[0][0] + (words.length > 1 ? words[words.length - 1][0] : "")).toUpperCase();
+  }
+
+  // ---- view-specific rendering: data is already valid here ---------------
+  function render(container, data) {
+    var key = storageKey(data);
+    var theme = THEMES[data.theme || "midnight"] || THEMES.midnight;
+    var cards = data.cards, n = cards.length;
+    var saved = loadState(key) || {};
+    var state = {
+      i: typeof saved.i === "number" && saved.i >= 0 && saved.i < n && saved.i % 1 === 0 ? saved.i : 0,
+      mode: saved.mode === "grid" ? "grid" : "story",
+      read: {}
+    };
+    if (saved.read && typeof saved.read === "object" && !Array.isArray(saved.read)) {
+      Object.keys(saved.read).forEach(function (id) { if (cards.some(function (c) { return c.id === id; })) state.read[id] = true; });
+    }
+    var resumed = !!(saved.v && (state.i > 0 || Object.keys(state.read).length > 1));
+
+    var shell = el("div", { class: "nthview-hl-shell " + (theme.dark ? "nthview-hl-dark" : "nthview-hl-light") });
+    container.appendChild(shell);
+    var vars = "--hl-page:" + theme.page + ";--hl-ink:" + theme.ink + ";--hl-muted:" + theme.muted + ";--hl-surface:" + theme.surface + ";--hl-line:" + theme.line +
+      ";--hl-link:" + theme.link + ";--hl-card-ink:" + theme.cardInk + ";--hl-deco:" + theme.deco + ";--hl-prog-off:" + theme.progOff + ";--hl-chip:" + theme.chip +
+      ";--hl-dot:" + theme.dot + ";--hl-dot-read:" + theme.dotRead + ";--hl-av1:" + theme.accents.violet[1] + ";--hl-av2:" + theme.accents.coral[1];
+    shell.setAttribute("style", vars);
+
+    function accentOf(c, i) { return theme.accents[c.accent || ACCENT_ORDER[i % ACCENT_ORDER.length]]; }
+    function kindOf(c) { return c.kind || "topic"; }
+    function persist() { saveState(key, { i: state.i, mode: state.mode, read: state.read }); }
+
+    var post = el("div", { class: "nthview-hl-post" });
+    shell.appendChild(post);
+
+    /* header: avatar, title, kicker, tools */
+    var storyBtn = el("button", { type: "button", "aria-pressed": "true", title: "One card at a time" }, [icon("story"), el("span", { class: "nthview-sr", text: "Story" })]);
+    var gridBtn = el("button", { type: "button", "aria-pressed": "false", title: "All cards" }, [icon("grid"), el("span", { class: "nthview-sr", text: "Grid" })]);
+    var kickerText = data.kicker || ("Highlights · " + n + " cards");
+    post.appendChild(el("header", { class: "nthview-hl-head" }, [
+      el("div", { class: "nthview-hl-avatar", "aria-hidden": "true", text: initials(data.title) }),
+      el("div", { class: "nthview-hl-who" }, [el("b", { text: data.title }), el("span", { text: kickerText })]),
+      el("div", { class: "nthview-hl-tools" }, [storyBtn, gridBtn, restartButton(container, data, key)])
+    ]));
+    post.appendChild(el("h1", { class: "nthview-sr", text: data.title }));
+
+    var stage = el("div", { class: "nthview-hl-stage" });
+    post.appendChild(stage);
+    var live = el("div", { class: "nthview-sr", "aria-live": "polite" });
+    post.appendChild(live);
+
+    function shapes(i) {
+      var set = SHAPES[i % SHAPES.length];
+      return set.map(function (s) {
+        var d = el("span", { class: "nthview-hl-shape nthview-hl-" + s[0], "aria-hidden": "true" });
+        d.style.left = s[1]; d.style.top = s[2]; d.style.width = s[3]; d.style.height = s[4] || s[3];
+        return d;
+      });
+    }
+    function setAccent(node, acc) { node.style.setProperty("--hl-c1", acc[0]); node.style.setProperty("--hl-c2", acc[1]); }
+
+    function cardBody(c, i) {
+      var kind = kindOf(c), parts = [];
+      var kicker = c.kicker || (kind === "cover" ? kickerText : kind === "recap" ? "Recap" : kind === "cta" ? "Next" : null);
+      if (kicker) parts.push(el("p", { class: "nthview-hl-kicker", text: kicker }));
+      if (kind === "quote") {
+        parts.push(el("h2", { class: "nthview-sr", text: c.headline }));
+        parts.push(el("blockquote", { class: "nthview-hl-quote", text: c.quote.text }));
+        if (c.quote.by) parts.push(el("p", { class: "nthview-hl-by", text: "— " + c.quote.by }));
+        if (c.body) parts.push(el("p", { class: "nthview-hl-body", text: c.body }));
+      } else if (kind === "number") {
+        parts.push(el("h2", { class: "nthview-sr", text: c.headline }));
+        parts.push(el("p", { class: "nthview-hl-num", text: c.number.value }));
+        parts.push(el("p", { class: "nthview-hl-numlabel", text: c.number.label }));
+        if (c.body) parts.push(el("p", { class: "nthview-hl-body", text: c.body }));
+      } else {
+        parts.push(el("h2", { class: "nthview-hl-headline", text: c.headline }));
+        if (c.body) parts.push(el("p", { class: "nthview-hl-body", text: c.body }));
+        if (kind === "recap") {
+          var items = cards.filter(function (x) { var k = kindOf(x); return k !== "cover" && k !== "recap" && k !== "cta"; });
+          parts.push(el("ol", { class: "nthview-hl-recaplist" }, items.map(function (x) {
+            var idx = cards.indexOf(x);
+            var b = el("button", { type: "button", text: x.headline });
+            b.addEventListener("click", function (e) { e.stopPropagation(); go(idx); });
+            return el("li", { class: state.read[x.id] ? "nthview-hl-read" : "" }, [el("i", { text: state.read[x.id] ? "✓" : String(idx + 1) }), b]);
+          })));
+        } else if (c.points && c.points.length) {
+          parts.push(el("ul", { class: "nthview-hl-points" }, c.points.map(function (pt, k) {
+            return el("li", {}, [el("i", { text: String(k + 1) }), el("span", { text: pt })]);
+          })));
+        }
+      }
+      if (c.href && (kind === "cta" || c.cta)) {
+        parts.push(el("a", { class: "nthview-hl-cta", href: c.href, text: c.cta || "Open" }, [icon("arrow")]));
+      }
+      var foot = [];
+      var tags = (c.tags && c.tags.length ? c.tags : (kind === "cover" && data.tags ? data.tags : [])).slice(0, 6);
+      foot.push(el("ul", { class: "nthview-hl-tags", "aria-label": "Tags" }, tags.map(function (t) { return el("li", { text: "#" + t }); })));
+      foot.push(el("span", { class: "nthview-hl-idx", text: (i + 1) + " / " + n }));
+      parts.push(el("div", { class: "nthview-hl-foot" }, foot));
+      return parts;
+    }
+
+    var dir = 12;
+    function renderStory() {
+      stage.innerHTML = "";
+      var c = cards[state.i], acc = accentOf(c, state.i);
+      state.read[c.id] = true;
+      var frame = el("div", { class: "nthview-hl-frame", role: "group", "aria-roledescription": "card", "aria-label": "Card " + (state.i + 1) + " of " + n });
+      setAccent(frame, acc);
+      shapes(state.i).forEach(function (s) { frame.appendChild(s); });
+      frame.appendChild(el("div", { class: "nthview-hl-prog", "aria-hidden": "true" }, cards.map(function (x, k) { return el("i", { class: k <= state.i ? "nthview-hl-on" : "" }); })));
+      var card = el("article", { class: "nthview-hl-card nthview-hl-kind-" + kindOf(c) }, [el("div", { class: "nthview-hl-main" }, cardBody(c, state.i).slice(0, -1)), cardBody(c, state.i).slice(-1)[0]]);
+      card.style.setProperty("--hl-dir", dir + "px");
+      frame.appendChild(card);
+      var prevZone = el("button", { type: "button", class: "nthview-hl-zone nthview-hl-prev", "aria-label": "Previous card" }, [icon("left")]);
+      var nextZone = el("button", { type: "button", class: "nthview-hl-zone nthview-hl-next", "aria-label": "Next card" }, [icon("right")]);
+      if (state.i === 0) prevZone.setAttribute("disabled", ""); if (state.i === n - 1) nextZone.setAttribute("disabled", "");
+      prevZone.addEventListener("click", function () { go(state.i - 1); });
+      nextZone.addEventListener("click", function () { go(state.i + 1); });
+      frame.appendChild(prevZone); frame.appendChild(nextZone);
+      /* swipe */
+      var sx = null, sy = null;
+      frame.addEventListener("pointerdown", function (e) { if (e.pointerType === "mouse" && e.button !== 0) return; sx = e.clientX; sy = e.clientY; });
+      frame.addEventListener("pointerup", function (e) {
+        if (sx === null) return; var dx = e.clientX - sx, dy = e.clientY - sy; sx = sy = null;
+        if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.3) go(dx < 0 ? state.i + 1 : state.i - 1);
+      });
+      frame.addEventListener("pointercancel", function () { sx = sy = null; });
+      stage.appendChild(frame);
+
+      /* actions under the post */
+      var prevBtn = el("button", { type: "button", "aria-label": "Previous card" }, [icon("left")]);
+      var nextBtn = el("button", { type: "button", "aria-label": "Next card" }, [icon("right")]);
+      if (state.i === 0) prevBtn.disabled = true; if (state.i === n - 1) nextBtn.disabled = true;
+      prevBtn.addEventListener("click", function () { go(state.i - 1); });
+      nextBtn.addEventListener("click", function () { go(state.i + 1); });
+      var dots = el("div", { class: "nthview-hl-dots", role: "tablist", "aria-label": "Cards" }, cards.map(function (x, k) {
+        var d = el("button", { type: "button", role: "tab", "aria-label": "Card " + (k + 1) + ": " + x.headline, class: state.read[x.id] ? "nthview-hl-read" : "", tabindex: k === state.i ? "0" : "-1" });
+        if (k === state.i) d.setAttribute("aria-current", "true");
+        d.addEventListener("click", function () { go(k); });
+        return d;
+      }));
+      var actions = [prevBtn, dots, nextBtn];
+      if (c.href && kindOf(c) !== "cta" && !c.cta) actions.push(el("a", { class: "nthview-hl-open", href: c.href, text: "Open" }, [icon("arrow")]));
+      stage.appendChild(el("div", { class: "nthview-hl-actions" }, actions));
+
+      /* caption, like a post caption */
+      var cap = el("div", { class: "nthview-hl-caption" });
+      if (data.subtitle) cap.appendChild(el("p", {}, [el("b", { text: data.title + " " }), root.document.createTextNode(data.subtitle)]));
+      if (data.tags && data.tags.length) cap.appendChild(el("ul", { class: "nthview-hl-tags", "aria-label": "Tags" }, data.tags.map(function (t) { return el("li", { text: "#" + t }); })));
+      stage.appendChild(cap);
+      stage.appendChild(el("p", { class: "nthview-hl-hint", text: "Tap the sides or use ← → to move. " + Object.keys(state.read).length + " of " + n + " read." }));
+      live.textContent = "Card " + (state.i + 1) + " of " + n + ": " + c.headline;
+      persist();
+    }
+
+    function renderGrid() {
+      stage.innerHTML = "";
+      var readCount = cards.filter(function (x) { return state.read[x.id]; }).length;
+      stage.appendChild(el("div", { class: "nthview-hl-gridhead" }, [el("span", { text: n + " cards" }), el("span", { text: readCount + " read" })]));
+      stage.appendChild(el("ul", { class: "nthview-hl-grid" }, cards.map(function (c, k) {
+        var tile = el("button", { type: "button", class: "nthview-hl-tile" + (state.read[c.id] ? " nthview-hl-read" : ""), "aria-label": "Card " + (k + 1) + ": " + c.headline });
+        setAccent(tile, accentOf(c, k));
+        shapes(k).slice(0, 1).forEach(function (s) { tile.appendChild(s); });
+        tile.appendChild(el("small", { text: c.kicker || kindOf(c) }));
+        tile.appendChild(el("b", { text: kindOf(c) === "quote" ? c.quote.text : kindOf(c) === "number" ? c.number.value + " " + c.number.label : c.headline }));
+        tile.appendChild(el("em", { text: String(k + 1) }));
+        tile.addEventListener("click", function () { setMode("story"); go(k); });
+        return el("li", {}, [tile]);
+      })));
+      persist();
+    }
+
+    function go(k) {
+      if (k < 0 || k >= n) return;
+      dir = k >= state.i ? 12 : -12;
+      state.i = k;
+      if (state.mode !== "story") setMode("story"); else renderStory();
+      var f = stage.querySelector(".nthview-hl-frame"); if (f) f.focus && f.setAttribute("tabindex", "-1");
+    }
+    function setMode(m) {
+      state.mode = m;
+      storyBtn.setAttribute("aria-pressed", String(m === "story"));
+      gridBtn.setAttribute("aria-pressed", String(m === "grid"));
+      if (m === "grid") renderGrid(); else renderStory();
+    }
+    storyBtn.addEventListener("click", function () { setMode("story"); });
+    gridBtn.addEventListener("click", function () { setMode("grid"); });
+
+    function onKey(e) {
+      if (!root.document.body.contains(container)) { root.document.removeEventListener("keydown", onKey); return; }
+      var t = e.target, tag = t && t.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || (t && t.isContentEditable)) return;
+      if (state.mode !== "story") return;
+      if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === "PageDown") { e.preventDefault(); go(state.i + 1); }
+      else if (e.key === "ArrowLeft" || e.key === "ArrowUp" || e.key === "PageUp") { e.preventDefault(); go(state.i - 1); }
+      else if (e.key === "Home") { e.preventDefault(); go(0); }
+      else if (e.key === "End") { e.preventDefault(); go(n - 1); }
+    }
+    root.document.addEventListener("keydown", onKey);
+
+    setMode(state.mode);
+
+    if (resumed) {
+      var note = el("div", { class: "nthview-resume", role: "status", text: "Welcome back, continuing from card " + (state.i + 1) + " of " + n + "." });
+      shell.appendChild(note);
+      var gone = false;
+      function hide() { if (gone) return; gone = true; note.style.opacity = "0"; setTimeout(function () { if (note.parentNode) note.parentNode.removeChild(note); }, 600); root.document.removeEventListener("pointerdown", hide); root.document.removeEventListener("keydown", hide); }
+      setTimeout(hide, 6000);
+      root.document.addEventListener("pointerdown", hide); root.document.addEventListener("keydown", hide);
+    }
+  }
+
+  NthView.build = function (container, data) {
+    if (!container || typeof container.appendChild !== "function") {
+      throw new TypeError("NthView.build: container must be a DOM element");
+    }
+    container.innerHTML = "";
+    container.classList.add("nthview", "nthview-highlights");
+    injectStyles();
+
+    if (typeof NthView.validate !== "function") {
+      renderErrorPanel(container, { errors: [{ path: "$", message: "validate.js must be inlined before view.js" }] });
+      return { valid: false, errors: [], warnings: [] };
+    }
+    var result = NthView.validate(data);
+    if (!result.valid) {
+      renderErrorPanel(container, result);
+      return result;
+    }
+    render(container, data);
+    return result;
+  };
+
+  NthView.libs = [
+    { kind: "style", href: "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Inter:wght@400;600;700;800&display=swap",
+      name: "Google Fonts" }
+  ];
+})(typeof globalThis !== "undefined" ? globalThis : window);
+  </script>
+  <script>
+    (function () {
+      var data = JSON.parse(document.getElementById("nthview-data").textContent);
+      NthView.build(document.getElementById("app"), data);
+    })();
+  </script>
+
+  <!-- NthView lesson bar: added by scripts/build-lesson.js; the view above is untouched -->
+  <nav class="nthview-lesson-bar" aria-label="Lesson navigation" data-chapter="1" data-of="6">
+    <button type="button" class="nthview-lesson-toggle" aria-expanded="false" aria-controls="nthview-lesson-menu" title="Incident Response in IT and OT">1<small>/6</small></button>
+    <div class="nthview-lesson-menu" id="nthview-lesson-menu">
+      <span class="nthview-lesson-title"><b>Incident Response in IT and OT</b> · Chapter 1 of 6: Highlights</span>
+      <span class="nthview-lesson-links">
+        <a href="../index.html">‹ Contents</a>
+        <a href="../index.html">Contents</a>
+        <a class="nthview-lesson-next" href="01-the-incident-response-map.html">Next chapter ›</a>
+      </span>
+    </div>
+  </nav>
+  <style>
+    .nthview-lesson-bar{position:fixed;right:14px;bottom:14px;z-index:2147483000;display:flex;align-items:center;gap:.5rem;font:14px/1.3 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color-scheme:light dark}
+    .nthview-lesson-toggle{width:46px;height:46px;border-radius:50%;border:1.5px solid rgba(127,127,127,.4);background:rgba(255,255,255,.9);color:#111;font:700 15px/1 system-ui,sans-serif;cursor:pointer;box-shadow:0 10px 30px -12px rgba(0,0,0,.5);backdrop-filter:blur(10px)}
+    .nthview-lesson-toggle small{font-size:10px;font-weight:600;opacity:.7}
+    .nthview-lesson-menu{display:none;align-items:center;gap:.9rem;padding:.55rem .9rem;border-radius:999px;border:1.5px solid rgba(127,127,127,.4);background:rgba(255,255,255,.94);color:#111;box-shadow:0 14px 40px -16px rgba(0,0,0,.55);backdrop-filter:blur(12px);max-width:min(78vw,40rem)}
+    .nthview-lesson-bar.nthview-lesson-open .nthview-lesson-menu,.nthview-lesson-bar:focus-within .nthview-lesson-menu,.nthview-lesson-bar:hover .nthview-lesson-menu{display:flex}
+    .nthview-lesson-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:22rem}
+    .nthview-lesson-links{display:flex;gap:.6rem;flex:none}
+    .nthview-lesson-links a{color:#1d4ed8;text-decoration:none;font-weight:600;white-space:nowrap}
+    .nthview-lesson-links a:hover{text-decoration:underline}
+    .nthview-lesson-links a.nthview-lesson-next{background:#1d4ed8;color:#fff;padding:.25rem .7rem;border-radius:999px}
+    .nthview-lesson-bar :focus-visible{outline:3px solid #1d4ed8;outline-offset:2px}
+    @media (prefers-color-scheme:dark){.nthview-lesson-toggle,.nthview-lesson-menu{background:rgba(24,26,36,.92);color:#f3f4f8}.nthview-lesson-links a{color:#9db4ff}.nthview-lesson-links a.nthview-lesson-next{background:#4d7cff;color:#0b1020}}
+    @media (max-width:640px){.nthview-lesson-bar{flex-direction:column-reverse;align-items:flex-end}.nthview-lesson-menu{flex-direction:column;align-items:flex-start;border-radius:1rem;max-width:calc(100vw - 28px)}.nthview-lesson-title{white-space:normal;max-width:none}}
+    @media print{.nthview-lesson-bar{display:none}}
+  </style>
+  <script>
+    (function () {
+      var bar = document.querySelector(".nthview-lesson-bar"), btn = bar.querySelector(".nthview-lesson-toggle");
+      btn.addEventListener("click", function () { var open = bar.classList.toggle("nthview-lesson-open"); btn.setAttribute("aria-expanded", String(open)); });
+      document.addEventListener("keydown", function (e) { if (e.key === "Escape" && bar.classList.contains("nthview-lesson-open")) { bar.classList.remove("nthview-lesson-open"); btn.setAttribute("aria-expanded", "false"); btn.focus(); } });
+    })();
+  </script>
+</body>
+</html>

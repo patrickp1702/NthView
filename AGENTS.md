@@ -68,11 +68,11 @@ import, read or depend on another view folder.
 
 ### What exists today
 
-Nine views live under `skills/` and are listed in `registry.js` and the
+Ten views live under `skills/` and are listed in `registry.js` and the
 gallery: `nthview-island-quest`, `nthview-scenario-quiz`,
 `nthview-explorable`, `nthview-detective`, `nthview-concept-map`,
 `nthview-zoom-map`, `nthview-courier`, `nthview-temple-run`,
-`nthview-sequence`, plus the parent skill `nthview` (§10). New views are added one at a time following §11.
+`nthview-sequence`, `nthview-highlights`, plus the parent skill `nthview` (§10). New views are added one at a time following §11.
 
 ---
 
@@ -905,14 +905,22 @@ holds no view detail of its own; that stays in each view's `SKILL.md`. The
 registry records it with `hidden: true`, so it never appears as a gallery
 card.
 
-A **lesson** is `lessons/<lesson-slug>/lesson.json` plus `chapters/NN-<slug>.json`
-files, one view per chapter (two angles on an idea are two chapters).
+A **lesson** is `lessons/<lesson-slug>/lesson.json` (schemaVersion 2: title,
+description, audience, level, domain, tags, objectives, created, optional
+prerequisites, glossary, references, updated, minutes) plus
+`chapters/NN-<slug>.json` files, one view per chapter (two angles on an idea
+are two chapters). Chapter `00-highlights` is always first: a
+`nthview-highlights` deck that previews the whole lesson. Chapters may carry a
+`role` (preview, structure, demonstrate, apply, confront, consolidate, assess,
+recap) so the sequence covers a concept from every angle.
 `node scripts/build-lesson.js lessons/<lesson-slug>` validates the manifest
 and every chapter with its view, assembles the chapter pages with the lesson
-bar, writes the lesson's `index.html` contents page, and regenerates the
-registry. The gallery lists docs and lessons behind one "N docs · M lessons
-available" button that opens a dialog. The format is documented in
-`skills/nthview/references/lesson-format.md`.
+bar, writes the lesson's `index.html` contents page (objectives, tags, dates,
+chapters, glossary, references), and regenerates the registry. The gallery
+lists docs and lessons behind one "N docs · M lessons available" button; the
+Lessons tab is a filterable library (search, level, domain, tags, created
+date range, sort) whose state lives in the URL hash `#lessons?…`. The format
+is documented in `skills/nthview/references/lesson-format.md`.
 
 ---
 

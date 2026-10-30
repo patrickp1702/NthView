@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "title": "Incident Response in IT and OT",
+  "subtitle": "Nine cards on how enterprises handle a cyber incident, and what changes when the systems run a factory.",
+  "kicker": "Lesson preview · 6 chapters · about 80 min",
+  "theme": "midnight",
+  "tags": [
+    "incident-response",
+    "cybersecurity",
+    "ot",
+    "ics",
+    "ransomware",
+    "enterprise"
+  ],
+  "cards": [
+    {
+      "id": "cover",
+      "kind": "cover",
+      "headline": "Every incident is handled twice: once in the network, once in the room.",
+      "body": "Technical containment is half the job. The other half is decisions under pressure: who to tell, what to shut down, what to keep as evidence.",
+      "accent": "blue"
+    },
+    {
+      "id": "lifecycle",
+      "kind": "list",
+      "headline": "Six phases you will keep coming back to",
+      "kicker": "Chapter 1 · The map",
+      "points": [
+        "Preparation",
+        "Detection and analysis",
+        "Containment",
+        "Eradication",
+        "Recovery",
+        "Lessons learned"
+      ],
+      "href": "01-the-incident-response-map.html",
+      "accent": "teal"
+    },
+    {
+      "id": "people",
+      "kind": "topic",
+      "headline": "It takes a commander, analysts, lawyers and the plant floor",
+      "kicker": "Chapter 1 · The map",
+      "body": "SOC analysts read the SIEM and EDR, legal watches the notification clocks, executives decide on the ransom, engineers keep the process safe.",
+      "href": "01-the-incident-response-map.html",
+      "accent": "violet"
+    },
+    {
+      "id": "day1",
+      "kind": "topic",
+      "headline": "The first 24 hours are a chain of decisions",
+      "kicker": "Chapter 2 · The first 24 hours",
+      "body": "A ransomware outbreak spreads while you read this. Triage, isolate, preserve evidence, brief the board, call the regulator. Each choice explained, whichever you pick.",
+      "tags": [
+        "ransomware",
+        "containment"
+      ],
+      "href": "02-the-first-24-hours.html",
+      "accent": "coral"
+    },
+    {
+      "id": "ot",
+      "kind": "topic",
+      "headline": "In a plant, safety comes before containment",
+      "kicker": "Chapter 3 · The night-shift anomaly",
+      "body": "A process misbehaves at 2 a.m. Sensor fault, human error or intrusion? Pulling the plug can be the most dangerous move. Investigate the safe way.",
+      "tags": [
+        "ot",
+        "ics",
+        "safety"
+      ],
+      "href": "03-the-night-shift-anomaly.html",
+      "accent": "amber"
+    },
+    {
+      "id": "number",
+      "kind": "number",
+      "headline": "Notification clocks",
+      "kicker": "Chapter 4 · Speed versus damage",
+      "number": {
+        "value": "72 h",
+        "label": "a common deadline to tell a regulator, counted from when you became aware"
+      },
+      "body": "Play with alert volume, detection time, containment speed and recovery bottlenecks to see what moves damage.",
+      "href": "04-speed-versus-damage.html",
+      "accent": "rose"
+    },
+    {
+      "id": "quote",
+      "kind": "quote",
+      "headline": "Evidence",
+      "kicker": "Chapter 2 · The first 24 hours",
+      "quote": {
+        "text": "Rebuilding the server fixes today. Imaging it first is what lets you explain today in six months.",
+        "by": "the lesson, chapter 2"
+      },
+      "href": "02-the-first-24-hours.html",
+      "accent": "lime"
+    },
+    {
+      "id": "recap",
+      "kind": "recap",
+      "headline": "What this lesson covers",
+      "body": "Tap any line to jump back to its card.",
+      "accent": "slate"
+    },
+    {
+      "id": "start",
+      "kind": "cta",
+      "headline": "Start with the map",
+      "body": "Chapter 1 puts the lifecycle, the people and the IT/OT differences on one map you rebuild from memory.",
+      "href": "01-the-incident-response-map.html",
+      "cta": "Open chapter 1",
+      "accent": "blue"
+    }
+  ]
+}

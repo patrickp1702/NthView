@@ -1,32 +1,135 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "title": "ARTEX Explained: An AI Team That Pentests on Its Own",
   "description": "What ARTEX is, what makes it different from a scanner or a single chatbot, and how its team of AI agents plans, works, remembers and finishes a security test with little human help.",
   "audience": "Anyone curious how an autonomous multi-agent AI system works, no code reading needed.",
   "chapters": [
     {
+      "file": "00-highlights",
+      "title": "Highlights",
+      "view": "nthview-highlights",
+      "summary": "Eight cards on an AI team that pentests on its own: the roles, the shared memory, the guard rails, and the decisions a planner faces.",
+      "role": "preview",
+      "minutes": 5
+    },
+    {
       "file": "01-how-artex-fits-together",
       "title": "How ARTEX Fits Together",
       "view": "nthview-concept-map",
-      "summary": "Tour the agent team, the work it produces, its shared memory and its guard rails, then rebuild the map from memory."
+      "summary": "Tour the agent team, the work it produces, its shared memory and its guard rails, then rebuild the map from memory.",
+      "role": "structure",
+      "minutes": 12,
+      "objectives": [
+        0,
+        1
+      ]
     },
     {
       "file": "02-you-are-the-planner",
       "title": "You Are the Planner",
       "view": "nthview-scenario-quiz",
-      "summary": "Step into the team lead's shoes: ten wake-ups, ten decisions about what the agent team should do next."
+      "summary": "Step into the team lead's shoes: ten wake-ups, ten decisions about what the agent team should do next.",
+      "role": "apply",
+      "minutes": 15,
+      "objectives": [
+        2
+      ]
     },
     {
       "file": "03-the-stalled-task",
       "title": "The Stalled Task",
       "view": "nthview-detective",
-      "summary": "A lab task stopped making progress overnight. Use the team's own records to work out which part of the agent loop was waiting, and why."
+      "summary": "A lab task stopped making progress overnight. Use the team's own records to work out which part of the agent loop was waiting, and why.",
+      "role": "confront",
+      "minutes": 15,
+      "objectives": [
+        3
+      ]
     },
     {
       "file": "04-artex-archipelago",
       "title": "ARTEX Archipelago",
       "view": "nthview-island-quest",
-      "summary": "One island per big idea, hands-on activities, then a final exam over the whole system."
+      "summary": "One island per big idea, hands-on activities, then a final exam over the whole system.",
+      "role": "consolidate",
+      "minutes": 20,
+      "objectives": [
+        0,
+        1,
+        2,
+        3
+      ]
     }
-  ]
+  ],
+  "level": "intermediate",
+  "domain": "security",
+  "tags": [
+    "ai-agents",
+    "penetration-testing",
+    "multi-agent",
+    "llm",
+    "cybersecurity",
+    "autonomy"
+  ],
+  "objectives": [
+    "Describe the parts of ARTEX: the goals agent, planner, workers, shared graphs and guard rails, and how they fit together",
+    "Explain what makes an agent team different from a scanner or a single chatbot with tools",
+    "Decide what the team lead should do next at each wake-up, given the team's state",
+    "Trace a stalled task through the team's own records to the part of the loop that was waiting"
+  ],
+  "prerequisites": [
+    "A rough idea of what a penetration test is",
+    "No code reading needed"
+  ],
+  "glossary": [
+    {
+      "term": "Agent",
+      "definition": "A program that uses a language model to decide its next action, acts with tools, reads the result and goes again.",
+      "chapter": "01-how-artex-fits-together"
+    },
+    {
+      "term": "Planner",
+      "definition": "The agent that turns goals into work orders for the workers and keeps the to-do list.",
+      "chapter": "01-how-artex-fits-together"
+    },
+    {
+      "term": "Work order",
+      "definition": "One concrete intent handed to a worker: what to try, against what, and what counts as done.",
+      "chapter": "01-how-artex-fits-together"
+    },
+    {
+      "term": "Fact",
+      "definition": "Something a worker observed and recorded, with evidence, in the shared memory.",
+      "chapter": "01-how-artex-fits-together"
+    },
+    {
+      "term": "Finding",
+      "definition": "A confirmed security weakness, built from facts, that goes into the report.",
+      "chapter": "01-how-artex-fits-together"
+    },
+    {
+      "term": "Exploration graph",
+      "definition": "The team's shared memory of what has been found and tried, so no agent repeats work or forgets a lead.",
+      "chapter": "01-how-artex-fits-together"
+    },
+    {
+      "term": "Approval gate",
+      "definition": "A point where a risky action waits for the human operator to say yes.",
+      "chapter": "02-you-are-the-planner"
+    },
+    {
+      "term": "Authorized scope",
+      "definition": "The systems the test is allowed to touch; anything else is off limits however interesting.",
+      "chapter": "02-you-are-the-planner"
+    }
+  ],
+  "references": [
+    {
+      "title": "The ARTEX paper on arXiv",
+      "url": "https://arxiv.org/abs/2605.01566"
+    }
+  ],
+  "created": "2026-10-26",
+  "updated": "2026-10-30",
+  "estimatedMinutes": 67
 }

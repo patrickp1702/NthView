@@ -54,6 +54,11 @@ One concept, many dimensions, one view at a time.
   parties, one message at a time: what travels on each arrow, over which
   channel, and what every party holds afterwards, plus a full UML-style
   sequence diagram. Demo: `skills/nthview-sequence/examples/example.html`.
+- **Highlights** (`skills/nthview-highlights`) — a swipeable stack of
+  text-only cards, in the feel of a social-media carousel, that previews
+  everything a lesson or document covers, one idea per card, with a recap
+  and a call to action. Every lesson opens with one. Demo:
+  `skills/nthview-highlights/examples/example.html`.
 
 Open `index.html` for the gallery of all views, or visit the hosted copy at
 https://patrickp1702.github.io/NthView/ (served by GitHub Pages straight from

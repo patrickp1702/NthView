@@ -79,7 +79,7 @@
     .nv-dialog-head { display: flex; align-items: center; justify-content: space-between; padding: 1.1rem 1.3rem .6rem; }
     .nv-dialog-head h2 { font-family: var(--display); font-weight: 800; font-size: 1.5rem; margin: 0; letter-spacing: -.02em; }
     .nv-close { width: 2.2rem; height: 2.2rem; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-size: 1.3rem; line-height: 1; cursor: pointer; }
-    #nv-dialog-body { padding: 0 1.3rem 1.3rem; overflow: auto; max-height: calc(100vh - 12rem); }
+    #nv-dialog-body { padding: 0 1.3rem 1.3rem; overflow: auto; max-height: calc(100vh - 20rem); min-height: 12rem; }
     .nv-dlabel { font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; font-weight: 700; color: var(--accent); margin: 1rem 0 .5rem; }
     .nv-dlist { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; }
     .nv-dlist a { display: flex; gap: .8rem; align-items: center; text-decoration: none; color: inherit; border: 1px solid var(--line); border-radius: 1rem; padding: .75rem .9rem; background: var(--surface); transition: transform .15s, border-color .15s; }
@@ -96,6 +96,31 @@
     .nv-tab[aria-selected="true"] { background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-color: transparent; color: #fff; }
     .nv-dfilter { flex: 1; min-width: 10rem; border: 1px solid var(--line); background: var(--surface); color: inherit; border-radius: 999px; padding: .45rem .9rem; font: inherit; font-size: .9rem; }
     .nv-dpage { margin: .8rem auto 0; display: block; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: .5rem 1rem; font: 600 .85rem/1 var(--body); cursor: pointer; }
+    .nv-filters { display: grid; gap: .5rem; padding: 0 1.3rem .6rem; }
+    .nv-frow { display: flex; gap: .5rem; align-items: center; }
+    .nv-fwrap { flex-wrap: wrap; }
+    .nv-seg { display: flex; gap: .3rem; flex-wrap: wrap; }
+    .nv-chip { border: 1px solid var(--line); background: var(--surface); color: var(--muted); border-radius: 999px; padding: .35rem .75rem; font: 600 .8rem/1 var(--body); cursor: pointer; }
+    .nv-chip:hover { border-color: var(--accent); color: var(--ink); }
+    .nv-chip[aria-pressed="true"] { background: var(--ink); color: var(--bg1); border-color: var(--ink); }
+    .nv-tagchip[aria-pressed="true"] { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; border-color: transparent; }
+    .nv-applied .nv-chip { background: color-mix(in srgb, var(--accent) 14%, var(--surface)); color: var(--ink); border-color: color-mix(in srgb, var(--accent) 40%, var(--line)); }
+    .nv-select, .nv-date { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: .45rem .8rem; font: inherit; font-size: .85rem; }
+    .nv-flabel { font-size: .8rem; color: var(--muted); }
+    .nv-count { margin: .2rem 0 .6rem; }
+    .nv-llist .nv-lrow { display: flex; gap: .8rem; align-items: flex-start; border: 1px solid var(--line); border-radius: 1rem; padding: .85rem 1rem; background: var(--surface); cursor: pointer; transition: transform .15s, border-color .15s; }
+    .nv-llist .nv-lrow:hover { transform: translateX(3px); border-color: var(--accent); }
+    .nv-dsub { display: block; font-size: .74rem; color: var(--muted); letter-spacing: .02em; margin-bottom: .15rem; }
+    .nv-tagrow { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .45rem; }
+    .nv-rtag { border: 1px solid var(--line); background: transparent; color: var(--accent); border-radius: 999px; padding: .2rem .55rem; font: 700 .74rem/1.2 var(--body); cursor: pointer; }
+    .nv-rtag:hover { border-color: var(--accent); }
+    .nv-rmore { color: var(--muted); cursor: default; }
+    .nv-rlinks { display: flex; flex-direction: column; gap: .35rem; flex: none; }
+    .nv-rlink { font-size: .78rem; font-weight: 700; text-decoration: none; color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: .35rem .7rem; text-align: center; background: var(--surface-2); }
+    .nv-rlink:hover { border-color: var(--accent); }
+    .nv-rhl { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; border-color: transparent; }
+    #nv-dialog { width: min(52rem, calc(100vw - 2rem)); }
+    @media (max-width: 560px) { .nv-llist .nv-lrow { flex-direction: column; } .nv-rlinks { flex-direction: row; } }
     .nv-howto { width: min(52rem, calc(100vw - 2rem)); }
     .nv-howto-body { padding: 0 1.3rem 1.4rem; overflow: auto; max-height: calc(100vh - 11rem); line-height: 1.6; }
     .nv-howto-body h3 { font-family: var(--display); font-size: 1.15rem; margin: 1.2rem 0 .3rem; }
@@ -370,7 +395,7 @@
         host.appendChild(strip);
         return { pick: pick };
       }
-      /* docs and lessons live behind one button and a dialog */
+      /* docs and lessons live behind one button and a dialog; lessons get a filterable library */
       (function () {
         var docs = registry.docs || [], lessons = registry.lessons || [];
         var btn = document.getElementById("nv-library"), dlg = document.getElementById("nv-dialog"), body = document.getElementById("nv-dialog-body"), tools = document.getElementById("nv-dialog-tools");
@@ -378,7 +403,9 @@
         var parts = []; if (docs.length) parts.push(docs.length + (docs.length === 1 ? " doc" : " docs")); if (lessons.length) parts.push(lessons.length + (lessons.length === 1 ? " lesson" : " lessons"));
         btn.textContent = parts.join(" · ") + " available"; btn.hidden = false;
         var viewTitle = function (v) { return v ? v.replace(/^nthview-/, "").split("-").map(function (w) { return w[0].toUpperCase() + w.slice(1); }).join(" ") : "View"; };
-        var PAGE = 20, CLAMP = 200;
+        var cap = function (v) { return v ? v[0].toUpperCase() + v.slice(1) : ""; };
+        var fmtDate = function (iso) { if (!iso) return ""; var d = new Date(iso + "T00:00:00Z"); return isNaN(d) ? iso : d.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }); };
+        var PAGE = 20, CLAMP = 200, TOPTAGS = 10;
         function clamped(text) {
           var p = el("p", {});
           if (!text || text.length <= CLAMP) { p.textContent = text || ""; return p; }
@@ -387,42 +414,180 @@
           more.addEventListener("click", function (e) { e.preventDefault(); e.stopPropagation(); open = !open; t.nodeValue = open ? text + " " : cut; more.textContent = open ? "Show less" : "Show more"; more.setAttribute("aria-expanded", String(open)); });
           p.appendChild(t); p.appendChild(more); return p;
         }
+
+        /* ---- lesson filter state ---- */
+        var F = { q: "", level: "", domain: "", tags: [], within: "", from: "", to: "", sort: "updated" };
+        var tagCounts = {}, domains = {}, levels = {};
+        lessons.forEach(function (l) { (l.tags || []).forEach(function (t) { tagCounts[t] = (tagCounts[t] || 0) + 1; }); if (l.domain) domains[l.domain] = (domains[l.domain] || 0) + 1; if (l.level) levels[l.level] = (levels[l.level] || 0) + 1; });
+        var allTags = Object.keys(tagCounts).sort(function (a, b) { return tagCounts[b] - tagCounts[a] || (a < b ? -1 : 1); });
+        var showAllTags = false;
+        function readHash() {
+          var h = location.hash || "";
+          if (h.indexOf("#lessons") !== 0) return false;
+          var qs = h.split("?")[1] || "", seen = {};
+          qs.split("&").forEach(function (kv) { if (!kv) return; var i = kv.indexOf("="), k = decodeURIComponent(kv.slice(0, i < 0 ? kv.length : i)), v = i < 0 ? "" : decodeURIComponent(kv.slice(i + 1)); seen[k] = true;
+            if (k === "tag") F.tags = v ? v.split(",") : []; else if (k in F && k !== "tags") F[k] = v; });
+          return true;
+        }
+        function writeHash() {
+          var p = [];
+          if (F.q) p.push("q=" + encodeURIComponent(F.q)); if (F.level) p.push("level=" + F.level); if (F.domain) p.push("domain=" + F.domain);
+          if (F.tags.length) p.push("tag=" + F.tags.map(encodeURIComponent).join(",")); if (F.within) p.push("within=" + F.within); if (F.from) p.push("from=" + F.from); if (F.to) p.push("to=" + F.to); if (F.sort !== "updated") p.push("sort=" + F.sort);
+          var h = "#lessons" + (p.length ? "?" + p.join("&") : "");
+          if (location.hash !== h) history.replaceState(null, "", h);
+        }
+        function inRange(l) {
+          var d = l.created || "";
+          if (F.within) { var days = { "7d": 7, "30d": 30, "90d": 90, "365d": 365 }[F.within]; if (days) { var cutoff = new Date(Date.now() - days * 864e5).toISOString().slice(0, 10); if (d < cutoff) return false; } else if (F.within === "year") { if (d.slice(0, 4) !== String(new Date().getFullYear())) return false; } }
+          if (F.from && d < F.from) return false; if (F.to && d > F.to) return false;
+          return true;
+        }
+        function filtered() {
+          var q = F.q.trim().toLowerCase();
+          var hits = lessons.filter(function (l) {
+            if (q && (l.title + " " + l.description + " " + (l.tags || []).join(" ") + " " + (l.domain || "")).toLowerCase().indexOf(q) === -1) return false;
+            if (F.level && l.level !== F.level) return false; if (F.domain && l.domain !== F.domain) return false;
+            if (F.tags.length && !F.tags.every(function (t) { return (l.tags || []).indexOf(t) !== -1; })) return false;
+            return inRange(l);
+          });
+          hits.sort(function (a, b) {
+            if (F.sort === "az") return a.title.toLowerCase() < b.title.toLowerCase() ? -1 : 1;
+            if (F.sort === "created") return (b.created || "") < (a.created || "") ? -1 : 1;
+            if (F.sort === "short") return (a.minutes || 1e9) - (b.minutes || 1e9);
+            return (b.updated || b.created || "") < (a.updated || a.created || "") ? -1 : 1;
+          });
+          return hits;
+        }
+        function chip(label, pressed, onClick, extra) {
+          var b = el("button", { type: "button", class: "nv-chip" + (extra ? " " + extra : ""), "aria-pressed": String(!!pressed), text: label });
+          b.addEventListener("click", onClick); return b;
+        }
+        var filterBox = el("div", { class: "nv-filters" });
+        function renderFilters() {
+          filterBox.innerHTML = "";
+          var row1 = el("div", { class: "nv-frow" });
+          var q = el("input", { type: "search", class: "nv-dfilter", placeholder: "Search lessons…", "aria-label": "Search lessons", value: F.q });
+          q.addEventListener("input", function () { F.q = q.value; update(false); });
+          row1.appendChild(q);
+          var sort = el("select", { class: "nv-select", "aria-label": "Sort" }, [["updated", "Recently updated"], ["created", "Newest"], ["az", "A to Z"], ["short", "Shortest first"]].map(function (o) { var op = el("option", { value: o[0], text: o[1] }); if (o[0] === F.sort) op.setAttribute("selected", ""); return op; }));
+          sort.addEventListener("change", function () { F.sort = sort.value; update(); });
+          row1.appendChild(sort);
+          filterBox.appendChild(row1);
+          var row2 = el("div", { class: "nv-frow nv-fwrap" });
+          var lv = el("div", { class: "nv-seg", role: "group", "aria-label": "Level" }, [["", "All levels"], ["beginner", "Beginner"], ["intermediate", "Intermediate"], ["advanced", "Advanced"]].map(function (o) {
+            return chip(o[1], F.level === o[0], function () { F.level = o[0]; update(); });
+          }));
+          row2.appendChild(lv);
+          if (Object.keys(domains).length > 1) {
+            row2.appendChild(el("div", { class: "nv-seg", role: "group", "aria-label": "Domain" }, [chip("All domains", !F.domain, function () { F.domain = ""; update(); })].concat(Object.keys(domains).sort().map(function (d) {
+              return chip(cap(d) + " " + domains[d], F.domain === d, function () { F.domain = F.domain === d ? "" : d; update(); });
+            }))));
+          }
+          filterBox.appendChild(row2);
+          var row3 = el("div", { class: "nv-frow nv-fwrap" });
+          var within = el("select", { class: "nv-select", "aria-label": "Created within" }, [["", "Created any time"], ["7d", "Last 7 days"], ["30d", "Last 30 days"], ["90d", "Last 90 days"], ["365d", "Last 12 months"], ["year", "This year"]].map(function (o) { var op = el("option", { value: o[0], text: o[1] }); if (o[0] === F.within) op.setAttribute("selected", ""); return op; }));
+          within.addEventListener("change", function () { F.within = within.value; if (F.within) { F.from = ""; F.to = ""; } update(); });
+          row3.appendChild(within);
+          var from = el("input", { type: "date", class: "nv-date", "aria-label": "Created from", value: F.from }), to = el("input", { type: "date", class: "nv-date", "aria-label": "Created to", value: F.to });
+          from.addEventListener("change", function () { F.from = from.value; if (F.from) F.within = ""; update(); });
+          to.addEventListener("change", function () { F.to = to.value; if (F.to) F.within = ""; update(); });
+          row3.appendChild(el("span", { class: "nv-flabel", text: "or from" })); row3.appendChild(from); row3.appendChild(el("span", { class: "nv-flabel", text: "to" })); row3.appendChild(to);
+          filterBox.appendChild(row3);
+          if (allTags.length) {
+            var tagRow = el("div", { class: "nv-frow nv-fwrap nv-tagsrow", role: "group", "aria-label": "Tags" });
+            var visible = showAllTags ? allTags : allTags.slice(0, TOPTAGS);
+            F.tags.forEach(function (t) { if (visible.indexOf(t) === -1) visible = visible.concat([t]); });
+            visible.forEach(function (t) { tagRow.appendChild(chip("#" + t + " " + tagCounts[t], F.tags.indexOf(t) !== -1, function () { var i = F.tags.indexOf(t); if (i === -1) F.tags.push(t); else F.tags.splice(i, 1); update(); }, "nv-tagchip")); });
+            if (allTags.length > TOPTAGS) { var more = el("button", { type: "button", class: "nv-dmore", text: showAllTags ? "Fewer tags" : "All " + allTags.length + " tags" }); more.addEventListener("click", function () { showAllTags = !showAllTags; renderFilters(); }); tagRow.appendChild(more); }
+            filterBox.appendChild(tagRow);
+          }
+          var applied = [];
+          if (F.q) applied.push(["Search: " + F.q, function () { F.q = ""; }]);
+          if (F.level) applied.push([cap(F.level), function () { F.level = ""; }]);
+          if (F.domain) applied.push([cap(F.domain), function () { F.domain = ""; }]);
+          F.tags.forEach(function (t) { applied.push(["#" + t, function () { F.tags.splice(F.tags.indexOf(t), 1); }]); });
+          if (F.within) applied.push([within.options[within.selectedIndex].textContent, function () { F.within = ""; }]);
+          if (F.from || F.to) applied.push(["Created " + (F.from ? "from " + fmtDate(F.from) : "") + (F.to ? " to " + fmtDate(F.to) : ""), function () { F.from = ""; F.to = ""; }]);
+          if (applied.length) {
+            var ap = el("div", { class: "nv-frow nv-fwrap nv-applied", "aria-label": "Applied filters" });
+            applied.forEach(function (a) { var b = el("button", { type: "button", class: "nv-chip nv-x", "aria-label": "Remove filter " + a[0], text: a[0] + " ×" }); b.addEventListener("click", function () { a[1](); update(); }); ap.appendChild(b); });
+            var clear = el("button", { type: "button", class: "nv-dmore", text: "Clear all" }); clear.addEventListener("click", function () { F.q = ""; F.level = ""; F.domain = ""; F.tags = []; F.within = ""; F.from = ""; F.to = ""; update(); }); ap.appendChild(clear);
+            filterBox.appendChild(ap);
+          }
+        }
+        var count = el("p", { class: "nv-note nv-count", "aria-live": "polite" });
+
         function lessonRow(l) {
-          return el("li", {}, [el("a", { href: l.path }, [
-            el("span", { class: "nv-dmain" }, [el("b", { text: l.title }), clamped(l.description)]),
-            el("span", { class: "nv-dmeta", text: l.chapters + (l.chapters === 1 ? " chapter" : " chapters") })])]);
+          var tags = (l.tags || []).slice(0, 4).map(function (t) { var b = el("button", { type: "button", class: "nv-rtag", text: "#" + t, "aria-label": "Filter by tag " + t }); b.addEventListener("click", function (e) { e.preventDefault(); e.stopPropagation(); if (F.tags.indexOf(t) === -1) F.tags.push(t); update(); }); return b; });
+          if ((l.tags || []).length > 4) tags.push(el("span", { class: "nv-rtag nv-rmore", text: "+" + (l.tags.length - 4) }));
+          var meta = [l.level ? cap(l.level) : null, l.minutes ? "about " + l.minutes + " min" : null, l.chapters + (l.chapters === 1 ? " chapter" : " chapters"), l.updated ? "Updated " + fmtDate(l.updated) : null].filter(Boolean).join(" · ");
+          var main = el("span", { class: "nv-dmain" }, [
+            el("span", { class: "nv-dsub", text: (l.domain ? cap(l.domain) + " · " : "") + meta }),
+            el("b", { text: l.title }), clamped(l.description),
+            el("span", { class: "nv-tagrow" }, tags)
+          ]);
+          var links = [el("a", { class: "nv-rlink", href: l.path, text: "Open" })];
+          if (l.highlights) links.unshift(el("a", { class: "nv-rlink nv-rhl", href: l.highlights, text: "Highlights" }));
+          var li = el("li", { class: "nv-lrow" }, [main, el("span", { class: "nv-rlinks" }, links)]);
+          li.addEventListener("click", function (e) { if (e.target.closest("a, button")) return; window.location.href = l.path; });
+          return li;
         }
         function docRow(d) {
           return el("li", {}, [el("a", { href: d.file }, [el("span", { class: "nv-dtag", text: viewTitle(d.view) }), el("span", { class: "nv-dmain" }, [el("b", { text: d.title })])])]);
         }
+        var docFilter = el("input", { type: "search", class: "nv-dfilter", placeholder: "Filter docs…", "aria-label": "Filter docs" });
         var tabs = [];
-        if (lessons.length) tabs.push({ label: "Lessons (" + lessons.length + ")", items: lessons, row: lessonRow, text: function (l) { return (l.title + " " + l.description).toLowerCase(); }, empty: "No lessons match." });
-        if (docs.length) tabs.push({ label: "Docs (" + docs.length + ")", items: docs, row: docRow, text: function (d) { return (d.title + " " + viewTitle(d.view)).toLowerCase(); }, empty: "No docs match." });
-        var filter = el("input", { type: "search", class: "nv-dfilter", placeholder: "Filter…", "aria-label": "Filter the list" });
+        if (lessons.length) tabs.push({ key: "lessons", label: "Lessons (" + lessons.length + ")" });
+        if (docs.length) tabs.push({ key: "docs", label: "Docs (" + docs.length + ")" });
         var current = tabs[0];
-        function show() {
-          body.innerHTML = "";
-          var q = filter.value.trim().toLowerCase();
-          var hits = current.items.filter(function (it) { return !q || current.text(it).indexOf(q) !== -1; });
-          if (!hits.length) { body.appendChild(el("p", { class: "nv-note", text: current.empty })); return; }
-          var list = el("ul", { class: "nv-dlist" }), shown = 0;
-          body.appendChild(list);
+        function paged(list, items, row) {
+          var shown = 0;
           function more() {
-            hits.slice(shown, shown + PAGE).forEach(function (it) { list.appendChild(current.row(it)); });
-            shown = Math.min(hits.length, shown + PAGE);
+            items.slice(shown, shown + PAGE).forEach(function (it) { list.appendChild(row(it)); });
+            shown = Math.min(items.length, shown + PAGE);
             var old = body.querySelector(".nv-dpage"); if (old) old.remove();
-            if (shown < hits.length) { var b = el("button", { type: "button", class: "nv-dpage", text: "Show " + Math.min(PAGE, hits.length - shown) + " more of " + (hits.length - shown) }); b.addEventListener("click", more); body.appendChild(b); }
+            if (shown < items.length) { var b = el("button", { type: "button", class: "nv-dpage", text: "Show " + Math.min(PAGE, items.length - shown) + " more of " + (items.length - shown) }); b.addEventListener("click", more); body.appendChild(b); }
           }
           more();
         }
-        var strip = tabStrip(tools, tabs, function (t) { current = t; show(); });
-        tools.appendChild(filter);
+        function update(rerenderFilters) {
+          if (current.key === "lessons") {
+            if (rerenderFilters !== false) renderFilters();
+            writeHash();
+            body.innerHTML = "";
+            var hits = filtered();
+            count.textContent = hits.length === lessons.length ? lessons.length + " lessons" : hits.length + " of " + lessons.length + " lessons";
+            body.appendChild(count);
+            if (!hits.length) { body.appendChild(el("p", { class: "nv-note", text: "No lessons match these filters." })); return; }
+            var list = el("ul", { class: "nv-dlist nv-llist" }); body.appendChild(list); paged(list, hits, lessonRow);
+          } else {
+            body.innerHTML = "";
+            var q = docFilter.value.trim().toLowerCase();
+            var dh = docs.filter(function (d) { return !q || (d.title + " " + viewTitle(d.view)).toLowerCase().indexOf(q) !== -1; });
+            if (!dh.length) { body.appendChild(el("p", { class: "nv-note", text: "No docs match." })); return; }
+            var dl = el("ul", { class: "nv-dlist" }); body.appendChild(dl); paged(dl, dh, docRow);
+          }
+        }
+        var strip = tabStrip(tools, tabs, function (t) {
+          current = t;
+          filterBox.hidden = t.key !== "lessons"; docFilter.hidden = t.key !== "docs";
+          if (t.key !== "lessons" && location.hash.indexOf("#lessons") === 0) history.replaceState(null, "", location.pathname + location.search);
+          update();
+        });
+        tools.appendChild(docFilter);
+        tools.parentNode.insertBefore(filterBox, tools.nextSibling);
         if (tabs.length === 1) tools.querySelector(".nv-tabs").hidden = true;
-        filter.addEventListener("input", show);
-        show();
-        btn.addEventListener("click", function () { if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", ""); });
+        docFilter.addEventListener("input", function () { update(); });
+        function open() { if (typeof dlg.showModal === "function") { if (!dlg.open) dlg.showModal(); } else dlg.setAttribute("open", ""); }
+        btn.addEventListener("click", function () { open(); if (current.key === "lessons") writeHash(); });
         document.getElementById("nv-close").addEventListener("click", function () { dlg.close ? dlg.close() : dlg.removeAttribute("open"); });
         dlg.addEventListener("click", function (e) { if (e.target === dlg) dlg.close(); });
+        dlg.addEventListener("close", function () { if (location.hash.indexOf("#lessons") === 0) history.replaceState(null, "", location.pathname + location.search); });
+        var fromHash = readHash();
+        filterBox.hidden = current.key !== "lessons"; docFilter.hidden = current.key !== "docs";
+        update();
+        if (fromHash && lessons.length) { strip.pick(0); open(); }
+        window.addEventListener("hashchange", function () { if (readHash() && lessons.length) { strip.pick(0); open(); } });
       })();
 
       /* "How to use": install and contribution guide, one tab per agent family */

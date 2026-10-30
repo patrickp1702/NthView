@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "title": "Cucumber and BDD",
+  "subtitle": "Nine cards on specs everyone can read, before the full lesson.",
+  "kicker": "Lesson preview · 6 chapters · about 80 min",
+  "theme": "forest",
+  "tags": [
+    "bdd",
+    "cucumber",
+    "gherkin",
+    "testing",
+    "java",
+    "junit"
+  ],
+  "cards": [
+    {
+      "id": "cover",
+      "kind": "cover",
+      "headline": "The test is the conversation, written down.",
+      "body": "BDD is not a testing tool. It is a way of agreeing what software should do, in examples, before anyone writes code. Cucumber just keeps those examples honest.",
+      "accent": "lime"
+    },
+    {
+      "id": "loop",
+      "kind": "list",
+      "headline": "Three activities, in order",
+      "kicker": "Chapter 1 · How it fits together",
+      "points": [
+        "Discovery: the three amigos map examples",
+        "Formulation: examples become Gherkin",
+        "Automation: step definitions make them run"
+      ],
+      "href": "01-how-cucumber-fits-together.html",
+      "accent": "teal"
+    },
+    {
+      "id": "gherkin",
+      "kind": "topic",
+      "headline": "Given, When, Then is a grammar for behaviour",
+      "kicker": "Chapter 1 · How it fits together",
+      "body": "Feature files, Backgrounds, Outlines, Rules and tags, and how JUnit runs them and reports back. One map you rebuild from memory.",
+      "tags": [
+        "gherkin",
+        "junit"
+      ],
+      "href": "01-how-cucumber-fits-together.html",
+      "accent": "blue"
+    },
+    {
+      "id": "good",
+      "kind": "topic",
+      "headline": "A good scenario says what, never how",
+      "kicker": "Chapter 2 · Writing good scenarios",
+      "body": "Declarative steps, one behaviour per scenario, no clicking through screens. Ten review decisions on real-looking scenarios.",
+      "href": "02-writing-good-scenarios.html",
+      "accent": "violet"
+    },
+    {
+      "id": "failed",
+      "kind": "topic",
+      "headline": "Most BDD failures are not technical",
+      "kicker": "Chapter 3 · Why our BDD failed",
+      "body": "A team adopted Cucumber and got slow, brittle tests nobody reads. Investigate what really went wrong, and what the tool was blamed for.",
+      "href": "03-why-our-bdd-failed.html",
+      "accent": "coral"
+    },
+    {
+      "id": "maths",
+      "kind": "number",
+      "headline": "Suite maths",
+      "kicker": "Chapter 4 · Suite maths",
+      "number": {
+        "value": "5%",
+        "label": "flakiness per step is enough to make a 20-step scenario fail most of the time"
+      },
+      "body": "Play with retries, UI versus API steps, parallel runs and exploding Outlines.",
+      "href": "04-suite-maths.html",
+      "accent": "amber"
+    },
+    {
+      "id": "quote",
+      "kind": "quote",
+      "headline": "Living documentation",
+      "kicker": "Chapter 5 · Archipelago",
+      "quote": {
+        "text": "If the feature file lies, the suite fails. That is the whole trick.",
+        "by": "the lesson, chapter 1"
+      },
+      "href": "05-cucumber-archipelago.html",
+      "accent": "rose"
+    },
+    {
+      "id": "recap",
+      "kind": "recap",
+      "headline": "What this lesson covers",
+      "body": "Tap any line to jump back to its card.",
+      "accent": "slate"
+    },
+    {
+      "id": "start",
+      "kind": "cta",
+      "headline": "Start with the map",
+      "body": "Chapter 1 lays the whole system out on one map you will rebuild from memory.",
+      "href": "01-how-cucumber-fits-together.html",
+      "cta": "Open chapter 1",
+      "accent": "lime"
+    }
+  ]
+}

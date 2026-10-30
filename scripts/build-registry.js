@@ -180,7 +180,11 @@ if (fs.existsSync(lessonsDir)) {
       if (!fs.existsSync(path.join(lessonsDir, slug, "chapters", c.file + ".html"))) error(where + "/lesson.json chapters[" + i + "]", "chapters/" + c.file + ".html is missing; run node scripts/build-lesson.js " + where);
     });
     var views = []; m.chapters.forEach(function (c) { if (c && c.view && views.indexOf(c.view) === -1) views.push(c.view); });
-    lessons.push({ slug: slug, title: m.title, description: m.description || "", audience: m.audience || null, chapters: m.chapters.length, views: views, path: where + "/index.html", next: m.next || null });
+    var mins = typeof m.estimatedMinutes === "number" ? m.estimatedMinutes : (m.chapters.every(function (c) { return typeof c.minutes === "number"; }) ? m.chapters.reduce(function (a, c) { return a + c.minutes; }, 0) : null);
+    lessons.push({ slug: slug, title: m.title, description: m.description || "", audience: m.audience || null, chapters: m.chapters.length, views: views, path: where + "/index.html", next: m.next || null,
+      domain: m.domain || null, level: m.level || null, tags: Array.isArray(m.tags) ? m.tags : [], minutes: mins, created: m.created || null, updated: m.updated || m.created || null,
+      objectives: Array.isArray(m.objectives) ? m.objectives.length : 0, glossary: Array.isArray(m.glossary) ? m.glossary.length : 0,
+      highlights: m.chapters.length && m.chapters[0].view === "nthview-highlights" ? where + "/chapters/" + m.chapters[0].file + ".html" : null });
   });
 }
 

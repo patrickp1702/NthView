@@ -1,13 +1,149 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "title": "Incident Response in IT and OT",
   "description": "How enterprises detect, contain, recover from and report cybersecurity incidents, and why the playbook changes when the systems run factories, pipelines and power grids.",
   "audience": "Developers, IT staff and managers who want an enterprise-level picture of incident response; no security background needed.",
   "chapters": [
-    { "file": "01-the-incident-response-map", "title": "The Incident Response Map", "view": "nthview-concept-map", "summary": "The response lifecycle, the people and tools involved, and how IT and OT differ, on one map you rebuild from memory." },
-    { "file": "02-the-first-24-hours", "title": "The First 24 Hours", "view": "nthview-scenario-quiz", "summary": "You lead the response to a ransomware outbreak: triage, containment, evidence, communication, regulators and the ransom question." },
-    { "file": "03-the-night-shift-anomaly", "title": "The Night-Shift Anomaly", "view": "nthview-detective", "summary": "A plant's process starts behaving oddly at 2 a.m. Sensor fault, human error or intrusion? Investigate the safe way." },
-    { "file": "04-speed-versus-damage", "title": "Speed versus Damage", "view": "nthview-explorable", "summary": "Play with alert volume, detection time, containment speed, shutdown decisions, recovery bottlenecks and notification clocks." },
-    { "file": "05-response-archipelago", "title": "Response Archipelago", "view": "nthview-island-quest", "summary": "One island per phase and idea, hands-on activities, then a final exam." }
-  ]
+    {
+      "file": "00-highlights",
+      "title": "Highlights",
+      "view": "nthview-highlights",
+      "summary": "The lesson in nine cards: the lifecycle, the first 24 hours, the plant that behaves oddly at 2 a.m., and the maths of speed versus damage.",
+      "role": "preview",
+      "minutes": 5
+    },
+    {
+      "file": "01-the-incident-response-map",
+      "title": "The Incident Response Map",
+      "view": "nthview-concept-map",
+      "summary": "The response lifecycle, the people and tools involved, and how IT and OT differ, on one map you rebuild from memory.",
+      "role": "structure",
+      "minutes": 12,
+      "objectives": [
+        0,
+        2
+      ]
+    },
+    {
+      "file": "02-the-first-24-hours",
+      "title": "The First 24 Hours",
+      "view": "nthview-scenario-quiz",
+      "summary": "You lead the response to a ransomware outbreak: triage, containment, evidence, communication, regulators and the ransom question.",
+      "role": "apply",
+      "minutes": 18,
+      "objectives": [
+        1
+      ]
+    },
+    {
+      "file": "03-the-night-shift-anomaly",
+      "title": "The Night-Shift Anomaly",
+      "view": "nthview-detective",
+      "summary": "A plant's process starts behaving oddly at 2 a.m. Sensor fault, human error or intrusion? Investigate the safe way.",
+      "role": "confront",
+      "minutes": 15,
+      "objectives": [
+        2
+      ]
+    },
+    {
+      "file": "04-speed-versus-damage",
+      "title": "Speed versus Damage",
+      "view": "nthview-explorable",
+      "summary": "Play with alert volume, detection time, containment speed, shutdown decisions, recovery bottlenecks and notification clocks.",
+      "role": "demonstrate",
+      "minutes": 12,
+      "objectives": [
+        3
+      ]
+    },
+    {
+      "file": "05-response-archipelago",
+      "title": "Response Archipelago",
+      "view": "nthview-island-quest",
+      "summary": "One island per phase and idea, hands-on activities, then a final exam.",
+      "role": "consolidate",
+      "minutes": 20,
+      "objectives": [
+        0,
+        1,
+        2,
+        3
+      ]
+    }
+  ],
+  "level": "intermediate",
+  "domain": "security",
+  "tags": [
+    "incident-response",
+    "cybersecurity",
+    "ot",
+    "ics",
+    "ransomware",
+    "enterprise"
+  ],
+  "objectives": [
+    "Describe the incident response lifecycle and who does what in each phase",
+    "Make defensible first-day decisions in a ransomware outbreak: triage, containment, evidence, communication",
+    "Explain why response changes when the systems run a plant, and what safety-first means in practice",
+    "Reason about trade-offs between speed and damage: alerts, detection time, shutdowns, recovery and notification clocks"
+  ],
+  "prerequisites": [
+    "General IT literacy; no security background needed"
+  ],
+  "glossary": [
+    {
+      "term": "Incident response",
+      "definition": "The organised way an organisation detects, contains, removes and recovers from a security incident, then learns from it.",
+      "chapter": "01-the-incident-response-map"
+    },
+    {
+      "term": "OT",
+      "definition": "Operational technology: the systems that control physical processes in plants, pipelines and grids.",
+      "chapter": "01-the-incident-response-map"
+    },
+    {
+      "term": "Containment",
+      "definition": "Stopping an incident from spreading while keeping what you need to investigate and recover.",
+      "chapter": "02-the-first-24-hours"
+    },
+    {
+      "term": "Chain of custody",
+      "definition": "The record of who held a piece of evidence, when, and what they did with it, so it holds up later.",
+      "chapter": "02-the-first-24-hours"
+    },
+    {
+      "term": "Purdue levels",
+      "definition": "A layered model of a plant network, from field devices at the bottom to business IT at the top, with a DMZ between.",
+      "chapter": "03-the-night-shift-anomaly"
+    },
+    {
+      "term": "Safety instrumented system",
+      "definition": "Independent equipment that forces a process to a safe state when limits are crossed, regardless of other systems.",
+      "chapter": "03-the-night-shift-anomaly"
+    },
+    {
+      "term": "Notification clock",
+      "definition": "A legal deadline to report an incident to a regulator or affected people, starting when you become aware of it.",
+      "chapter": "04-speed-versus-damage"
+    },
+    {
+      "term": "Tabletop exercise",
+      "definition": "A rehearsal of an incident around a table, following the playbook without touching real systems.",
+      "chapter": "01-the-incident-response-map"
+    }
+  ],
+  "references": [
+    {
+      "title": "NIST SP 800-61, Computer Security Incident Handling Guide",
+      "url": "https://csrc.nist.gov/pubs/sp/800/61/r2/final"
+    },
+    {
+      "title": "NIST SP 800-82, Guide to Operational Technology Security",
+      "url": "https://csrc.nist.gov/pubs/sp/800/82/r3/final"
+    }
+  ],
+  "created": "2026-10-26",
+  "updated": "2026-10-30",
+  "estimatedMinutes": 82
 }

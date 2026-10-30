@@ -1,26 +1,112 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "title": "Compliance for Everyone",
   "description": "What compliance really means, why the rules exist, and how they are used day to day, told three ways: crack a case, make the calls yourself, then play it through.",
   "audience": "Anyone starting a job where rules matter, no legal background needed.",
   "chapters": [
     {
+      "file": "00-highlights",
+      "title": "Highlights",
+      "view": "nthview-highlights",
+      "summary": "What this lesson covers, one card at a time: the rules, where they come from, and why they are worth following.",
+      "role": "preview",
+      "minutes": 5
+    },
+    {
       "file": "01-the-marigold-kitchen-case",
       "title": "The Marigold Kitchen Case",
       "view": "nthview-detective",
-      "summary": "Fourteen people fell ill after a catered lunch. Investigate the kitchen, question the staff and discover what compliance is by finding out what went wrong."
+      "summary": "Fourteen people fell ill after a catered lunch. Investigate the kitchen, question the staff and discover what compliance is by finding out what went wrong.",
+      "role": "demonstrate",
+      "minutes": 15,
+      "objectives": [
+        0,
+        2
+      ]
     },
     {
       "file": "02-a-week-at-brightpath",
       "title": "A Week at BrightPath",
       "view": "nthview-scenario-quiz",
-      "summary": "You are the new coordinator at a tutoring company. Ten real decisions about data, safety, gifts and records, each explained whichever way you choose."
+      "summary": "You are the new coordinator at a tutoring company. Ten real decisions about data, safety, gifts and records, each explained whichever way you choose.",
+      "role": "apply",
+      "minutes": 15,
+      "objectives": [
+        0,
+        1,
+        3
+      ]
     },
     {
       "file": "03-compliance-cove",
       "title": "Compliance Cove",
       "view": "nthview-island-quest",
-      "summary": "A playable island tour that consolidates the ideas: rules, training, audits, speaking up and culture, ending with inspection day."
+      "summary": "A playable island tour that consolidates the ideas: rules, training, audits, speaking up and culture, ending with inspection day.",
+      "role": "consolidate",
+      "minutes": 20,
+      "objectives": [
+        1,
+        2,
+        3
+      ]
     }
-  ]
+  ],
+  "level": "beginner",
+  "domain": "business",
+  "tags": [
+    "compliance",
+    "workplace",
+    "food-safety",
+    "data-protection",
+    "ethics"
+  ],
+  "objectives": [
+    "Explain what compliance is and who writes the rules an organisation follows",
+    "Spot the everyday moments where a rule applies: data, gifts, safety, records",
+    "Describe what training, audits and speaking up are actually for",
+    "Choose the compliant action in a realistic situation and say why"
+  ],
+  "prerequisites": [
+    "None. Everyday work experience is enough"
+  ],
+  "glossary": [
+    {
+      "term": "Compliance",
+      "definition": "Doing what the rules that apply to your work require, and being able to show that you did.",
+      "chapter": "01-the-marigold-kitchen-case"
+    },
+    {
+      "term": "Regulation",
+      "definition": "A rule written by a government agency under a law, with the force of law behind it.",
+      "chapter": "02-a-week-at-brightpath"
+    },
+    {
+      "term": "Policy",
+      "definition": "A rule an organisation writes for itself, often to meet a law or standard in its own way.",
+      "chapter": "02-a-week-at-brightpath"
+    },
+    {
+      "term": "Audit",
+      "definition": "A planned check that the rules are being followed, using records and observation, by someone not doing the work.",
+      "chapter": "02-a-week-at-brightpath"
+    },
+    {
+      "term": "Record",
+      "definition": "Written evidence that a required check or action happened, when, and by whom.",
+      "chapter": "01-the-marigold-kitchen-case"
+    },
+    {
+      "term": "Speaking up",
+      "definition": "Reporting a concern about a rule being broken through a channel the organisation protects.",
+      "chapter": "03-compliance-cove"
+    },
+    {
+      "term": "Compliance culture",
+      "definition": "What people do when nobody is checking; the habits that make rules work or fail.",
+      "chapter": "03-compliance-cove"
+    }
+  ],
+  "created": "2026-10-22",
+  "updated": "2026-10-30",
+  "estimatedMinutes": 55
 }

@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "title": "Krishnamurti and Osho",
+  "subtitle": "Nine cards on two teachers of freedom, before the full lesson.",
+  "kicker": "Lesson preview · 6 chapters · about 80 min",
+  "theme": "berry",
+  "tags": [
+    "krishnamurti",
+    "osho",
+    "meditation",
+    "awareness",
+    "freedom",
+    "spirituality"
+  ],
+  "cards": [
+    {
+      "id": "cover",
+      "kind": "cover",
+      "headline": "Two teachers, one enemy: the conditioned mind.",
+      "body": "Krishnamurti and Osho agreed on what binds us. They disagreed, sharply, on how to see through it. This lesson holds both without choosing for you.",
+      "accent": "violet"
+    },
+    {
+      "id": "bind",
+      "kind": "list",
+      "headline": "What both say binds us",
+      "kicker": "Chapter 1 · Two teachers, one map",
+      "points": [
+        "Conditioning from family, culture, religion",
+        "Thought mistaking itself for the thinker",
+        "Fear and psychological time",
+        "Belief and borrowed authority"
+      ],
+      "href": "01-two-teachers-one-map.html",
+      "accent": "rose"
+    },
+    {
+      "id": "k",
+      "kind": "topic",
+      "headline": "Krishnamurti: no method, no guru, just look",
+      "kicker": "Chapter 1 · Two teachers, one map",
+      "body": "Choiceless awareness, the observer is the observed, relationship as a mirror. Truth is a pathless land, and any path is a detour.",
+      "tags": [
+        "krishnamurti",
+        "awareness"
+      ],
+      "href": "01-two-teachers-one-map.html",
+      "accent": "blue"
+    },
+    {
+      "id": "o",
+      "kind": "topic",
+      "headline": "Osho: first empty the cup, then watch",
+      "kicker": "Chapter 3 · Zorba the Buddha",
+      "body": "Catharsis to throw out the repressed, witnessing to see what remains, celebration because life is not a problem. Zorba's joy and Buddha's silence in one person.",
+      "tags": [
+        "osho",
+        "meditation"
+      ],
+      "href": "03-zorba-the-buddha.html",
+      "accent": "coral"
+    },
+    {
+      "id": "number",
+      "kind": "number",
+      "headline": "The case",
+      "kicker": "Chapter 2 · The pathless land case",
+      "number": {
+        "value": "1929",
+        "label": "the year the chosen World Teacher dissolved the order built around him"
+      },
+      "body": "Crack the case of why he walked away, and what he taught instead.",
+      "href": "02-the-pathless-land-case.html",
+      "accent": "amber"
+    },
+    {
+      "id": "quote",
+      "kind": "quote",
+      "headline": "Where they part",
+      "kicker": "Chapter 4 · Krishnamurti or Osho?",
+      "quote": {
+        "text": "One says the master is a hindrance. The other built a city around being one.",
+        "by": "the lesson, chapter 4"
+      },
+      "href": "04-krishnamurti-or-osho.html",
+      "accent": "teal"
+    },
+    {
+      "id": "apply",
+      "kind": "topic",
+      "headline": "Ten situations, two answers",
+      "kicker": "Chapter 4 · Krishnamurti or Osho?",
+      "body": "Anger at work, a failed relationship, a craving, a prayer. Work out how each teacher would respond and why the answers differ.",
+      "href": "04-krishnamurti-or-osho.html",
+      "accent": "lime"
+    },
+    {
+      "id": "recap",
+      "kind": "recap",
+      "headline": "What this lesson covers",
+      "body": "Tap any line to jump back to its card.",
+      "accent": "slate"
+    },
+    {
+      "id": "start",
+      "kind": "cta",
+      "headline": "Start with the map",
+      "body": "Chapter 1 puts both teachers' core ideas on one map you will rebuild from memory.",
+      "href": "01-two-teachers-one-map.html",
+      "cta": "Open chapter 1",
+      "accent": "violet"
+    }
+  ]
+}

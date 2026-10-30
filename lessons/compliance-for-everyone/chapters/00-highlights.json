@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "title": "Compliance for Everyone",
+  "subtitle": "Eight cards on what compliance really is, before you crack the case, make the calls and play it through.",
+  "kicker": "Lesson preview · 4 chapters · about 55 min",
+  "theme": "sunrise",
+  "tags": [
+    "compliance",
+    "workplace",
+    "food-safety",
+    "data-protection",
+    "ethics"
+  ],
+  "cards": [
+    {
+      "id": "cover",
+      "kind": "cover",
+      "headline": "Rules are not the point. What they protect is.",
+      "body": "Fourteen people fell ill after a catered lunch. Every rule that could have stopped it was written down. This lesson is about why rules fail and how to make them work.",
+      "accent": "coral"
+    },
+    {
+      "id": "what",
+      "kind": "topic",
+      "headline": "Compliance is doing what the rules require, and being able to show it",
+      "kicker": "Chapter 1 · The case",
+      "body": "Not a department, not a form. A kitchen that keeps chicken at 5 °C and writes the reading down is compliant. One that owns a thermometer is not.",
+      "href": "01-the-marigold-kitchen-case.html",
+      "accent": "amber"
+    },
+    {
+      "id": "who",
+      "kind": "list",
+      "headline": "Four places rules come from",
+      "kicker": "Chapter 2 · A week at work",
+      "points": [
+        "Laws passed by parliament",
+        "Regulations written by agencies",
+        "Standards your organisation signed up to",
+        "Policies it wrote for itself"
+      ],
+      "href": "02-a-week-at-brightpath.html",
+      "accent": "teal"
+    },
+    {
+      "id": "moments",
+      "kind": "topic",
+      "headline": "You meet compliance ten times a day without noticing",
+      "kicker": "Chapter 2 · A week at work",
+      "body": "A parent's data, a tutor's gift, a safety check, a missing record. The quiz puts you in each moment and explains every option, right or wrong.",
+      "tags": [
+        "data-protection",
+        "gifts",
+        "records"
+      ],
+      "href": "02-a-week-at-brightpath.html",
+      "accent": "blue"
+    },
+    {
+      "id": "number",
+      "kind": "number",
+      "headline": "Why checks exist",
+      "kicker": "Chapter 1 · The case",
+      "number": {
+        "value": "9 °C",
+        "label": "the fridge that looked fine for seventeen days"
+      },
+      "body": "A five-star certificate on the wall, a probe still in its box, and a log filled in on a closed Sunday.",
+      "href": "01-the-marigold-kitchen-case.html",
+      "accent": "rose"
+    },
+    {
+      "id": "quote",
+      "kind": "quote",
+      "headline": "Audits and training",
+      "kicker": "Chapter 3 · Compliance Cove",
+      "quote": {
+        "text": "An audit is not there to catch you. It is there to find out whether the system works when you are tired.",
+        "by": "the lesson, chapter 3"
+      },
+      "href": "03-compliance-cove.html",
+      "accent": "violet"
+    },
+    {
+      "id": "culture",
+      "kind": "topic",
+      "headline": "Culture is what happens when nobody is checking",
+      "kicker": "Chapter 3 · Compliance Cove",
+      "body": "Speaking up, training before the first shift, records that are true. The island tour consolidates all of it and ends with inspection day.",
+      "href": "03-compliance-cove.html",
+      "accent": "lime"
+    },
+    {
+      "id": "recap",
+      "kind": "recap",
+      "headline": "What this lesson covers",
+      "body": "Tap any line to jump back to its card.",
+      "accent": "slate"
+    },
+    {
+      "id": "start",
+      "kind": "cta",
+      "headline": "Start with the case",
+      "body": "Chapter 1 drops you into the Marigold kitchen with a notebook and twelve clues.",
+      "href": "01-the-marigold-kitchen-case.html",
+      "cta": "Open chapter 1",
+      "accent": "coral"
+    }
+  ]
+}
