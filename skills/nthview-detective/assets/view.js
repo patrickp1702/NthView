@@ -14,7 +14,7 @@
   var FX = "--hand-size:1.22rem;--blinds:0;--rain:0;--grid:0;--dust:0;--torch:0;--cork:0;--gridlines:0;--tape:0;--pinop:1;";
   var PALETTES = {
     noir: { dark: true,
-      base: FX + "--bg1:#0d0c0b;--bg2:#1f1b17;--fog1:#4a3524;--fog2:#26303f;--surface:rgba(26,23,19,.82);--surface-2:#211d18;--paper:#2b2620;--paper-2:#3b3329;--line:rgba(255,236,200,.17);--ink:#f7f0e4;--muted:#cdbfa8;--accent:#e6ae52;--accent-2:#d0513b;--on-accent:#120f0c;--ok:#86d895;--no:#ff7564;--warn:#f2c14e;--hl:rgba(230,174,82,.36);--pin:#d9412b;--board:#4a3424;--board-2:#33231a;--frame:#1e150e;--str-no:#ef4a3a;--str-ok:#86d895;--wall:#24211d;--floor:#161412;--trim:#3d362d;--obj:#4b453c;--obj-2:#6e6557;--obj-line:#c4b498;--blinds:.55;--rain:.3;--dust:.2;--torch:.62;--cork:1;--display:'Special Elite','Courier New',monospace;--body:'Inter',system-ui,sans-serif;--hand:'Caveat','Segoe Print',cursive;--mono:'IBM Plex Mono',ui-monospace,monospace;--radius:.45rem",
+      base: FX + "--bg1:#0d0c0b;--bg2:#1f1b17;--fog1:#4a3524;--fog2:#26303f;--surface:rgba(26,23,19,.82);--surface-2:#211d18;--paper:#2b2620;--paper-2:#3b3329;--line:rgba(255,236,200,.17);--ink:#f7f0e4;--muted:#cdbfa8;--accent:#e6ae52;--accent-2:#ec6a52;--on-accent:#120f0c;--ok:#86d895;--no:#ff7564;--warn:#f2c14e;--hl:rgba(230,174,82,.36);--pin:#ec5a42;--board:#4a3424;--board-2:#33231a;--frame:#1e150e;--str-no:#ef4a3a;--str-ok:#86d895;--wall:#24211d;--floor:#161412;--trim:#3d362d;--obj:#4b453c;--obj-2:#6e6557;--obj-line:#c4b498;--blinds:.55;--rain:.3;--dust:.2;--torch:.62;--cork:1;--display:'Special Elite','Courier New',monospace;--body:'Inter',system-ui,sans-serif;--hand:'Caveat','Segoe Print',cursive;--mono:'IBM Plex Mono',ui-monospace,monospace;--radius:.45rem",
       alt: "--bg1:#efe8dc;--bg2:#d8ccb7;--fog1:#d3bd96;--fog2:#b8c0cd;--surface:rgba(255,251,244,.88);--surface-2:#fffaf1;--paper:#fbf5e8;--paper-2:#efe3cc;--line:rgba(40,28,14,.18);--ink:#16120d;--muted:#5a4a36;--accent:#8f540c;--accent-2:#b3261e;--on-accent:#fff;--ok:#1e7a3c;--no:#b3261e;--warn:#8a5a00;--hl:rgba(245,190,60,.5);--pin:#c0321f;--board:#b88a5a;--board-2:#9c6f42;--frame:#5b3d22;--str-no:#c0261c;--str-ok:#1e7a3c;--wall:#e6dccb;--floor:#cdbfa8;--trim:#b3a184;--obj:#f6efe2;--obj-2:#d8cbb4;--obj-line:#4a3b28;--blinds:.4;--rain:0;--dust:.3;--torch:0" },
     parchment: { dark: false,
       base: FX + "--bg1:#f3e7cf;--bg2:#e0cba2;--fog1:#ecd4a2;--fog2:#d8b585;--surface:rgba(252,245,229,.9);--surface-2:#fdf6e6;--paper:#fbf1d9;--paper-2:#eedcb8;--line:rgba(80,50,20,.2);--ink:#1d140b;--muted:#5e4527;--accent:#8c2f1b;--accent-2:#8a5d12;--on-accent:#fff8ea;--ok:#2f6b3a;--no:#a3261b;--warn:#8a5a00;--hl:rgba(214,160,60,.45);--pin:#8c2f1b;--board:#b98d5c;--board-2:#9f7442;--frame:#5e3f1f;--str-no:#a3261b;--str-ok:#2f6b3a;--wall:#ead9b8;--floor:#d3bb8f;--trim:#b39466;--obj:#f7ecd3;--obj-2:#dcc59b;--obj-line:#4b3418;--dust:.55;--cork:1;--display:'Playfair Display',Georgia,serif;--body:'Lora',Georgia,serif;--hand:'Caveat','Segoe Print',cursive;--mono:'IBM Plex Mono',ui-monospace,monospace;--radius:.3rem",
@@ -247,7 +247,7 @@
     /* compare */
     "& .nthview-compare{display:grid;gap:.35rem;margin:1rem 0}",
     "& .nthview-exhibits{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}",
-    "& .nthview-exhibit{padding:.7rem .85rem;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);position:relative}",
+    "& .nthview-exhibit{padding:1.1rem .85rem .7rem;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);position:relative}",
     "& .nthview-exhibit b{display:block;font-family:var(--display);font-size:.98rem;line-height:1.25}",
     "& .nthview-exhibit .nthview-tagx{position:absolute;top:-.7rem;left:.7rem}",
     "& .nthview-crow{display:grid;grid-template-columns:1fr 1fr;gap:.2rem .6rem;width:100%;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:var(--radius);padding:.5rem .6rem;transition:border-color .18s,background .18s}",
@@ -256,7 +256,7 @@
     "& .nthview-crow .nthview-cval{font-weight:600;padding:.15rem .35rem;border-radius:.3rem;overflow-wrap:anywhere}",
     "& .nthview-crow.nthview-diff{border-color:var(--no);background:color-mix(in srgb,var(--no) 8%,var(--surface))}",
     "& .nthview-crow.nthview-diff .nthview-cval{box-shadow:0 0 0 2px var(--no)}",
-    "& .nthview-crow.nthview-same{opacity:.75}",
+    "& .nthview-crow.nthview-same{opacity:.82}",
     /* timeline */
     "& .nthview-tl{list-style:none;margin:1rem 0;padding:0 0 0 1.6rem;position:relative;display:grid;gap:.6rem}",
     "& .nthview-tl::before{content:'';position:absolute;left:.55rem;top:.5rem;bottom:.5rem;width:2px;background:linear-gradient(var(--accent),var(--accent-2))}",
@@ -284,7 +284,7 @@
     "& .nthview-lhead{font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-size:.9em;border-bottom:2px solid var(--ink)}",
     "& .nthview-lrow.nthview-flag{background:color-mix(in srgb,var(--no) 12%,transparent)}",
     "& .nthview-lrow.nthview-flag > span.nthview-cell{box-shadow:0 0 0 2px var(--no)}",
-    "& .nthview-lrow.nthview-okrow{opacity:.6}",
+    "& .nthview-lrow.nthview-okrow{opacity:.78}",
     "& .nthview-lrow .nthview-lmark{position:absolute;right:.3rem;top:50%;transform:translateY(-50%) rotate(-8deg);font-size:.62rem;letter-spacing:.14em;color:var(--no);border:2px solid var(--no);padding:0 .3rem;border-radius:.2rem;background:var(--paper)}",
     /* lock */
     "& .nthview-lock{display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr);gap:1.2rem;align-items:center;margin:1rem 0}",
@@ -325,17 +325,19 @@
     "& .nthview-board{position:relative;min-height:22rem;padding:clamp(.9rem,3vw,1.6rem);border:clamp(6px,1.6vw,12px) solid var(--frame);border-radius:calc(var(--radius) + .3rem);background-color:var(--board);box-shadow:inset 0 0 40px rgba(0,0,0,.35),0 40px 80px -40px rgba(0,0,0,.8);overflow:hidden}",
     "& .nthview-board::before{content:'';position:absolute;inset:0;opacity:var(--cork);background-image:" + CORK + ",radial-gradient(circle at 30% 40%,var(--board-2) 0 1.4px,transparent 2px),radial-gradient(circle at 70% 70%,var(--board-2) 0 1.1px,transparent 1.7px);background-size:160px 160px,11px 13px,17px 9px;pointer-events:none}",
     "& .nthview-board::after{content:'';position:absolute;inset:0;opacity:var(--gridlines);background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:32px 32px;pointer-events:none}",
-    "& .nthview-board.nthview-droppable{box-shadow:inset 0 0 0 3px var(--accent),inset 0 0 40px rgba(0,0,0,.35)}",
+    "& .nthview-board.nthview-droppable{box-shadow:inset 0 0 0 3px var(--ink),inset 0 0 40px rgba(0,0,0,.35)}",
     "& .nthview-theories{position:relative;z-index:1;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,7.6rem),1fr));gap:clamp(.6rem,2vw,1.2rem)}",
     "& .nthview-pinned{position:relative;z-index:1;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,7.6rem),1fr));gap:clamp(.7rem,2.4vw,1.4rem);margin-top:clamp(2.4rem,6vw,4rem)}",
     "& .nthview-strings{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;overflow:visible}",
     "& .nthview-strings.nthview-dragging{z-index:5}",
     "& .nthview-strings path{fill:none;stroke-width:2.6;stroke-linecap:round;filter:drop-shadow(0 2px 1.5px rgba(0,0,0,.45))}",
     "& .nthview-strings .nthview-s-no{stroke:var(--str-no)}",
+    "& .nthview-strings path.nthview-s-case{stroke:var(--paper);stroke-width:6;opacity:.82;filter:none}",
+    "&[data-theme=neon] .nthview-strings path.nthview-s-case{filter:none;opacity:.6}",
     "&[data-theme=neon] .nthview-strings path{filter:drop-shadow(0 0 4px var(--str-no))}",
     "&[data-theme=neon] .nthview-strings .nthview-s-ok{filter:drop-shadow(0 0 5px var(--ok))}",
     "& .nthview-strings .nthview-s-ok{stroke:var(--str-ok);stroke-dasharray:7 5}",
-    "& .nthview-strings .nthview-s-tmp{stroke:var(--accent);stroke-dasharray:4 5;opacity:.9}",
+    "& .nthview-strings .nthview-s-tmp{stroke:var(--ink);stroke-dasharray:4 5;opacity:.9}",
     "& .nthview-strings .nthview-s-new{animation:nthview-drawin .8s cubic-bezier(.2,.8,.2,1) both}",
     "@keyframes nthview-drawin{from{stroke-dashoffset:var(--len,600)}to{stroke-dashoffset:0}}",
     "& .nthview-theory,& .nthview-cluecard{position:relative;display:flex;flex-direction:column;gap:.35rem;text-align:left;background:var(--paper);border:1px solid var(--line);border-radius:calc(var(--radius) * .6);padding:1.1rem .8rem .75rem;transform:rotate(var(--r,0deg));transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s,opacity .4s,filter .4s;box-shadow:0 14px 24px -14px rgba(0,0,0,.7)}",
@@ -345,19 +347,19 @@
     "& .nthview-theory .nthview-holder{display:flex;align-items:center;gap:.4rem;font-size:.75rem;color:var(--muted)}",
     "& .nthview-theory .nthview-holder .nthview-face{width:1.7rem;height:1.7rem;flex:none}",
     "& .nthview-theory .nthview-tally{display:flex;gap:.35rem;flex-wrap:wrap;margin-top:auto}",
-    "& .nthview-theory.nthview-out{background:color-mix(in srgb,var(--paper) 55%,transparent);box-shadow:none}",
-    "& .nthview-theory.nthview-out > :not(.nthview-outstamp):not(.nthview-pin):not(.nthview-tape){filter:grayscale(1);opacity:.45}",
+    "& .nthview-theory.nthview-out{background:color-mix(in srgb,var(--paper) 74%,var(--board));box-shadow:none}",
+    "& .nthview-theory.nthview-out > :not(.nthview-outstamp):not(.nthview-pin):not(.nthview-tape){filter:grayscale(1);opacity:.68}",
     "& .nthview-theory.nthview-out .nthview-tt{text-decoration:line-through;text-decoration-color:var(--no);text-decoration-thickness:2px}",
-    "& .nthview-outstamp{position:absolute;right:.45rem;top:.75rem;transform:rotate(-8deg);font-family:var(--mono);font-weight:600;font-size:.68rem;letter-spacing:.2em;color:var(--no);border:2.5px solid var(--no);padding:.1rem .5rem;border-radius:.25rem;background:color-mix(in srgb,var(--paper) 80%,transparent);white-space:nowrap}",
+    "& .nthview-outstamp{position:absolute;right:.45rem;top:.75rem;transform:rotate(-8deg);font-family:var(--mono);font-weight:600;font-size:.68rem;letter-spacing:.2em;color:var(--no);border:2.5px solid var(--no);padding:.1rem .5rem;border-radius:.25rem;background:var(--paper);white-space:nowrap}",
     "& .nthview-theory.nthview-target{animation:nthview-pulse 1.6s ease-out infinite;border-color:var(--accent)}",
     "& .nthview-theory.nthview-hover{transform:rotate(0) scale(1.04);border-color:var(--accent);box-shadow:0 0 0 3px var(--accent),0 20px 30px -14px rgba(0,0,0,.7)}",
     "& .nthview-cluecard{min-height:6.2rem;touch-action:manipulation;-webkit-user-select:none;user-select:none}",
     "& .nthview-cluecard .nthview-ct{font-family:var(--hand);font-size:var(--hand-size);line-height:1.1;font-weight:700}",
     "& .nthview-cluecard .nthview-ck{display:flex;align-items:center;gap:.3rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}",
     "& .nthview-cluecard .nthview-ck svg{width:.85rem;height:.85rem}",
-    "& .nthview-cluecard[aria-pressed=true]{transform:rotate(0) translateY(-4px) scale(1.03);box-shadow:0 0 0 3px var(--accent),0 24px 34px -14px rgba(0,0,0,.75);z-index:4}",
+    "& .nthview-cluecard[aria-pressed=true]{transform:rotate(0) translateY(-4px) scale(1.03);background:color-mix(in srgb,var(--accent) 20%,var(--paper));border-color:var(--accent);box-shadow:0 0 0 3px var(--accent),0 24px 34px -14px rgba(0,0,0,.75);z-index:4}",
     "& .nthview-cluecard.nthview-herring::after{content:'RED HERRING';position:absolute;right:.4rem;bottom:.4rem;font-family:var(--mono);font-size:.55rem;letter-spacing:.12em;color:var(--warn);border:1.5px solid var(--warn);padding:0 .25rem;border-radius:.15rem;transform:rotate(-6deg)}",
-    "& .nthview-pin{position:absolute;left:50%;top:-.45rem;width:1rem;height:1rem;margin-left:-.5rem;border-radius:50%;opacity:var(--pinop);background:radial-gradient(circle at 35% 30%,#fff8 0 18%,transparent 22%),radial-gradient(circle at 50% 50%,var(--pin) 0 60%,color-mix(in srgb,var(--pin) 60%,#000) 100%);box-shadow:0 3px 4px rgba(0,0,0,.5);z-index:2}",
+    "& .nthview-pin{position:absolute;left:50%;top:-.45rem;width:1rem;height:1rem;margin-left:-.5rem;border-radius:50%;opacity:var(--pinop);background:radial-gradient(circle at 35% 30%,#fff8 0 18%,transparent 22%),radial-gradient(circle at 50% 50%,var(--pin) 0 60%,color-mix(in srgb,var(--pin) 60%,#000) 100%);box-shadow:0 0 0 1.5px rgba(0,0,0,.42),0 3px 4px rgba(0,0,0,.5);z-index:2}",
     "& .nthview-tape{position:absolute;left:50%;top:-.6rem;width:3.4rem;height:1.1rem;margin-left:-1.7rem;opacity:var(--tape);background:color-mix(in srgb,var(--accent-2) 28%,rgba(255,255,255,.55));transform:rotate(-4deg);box-shadow:0 1px 2px rgba(0,0,0,.25);z-index:2}",
     "& .nthview-knot{position:absolute;left:50%;bottom:-.3rem;width:.55rem;height:.55rem;margin-left:-.275rem;border-radius:50%;background:var(--frame);opacity:.6}",
     "& .nthview-boardhint{position:relative;z-index:1;text-align:center;font-family:var(--hand);font-size:1.3rem;color:var(--ink);background:var(--paper);display:inline-block;padding:.3rem .9rem;border-radius:.2rem;transform:rotate(-1.5deg);box-shadow:0 10px 20px -12px rgba(0,0,0,.7)}",
@@ -369,7 +371,7 @@
     "& .nthview-verdict.nthview-v-no{border-color:color-mix(in srgb,var(--no) 60%,transparent);background:color-mix(in srgb,var(--no) 9%,var(--surface))}",
     "& .nthview-verdict.nthview-v-ok{border-color:color-mix(in srgb,var(--ok) 60%,transparent);background:color-mix(in srgb,var(--ok) 9%,var(--surface))}",
     "& .nthview-verdict.nthview-v-warn{border-color:color-mix(in srgb,var(--warn) 60%,transparent);background:color-mix(in srgb,var(--warn) 9%,var(--surface))}",
-    "& .nthview-verdict.nthview-dock{position:sticky;bottom:.8rem;z-index:10;max-height:36vh;overflow:auto;background:var(--surface-2);box-shadow:0 24px 60px -18px rgba(0,0,0,.75)}",
+    "& .nthview-verdict.nthview-dock{position:sticky;bottom:4.4rem;z-index:10;max-height:36vh;overflow:auto;background:var(--surface-2);box-shadow:0 24px 60px -18px rgba(0,0,0,.75)}",
     "& .nthview-verdict.nthview-dock.nthview-v-no{background:color-mix(in srgb,var(--no) 10%,var(--surface-2))}& .nthview-verdict.nthview-dock.nthview-v-ok{background:color-mix(in srgb,var(--ok) 10%,var(--surface-2))}& .nthview-verdict.nthview-dock.nthview-v-warn{background:color-mix(in srgb,var(--warn) 10%,var(--surface-2))}",
     "& .nthview-verdict h3{margin:0 0 .4rem;display:flex;align-items:center;gap:.5rem}",
     "& .nthview-verdict h3 svg{width:1.3rem;height:1.3rem;flex:none}",
@@ -428,7 +430,52 @@
     "& .nthview-filegroup{margin-top:1.6rem}",
     "& .nthview-filegroup > h3{display:flex;align-items:center;gap:.5rem;border-bottom:1px solid var(--line);padding-bottom:.35rem}",
     "& .nthview-filegroup > h3 svg{width:1.15rem;height:1.15rem;color:var(--accent)}",
-    "@media (max-width:560px){& .nthview-toast{top:6.8rem}& .nthview-folder .nthview-stamp{position:static;margin:0 0 .9rem}& .nthview-verdict.nthview-dock{max-height:30vh;font-size:.92rem;padding:.8rem .9rem}& .nthview-theory{min-height:6.6rem;padding:1rem .65rem .65rem}& .nthview-theory .nthview-tt{font-size:.9rem}& .nthview-cluecard{padding:1rem .65rem .6rem}& .nthview-nav{width:100%;justify-content:space-between}& .nthview-navbtn{padding:.34rem .5rem;font-size:.8rem}& .nthview-navbtn .nthview-nl{display:none}& .nthview-navbtn[aria-current=page] .nthview-nl{display:inline}}",
+    "@media (max-width:560px){& .nthview-toast{top:7.4rem}& .nthview-folder .nthview-stamp{position:static;margin:0 0 .9rem}& .nthview-theory{min-height:6.6rem;padding:1rem .65rem .65rem}& .nthview-theory .nthview-tt{font-size:.9rem}& .nthview-cluecard{padding:1rem .65rem .6rem}}",
+    /* board: focus, panel close, theory picker; timeline tap-to-move; lock face */
+    "& .nthview-board :focus-visible{outline:3px solid var(--ink);outline-offset:3px;box-shadow:0 0 0 3px var(--paper)}",
+    "& .nthview-verdict.nthview-v-no h3 svg{color:var(--no)}& .nthview-verdict.nthview-v-ok h3 svg{color:var(--ok)}& .nthview-verdict.nthview-v-warn h3 svg{color:var(--warn)}",
+    "& .nthview-verdict.nthview-dock h3{padding-right:5.2rem}",
+    "& .nthview-dockclose{position:absolute;top:.6rem;right:.6rem;display:inline-flex;align-items:center;justify-content:center;min-height:2.5rem;padding:.3rem .9rem;border:1px solid var(--line);background:var(--surface-2);border-radius:999px;font-size:.9rem;font-weight:700;color:var(--ink)}",
+    "& .nthview-dockclose:hover{border-color:var(--accent)}",
+    "& .nthview-linkto{list-style:none;margin:.45rem 0 0;padding:0;display:flex;flex-wrap:wrap;gap:.4rem}",
+    "& .nthview-linkbtn{display:inline-flex;align-items:center;gap:.45rem;text-align:left;min-height:2.5rem;border:1.5px solid var(--line);background:var(--surface);border-radius:.75rem;padding:.35rem .8rem;font-size:.92rem;font-weight:700;line-height:1.3;transition:border-color .18s,background .18s}",
+    "& .nthview-linkbtn:hover{border-color:var(--accent);background:var(--surface-2)}",
+    "& .nthview-linkbtn svg{flex:none;width:1rem;height:1rem;color:var(--accent)}",
+    "& .nthview-linkbtn .nthview-tag{flex:none}",
+    "& .nthview-evpick{display:block;flex:1;min-width:0;border:0;background:transparent;text-align:left;padding:.15rem .25rem;border-radius:.4rem;min-height:2.75rem;line-height:1.4}",
+    "& .nthview-ev.nthview-picked{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 16%,var(--paper));box-shadow:0 0 0 2px var(--accent)}",
+    "& .nthview-tl.nthview-picking .nthview-ev:not(.nthview-picked){border-style:dashed;border-color:var(--accent)}",
+    "& .nthview-dialface{cursor:pointer;-webkit-user-select:none;user-select:none;touch-action:manipulation}",
+    "@keyframes nthview-sheet{from{transform:translateY(100%)}to{transform:none}}",
+    /* touch: every control at least 44px */
+    "@media (max-width:640px),(pointer:coarse){& .nthview-chip{min-height:2.75rem;padding:.4rem .9rem}& .nthview-mv{width:2.75rem;height:2.75rem}& .nthview-seg span{min-height:2.75rem;display:inline-flex;align-items:center}& .nthview-restart{min-height:2.75rem;padding:.3rem .95rem}& .nthview-navbtn{min-height:2.75rem}& .nthview-grip{width:2.2rem;height:2.75rem}& .nthview-line{min-height:2.75rem}}",
+    /* phones */
+    "@media (max-width:640px){" +
+      "& .nthview-topin{padding:.4rem .75rem .35rem;gap:.35rem .55rem}" +
+      "& .nthview-case{flex:1 1 0;gap:.45rem}& .nthview-case b{font-size:.98rem}" +
+      "& .nthview-meter .nthview-ml{display:none}& .nthview-meter{font-size:.9rem}" +
+      "& .nthview-restart{font-size:.9rem}" +
+      "& .nthview-nav{width:100%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.25rem}" +
+      "& .nthview-navbtn{position:relative;flex-direction:column;justify-content:center;gap:.1rem;min-height:3.1rem;padding:.3rem .15rem;font-size:.84rem;border-radius:.75rem;white-space:nowrap}" +
+      "& .nthview-navbtn svg{width:1.2rem;height:1.2rem}" +
+      "& .nthview-navbtn .nthview-count{position:absolute;top:.2rem;left:calc(50% + .5rem);min-width:1.15rem;height:1.15rem;font-size:.7rem}" +
+      "& .nthview-frame{padding:1rem 1rem 5.5rem}" +
+      "& .nthview-label{font-size:.78rem}& .nthview-eyebrow{font-size:.8rem}& .nthview-tag{font-size:.74rem}& .nthview-small{font-size:.94rem}" +
+      "& .nthview-loc .nthview-kind{font-size:.76rem}& .nthview-loc p{font-size:1rem}& .nthview-person span{font-size:.9rem}" +
+      "& .nthview-chip{font-size:.96rem}& .nthview-seg span{font-size:1rem}& .nthview-evtime{font-size:.84rem}& .nthview-docmeta{font-size:.86rem}" +
+      "& .nthview-cluecard .nthview-ck{font-size:.7rem}& .nthview-theory .nthview-holder{font-size:.84rem}& .nthview-theory .nthview-label{font-size:.74rem}" +
+      "& .nthview-crow .nthview-clabel{font-size:.76rem}& .nthview-runs{font-size:.95rem}& .nthview-runs th{font-size:.74rem}" +
+      /* the board panel and the clue dialog become bottom sheets with their own scroll; a transparent bottom border keeps the scrolled content out of the bottom strip, clear of a lesson bar button */
+      "& .nthview-verdict.nthview-dock{position:fixed;left:0;right:0;bottom:0;z-index:30;margin:0;max-height:min(55vh,30rem);overflow:auto;overscroll-behavior:contain;border-radius:1.1rem 1.1rem 0 0;border-width:1.5px 0 calc(4rem + env(safe-area-inset-bottom,0px));border-bottom-color:transparent;padding:1rem;animation:nthview-sheet .35s cubic-bezier(.2,.8,.2,1) both}" +
+      "& .nthview-boardwrap.nthview-hasdock{padding-bottom:min(55vh,30rem)}" +
+      "& .nthview-overlay{place-items:end stretch;padding:0}" +
+      "& .nthview-dialog{width:100%;max-height:calc(100vh - 2.5rem);max-height:calc(100dvh - 2.5rem);overscroll-behavior:contain;border-radius:1.2rem 1.2rem 0 0;border-width:1px 0 calc(4rem + env(safe-area-inset-bottom,0px));border-bottom-color:transparent;padding:1.3rem 1.1rem 1rem;transform:translateY(60px)}" +
+      "& .nthview-dialface{width:3.3rem;height:4rem}" +
+      "& .nthview-linkto{display:grid}& .nthview-linkbtn{width:100%;min-height:2.75rem;font-size:.98rem}& .nthview-linkbtn .nthview-tag{margin-left:auto}" +
+    "}",
+    "@media (max-width:480px){& .nthview-caseno{display:none}}",
+    /* ledger on a phone: each row becomes a small card of labelled values */
+    "@media (max-width:560px){& .nthview-ledger{font-size:.95rem;padding:.4rem}& .nthview-lhead{display:none}& .nthview-lrow{grid-template-columns:repeat(3,minmax(0,1fr));gap:.4rem .7rem;padding:.7rem .55rem}& .nthview-lrow > span[data-col]::before{content:attr(data-col);display:block;font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}& .nthview-lrow .nthview-lmark{top:.9rem;transform:rotate(-8deg);font-size:.7rem}}",
     "@media (prefers-reduced-motion:reduce){& *,& *::before,& *::after{animation:none!important;transition:none!important}& .nthview-torch{display:none}}"
   ].map(function (rule) { return rule.replace(/&/g, ".nthview-detective"); });
 
@@ -876,7 +923,7 @@
       cs.appendChild(el("b", { text: data.title }));
       inner.appendChild(cs);
       var meter = el("span", { class: "nthview-meter", title: "Clues found" }, [icon("examine")]);
-      meter.appendChild(doc.createTextNode(S.found.length + "/" + data.clues.length + " clues"));
+      meter.appendChild(doc.createTextNode(S.found.length + "/" + data.clues.length)); meter.appendChild(el("span", { class: "nthview-ml", text: " clues" }));
       inner.appendChild(meter);
       inner.appendChild(restartButton(container, data, key));
       var nav = el("nav", { class: "nthview-nav", "aria-label": "Case" });
@@ -1302,18 +1349,21 @@
         st.order = o; st.checks = 0;
       }
       body.appendChild(para("", "**" + (l.prompt || "Put the events in the order they happened.") + "**"));
-      body.appendChild(para("nthview-small nthview-muted", "Drag a card by its handle, or use the arrow buttons. Check as often as you like."));
+      body.appendChild(para("nthview-small nthview-muted", "Tap an event, then tap the one whose place it should take. You can also drag a card by its handle or use the arrow buttons. Check as often as you like."));
       var list = el("ol", { class: "nthview-tl", "aria-label": "Events" });
       var note = noteBox();
       var actions = el("div", { class: "nthview-actions" });
-      var marks = null;
+      var marks = null, pickPos = null;
       function draw(focusIdx, focusDir) {
         list.textContent = "";
+        list.classList.toggle("nthview-picking", pickPos !== null);
         st.order.forEach(function (ev, pos) {
           var e = l.events[ev];
-          var li = el("li", { class: "nthview-ev" + (st.solved ? " nthview-ok" : marks ? (marks[pos] ? " nthview-ok" : " nthview-off") : ""), "data-ev": String(ev) });
+          var li = el("li", { class: "nthview-ev" + (st.solved ? " nthview-ok" : marks ? (marks[pos] ? " nthview-ok" : " nthview-off") : "") + (pickPos === pos ? " nthview-picked" : ""), "data-ev": String(ev) });
           if (!st.solved) { var grip = el("span", { class: "nthview-grip", "aria-hidden": "true" }, [icon("grip")]); li.appendChild(grip); dragify(grip, li); }
-          var tx = el("div", { class: "nthview-evtext" });
+          var tx = st.solved ? el("div", { class: "nthview-evtext" }) : el("button", { type: "button", class: "nthview-evtext nthview-evpick", "aria-pressed": pickPos === pos ? "true" : "false",
+            "aria-label": (pickPos === null ? "Pick up: " : pickPos === pos ? "Put back: " : "Move the picked event to this place: ") + e.text });
+          if (!st.solved) tx.addEventListener("click", function () { tapPick(pos); });
           tx.appendChild(el("span", { class: "nthview-evtime", text: st.solved ? e.time : "??:??" }));
           tx.appendChild(el("span", { text: e.text }));
           li.appendChild(tx);
@@ -1328,12 +1378,18 @@
           list.appendChild(li);
         });
         if (focusIdx !== undefined) {
-          var li2 = list.children[focusIdx]; if (li2) { var bs = li2.querySelectorAll("button"); var f = focusDir === "up" ? (bs[0].disabled ? bs[1] : bs[0]) : (bs[1].disabled ? bs[0] : bs[1]); if (f) f.focus({ preventScroll: true }); }
+          var li2 = list.children[focusIdx]; if (li2) { var bs = li2.querySelectorAll(".nthview-mv"); var f = focusDir === "pick" ? li2.querySelector(".nthview-evpick") : focusDir === "up" ? (bs[0].disabled ? bs[1] : bs[0]) : (bs[1].disabled ? bs[0] : bs[1]); if (f) f.focus({ preventScroll: true }); }
         }
         drawActions();
       }
+      function tapPick(pos) {
+        if (pickPos === null) { pickPos = pos; draw(pos, "pick"); announce("Picked up: " + l.events[st.order[pos]].text + ". Now choose the event whose place it should take."); return; }
+        if (pickPos === pos) { pickPos = null; draw(pos, "pick"); announce("Put back."); return; }
+        var from = pickPos; pickPos = null; move(from, pos, "pick");
+      }
       function move(from, to, dir) {
         if (to < 0 || to >= n) return;
+        pickPos = null;
         var v = st.order.splice(from, 1)[0]; st.order.splice(to, 0, v); marks = null; persist();
         announce("Moved to position " + (to + 1) + " of " + n);
         draw(to, dir);
@@ -1342,6 +1398,7 @@
         handle.addEventListener("pointerdown", function (e) {
           if (st.solved) return;
           e.preventDefault();
+          if (pickPos !== null) { pickPos = null; list.classList.remove("nthview-picking"); Array.prototype.forEach.call(list.children, function (c) { c.classList.remove("nthview-picked"); }); }
           li.classList.add("nthview-drag");
           function mv(ev) {
             var others = Array.prototype.slice.call(list.children).filter(function (o) { return o !== li; });
@@ -1369,7 +1426,7 @@
         actions.textContent = "";
         if (st.solved) return;
         actions.appendChild(btn("Check the order", "nthview-primary", function () {
-          st.checks++; persist();
+          st.checks++; pickPos = null; persist();
           var ok = st.order.every(function (v, k) { return v === k; });
           if (ok) { solve(false); return; }
           marks = st.order.map(function (v, k) { return v === k; });
@@ -1395,7 +1452,7 @@
       l.rows.forEach(function (row, r) {
         var mm = l.mismatches.filter(function (m) { return m.row === r; })[0];
         var b = el("button", { type: "button", class: "nthview-lrow" + (st.picked[r] ? (mm ? " nthview-flag" : " nthview-okrow") : "") });
-        row.forEach(function (cell, ci) { b.appendChild(el("span", { class: mm && st.picked[r] && (mm.cell === undefined || mm.cell === ci) ? "nthview-cell" : "", text: cell })); });
+        row.forEach(function (cell, ci) { b.appendChild(el("span", { class: mm && st.picked[r] && (mm.cell === undefined || mm.cell === ci) ? "nthview-cell" : "", "data-col": l.columns[ci], text: cell })); });
         if (mm && st.picked[r]) b.appendChild(el("span", { class: "nthview-lmark", text: "MISMATCH", "aria-hidden": "true" }));
         b.setAttribute("aria-label", row.map(function (c, ci) { return l.columns[ci] + ": " + c; }).join(", "));
         b.addEventListener("click", function () {
@@ -1443,6 +1500,7 @@
         faces.push(face);
         up.addEventListener("click", function () { if (!st.open) { setDial(k, st.dials[k] + 1); persist(); } });
         dn.addEventListener("click", function () { if (!st.open) { setDial(k, st.dials[k] - 1); persist(); } });
+        face.addEventListener("click", function () { if (!st.open) { setDial(k, st.dials[k] + 1); persist(); } });
         face.addEventListener("keydown", function (e) {
           if (st.open) return;
           if (e.key === "ArrowUp" || e.key === "ArrowDown" || (e.key.length === 1 && alpha.indexOf(e.key.toUpperCase()) !== -1)) setTimeout(persist, 0);
@@ -1454,6 +1512,7 @@
         dials.appendChild(el("div", { class: "nthview-dial" }, [up, face, dn]));
       })(k);
       right.appendChild(dials);
+      right.appendChild(para("nthview-small nthview-muted", "Tap a dial or its arrows to turn it. With a keyboard, use the arrow keys or type the code."));
       faces.forEach(function (_, k) { setDial(k, st.dials[k]); });
       var note = noteBox();
       var hints = el("ol", { class: "nthview-hints" });
@@ -1610,7 +1669,7 @@
       s.appendChild(el("p", { class: "nthview-eyebrow", text: "Deduction" }));
       var h = el("h2", { tabindex: "-1", text: (data.board && data.board.heading) || "The case board" }); s.appendChild(h);
       s.appendChild(para("nthview-muted", (data.board && data.board.intro) || "Pin clues, then link each one to a theory it speaks to. Evidence that contradicts a theory rules it out; evidence that fits is not proof."));
-      s.appendChild(para("nthview-small nthview-muted", "Select a clue, then a theory. With a mouse you can also drag a clue onto a theory. Escape cancels."));
+      s.appendChild(para("nthview-small nthview-muted", "Select a clue, then pick the theory it speaks to, from the list that opens or on the board. With a mouse you can also drag a clue onto a theory. Escape cancels."));
       boardEl = el("div", { class: "nthview-boardwrap" });
       s.appendChild(boardEl);
       if (root.ResizeObserver && !boardRO) boardRO = new root.ResizeObserver(function () { drawStrings(); });
@@ -1693,7 +1752,18 @@
         var c = M.clue[vd.selected];
         panel = el("div", { class: "nthview-verdict", tabindex: "-1" }, [el("h3", {}, [icon(kindOf(c)), doc.createTextNode(c.title)])]);
         panel.appendChild(para("", c.text)); panel.appendChild(kv("What it proves:", c.proves));
-        panel.appendChild(para("nthview-small nthview-muted", "Now choose the theory this clue speaks to."));
+        panel.appendChild(el("p", { class: "nthview-label", text: "Link it to a theory" }));
+        var picker = el("ul", { class: "nthview-linkto", "aria-label": "Link " + c.title + " to a theory" });
+        data.hypotheses.forEach(function (hy2, i) {
+          var pb = el("button", { type: "button", class: "nthview-linkbtn", "data-key": "link:" + hy2.id }, [icon("pin")]);
+          pb.appendChild(el("span", { text: "Theory " + (i + 1) + ": " + hy2.title }));
+          var lv = S.linkSet[vd.selected + ">" + hy2.id];
+          if (lv) pb.appendChild(tag(lv === "no" ? "nthview-tag-no" : "nthview-tag-ok", "Linked"));
+          else if (S.eliminated[hy2.id]) pb.appendChild(tag("nthview-tag-no", "Ruled out"));
+          pb.addEventListener("click", function () { linkClue(vd.selected, hy2.id); });
+          picker.appendChild(el("li", {}, [pb]));
+        });
+        panel.appendChild(picker);
       } else if (vd && vd.theory) {
         var hy = M.hyp[vd.theory];
         panel = el("div", { class: "nthview-verdict", tabindex: "-1" }, [el("h3", {}, [icon("board"), doc.createTextNode(hy.title)])]);
@@ -1702,7 +1772,17 @@
         if (links.length) { var ul = el("ul", { class: "nthview-evlist" }); links.forEach(function (x) { var li = el("li", {}, [icon(x.v === "no" ? "cross" : "check", x.v === "no" ? "nthview-x" : "nthview-v")]); li.appendChild(el("span", { text: M.clue[x.clue].title + (x.v === "no" ? ": " + ruleFor(M.clue[x.clue], hy.id).because : " (fits)") })); ul.appendChild(li); }); panel.appendChild(ul); }
         else panel.appendChild(para("nthview-small nthview-muted", "No evidence linked yet. Select a clue first, then this theory."));
       }
-      if (panel) { panel.classList.add("nthview-dock"); boardEl.appendChild(panel); }
+      boardEl.classList.remove("nthview-hasdock");
+      if (panel) {
+        panel.classList.add("nthview-dock");
+        var closeB = el("button", { type: "button", class: "nthview-dockclose", text: "Close", "aria-label": "Close this panel" });
+        closeB.addEventListener("click", function () {
+          var back = vd.selected ? "clue:" + vd.selected : vd.c ? "clue:" + vd.c : vd.theory ? "hyp:" + vd.theory : null;
+          S.selected = null; S.verdict = null; persist(); drawBoard(back);
+        });
+        panel.insertBefore(closeB, panel.firstChild);
+        boardEl.appendChild(panel); boardEl.classList.add("nthview-hasdock");
+      }
       var standing = data.hypotheses.filter(function (x) { return !S.eliminated[x.id]; });
       var banner = el("div", { class: "nthview-standing" });
       banner.appendChild(para("", standing.length === 1 ? "Only one theory is left standing. Ready to name the explanation?" : standing.length + " theories still standing. Rule more out, or name the explanation when you are ready."));
@@ -1730,12 +1810,15 @@
         var cc = cardsById[lk.clue], tc = theoryById[lk.hyp];
         if (!cc || !tc) return;
         var key = lk.clue + ">" + lk.hyp;
-        var path = sv("path", { class: lk.v === "no" ? "nthview-s-no" : "nthview-s-ok", d: stringPath(anchor(cc, "top"), anchor(tc, "bottom")) });
-        stringsSvg.appendChild(path);
+        var d = stringPath(anchor(cc, "top"), anchor(tc, "bottom"));
+        var casing = sv("path", { class: "nthview-s-case", d: d });
+        var path = sv("path", { class: lk.v === "no" ? "nthview-s-no" : "nthview-s-ok", d: d });
+        stringsSvg.appendChild(casing); stringsSvg.appendChild(path);
         if (S.freshLinks[key] && !reduce) {
           var len = path.getTotalLength ? path.getTotalLength() : 600;
           if (lk.v === "no") path.setAttribute("stroke-dasharray", len.toFixed(0));
-          path.style.setProperty("--len", len.toFixed(0)); path.classList.add("nthview-s-new");
+          casing.setAttribute("stroke-dasharray", len.toFixed(0));
+          [path, casing].forEach(function (pth) { pth.style.setProperty("--len", len.toFixed(0)); pth.classList.add("nthview-s-new"); });
         }
         delete S.freshLinks[key];
       });

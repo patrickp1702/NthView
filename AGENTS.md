@@ -790,7 +790,23 @@ skills/<name>/SKILL.md  ──(frontmatter name + description)──▶  scripts
    show them rendered in a dialog without fetching files. It renders them
    with `marked` (pinned, from cdnjs) and falls back to plain text if that
    library does not load.
-5. Two more dialogs live in `index.html` itself. **How to use** holds the
+5. Each doc entry also carries `hash`, and each lesson a `chapterList` of
+   `{file, title, view, hash}`: the FNV-1a of the serialised data, identical
+   to the view's §5.5 storage key. When the gallery is served from the same
+   origin as the pages (GitHub Pages, a local server), it reads those keys
+   from `localStorage` to show "Continue" badges and a "Continue where you
+   left off" strip. From `file://` the origins differ and the strip is simply
+   absent.
+6. A second, purely additive script block at the end of `index.html` adds the
+   app conveniences and touches none of the gallery code above it: an
+   Auto/Light/Dark scheme toggle remembered per browser, a "Surprise me"
+   random pick, saved items (star) with a "Saved" chip in the library,
+   copy-link buttons, "New" badges for lessons created in the last 14 days,
+   the continue and "Recently added" strips, a stats line, keyboard
+   shortcuts (`/` search, `?` help, `L` library) and a back-to-top button.
+   Extend the gallery by adding to that block; do not fold it into the main
+   script.
+7. Two more dialogs live in `index.html` itself. **How to use** holds the
    install and usage guide, one tab per agent family (Claude Code; Codex,
    Cursor, Copilot and Gemini; any other agent; adding a lesson to this repo),
    with copyable commands. **Docs and lessons** lists the registry's `docs`

@@ -1741,12 +1741,13 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     X + ".nthview-clabel{position:absolute;z-index:5;transform:translate(-50%,-50%);white-space:nowrap;max-width:14rem;overflow:hidden;text-overflow:ellipsis;font:700 .7rem/1.1 var(--body);color:var(--muted);background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:.24rem .55rem;box-shadow:0 6px 16px -10px var(--shadow);pointer-events:none;transition:opacity .3s,color .2s,border-color .2s}",
     X + ".nthview-clabel.nthview-pipe{color:var(--on-accent);background:linear-gradient(135deg,var(--accent-2),var(--accent));border-color:transparent;min-width:1.7rem;text-align:center}",
     /* HUD: legend, minimap, zoom */
-    X + ".nthview-legend{position:absolute;z-index:12;left:12px;bottom:12px;display:flex;flex-wrap:wrap;align-items:center;gap:.35rem;max-width:calc(100% - 270px);padding:.35rem}",
+    X + ".nthview-legend{position:absolute;z-index:12;left:12px;bottom:12px;display:flex;flex-wrap:wrap;align-items:center;gap:.35rem;max-width:calc(100% - 330px);padding:.35rem}",
     X + ".nthview-chip{display:inline-flex;align-items:center;gap:.4rem;border:1px solid var(--line);background:var(--surface-2);border-radius:999px;padding:.3rem .7rem;font-size:.78rem;font-weight:700;white-space:nowrap}",
     X + ".nthview-chip svg{width:.9rem;height:.9rem}",
     X + ".nthview-chip[aria-pressed=true]{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:var(--on-accent);border-color:transparent}",
     X + ".nthview-hint{font-size:.74rem;color:var(--muted);padding:0 .4rem;transition:opacity 1s}",
-    X + ".nthview-corner{position:absolute;z-index:12;right:12px;bottom:12px;display:flex;align-items:flex-end;gap:.5rem}",
+    /* the corner HUD stops 72px from the right edge: the bottom-right corner is left free for a lesson bar button */
+    X + ".nthview-corner{position:absolute;z-index:12;right:72px;bottom:12px;display:flex;align-items:flex-end;gap:.5rem}",
     X + ".nthview-zbtns{display:flex;flex-direction:column;gap:.15rem;padding:.25rem}",
     X + ".nthview-zbtns button{width:2.3rem;height:2.3rem;border:0;background:none;border-radius:calc(var(--radius) * .6);display:grid;place-items:center}",
     X + ".nthview-zbtns button:hover{background:var(--surface-2);color:var(--accent)}",
@@ -1767,7 +1768,8 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     X + ".nthview-drawer.nthview-left.nthview-open{transform:none}",
     X + ".nthview-dhead{display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding:1rem 1rem .6rem 1.2rem}",
     X + ".nthview-dhead h2{margin:0;font-family:var(--display);font-size:1.25rem}",
-    X + ".nthview-dbody{flex:1 1 auto;overflow:auto;overscroll-behavior:contain;padding:0 1rem 1.2rem 1.2rem;scrollbar-width:thin}",
+    /* drawers end 64px above the bottom edge so their scrolling text never runs under a lesson-bar button */
+    X + ".nthview-dbody{flex:1 1 auto;overflow:auto;overscroll-behavior:contain;padding:0 1rem 1.2rem 1.2rem;margin-bottom:64px;scrollbar-width:thin}",
     X + ".nthview-pop{position:absolute;z-index:50;max-width:min(22rem,calc(100% - 24px));padding:.75rem .9rem;font-size:.9rem;line-height:1.45;animation:nthview-swapin .25s ease}",
     X + ".nthview-pop b{display:block;font-family:var(--display);margin-bottom:.2rem}",
     X + ".nthview-pop p{margin:.2rem 0}",
@@ -1790,8 +1792,8 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     X + ".nthview-titem span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
     X + ".nthview-titem small{margin-left:auto;font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}",
     /* ---------- doc mode ---------- */
-    X + ".nthview-docpane{overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scroll-behavior:smooth;scroll-padding-top:84px}",
-    X + ".nthview-doclayout{position:relative;z-index:1;display:grid;grid-template-columns:16.5rem minmax(0,1fr);gap:2rem;max-width:76rem;margin:0 auto;padding:84px 1.5rem 4rem}",
+    X + ".nthview-docpane{z-index:auto;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scroll-behavior:smooth;scroll-padding-top:84px}",
+    X + ".nthview-doclayout{position:relative;z-index:1;display:grid;grid-template-columns:16.5rem minmax(0,1fr);gap:2rem;max-width:76rem;margin:0 auto;padding:84px 1.5rem 5rem}",
     X + ".nthview-toc{position:sticky;top:84px;align-self:start;max-height:calc(100vh - 100px);max-height:calc(100dvh - 100px);overflow:auto;padding:.9rem .7rem;scrollbar-width:thin}",
     X + ".nthview-toc h2{font-size:.68rem;text-transform:uppercase;letter-spacing:.16em;color:var(--muted);margin:.2rem .4rem .6rem}",
     X + ".nthview-toc ol{list-style:none;margin:0;padding:0}",
@@ -1841,7 +1843,8 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     X + ".nthview-rung{display:flex;align-items:center;gap:.7rem;margin:2.2rem 0 1rem;padding:0 .3rem;scroll-margin-top:84px}",
     X + ".nthview-rung::after{content:'';flex:1 1 auto;height:1px;background:linear-gradient(90deg,var(--line),transparent)}",
     X + ".nthview-rung b{font-family:var(--display);font-size:1.05rem;white-space:nowrap}",
-    X + ".nthview-rung span{color:var(--muted);font-size:.85rem}",
+    X + ".nthview-rung span{color:var(--muted);font-size:.85rem;min-width:0}",
+    X + ".nthview-nowrap{white-space:nowrap}",
     /* pillars grid */
     X + ".nthview-pillars{display:grid;grid-template-columns:repeat(auto-fill,minmax(15rem,1fr));gap:.8rem;margin:1rem 0 .3rem}",
     X + ".nthview-pillar{position:relative;display:flex;flex-direction:column;gap:.35rem;padding:1rem 1.05rem 1rem;border-radius:calc(var(--radius) * .9);border:1px solid color-mix(in srgb,var(--c) 40%,var(--line));background:linear-gradient(165deg,color-mix(in srgb,var(--c) 13%,var(--surface-2)),var(--surface-2) 70%);scroll-margin-top:84px;transition:box-shadow .6s,transform .25s}",
@@ -1885,7 +1888,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     X + ".nthview-tablewrap th{text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:.6rem .8rem;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--surface) 60%,transparent)}",
     X + ".nthview-tablewrap td{padding:.55rem .8rem;border-bottom:1px solid var(--line);vertical-align:top}",
     X + ".nthview-tablewrap tr:last-child td{border-bottom:0}",
-    X + ".nthview-tablewrap td:first-child code.nthview-ic{white-space:nowrap}",
+    X + ".nthview-tablewrap td code.nthview-ic{white-space:nowrap;overflow-wrap:normal}",
     X + ".nthview-tablewrap td.nthview-role{color:var(--muted)}",
     X + ".nthview-layers{display:grid;gap:.45rem;margin:1rem 0}",
     X + ".nthview-lrow{display:grid;grid-template-columns:12rem minmax(0,1fr);gap:.8rem;align-items:center;padding:.7rem .8rem;border-radius:calc(var(--radius) * .8);border:1px solid color-mix(in srgb,var(--c) 40%,var(--line));background:linear-gradient(90deg,color-mix(in srgb,var(--c) 14%,var(--surface-2)),var(--surface-2) 60%)}",
@@ -1928,7 +1931,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       X + ".nthview-docpane{scroll-padding-top:76px}" +
       X + ".nthview-toc{position:fixed;z-index:41;top:0;bottom:0;left:0;width:min(21rem,88vw);max-height:none;border-radius:0 var(--radius) var(--radius) 0;transform:translateX(-105%);visibility:hidden;transition:transform .4s cubic-bezier(.2,.8,.2,1),visibility 0s linear .4s;padding:72px .8rem 1rem}" +
       X + ".nthview-toc.nthview-open{transform:none;visibility:visible;transition:transform .4s cubic-bezier(.2,.8,.2,1)}" +
-      X + ".nthview-legend{max-width:calc(100% - 150px)}" +
+      X + ".nthview-legend{max-width:calc(100% - 256px)}" +
       X + ".nthview-mini{width:118px;height:80px}" +
       X + ".nthview-duo{grid-template-columns:minmax(0,1fr)}" +
       X + ".nthview-duo > .nthview-arrow{transform:rotate(90deg);justify-self:center}" +
@@ -1936,30 +1939,57 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       X + ".nthview-hint{display:none}" +
     "}",
     "@media (min-width:900px){" + X + ".nthview-tocbtn{display:none !important}}",
+    /* phones: icon-only top bar (Restart kept), a compact "where" card, one bottom HUD row (zoom buttons + chips)
+       that stops short of the lesson-bar corner, no minimap, drawers as bottom sheets, doc text at reading size */
     "@media (max-width:560px){" +
-      X + ".nthview-top{left:8px;right:8px;top:8px;gap:.35rem;padding:.35rem}" +
+      X + ".nthview-top{left:8px;right:8px;top:8px;gap:.3rem;padding:.3rem}" +
       X + ".nthview-brandtext{display:none}" +
-      X + ".nthview-seg button{padding:.4rem .62rem}" +
-      X + ".nthview-ibtn{width:2.15rem;height:2.15rem}" +
-      X + ".nthview-restart{width:2.15rem;height:2.15rem;padding:0;font-size:0;display:grid;place-items:center}" +
+      X + ".nthview-seg button{padding:.45rem .7rem}" +
+      X + ".nthview-seg button span{display:none}" +
+      X + ".nthview-tools{gap:.2rem}" +
+      X + ".nthview-ibtn{width:2.4rem;height:2.4rem}" +
+      X + ".nthview-restart{width:2.4rem;height:2.4rem;padding:0;font-size:0;display:grid;place-items:center}" +
       X + ".nthview-restart::before{font-size:1.15rem}" +
-      X + ".nthview-resume{top:58px;font-size:.78rem;padding:.38rem .8rem;max-width:calc(100% - 16px)}" +
-      X + ".nthview-where{left:8px;right:8px;top:62px;padding:.5rem .7rem .6rem;grid-template-columns:minmax(0,1fr)}" +
-      X + ".nthview-wacts{justify-self:start}" +
-      X + ".nthview-where p{-webkit-line-clamp:1;font-size:.86rem}" +
+      X + ".nthview-resume{top:60px;font-size:.8rem;padding:.38rem .8rem;max-width:calc(100% - 16px)}" +
+      X + ".nthview-where{left:8px;right:8px;top:62px;padding:.45rem .7rem .55rem;grid-template-columns:minmax(0,1fr) auto;align-items:center}" +
+      X + ".nthview-where .nthview-kick{display:none}" +
+      X + ".nthview-wacts{align-self:center;gap:.3rem}" +
+      X + ".nthview-wacts .nthview-btn{padding:.55rem .75rem}" +
+      X + ".nthview-wacts .nthview-quiet span{display:none}" +
+      X + ".nthview-where p{-webkit-line-clamp:1;font-size:.9rem}" +
       X + ".nthview-where h2{font-size:1.2rem}" +
-      X + ".nthview-legend{left:8px;bottom:8px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;max-width:calc(100% - 132px)}" +
-      X + ".nthview-corner{right:8px;bottom:8px;gap:.35rem}" +
-      X + ".nthview-mini{width:72px;height:56px;padding:4px}" +
-      X + ".nthview-zbtns button{width:2.1rem;height:2.1rem}" +
-      X + ".nthview-about{left:8px;width:calc(100% - 16px)}" +
+      X + ".nthview-corner{left:8px;right:auto;bottom:8px}" +
+      X + ".nthview-mini{display:none}" +
+      X + ".nthview-zbtns{flex-direction:row}" +
+      X + ".nthview-zbtns button{width:2.5rem;height:2.5rem}" +
+      X + ".nthview-legend{left:calc(14px + 8.3rem);right:76px;bottom:8px;max-width:none;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}" +
+      X + ".nthview-legend::-webkit-scrollbar{display:none}" +
+      X + ".nthview-chip{min-height:2.3rem;font-size:.82rem}" +
+      X + ".nthview-about{left:8px;width:calc(100% - 16px);max-height:min(58vh,30rem)}" +
+      X + ".nthview-drawer,.nthview-zoom-map .nthview-drawer.nthview-left,.nthview-zoom-map .nthview-toc{top:auto;left:0;right:0;bottom:0;width:auto;height:78vh;height:78dvh;max-height:none;border-radius:calc(var(--radius) * 1.4) calc(var(--radius) * 1.4) 0 0;transform:translateY(105%)}" +
+      X + ".nthview-drawer.nthview-open,.nthview-zoom-map .nthview-toc.nthview-open{transform:none}" +
+      X + ".nthview-drawer::before,.nthview-zoom-map .nthview-toc::before{content:'';position:absolute;left:50%;top:7px;width:2.6rem;height:4px;margin-left:-1.3rem;border-radius:999px;background:var(--line)}" +
+      X + ".nthview-dbody{padding-bottom:1rem}" +
+      X + ".nthview-toc{position:fixed;padding:1.3rem .8rem 1rem;border-bottom:64px solid transparent;overflow:auto;overscroll-behavior:contain}" +
+      X + ".nthview-toc a{font-size:1rem;padding:.5rem .55rem}" +
+      X + ".nthview-toc ol ol a{font-size:.95rem;padding:.4rem .55rem}" +
+      X + ".nthview-titem{font-size:.98rem;padding:.5rem .5rem}" +
+      X + ".nthview-ttog{width:2rem;height:2rem}" +
+      X + ".nthview-doclayout{padding:72px .6rem 6rem}" +
+      X + ".nthview-sec{padding:1rem .95rem}" +
       X + ".nthview-step{flex:1 1 100%}" +
       X + ".nthview-step:not(:last-child)::after{content:'↓';right:50%;top:auto;bottom:-.55rem;transform:translate(50%,50%)}" +
-      X + ".nthview-sec{padding:1rem .95rem}" +
-      X + ".nthview-filelist li{grid-template-columns:minmax(0,1fr)}" +
+      X + ".nthview-step span," + X + ".nthview-pillar p," + X + ".nthview-fcard p," + X + ".nthview-gloss dd," + X + ".nthview-conns{font-size:1rem}" +
+      X + ".nthview-step button," + X + ".nthview-inside{font-size:.9rem}" +
+      X + ".nthview-tablewrap table{font-size:.94rem}" +
+      X + ".nthview-filelist li{grid-template-columns:minmax(0,1fr);font-size:.95rem}" +
+      X + ".nthview-caption," + X + ".nthview-ladder small{font-size:.9rem}" +
+      X + ".nthview-path{font-size:.8rem}" +
+      X + ".nthview-deeper .nthview-dbody2{padding:.1rem .9rem .9rem 1.1rem}" +
+      X + ".nthview-pop{font-size:.95rem}" +
     "}",
-    /* very narrow: the mode switch shows icons only so the tool buttons, Restart included, fit in the bar */
-    "@media (max-width:400px){" + X + ".nthview-seg button span{display:none}" + X + ".nthview-seg button{padding:.42rem .6rem}" + X + ".nthview-tools{gap:.2rem}}",
+    /* very narrow: the logo goes so the mode switch and every tool button, Restart included, fit in the bar */
+    "@media (max-width:350px){" + X + ".nthview-logo{display:none}" + X + ".nthview-seg button{padding:.45rem .6rem}}",
     "@media (prefers-reduced-motion:reduce){" + X + ".nthview-blob," + X + ".nthview-enter," + X + ".nthview-swapin," + X + ".nthview-resume," + X + ".nthview-ladder button," + X + ".nthview-step," + X + ".nthview-about," + X + ".nthview-pop," + X + ".nthview-deeper .nthview-dbody2," + X + ".nthview-cg.nthview-pipe .nthview-conn{animation:none !important}" + X + ".nthview-pane," + X + ".nthview-drawer," + X + ".nthview-toc," + X + ".nthview-scrim{transition:none !important}" + X + ".nthview-docpane{scroll-behavior:auto}}"
   ].join("\n");
 
@@ -2306,8 +2336,11 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     function inline(text) {
       var frag = doc.createDocumentFragment();
       var re = /(`[^`]+`|\*\*[^*]+\*\*|\*[^*\s][^*]*\*|\(\([^()]+\)\)|\[\[[^\[\]]+\]\])/;
-      String(text).split(re).forEach(function (part) {
+      var parts = String(text).split(re), glue = null;
+      parts.forEach(function (part, pi) {
         if (!part) return;
+        /* a glossary term followed straight by letters ("((tactic))s") stays on one line with them */
+        if (glue) { var g0 = glue; glue = null; var sm = part.match(/^[A-Za-z0-9\u00C0-\u024F'’-]+/); if (sm) { g0.appendChild(doc.createTextNode(sm[0])); part = part.slice(sm[0].length); if (!part) return; } }
         if (/^`[^`]+`$/.test(part)) { frag.appendChild(el("code", { class: "nthview-ic", text: part.slice(1, -1) })); return; }
         if (/^\*\*[^*]+\*\*$/.test(part)) { var b = el("strong"); b.appendChild(inline(part.slice(2, -2))); frag.appendChild(b); return; }
         if (/^\*[^*\s][^*]*\*$/.test(part)) { var it = el("em"); it.appendChild(inline(part.slice(1, -1))); frag.appendChild(it); return; }
@@ -2317,6 +2350,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
           if (!g) { frag.appendChild(doc.createTextNode(bits[0])); return; }
           var tb = el("button", { type: "button", class: "nthview-term", "aria-expanded": "false", text: bits[0].trim() });
           tb.addEventListener("click", function (e) { e.stopPropagation(); openPop(tb, function (p) { p.appendChild(el("b", { text: g.term })); p.appendChild(blocks(g.meaning)); }); });
+          if (/^[A-Za-z0-9\u00C0-\u024F]/.test(parts[pi + 1] || "")) { glue = el("span", { class: "nthview-nowrap" }, [tb]); frag.appendChild(glue); return; }
           frag.appendChild(tb); return;
         }
         var lm = part.match(/^\[\[([^\[\]]+)\]\]$/);
@@ -2359,7 +2393,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     function btn(label, cls, onClick, iconName) {
       var b = el("button", { type: "button", class: "nthview-btn" + (cls ? " " + cls : "") });
       if (iconName) b.appendChild(icon(iconName));
-      b.appendChild(doc.createTextNode(label));
+      b.appendChild(el("span", { text: label }));
       b.addEventListener("click", onClick);
       return b;
     }
@@ -2811,6 +2845,9 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       var t = svgEl("title", {}); t.textContent = title; g.appendChild(t);
       svg.appendChild(g);
       var lx = 0.25 * pa.x + 0.5 * qx + 0.25 * pb.x, ly = 0.25 * pa.y + 0.5 * qy + 0.25 * pb.y;
+      /* on a small screen a relation label would cover the titles of narrow regions: the arrow stays, the label goes
+         (the doc's Connections lists every relation in words) */
+      if (!isPipe && (Math.min(ra.w, rb.w) < 120 || Math.min(ra.h, rb.h) < 56)) return null;
       var lab = el("div", { class: "nthview-clabel" + (isPipe ? " nthview-pipe" : ""), "data-a": aId, "data-b": bId, text: text, title: title, "aria-hidden": "true", style: "left:" + lx.toFixed(1) + "px;top:" + ly.toFixed(1) + "px" });
       L.appendChild(lab);
       return lab;
@@ -2863,6 +2900,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       if (hasAbout) {
         var ab = btn("About", "nthview-quiet", function () { toggleAbout(ab); }, "info");
         ab.setAttribute("aria-expanded", "false");
+        ab.setAttribute("aria-label", "About " + F.d.title); ab.setAttribute("title", "About " + F.d.title);
         wacts.appendChild(ab);
       }
       wacts.appendChild(btn("Read", "nthview-primary", function () { readNode(F); }, "read"));
@@ -3610,7 +3648,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     function openToc(quiet) {
       toc.classList.add("nthview-open"); scrim.classList.add("nthview-open"); tocBtn.setAttribute("aria-expanded", "true");
       persist();
-      if (!quiet) { var first = toc.querySelector("a"); if (first) setTimeout(function () { first.focus(); }, 60); }
+      if (!quiet) { var first = toc.querySelector("a"); if (first) setTimeout(function () { if (!alive()) return; try { first.focus({ preventScroll: true }); } catch (e0) { first.focus(); } container.scrollLeft = 0; container.scrollTop = 0; }, 60); }
     }
     tocBtn.addEventListener("click", function () { if (toc.classList.contains("nthview-open")) closeToc(); else openToc(); });
     scrim.addEventListener("click", closeToc);
@@ -3731,6 +3769,9 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     mountLayer(layer, 1);
     applyCam();
     updateRoving();
+    /* a phone-width screen is too narrow for the dense map overview: a fresh open starts in the doc,
+       with the map one tap away (Map button, "Explore the map", every "Show on map") */
+    if (!saved && (container.clientWidth || root.innerWidth) < 560) setMode("doc", { silent: true });
     if (saved) {
       if (Array.isArray(saved.openDeeper)) {
         var dets = article.querySelectorAll("details.nthview-deeper");

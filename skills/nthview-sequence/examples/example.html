@@ -1042,7 +1042,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       dark: "--nv-bg:#0c2240;--nv-fg:#e6f0ff;--nv-muted:#a2b9d8;--nv-accent:#7cc4ff;--nv-border:#2b4b75;--nv-error:#fca5a5;--sq-panel:#10294b;--sq-soft:#0e2645;--sq-hi:#1b3d68;--sq-on-accent:#0c2240;--sq-zone-a:#143258;--sq-zone-b:#183862"
     },
     mint: {
-      light: "--nv-bg:#e8f4ee;--nv-fg:#0f2a22;--nv-muted:#486659;--nv-accent:#0b7a5c;--nv-border:#cbe1d6;--nv-error:#b91c1c;--sq-panel:#fbfefc;--sq-soft:#f0f8f4;--sq-hi:#d4eee3;--sq-on-accent:#fff;--sq-zone-a:#deeee6;--sq-zone-b:#e7f3ed;--sq-head:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",
+      light: "--nv-bg:#e8f4ee;--nv-fg:#0f2a22;--nv-muted:#486659;--nv-accent:#0a7456;--nv-border:#cbe1d6;--nv-error:#b91c1c;--sq-panel:#fbfefc;--sq-soft:#f0f8f4;--sq-hi:#d4eee3;--sq-on-accent:#fff;--sq-zone-a:#deeee6;--sq-zone-b:#e7f3ed;--sq-head:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",
       dark: "--nv-bg:#0e1b17;--nv-fg:#e3f3ec;--nv-muted:#9dbfb2;--nv-accent:#62d6b0;--nv-border:#2a3f37;--nv-error:#f87171;--sq-panel:#142520;--sq-soft:#182b25;--sq-hi:#1d3a30;--sq-on-accent:#0e1b17;--sq-zone-a:#1a2d27;--sq-zone-b:#1f342d"
     }
   };
@@ -1073,7 +1073,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     /* ---- view-specific styles below, every class prefixed nthview- ---- */
     themeCss(),
     "body:has(> .nthview-sequence){margin:0}",
-    ".nthview-sequence{--sq-mono:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;position:relative;max-width:none;min-height:100vh;padding:1.25rem 1rem 3rem;font-size:15px;line-height:1.55}",
+    ".nthview-sequence{--sq-mono:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;--sq-lane-min:6.5rem;position:relative;max-width:none;min-height:100vh;padding:1.25rem 1rem 5.5rem;font-size:15px;line-height:1.55}",
     ".nthview-sequence>*:not(.nthview-scrim):not(.nthview-drawer):not(.nthview-pop){max-width:66rem;margin-left:auto;margin-right:auto}",
     ".nthview-sequence button{font:inherit;color:inherit}",
     ".nthview-sequence [tabindex='-1']:focus{outline:none}",
@@ -1093,16 +1093,21 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     ".nthview-progress{height:3px;background:var(--nv-border);border-radius:2px;overflow:hidden;margin:0 0 .9rem}",
     ".nthview-progress span{display:block;height:100%;background:var(--nv-accent);transition:width .35s ease}",
     /* stage: zones, lanes, track */
-    ".nthview-stage{position:relative;background:var(--sq-panel);border:1px solid var(--nv-border);border-radius:.7rem;padding:.7rem .6rem .35rem;overflow:hidden}",
+    ".nthview-stage{position:relative;background:var(--sq-panel);border:1px solid var(--nv-border);border-radius:.7rem;overflow:hidden}",
+    ".nthview-stage-scroll{overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin}",
+    ".nthview-sequence .nthview-stage-scroll:focus-visible{outline-offset:-3px}",
+    ".nthview-stage-in{position:relative;padding:.7rem .6rem .35rem;min-width:calc(var(--sq-lanes,4) * var(--sq-lane-min) + 1.2rem)}",
+    ".nthview-stage-more{margin:0;padding:.3rem .6rem .4rem;border-top:1px dashed var(--nv-border);font-size:.8rem;color:var(--nv-muted);text-align:center}",
     ".nthview-zonebg{position:absolute;inset:0;display:grid;pointer-events:none;padding:0 .6rem}",
     ".nthview-zoneband{border-left:1px dashed var(--nv-border);border-right:1px dashed var(--nv-border)}",
     ".nthview-zoneband.nthview-za{background:var(--sq-zone-a)}",
     ".nthview-zoneband.nthview-zb{background:var(--sq-zone-b)}",
     ".nthview-zonerow,.nthview-lanes,.nthview-rails{position:relative;display:grid;gap:0}",
+    ".nthview-zonerow{align-items:end}",
     ".nthview-zonelabel{font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--nv-muted);text-align:center;padding:0 .3rem .35rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}",
     ".nthview-lane{margin:0 .25rem;text-align:center;padding:.45rem .3rem;border:1px solid var(--nv-border);border-radius:.55rem;background:var(--sq-panel);min-width:0;transition:background .2s,border-color .2s,color .2s}",
     ".nthview-lane svg{width:22px;height:22px;display:block;margin:0 auto .15rem;color:var(--nv-muted)}",
-    ".nthview-lane b{display:block;font-size:.84rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
+    ".nthview-lane b{display:block;font-size:.84rem;font-weight:600;line-height:1.25;overflow:hidden;overflow-wrap:break-word;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}",
     ".nthview-lane small{display:block;font-size:.7rem;color:var(--nv-muted);line-height:1.3;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}",
     ".nthview-lane.nthview-on{background:var(--sq-hi);border-color:var(--nv-accent)}",
     ".nthview-lane.nthview-on svg{color:var(--nv-accent)}",
@@ -1121,7 +1126,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     ".nthview-loop{position:absolute;top:24px;width:34px;height:26px;border:2px solid currentColor;border-left:0;border-radius:0 13px 13px 0}",
     ".nthview-loop .nthview-head-tip{left:-6px;bottom:-7px;top:auto;transform:scaleX(-1)}",
     ".nthview-payload{position:absolute;top:12px;font-family:var(--sq-mono);font-size:.74rem;white-space:nowrap;max-width:96%;overflow:hidden;text-overflow:ellipsis;padding:0 .35rem;border-radius:.3rem;background:var(--sq-panel)}",
-    ".nthview-waiting{position:absolute;left:0;right:0;top:32px;text-align:center;font-size:.8rem;color:var(--nv-muted)}",
+    ".nthview-waiting{position:absolute;left:0;right:0;top:0;height:78px;display:flex;align-items:center;justify-content:center;padding:0 .75rem;text-align:center;font-size:.8rem;color:var(--nv-muted);pointer-events:none}",
     /* controls */
     ".nthview-controls{display:flex;align-items:center;gap:.6rem;margin:.8rem 0}",
     ".nthview-nav{border:1px solid var(--nv-border);background:var(--sq-panel);padding:.5rem 1rem;border-radius:.55rem;cursor:pointer;white-space:nowrap}",
@@ -1226,11 +1231,11 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     ".nthview-no-t{color:var(--h-red);font-weight:600}",
     ".nthview-actions{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}",
     /* diagram */
-    ".nthview-dtools{display:flex;flex-wrap:wrap;align-items:center;gap:.45rem;margin:0 0 .6rem}",
+    ".nthview-dtools{display:flex;flex-wrap:wrap;align-items:center;gap:.45rem;margin:0 0 .5rem;padding:.4rem 0;position:sticky;top:0;z-index:5;background:var(--nv-bg)}",
     ".nthview-dtools .nthview-zoomv{font-family:var(--sq-mono);font-size:.8rem;color:var(--nv-muted);min-width:3.2rem;text-align:center}",
     ".nthview-dtools .nthview-spacer{flex:1}",
-    ".nthview-dpanel{background:var(--sq-panel);border:1px solid var(--nv-border);border-radius:.7rem;overflow:auto;max-height:75vh;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}",
-    ".nthview-dpanel svg{display:block}",
+    ".nthview-dpanel{background:var(--sq-panel);border:1px solid var(--nv-border);border-radius:.7rem;overflow:auto;max-height:75vh;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y}",
+    ".nthview-dpanel svg{display:block;margin:0 auto}",
     ".nthview-dsvg text{font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;fill:var(--nv-fg)}",
     ".nthview-dsvg .nthview-mono{font-family:var(--sq-mono)}",
     ".nthview-dsvg .nthview-muted-t{fill:var(--nv-muted)}",
@@ -1254,7 +1259,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     ".nthview-pop b{display:block;margin-bottom:.15rem}",
     ".nthview-scrim{position:fixed;inset:0;background:rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .2s;z-index:40}",
     ".nthview-scrim.nthview-open{opacity:1;pointer-events:auto}",
-    ".nthview-drawer{position:fixed;top:0;right:0;bottom:0;width:min(24rem,92vw);background:var(--sq-panel);color:var(--nv-fg);border-left:1px solid var(--nv-border);z-index:41;transform:translateX(105%);transition:transform .25s ease;overflow:auto;padding:1rem 1.1rem;visibility:hidden}",
+    ".nthview-drawer{position:fixed;top:0;right:0;bottom:0;width:min(24rem,92vw);background:var(--sq-panel);color:var(--nv-fg);border-left:1px solid var(--nv-border);z-index:41;transform:translateX(105%);transition:transform .25s ease;overflow:auto;padding:1rem 1.1rem 5.5rem;visibility:hidden}",
     ".nthview-drawer.nthview-open{transform:none;visibility:visible}",
     ".nthview-drawer-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem}",
     ".nthview-drawer-head h2{margin:0;font-size:1.1rem;font-family:var(--sq-head)}",
@@ -1266,18 +1271,63 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     ".nthview-sequence [hidden]{display:none!important}",
     /* small screens */
     "@media (max-width:700px){",
-    "  .nthview-sequence{padding:.9rem .75rem 2.5rem}",
-    "  .nthview-title{font-size:1.3rem}",
-    "  .nthview-lane{margin:0 .12rem;padding:.35rem .15rem}",
+    "  .nthview-sequence{--sq-lane-min:4.75rem;padding:.9rem .75rem 5.5rem;font-size:16px}",
+    "  .nthview-eyebrow{font-size:.78rem}",
+    "  .nthview-title{font-size:1.35rem}",
+    "  .nthview-toolbar{width:100%}",
+    "  .nthview-seg{flex:1 1 100%}",
+    "  .nthview-seg button{flex:1;padding:.55rem .5rem;font-size:.95rem}",
+    "  .nthview-toolbar>.nthview-tbtn,.nthview-toolbar>.nthview-restart{flex:1;min-height:44px;font-size:.95rem}",
+    "  .nthview-stage-in{padding:.55rem .35rem .3rem}",
+    "  .nthview-lane{margin:0 .12rem;padding:.4rem .2rem}",
     "  .nthview-lane small{display:none}",
-    "  .nthview-lane b{font-size:.72rem}",
-    "  .nthview-zonelabel{font-size:.6rem;letter-spacing:.04em}",
+    "  .nthview-lane b{font-size:.8rem;line-height:1.2;hyphens:auto}",
+    "  .nthview-zonelabel{font-size:.75rem;letter-spacing:0;text-transform:none;line-height:1.25;white-space:normal;overflow-wrap:break-word;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}",
+    "  .nthview-track{height:80px}",
+    "  .nthview-waiting{height:80px;font-size:.9rem}",
+    "  .nthview-payload{top:auto;bottom:30px;font-size:.8rem;line-height:1.3;white-space:normal;text-align:center;max-width:min(96%,14rem);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}",
+    "  .nthview-flight{top:56px}",
+    "  .nthview-packet{top:50px}",
+    "  .nthview-loop{top:40px}",
+    "  .nthview-stage-more{font-size:.85rem}",
     "  .nthview-controls{flex-wrap:wrap}",
-    "  .nthview-chips{order:3;flex-basis:100%}",
-    "  .nthview-controls .nthview-nav{flex:1}",
-    "  .nthview-card,.nthview-check,.nthview-recap{padding:.85rem .8rem}",
+    "  .nthview-chips{order:3;flex-basis:100%;gap:6px}",
+    "  .nthview-chip{min-width:38px;height:38px;font-size:.85rem}",
+    "  .nthview-controls .nthview-nav{flex:1;min-height:46px}",
+    "  .nthview-card,.nthview-check,.nthview-recap{padding:.9rem .85rem}",
+    "  .nthview-idx{font-size:.85rem}",
+    "  .nthview-badge{font-size:.82rem}",
+    "  .nthview-route{font-size:.92rem}",
+    "  .nthview-route code{font-size:.85rem}",
+    "  .nthview-frag{font-size:.88rem}",
+    "  .nthview-frag b{font-size:.8rem}",
     "  .nthview-drow{grid-template-columns:1fr;gap:.1rem}",
-    "  .nthview-wire{font-size:.74rem;padding:.6rem .65rem}",
+    "  .nthview-drow dt{font-size:.85rem}",
+    "  .nthview-drow dd{font-size:.95rem}",
+    "  .nthview-details summary{font-size:.95rem;min-height:44px}",
+    "  .nthview-wire{font-size:.82rem;padding:.6rem .65rem;white-space:pre;overflow-wrap:normal;overflow-x:auto}",
+    "  .nthview-holds h3,.nthview-recap h3{font-size:.82rem}",
+    "  .nthview-hgrid{grid-template-columns:repeat(auto-fit,minmax(min(100%,9rem),1fr))}",
+    "  .nthview-hcol h4{font-size:.9rem}",
+    "  .nthview-pill{font-size:.8rem;padding:.12rem .45rem}",
+    "  .nthview-none{font-size:.85rem}",
+    "  .nthview-toggle{font-size:.95rem;padding:.3rem 0}",
+    "  .nthview-toggle input{width:20px;height:20px}",
+    "  .nthview-hint,.nthview-legend,.nthview-dlegend{font-size:.88rem}",
+    "  .nthview-check-label{font-size:.78rem}",
+    "  .nthview-opt{flex-wrap:wrap;min-height:48px}",
+    "  .nthview-opt>span:not(.nthview-key):not(.nthview-opt-tag){flex:1 1 0;min-width:0}",
+    "  .nthview-opt .nthview-key{font-size:.82rem}",
+    "  .nthview-opt-tag{flex-basis:100%;text-align:right;font-size:.82rem}",
+    "  .nthview-ghost{min-height:44px;font-size:.95rem}",
+    "  .nthview-recap-n{font-size:.85rem}",
+    "  .nthview-recap-route{font-size:.88rem}",
+    "  .nthview-recap-route code{font-size:.82rem}",
+    "  .nthview-recap-alt{font-size:.78rem}",
+    "  .nthview-dtools .nthview-tbtn{min-width:44px;min-height:44px}",
+    "  .nthview-dtools .nthview-zoomv{font-size:.88rem;min-width:2.8rem}",
+    "  .nthview-wide{display:none}",
+    "  .nthview-dpanel{max-height:calc(100vh - 6rem);max-height:calc(100svh - 6rem);overscroll-behavior:auto}",
     "}",
     "@media (prefers-reduced-motion:reduce){",
     "  .nthview-sequence *,.nthview-sequence *::before,.nthview-sequence *::after{transition:none!important;animation:none!important}",
@@ -1518,7 +1568,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     var bStep = el("button", { type: "button", "aria-pressed": "true", text: "Step by step" });
     var bDiag = el("button", { type: "button", "aria-pressed": "false", text: "Full diagram" });
     bStep.addEventListener("click", function () { setMode("step"); });
-    bDiag.addEventListener("click", function () { setMode("diagram"); });
+    bDiag.addEventListener("click", function () { setMode("diagram", true); });
     var toolbar = el("div", { class: "nthview-toolbar" }, [el("div", { class: "nthview-seg", role: "group", "aria-label": "View mode" }, [bStep, bDiag])]);
     var glossBtn = null;
     if ((data.glossary || []).length) {
@@ -1537,6 +1587,12 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     /* ---------- step mode: stage ---------- */
     var cols = "repeat(" + P.length + ",minmax(0,1fr))";
     var stage = el("div", { class: "nthview-stage" });
+    /* lanes keep a readable width (--sq-lane-min); when they do not fit, they scroll sideways inside the stage */
+    var stageScroll = el("div", { class: "nthview-stage-scroll" });
+    var stageIn = el("div", { class: "nthview-stage-in" });
+    stageIn.style.setProperty("--sq-lanes", String(P.length));
+    stageScroll.appendChild(stageIn); stage.appendChild(stageScroll);
+    var stageMore = el("p", { class: "nthview-stage-more", hidden: "", text: P.length + " parties: swipe or scroll sideways to see them all. The view follows each message." });
     var zones = data.zones || [], ZI = {}; zones.forEach(function (z, i) { ZI[z.id] = z; });
     /* contiguous runs of the same zone */
     var runs = [];
@@ -1558,7 +1614,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         }
         zbg.appendChild(band); zrow.appendChild(lab);
       });
-      stage.appendChild(zbg); stage.appendChild(zrow);
+      stageIn.appendChild(zbg); stageIn.appendChild(zrow);
     }
     var lanes = el("div", { class: "nthview-lanes" }); lanes.style.gridTemplateColumns = cols;
     var laneEls = P.map(function (p) {
@@ -1566,7 +1622,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       if (p.role) l.appendChild(el("small", { text: p.role }));
       lanes.appendChild(l); return l;
     });
-    stage.appendChild(lanes);
+    stageIn.appendChild(lanes);
     var track = el("div", { class: "nthview-track", "aria-hidden": "true" });
     var rails = el("div", { class: "nthview-rails" }); rails.style.gridTemplateColumns = cols;
     P.forEach(function () { rails.appendChild(el("div", { class: "nthview-rail" })); });
@@ -1576,8 +1632,43 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     var loop = el("div", { class: "nthview-loop" });
     var payload = el("div", { class: "nthview-payload" });
     var waiting = el("div", { class: "nthview-waiting", text: "Answer the check below to see this message." });
-    [flight, packet, loop, payload, waiting].forEach(function (n) { track.appendChild(n); });
-    stage.appendChild(track);
+    [flight, packet, loop, payload].forEach(function (n) { track.appendChild(n); });
+    stageIn.appendChild(track);
+    /* the waiting note sits over the track but outside the scroller, so it stays in view however far the lanes scroll */
+    stage.appendChild(waiting); stage.appendChild(stageMore);
+    function placeWaiting() { waiting.style.top = (stageScroll.offsetTop + track.offsetTop) + "px"; waiting.style.height = track.offsetHeight + "px"; }
+    function updateStageOverflow() {
+      var over = stageScroll.scrollWidth > stageScroll.clientWidth + 1;
+      stageMore.hidden = !over;
+      if (over) { stageScroll.setAttribute("tabindex", "0"); stageScroll.setAttribute("role", "region"); stageScroll.setAttribute("aria-label", "Participants, scrollable sideways"); }
+      else { stageScroll.removeAttribute("tabindex"); stageScroll.removeAttribute("role"); stageScroll.removeAttribute("aria-label"); }
+      return over;
+    }
+    /* When the lanes are wider than the stage, bring the sender, the receiver and the payload label into view.
+       If the two lanes are further apart than the visible width, land on the receiver (where the arrowhead is)
+       and keep the label inside the visible part. */
+    var lastFlight = null;
+    function revealFlight(from, to, animate) {
+      lastFlight = [from, to];
+      if (!updateStageOverflow()) return;
+      var sr = stageScroll.getBoundingClientRect(), sl = stageScroll.scrollLeft, vw = stageScroll.clientWidth;
+      function box(n) { var b = n.getBoundingClientRect(); return { l: b.left - sr.left + sl, r: b.right - sr.left + sl }; }
+      var lo = Math.min(from, to), hi = Math.max(from, to), a = box(laneEls[lo]), b = box(laneEls[hi]);
+      var left = a.l, right = b.r, pl = payload.hidden ? null : box(payload);
+      if (pl) { left = Math.min(left, pl.l); right = Math.max(right, pl.r); }
+      var target = sl;
+      if (left < sl + 4 || right > sl + vw - 4) {
+        if (right - left <= vw - 16) target = (left + right) / 2 - vw / 2;
+        else { var rc = box(laneEls[to]); target = to >= from ? rc.r + 8 - vw : rc.l - 8; }
+        target = Math.max(0, Math.min(stageScroll.scrollWidth - vw, target));
+      }
+      if (pl && (pl.l < target + 4 || pl.r > target + vw - 4)) {
+        var w = pl.r - pl.l, x = Math.max(target + 4, Math.min(target + vw - w - 4, pl.l));
+        payload.style.left = (x - track.offsetLeft - stageIn.clientLeft) + "px";
+      }
+      if (target === sl) return;
+      if (stageScroll.scrollTo) stageScroll.scrollTo({ left: target, behavior: animate && !reduceMotion ? "smooth" : "auto" }); else stageScroll.scrollLeft = target;
+    }
 
     var back = el("button", { type: "button", class: "nthview-nav", text: "Back" });
     var next = el("button", { type: "button", class: "nthview-nav nthview-primary", text: "Next" });
@@ -1605,7 +1696,8 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       cmpBox.addEventListener("change", function () { state.compare = cmpBox.checked; persist(); renderStep(false); });
       cmpToggle = el("label", { class: "nthview-toggle" }, [cmpBox, el("span", { text: data.compareLabel || "Show the comparison" })]);
     }
-    var hint = el("p", { class: "nthview-hint", text: "Arrow keys step through, Home and End jump. The colour of an arrow is its channel; a dashed arrow is a reply." });
+    var touchFirst = !!(root.matchMedia && root.matchMedia("(hover: none) and (pointer: coarse)").matches);
+    var hint = el("p", { class: "nthview-hint", text: (touchFirst ? "Tap Next or a step number to move. " : "Arrow keys step through, Home and End jump. ") + "The colour of an arrow is its channel; a dashed arrow is a reply." });
     var legend = channelLegend();
     var stepMode = el("section", { class: "nthview-stepmode", "aria-label": "Step by step" }, [stage, controls, cardSlot]);
     if (cmpToggle) stepMode.appendChild(cmpToggle);
@@ -1637,6 +1729,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         loop.hidden = false; loop.textContent = ""; loop.appendChild(headTip("sync"));
         loop.style.left = laneX(a) + "%";
         placeLabel(laneX(a) + 2, true);
+        revealFlight(a, a, animate);
         return;
       }
       loop.hidden = true; flight.hidden = false; packet.hidden = false;
@@ -1644,6 +1737,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       flight.className = "nthview-flight nthview-k-" + k + " " + (fwd ? "nthview-fwd" : "nthview-rev");
       flight.textContent = ""; flight.appendChild(headTip(k));
       placeLabel((laneX(lo) + laneX(hi)) / 2, false);
+      revealFlight(a, b, animate);
       if (!animate || reduceMotion) {
         flight.style.transition = "none"; packet.style.transition = "none";
         flight.style.left = laneX(lo) + "%"; flight.style.width = (laneX(hi) - laneX(lo)) + "%";
@@ -1664,15 +1758,18 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         setTimeout(function () { packet.classList.remove("nthview-go"); }, 700);
       }, 20);
     }
+    var lastLabel = null;
     function placeLabel(pct, leftAligned) {
+      lastLabel = [pct, leftAligned];
       payload.style.left = "0px"; payload.style.transform = "none";
       var tw = track.clientWidth || 1, w = payload.offsetWidth, x = pct / 100 * tw;
-      if (leftAligned) x = x + 26; else x = x - w / 2;
-      if (leftAligned && x + w > tw - 4) x = pct / 100 * tw - 10 - w;
+      if (leftAligned) x = x + 40; else x = x - w / 2;
+      if (leftAligned && x + w > tw - 4) x = pct / 100 * tw - 12 - w;
       x = Math.max(4, Math.min(tw - w - 4, x));
       payload.style.left = x + "px";
     }
     function hideFlight() {
+      lastLabel = null;
       flight.hidden = true; packet.hidden = true; loop.hidden = true; payload.hidden = true;
       laneEls.forEach(function (l) { l.classList.remove("nthview-on", "nthview-sender"); });
     }
@@ -1847,7 +1944,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       }
       (data.closing || []).forEach(function (t) { box.appendChild(para("", t)); });
       var toDiag = el("button", { type: "button", class: "nthview-nav nthview-primary", text: "See the full diagram" });
-      toDiag.addEventListener("click", function () { setMode("diagram"); });
+      toDiag.addEventListener("click", function () { setMode("diagram", true); });
       var again = el("button", { type: "button", class: "nthview-nav", text: "Start again" });
       again.addEventListener("click", function () { clearState(key); state.checks = {}; state.summarySeen = false; state.compare = false; state.details = false; state.zoom = "fit"; if (cmpBox) cmpBox.checked = false; buildDiagram(); go(0); });
       box.appendChild(el("div", { class: "nthview-actions" }, [toDiag, again]));
@@ -1858,6 +1955,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     function renderStep(animate, keepCheckFocus) {
       var i = state.step;
       closePop();
+      updateStageOverflow();
       chips.forEach(function (c, k) {
         if (k === i) c.setAttribute("aria-current", "step"); else c.removeAttribute("aria-current");
         if (k < N && S[k].check) c.classList.toggle("nthview-check-done", !!state.checks[k]);
@@ -1884,9 +1982,11 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         var cp = checkPanel(i); cardSlot.appendChild(cp.node);
         if (pending || keepCheckFocus) focusEl = cp.focus;
       }
-      if (pending) { hideFlight(); waiting.hidden = false; status.textContent = "Step " + (i + 1) + " of " + N + ": a check comes first."; return focusEl; }
+      if (pending) { hideFlight(); waiting.hidden = false; placeWaiting(); status.textContent = "Step " + (i + 1) + " of " + N + ": a check comes first."; return focusEl; }
       showFlight(s, animate);
       var card = stepCard(i); if (animate) card.classList.add("nthview-fade"); cardSlot.appendChild(card);
+      var wire = card.querySelector(".nthview-wire");
+      if (wire && wire.scrollWidth > wire.clientWidth + 1) { wire.setAttribute("tabindex", "0"); wire.setAttribute("role", "region"); }
       if (!focusEl) focusEl = card.querySelector("h2");
       if (!keepCheckFocus) status.textContent = "Step " + (i + 1) + " of " + N + ": " + s.title;
       return focusEl;
@@ -1932,6 +2032,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       });
       box.appendChild(kinds);
       box.appendChild(el("p", { text: "Thin bars on a lifeline show when that party is busy: each run of consecutive steps it takes part in. Frames mark alt (one branch or another), opt (only sometimes) and loop (repeats). Shaded bands are trust zones. Select any arrow to open that step." }));
+      box.appendChild(el("p", { text: "Zoom with the − and + buttons, a pinch on a touch screen, or Ctrl and the scroll wheel; drag or scroll to move around." }));
       return box;
     }
 
@@ -2142,6 +2243,38 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     zoomIn.addEventListener("click", function () { setZoom(currentZoom() + 0.2); });
     zoomOut.addEventListener("click", function () { setZoom(currentZoom() - 0.2); });
     zoomFit.addEventListener("click", function () { setZoom("fit"); });
+    /* pinch (touch) and Ctrl+wheel (trackpad pinch) zoom the diagram inside its panel, keeping the point under the fingers still */
+    function zoomAt(z, cx, cy, save) {
+      if (!D) return;
+      var old = currentZoom(), r0 = D.svg.getBoundingClientRect();
+      var ux = (cx - r0.left) / old, uy = (cy - r0.top) / old;
+      state.zoom = Math.round(Math.max(0.4, Math.min(2.5, z)) * 100) / 100;
+      applyZoom();
+      var r1 = D.svg.getBoundingClientRect();
+      dpanel.scrollLeft += r1.left + ux * state.zoom - cx;
+      dpanel.scrollTop += r1.top + uy * state.zoom - cy;
+      if (save) persist();
+    }
+    var pinch = null;
+    function tdist(t) { var dx = t[0].clientX - t[1].clientX, dy = t[0].clientY - t[1].clientY; return Math.sqrt(dx * dx + dy * dy) || 1; }
+    dpanel.addEventListener("touchstart", function (e) {
+      if (e.touches.length === 2) { e.preventDefault(); pinch = { d: tdist(e.touches), z: currentZoom() }; }
+    }, { passive: false });
+    dpanel.addEventListener("touchmove", function (e) {
+      if (!pinch || e.touches.length !== 2) return;
+      e.preventDefault();
+      zoomAt(pinch.z * tdist(e.touches) / pinch.d, (e.touches[0].clientX + e.touches[1].clientX) / 2, (e.touches[0].clientY + e.touches[1].clientY) / 2, false);
+    }, { passive: false });
+    function endPinch(e) { if (pinch && e.touches.length < 2) { pinch = null; persist(); } }
+    dpanel.addEventListener("touchend", endPinch);
+    dpanel.addEventListener("touchcancel", endPinch);
+    dpanel.addEventListener("wheel", function (e) {
+      if (!e.ctrlKey) return;
+      e.preventDefault();
+      zoomAt(currentZoom() * Math.exp(-e.deltaY / 300), e.clientX, e.clientY, true);
+    }, { passive: false });
+    /* Safari sends its own pinch events; stop them zooming the whole page while the fingers are on the diagram */
+    ["gesturestart", "gesturechange"].forEach(function (t) { dpanel.addEventListener(t, function (e) { e.preventDefault(); }, { passive: false }); });
 
     function highlightDiagram(scroll) {
       if (!D) return;
@@ -2150,7 +2283,9 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         g.classList.toggle("nthview-cur", k === i && state.step < N);
         g.setAttribute("tabindex", k === i ? "0" : "-1");
       });
-      toStep.textContent = state.step < N ? "Open step " + (state.step + 1) + " in step mode" : "Back to the recap";
+      toStep.textContent = "";
+      if (state.step < N) { toStep.appendChild(doc.createTextNode("Open step " + (state.step + 1))); toStep.appendChild(el("span", { class: "nthview-wide", text: " in step mode" })); }
+      else toStep.textContent = "Back to the recap";
       progBar.style.width = Math.round(Math.min(state.step + 1, N) / N * 100) + "%";
       if (scroll && state.step < N) {
         var z = currentZoom(), r = D.rows[i], top = r.y * z, ph = dpanel.clientHeight;
@@ -2160,7 +2295,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       }
     }
 
-    function setMode(m) {
+    function setMode(m, fromUser) {
       state.mode = m;
       bStep.setAttribute("aria-pressed", String(m === "step"));
       bDiag.setAttribute("aria-pressed", String(m === "diagram"));
@@ -2169,6 +2304,10 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       persist();
       if (m === "diagram") {
         if (!D) buildDiagram(); else applyZoom();
+        if (fromUser && root.matchMedia && root.matchMedia("(max-width: 700px)").matches) {
+          var dt = diagMode.firstChild, top = dt.getBoundingClientRect().top + (root.pageYOffset || 0);
+          if (top > (root.pageYOffset || 0) + 8) root.scrollTo(0, Math.max(0, top - 4));
+        }
         highlightDiagram(true);
         status.textContent = "Full diagram. Arrow keys move between steps; Enter opens one.";
         var cur = D.arrows[Math.min(state.step, N - 1)];
@@ -2178,7 +2317,15 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         setTimeout(function () { if (f) f.focus({ preventScroll: true }); }, 30);
       }
     }
-    function onResize() { if (D && state.zoom === "fit" && state.mode === "diagram" && container.isConnected) applyZoom(); }
+    function onResize() {
+      if (!container.isConnected) return;
+      if (D && state.zoom === "fit" && state.mode === "diagram") applyZoom();
+      if (state.mode === "step") {
+        updateStageOverflow();
+        if (lastLabel) { placeLabel(lastLabel[0], lastLabel[1]); if (lastFlight) revealFlight(lastFlight[0], lastFlight[1], false); }
+        if (!waiting.hidden) placeWaiting();
+      }
+    }
     if (container.__nthviewSeqResize) root.removeEventListener("resize", container.__nthviewSeqResize);
     container.__nthviewSeqResize = onResize;
     root.addEventListener("resize", onResize);
