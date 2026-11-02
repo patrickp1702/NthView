@@ -15,27 +15,27 @@
      dark sets light enough for text on a near-black one; the eight hues stay apart. */
   var KSETS = {
     vividDark: "--k-red:#ff8a80;--k-orange:#ffab5e;--k-gold:#ffd54f;--k-green:#7ee08a;--k-teal:#5eead4;--k-blue:#7cb4ff;--k-violet:#c4a5ff;--k-pink:#ff8fc8",
-    vividLight: "--k-red:#c62828;--k-orange:#c2410c;--k-gold:#8f6400;--k-green:#2e7d32;--k-teal:#00796b;--k-blue:#1d4ed8;--k-violet:#7c3aed;--k-pink:#be185d",
+    vividLight: "--k-red:#c62828;--k-orange:#b23c0a;--k-gold:#7f5800;--k-green:#276c2b;--k-teal:#006a5e;--k-blue:#1d4ed8;--k-violet:#7c3aed;--k-pink:#be185d",
     mutedDark: "--k-red:#f2a08f;--k-orange:#f3b57c;--k-gold:#e9cf78;--k-green:#a9d38a;--k-teal:#8fd8ca;--k-blue:#9dbdf0;--k-violet:#c9b2ee;--k-pink:#eda5c6",
-    mutedLight: "--k-red:#a63d2f;--k-orange:#a8521a;--k-gold:#7f6210;--k-green:#47732a;--k-teal:#24736a;--k-blue:#2f5d9c;--k-violet:#6a4a99;--k-pink:#a0406b"
+    mutedLight: "--k-red:#a63d2f;--k-orange:#94470f;--k-gold:#73570c;--k-green:#3f6625;--k-teal:#1f655d;--k-blue:#2f5d9c;--k-violet:#6a4a99;--k-pink:#a0406b"
   };
 
   /* Each theme: native palette, then the variant for the other colour scheme. */
   var PALETTES = {
     nebula: { dark: true,
       base: "--bg1:#070818;--bg2:#1a1145;--blob1:#5b21b6;--blob2:#0e7490;--blob3:#9d174d;--dot:rgba(220,220,255,.26);--surface:rgba(17,15,46,.68);--surface-2:rgba(28,24,70,.95);--node:rgba(24,21,62,.93);--line:rgba(255,255,255,.14);--ink:#f7f7ff;--muted:#c3c1ea;--accent:#a78bfa;--accent-2:#22d3ee;--on-accent:#0b0a22;--ok:#4ade80;--no:#fb7185;--warn:#fbbf24;--edge:rgba(210,210,255,.46);--shadow:rgba(0,0,0,.55);--display:'Outfit',system-ui,sans-serif;--body:'Inter',system-ui,sans-serif;--radius:1.1rem;" + KSETS.vividDark,
-      alt: "--bg1:#f4f2ff;--bg2:#e2e7ff;--blob1:#ddd6fe;--blob2:#bae6fd;--blob3:#fbcfe8;--dot:rgba(40,30,120,.2);--surface:rgba(255,255,255,.8);--surface-2:rgba(255,255,255,.97);--node:rgba(255,255,255,.96);--line:rgba(30,20,90,.14);--ink:#12111f;--muted:#4a4770;--accent:#6d28d9;--accent-2:#0e7490;--on-accent:#fff;--ok:#15803d;--no:#be123c;--warn:#a16207;--edge:rgba(40,30,110,.46);--shadow:rgba(40,30,110,.25);" + KSETS.vividLight },
+      alt: "--bg1:#f4f2ff;--bg2:#e2e7ff;--blob1:#ddd6fe;--blob2:#bae6fd;--blob3:#fbcfe8;--dot:rgba(40,30,120,.2);--surface:rgba(255,255,255,.8);--surface-2:rgba(255,255,255,.97);--node:rgba(255,255,255,.96);--line:rgba(30,20,90,.14);--ink:#12111f;--muted:#4a4770;--accent:#6d28d9;--accent-2:#0e7490;--on-accent:#fff;--ok:#15803d;--no:#be123c;--warn:#a16207;--edge:rgba(40,30,110,.6);--shadow:rgba(40,30,110,.25);" + KSETS.vividLight },
     blueprint: { dark: true,
       base: "--bg1:#051426;--bg2:#0a2747;--blob1:#1d4ed8;--blob2:#0891b2;--blob3:#312e81;--dot:rgba(125,211,252,.15);--surface:rgba(6,24,46,.72);--surface-2:rgba(10,34,62,.96);--node:rgba(8,30,56,.94);--line:rgba(125,211,252,.22);--ink:#f0f8ff;--muted:#a8c6e6;--accent:#38bdf8;--accent-2:#a5f3fc;--on-accent:#04121f;--ok:#4ade80;--no:#fb7185;--warn:#fcd34d;--edge:rgba(165,220,255,.5);--shadow:rgba(0,0,0,.55);--display:'Space Grotesk',system-ui,sans-serif;--body:'Inter',system-ui,sans-serif;--radius:.55rem;" + KSETS.vividDark,
-      alt: "--bg1:#eef5fc;--bg2:#d9e8f7;--blob1:#bfdbfe;--blob2:#a5f3fc;--blob3:#c7d2fe;--dot:rgba(3,60,120,.13);--surface:rgba(255,255,255,.82);--surface-2:rgba(255,255,255,.97);--node:rgba(255,255,255,.96);--line:rgba(3,60,120,.18);--ink:#0b1726;--muted:#38506b;--accent:#0369a1;--accent-2:#0e7490;--on-accent:#fff;--ok:#15803d;--no:#be123c;--warn:#a16207;--edge:rgba(10,50,100,.5);--shadow:rgba(10,50,100,.22);" + KSETS.vividLight },
+      alt: "--bg1:#eef5fc;--bg2:#d9e8f7;--blob1:#bfdbfe;--blob2:#a5f3fc;--blob3:#c7d2fe;--dot:rgba(3,60,120,.13);--surface:rgba(255,255,255,.82);--surface-2:rgba(255,255,255,.97);--node:rgba(255,255,255,.96);--line:rgba(3,60,120,.18);--ink:#0b1726;--muted:#38506b;--accent:#0369a1;--accent-2:#0e7490;--on-accent:#fff;--ok:#15803d;--no:#be123c;--warn:#a16207;--edge:rgba(10,50,100,.6);--shadow:rgba(10,50,100,.22);" + KSETS.vividLight },
     atlas: { dark: false,
-      base: "--bg1:#f6f0e2;--bg2:#ebdfc6;--blob1:#ecd9b4;--blob2:#d5e2cf;--blob3:#efcfbf;--dot:rgba(90,60,20,.12);--surface:rgba(255,251,242,.85);--surface-2:rgba(255,253,247,.98);--node:rgba(255,252,245,.97);--line:rgba(70,50,20,.16);--ink:#1b150c;--muted:#5b4d36;--accent:#9a3412;--accent-2:#0f766e;--on-accent:#fff;--ok:#2f6f4f;--no:#b4231f;--warn:#8a5a00;--edge:rgba(60,40,15,.46);--shadow:rgba(70,50,20,.22);--display:'Fraunces',Georgia,serif;--body:'Inter',system-ui,sans-serif;--radius:.75rem;" + KSETS.mutedLight,
+      base: "--bg1:#f6f0e2;--bg2:#ebdfc6;--blob1:#ecd9b4;--blob2:#d5e2cf;--blob3:#efcfbf;--dot:rgba(90,60,20,.12);--surface:rgba(255,251,242,.85);--surface-2:rgba(255,253,247,.98);--node:rgba(255,252,245,.97);--line:rgba(70,50,20,.16);--ink:#1b150c;--muted:#5b4d36;--accent:#9a3412;--accent-2:#0f766e;--on-accent:#fff;--ok:#2f6f4f;--no:#b4231f;--warn:#8a5a00;--edge:rgba(60,40,15,.62);--shadow:rgba(70,50,20,.22);--display:'Fraunces',Georgia,serif;--body:'Inter',system-ui,sans-serif;--radius:.75rem;" + KSETS.mutedLight,
       alt: "--bg1:#16120c;--bg2:#2a2216;--blob1:#5c3d1a;--blob2:#1f4a3f;--blob3:#5e2a1d;--dot:rgba(240,220,180,.11);--surface:rgba(30,24,16,.74);--surface-2:rgba(42,34,22,.96);--node:rgba(36,29,19,.95);--line:rgba(255,240,210,.15);--ink:#faf4e8;--muted:#d6c8ab;--accent:#fb923c;--accent-2:#5eead4;--on-accent:#1b150c;--ok:#7fcfa2;--no:#f08a86;--warn:#e3b654;--edge:rgba(250,235,205,.42);--shadow:rgba(0,0,0,.55);" + KSETS.mutedDark },
     botanic: { dark: false,
-      base: "--bg1:#f0f7ee;--bg2:#d9ecdc;--blob1:#c8e9cc;--blob2:#f4e4b5;--blob3:#cbe4ee;--dot:rgba(20,70,40,.13);--surface:rgba(252,255,251,.83);--surface-2:rgba(255,255,255,.98);--node:rgba(255,255,255,.96);--line:rgba(20,70,40,.15);--ink:#0f1a12;--muted:#3e5a46;--accent:#15803d;--accent-2:#b45309;--on-accent:#fff;--ok:#15803d;--no:#b91c1c;--warn:#a16207;--edge:rgba(20,60,35,.46);--shadow:rgba(20,70,40,.2);--display:'Outfit',system-ui,sans-serif;--body:'Inter',system-ui,sans-serif;--radius:1.4rem;" + KSETS.mutedLight,
+      base: "--bg1:#f0f7ee;--bg2:#d9ecdc;--blob1:#c8e9cc;--blob2:#f4e4b5;--blob3:#cbe4ee;--dot:rgba(20,70,40,.13);--surface:rgba(252,255,251,.83);--surface-2:rgba(255,255,255,.98);--node:rgba(255,255,255,.96);--line:rgba(20,70,40,.15);--ink:#0f1a12;--muted:#3e5a46;--accent:#15803d;--accent-2:#b45309;--on-accent:#fff;--ok:#15803d;--no:#b91c1c;--warn:#a16207;--edge:rgba(20,60,35,.64);--shadow:rgba(20,70,40,.2);--display:'Outfit',system-ui,sans-serif;--body:'Inter',system-ui,sans-serif;--radius:1.4rem;" + KSETS.mutedLight,
       alt: "--bg1:#0b1710;--bg2:#15301f;--blob1:#166534;--blob2:#854d0e;--blob3:#155e75;--dot:rgba(200,240,210,.11);--surface:rgba(12,30,20,.72);--surface-2:rgba(18,42,28,.96);--node:rgba(16,38,25,.95);--line:rgba(220,255,230,.14);--ink:#f2fbf4;--muted:#b9d8c2;--accent:#4ade80;--accent-2:#fbbf24;--on-accent:#0b1710;--ok:#6ee7b7;--no:#fb7185;--warn:#fcd34d;--edge:rgba(215,245,225,.42);--shadow:rgba(0,0,0,.55);" + KSETS.mutedDark },
     prism: { dark: false,
-      base: "--bg1:#fbfbfe;--bg2:#eef0f8;--blob1:#ffd1e6;--blob2:#cdeeff;--blob3:#fff0bf;--dot:rgba(20,20,60,.1);--surface:rgba(255,255,255,.8);--surface-2:rgba(255,255,255,.98);--node:rgba(255,255,255,.97);--line:rgba(20,20,60,.13);--ink:#101018;--muted:#4b4d63;--accent:#db2777;--accent-2:#2563eb;--on-accent:#fff;--ok:#15803d;--no:#be123c;--warn:#a16207;--edge:rgba(30,30,70,.42);--shadow:rgba(30,30,80,.2);--display:'Space Grotesk',system-ui,sans-serif;--body:'Inter',system-ui,sans-serif;--radius:1rem;" + KSETS.vividLight,
+      base: "--bg1:#fbfbfe;--bg2:#eef0f8;--blob1:#ffd1e6;--blob2:#cdeeff;--blob3:#fff0bf;--dot:rgba(20,20,60,.1);--surface:rgba(255,255,255,.8);--surface-2:rgba(255,255,255,.98);--node:rgba(255,255,255,.97);--line:rgba(20,20,60,.13);--ink:#101018;--muted:#4b4d63;--accent:#db2777;--accent-2:#2563eb;--on-accent:#fff;--ok:#15803d;--no:#be123c;--warn:#a16207;--edge:rgba(30,30,70,.6);--shadow:rgba(30,30,80,.2);--display:'Space Grotesk',system-ui,sans-serif;--body:'Inter',system-ui,sans-serif;--radius:1rem;" + KSETS.vividLight,
       alt: "--bg1:#0b0b12;--bg2:#181828;--blob1:#9d174d;--blob2:#1e40af;--blob3:#a16207;--dot:rgba(255,255,255,.1);--surface:rgba(20,20,32,.72);--surface-2:rgba(30,30,46,.96);--node:rgba(26,26,40,.95);--line:rgba(255,255,255,.14);--ink:#f8f8fc;--muted:#c2c3d6;--accent:#f472b6;--accent-2:#60a5fa;--on-accent:#0b0b12;--ok:#4ade80;--no:#fb7185;--warn:#fbbf24;--edge:rgba(230,230,250,.45);--shadow:rgba(0,0,0,.55);" + KSETS.vividDark }
   };
 
@@ -73,7 +73,7 @@
     ".nthview-error-panel code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}",
     /* ---- view-specific styles below, every class prefixed nthview- ---- */
     themeCss(),
-    M + "[data-theme]{max-width:none;margin:0;padding:0;position:relative;height:100vh;height:100dvh;min-height:22rem;overflow:hidden;isolation:isolate;background:var(--bg1);color:var(--ink);font-family:var(--body);line-height:1.5;--nv-accent:var(--accent);-webkit-tap-highlight-color:transparent}",
+    M + "[data-theme]{max-width:none;margin:0;padding:0;position:relative;height:100vh;height:100dvh;min-height:22rem;overflow:hidden;isolation:isolate;background:var(--bg1);color:var(--ink);font-family:var(--body);line-height:1.5;--nv-accent:var(--accent);-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%;text-size-adjust:100%}",
     "body:has(> .nthview-concept-map){margin:0}",
     M + " > .nthview-error-panel{position:relative;z-index:20;max-width:48rem;margin:2rem auto;background:var(--nv-bg);color:var(--nv-fg)}",
     M + " [hidden]{display:none !important}",
@@ -166,8 +166,9 @@
     "@keyframes nthview-pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 55%,transparent)}70%{box-shadow:0 0 0 12px transparent}100%{box-shadow:0 0 0 0 transparent}}",
     /* glass panels + HUD */
     M + " .nthview-glass{background:var(--surface);backdrop-filter:blur(18px) saturate(1.3);-webkit-backdrop-filter:blur(18px) saturate(1.3);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 30px 80px -40px var(--shadow),inset 0 1px 0 rgba(255,255,255,.07)}",
-    M + " .nthview-top{position:absolute;z-index:6;left:12px;right:12px;top:12px;display:flex;align-items:center;gap:.6rem;pointer-events:none}",
+    M + " .nthview-top{position:absolute;z-index:9;left:12px;right:12px;top:12px;display:flex;align-items:center;gap:.6rem;pointer-events:none}",
     M + " .nthview-top > *{pointer-events:auto}",
+    M + ".nthview-phase-intro .nthview-chipbtn{visibility:hidden}",
     M + " .nthview-brand{display:flex;align-items:center;gap:.6rem;min-width:0;padding:.45rem .9rem .45rem .55rem;flex:0 1 auto}",
     M + " .nthview-logo{flex:none;width:1.9rem;height:1.9rem;border-radius:.6rem;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:var(--on-accent)}",
     M + " .nthview-logo svg{width:1.2rem;height:1.2rem}",
@@ -180,7 +181,7 @@
     M + " .nthview-steps li.nthview-on{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:var(--on-accent)}",
     M + " .nthview-steps li.nthview-on span{background:transparent;border-color:color-mix(in srgb,var(--on-accent) 40%,transparent)}",
     M + " .nthview-steps li.nthview-past{color:var(--ink)}",
-    M + " .nthview-steps li.nthview-past span{background:var(--ok);color:#fff;border-color:transparent}",
+    M + " .nthview-steps li.nthview-past span{background:var(--ok);color:var(--on-accent);border-color:transparent}",
     M + " .nthview-tools{display:flex;gap:.4rem;flex:none}",
     M + " .nthview-chipbtn{display:inline-flex;align-items:center;gap:.4rem;padding:.55rem .85rem;font-size:.84rem;font-weight:700;border-radius:999px}",
     M + " .nthview-chipbtn:hover{border-color:var(--accent)}",
@@ -198,7 +199,7 @@
     M + " .nthview-ldot{width:.6rem;height:.6rem;border-radius:50%;background:var(--c);box-shadow:0 0 8px var(--c);flex:none}",
     M + " .nthview-lchip .nthview-ltoggle{width:1.45rem;height:1.45rem;justify-content:center;background:var(--surface-2);border:1px solid var(--line);font-weight:800;padding:0}",
     /* zoom + minimap */
-    M + " .nthview-corner{position:absolute;z-index:3;right:16px;bottom:16px;display:flex;align-items:flex-end;gap:.5rem}",
+    M + " .nthview-corner{position:absolute;z-index:3;right:76px;bottom:16px;display:flex;align-items:flex-end;gap:.5rem}",
     M + " .nthview-zoom{display:flex;flex-direction:column;padding:.25rem;gap:.15rem}",
     M + " .nthview-zoom button{width:2.4rem;height:2.4rem;border:0;background:none;border-radius:calc(var(--radius) * .6);display:grid;place-items:center;font-size:1.2rem;font-weight:700}",
     M + " .nthview-zoom button:hover{background:var(--surface-2);color:var(--accent)}",
@@ -245,9 +246,9 @@
     M + " .nthview-opt:hover:not(:disabled){border-color:var(--accent);transform:translateX(3px)}",
     M + " .nthview-opt .nthview-key{flex:none;width:1.6rem;height:1.6rem;border-radius:.5rem;display:grid;place-items:center;font:800 .8rem var(--display);border:1px solid var(--line);background:var(--surface)}",
     M + " .nthview-opt.nthview-no{border-color:var(--no);background:color-mix(in srgb,var(--no) 12%,var(--surface-2));opacity:.8}",
-    M + " .nthview-opt.nthview-no .nthview-key{background:var(--no);color:#fff;border-color:transparent}",
+    M + " .nthview-opt.nthview-no .nthview-key{background:var(--no);color:var(--on-accent);border-color:transparent}",
     M + " .nthview-opt.nthview-yes{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 14%,var(--surface-2))}",
-    M + " .nthview-opt.nthview-yes .nthview-key{background:var(--ok);color:#fff;border-color:transparent}",
+    M + " .nthview-opt.nthview-yes .nthview-key{background:var(--ok);color:var(--on-accent);border-color:transparent}",
     M + " .nthview-sentence{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem;margin:.3rem 0 .7rem;font-weight:700}",
     M + " .nthview-sentence .nthview-term{border-radius:.5rem;padding:.2rem .5rem;background:color-mix(in srgb,var(--c,var(--accent)) 16%,var(--surface-2));border:1px solid color-mix(in srgb,var(--c,var(--accent)) 50%,var(--line))}",
     M + " .nthview-sentence .nthview-rel{font-style:italic;color:var(--accent);font-weight:700}",
@@ -258,7 +259,7 @@
     M + " .nthview-fb.nthview-fbok{border-color:color-mix(in srgb,var(--ok) 65%,transparent);background:color-mix(in srgb,var(--ok) 11%,var(--surface-2))}",
     M + " .nthview-fb b.nthview-fbh{display:flex;align-items:center;gap:.5rem;font-family:var(--display);font-size:1.02rem;margin-bottom:.25rem}",
     M + " .nthview-fb p{margin:.25rem 0}",
-    M + " .nthview-ic{flex:none;width:1.5rem;height:1.5rem;border-radius:50%;display:grid;place-items:center;color:#fff}",
+    M + " .nthview-ic{flex:none;width:1.5rem;height:1.5rem;border-radius:50%;display:grid;place-items:center;color:var(--on-accent)}",
     M + " .nthview-ic svg{width:.95rem;height:.95rem}",
     M + " .nthview-ic.nthview-icok{background:var(--ok)} .nthview-concept-map .nthview-ic.nthview-icno{background:var(--warn)}",
     M + " .nthview-order{list-style:none;margin:.5rem 0;padding:0;display:grid;gap:.4rem;counter-reset:nvo}",
@@ -301,9 +302,10 @@
     M + " .nthview-links summary::-webkit-details-marker{display:none}",
     M + " .nthview-links summary i{font-style:italic;color:var(--accent)}",
     M + " .nthview-links details p{font-size:.88rem;color:var(--muted);margin:.35rem 0 .1rem}",
+    M + " .nthview-detback{display:none}",
     M + " .nthview-linkbtn{border:0;background:none;padding:0;color:var(--accent);font-weight:700;text-decoration:underline;text-underline-offset:2px}",
     /* intro overlay */
-    M + " .nthview-intro{position:absolute;inset:0;z-index:8;display:grid;place-items:center;padding:1rem;overflow:auto;background:color-mix(in srgb,var(--bg1) 40%,transparent);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);transition:opacity .6s ease}",
+    M + " .nthview-intro{position:absolute;inset:0;z-index:8;display:grid;place-items:center;padding:4.6rem 1rem 1rem;overflow:auto;background:color-mix(in srgb,var(--bg1) 40%,transparent);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);transition:opacity .6s ease}",
     M + " .nthview-intro.nthview-gone{opacity:0;pointer-events:none}",
     M + " .nthview-introcard{width:min(42rem,100%);padding:clamp(1.2rem,4vw,2.2rem);animation:nthview-swapin .8s cubic-bezier(.2,.8,.2,1) both}",
     M + " .nthview-introcard h1{font-family:var(--display);font-weight:800;font-size:clamp(2rem,6vw,3.3rem);line-height:1.03;letter-spacing:-.025em;margin:.2rem 0 .6rem;background:linear-gradient(120deg,var(--ink) 0%,var(--ink) 45%,var(--accent) 80%,var(--accent-2) 100%);-webkit-background-clip:text;background-clip:text;color:transparent;outline:none}",
@@ -328,16 +330,31 @@
       M + " .nthview-resume{top:108px;font-size:.84rem}" +
       M + " .nthview-legend{left:0;right:0;width:auto;top:64px;bottom:auto;flex-wrap:nowrap;overflow-x:auto;padding:0 8px 4px;scrollbar-width:none}" +
       M + " .nthview-legend::-webkit-scrollbar{display:none}" +
-      M + " .nthview-guide{left:0;right:0;bottom:0;top:auto;width:auto;max-height:min(52%,30rem);border-radius:var(--radius) var(--radius) 0 0;padding:.4rem 1rem 1rem;border-bottom:0}" +
-      M + " .nthview-guide.nthview-min{max-height:3.4rem;overflow:hidden}" +
-      M + " .nthview-grab{display:flex;justify-content:center;width:100%;border:0;background:none;padding:.35rem 0 .5rem;margin:0}" +
+      M + " .nthview-guide{left:0;right:0;bottom:0;top:auto;width:auto;max-height:min(52%,30rem);border-radius:var(--radius) var(--radius) 0 0;padding:.4rem 1rem calc(68px + env(safe-area-inset-bottom,0px));border-bottom:0}" +
+      M + " .nthview-guide.nthview-min{max-height:3.4rem;overflow:hidden;padding-bottom:0}" +
+      M + " .nthview-grab{display:flex;justify-content:center;width:calc(100% - 128px);border:0;background:none;padding:.45rem 0 .6rem;margin:0 auto;border-radius:999px}" +
       M + " .nthview-grab span{width:2.6rem;height:.3rem;border-radius:999px;background:var(--line)}" +
-      M + " .nthview-details{left:0;right:0;bottom:0;top:auto;width:auto;max-height:62%;border-radius:var(--radius) var(--radius) 0 0;transform:translateY(105%)}" +
-      M + " .nthview-corner{right:8px;bottom:calc(var(--nv-sheet,0px) + 8px)}" +
+      M + " .nthview-details{left:0;right:0;bottom:0;top:auto;width:auto;max-height:62%;border-radius:var(--radius) var(--radius) 0 0;padding-bottom:calc(68px + env(safe-area-inset-bottom,0px));transform:translateY(105%);box-shadow:0 -24px 60px -30px var(--shadow)}" +
+      M + " .nthview-close{width:2.75rem;height:2.75rem;font-size:1.3rem}" +
+      M + " .nthview-detback{display:flex;margin-top:1.1rem}" +
+      M + " .nthview-corner{right:8px;bottom:max(calc(var(--nv-sheet,0px) + 8px),72px)}" +
+      M + " .nthview-small{font-size:.94rem}" +
+      M + " .nthview-chip{font-size:.94rem;padding:.45rem .8rem;min-height:2.5rem}" +
+      M + " .nthview-btn{font-size:1rem;padding:.7rem 1.2rem;min-height:2.75rem}" +
+      M + " .nthview-opt{font-size:1rem;min-height:2.9rem}" +
+      M + " .nthview-selects select{font-size:16px;padding:.55rem .5rem}" +
+      M + " .nthview-links summary{font-size:1rem;padding:.25rem 0}" +
+      M + " .nthview-links details p," + M + " .nthview-example," + M + " .nthview-hintbox," + M + " .nthview-card p," + M + " .nthview-gloss dd{font-size:.97rem}" +
+      M + " .nthview-lchip{font-size:.86rem}" +
+      M + " .nthview-lchip > button{padding:.3rem .25rem}" +
+      M + " .nthview-chipbtn," + M + " .nthview-restart{min-height:2.5rem}" +
+      M + " .nthview-ibtn{width:2.5rem;height:2.5rem}" +
       M + " .nthview-mini{display:none}" +
       M + " .nthview-tiles{grid-template-columns:repeat(2,1fr)}" +
     "}",
-    "@media (max-width:560px){" + M + " .nthview-phases{grid-template-columns:1fr}" + M + " .nthview-brandtext small{display:none}" + M + " .nthview-selects{grid-template-columns:1fr}" + M + " .nthview-restart{padding:.45rem .5rem;font-size:.72rem}}",
+    "@media (max-width:560px){" + M + " .nthview-phases{grid-template-columns:1fr}" + M + " .nthview-brandtext small{display:none}" + M + " .nthview-selects{grid-template-columns:1fr}" + M + " .nthview-restart{padding:.45rem .65rem;font-size:.8rem}" +
+      /* phones: the guide's eyebrow already names the stage, so the step pills give way to the title */
+      M + " .nthview-steps{display:none}" + M + " .nthview-brandtext b{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;font-size:.9rem;line-height:1.2}" + M + " .nthview-intro{padding:4.2rem .75rem .75rem}}",
     "@media (prefers-reduced-motion:reduce){" + M + " .nthview-blob," + M + " .nthview-node," + M + " .nthview-elabel," + M + " .nthview-flow," + M + " .nthview-rubber," + M + " .nthview-introcard," + M + " .nthview-phases li," + M + " .nthview-swap," + M + " .nthview-fb," + M + " .nthview-node::after{animation:none !important}" + M + " .nthview-details," + M + " .nthview-intro," + M + " .nthview-bar," + M + " .nthview-node," + M + " .nthview-hull," + M + " .nthview-eg{transition:none !important}}"
   ].join("\n");
 
@@ -738,6 +755,7 @@
     container.__nthviewGen = gen;
     function alive() { return container.__nthviewGen === gen; }
     var reduceMotion = !!(root.matchMedia && root.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    var coarse = !!(root.matchMedia && root.matchMedia("(pointer: coarse)").matches);
     function raf(fn) { return root.requestAnimationFrame(fn); }
     container.setAttribute("data-theme", pickTheme(data));
     container.classList.remove("nthview-far", "nthview-celebrate");
@@ -800,7 +818,8 @@
 
     var S = {
       phase: "intro", tour: 0, task: -1, done: {}, slips: [], skipped: [], collapsed: {},
-      sel: null, src: null, picks: [], revealed: false, detailsFor: null, detailsKey: null, lastBox: null, lastMaxK: 1.25, ts: null
+      sel: null, src: null, picks: [], revealed: false, detailsFor: null, detailsKey: null, lastBox: null, lastMaxK: 1.25, ts: null,
+      manual: false
     };
     var cam = { x: 0, y: 0, k: 1 };
 
@@ -1022,7 +1041,7 @@
         c.bubble = { isBubble: true, id: "cluster:" + c.id, cluster: c, w: 176, h: 70, x: 0, y: 0 };
         var bb = el("button", { type: "button", class: "nthview-bubble", style: "--c:var(--k-" + c.color + ");width:176px;height:70px", "aria-label": c.name + ", collapsed cluster of " + c.members.length + " concepts. Press to expand." }, [el("span", { text: c.name }), el("small", { text: c.members.length + " concepts" })]);
         bb.hidden = true;
-        bb.addEventListener("click", function () { toggleCollapse(c, false); });
+        bb.addEventListener("click", function () { if (tapBlocked()) return; toggleCollapse(c, false); });
         c.bubble.el = bb;
         nodeLayer.appendChild(bb);
       }
@@ -1033,7 +1052,7 @@
       e.path = svgEl("path", { class: "nthview-edge" }); e.flow = svgEl("path", { class: "nthview-flow" }); e.arrow = svgEl("path", { class: "nthview-arrow" });
       e.g.appendChild(e.path); e.g.appendChild(e.flow); e.g.appendChild(e.arrow); gEdge.appendChild(e.g);
       e.lab = el("button", { type: "button", class: "nthview-elabel", tabindex: "-1", text: e.d.relation });
-      e.lab.addEventListener("click", function (ev) { ev.stopPropagation(); onEdgeActivate(e); });
+      e.lab.addEventListener("click", function (ev) { ev.stopPropagation(); if (tapBlocked()) return; onEdgeActivate(e); });
       labelLayer.appendChild(e.lab);
     });
     var tabOrder = nodes.slice().sort(function (a, b) {
@@ -1044,7 +1063,7 @@
       n.labEl = el("span", { class: "nthview-nlabel", text: n.d.label });
       n.el = el("button", { type: "button", class: "nthview-node" + (n.isRoot ? " nthview-root" : ""), "data-id": n.id,
         style: "--c:var(--k-" + n.cluster.color + ");width:" + n.w + "px;height:" + n.h + "px" }, [n.labEl]);
-      n.el.addEventListener("click", function () { if (n.suppress) { n.suppress = false; return; } onNodeActivate(n); });
+      n.el.addEventListener("click", function () { if (n.suppress) { n.suppress = false; return; } if (tapBlocked()) return; onNodeActivate(n); });
       n.el.addEventListener("focus", function () { ensureVisible(n); });
       n.el.addEventListener("pointerdown", function (ev) { nodePointerDown(ev, n); });
       nodeLayer.appendChild(n.el);
@@ -1231,7 +1250,11 @@
       }
       raf(step);
     }
-    function fitBox(box, maxK, dur) { S.lastBox = box; S.lastMaxK = maxK || 1.25; flyTo(camFor(box, maxK), dur === undefined ? 900 : dur); }
+    function fitBox(box, maxK, dur) { S.lastBox = box; S.lastMaxK = maxK || 1.25; S.manual = false; flyTo(camFor(box, maxK), dur === undefined ? 900 : dur); }
+    function inBox(n, b) { var q = pos(n); return !!b && q.x >= b.x0 && q.x <= b.x1 && q.y >= b.y0 && q.y <= b.y1; }
+    /* wide screens: the details panel takes the right side, so re-frame the last fitted region
+       into the space that is left, unless the learner has moved the camera themselves */
+    function reframe() { if (!isWide() || S.manual || !S.lastBox) return false; flyTo(camFor(S.lastBox, S.lastMaxK), 550); return true; }
     function refit(dur, all) { if (all || !S.lastBox) fitAll(dur); else flyTo(camFor(S.lastBox, S.lastMaxK), dur); }
     function boxFor(list) {
       var b = { x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity };
@@ -1249,6 +1272,7 @@
     function fitAll(dur) { fitBox(allBox(), 1.1, dur); }
     function zoomAt(px, py, f) {
       stopCam();
+      S.manual = true;
       var k = clamp(cam.k * f, .14, 2.6), mx = (px - cam.x) / cam.k, my = (py - cam.y) / cam.k;
       cam = { k: k, x: px - mx * k, y: py - my * k }; applyCam();
     }
@@ -1262,21 +1286,27 @@
     }
 
     /* ---------- pointer: pan, pinch, wheel, drag ---------- */
-    var pointers = {}, gesture = null;
+    var pointers = {}, gesture = null, tapBlock = 0;
+    /* a finger that panned or pinched must not also "tap" the node it started on */
+    function tapBlocked() { return Date.now() < tapBlock; }
     function local(ev) { var r = viewport.getBoundingClientRect(); return { x: ev.clientX - r.left, y: ev.clientY - r.top }; }
     function toMap(pt) { return { x: (pt.x - cam.x) / cam.k, y: (pt.y - cam.y) / cam.k }; }
     viewport.addEventListener("pointerdown", function (ev) {
-      if (ev.target.closest && ev.target.closest(".nthview-node,.nthview-elabel,.nthview-bubble")) return;
+      /* mouse on a concept or label: leave it to click and drag. A finger or pen starts a pan or
+         pinch there too, because on a phone most of the map is covered by concepts and labels;
+         a short tap still reaches the element as a click (touch is implicitly captured by it). */
+      var onItem = !!(ev.target.closest && ev.target.closest(".nthview-node,.nthview-elabel,.nthview-bubble"));
+      if (onItem && ev.pointerType === "mouse") return;
       if (ev.pointerType === "mouse" && ev.button !== 0) return;
       pointers[ev.pointerId] = local(ev);
-      try { viewport.setPointerCapture(ev.pointerId); } catch (e1) { /* ignore */ }
+      if (!onItem) { try { viewport.setPointerCapture(ev.pointerId); } catch (e1) { /* ignore */ } }
       stopCam();
       var ids = Object.keys(pointers);
       if (ids.length === 2) {
         var p1 = pointers[ids[0]], p2 = pointers[ids[1]];
         gesture = { type: "pinch", d0: Math.hypot(p1.x - p2.x, p1.y - p2.y) || 1, m0: { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 }, cam0: { x: cam.x, y: cam.y, k: cam.k } };
       } else {
-        gesture = { type: "pan", sx: pointers[ev.pointerId].x, sy: pointers[ev.pointerId].y, cam0: { x: cam.x, y: cam.y, k: cam.k }, moved: false };
+        gesture = { type: "pan", sx: pointers[ev.pointerId].x, sy: pointers[ev.pointerId].y, cam0: { x: cam.x, y: cam.y, k: cam.k }, moved: false, onItem: onItem };
       }
     });
     viewport.addEventListener("pointermove", function (ev) {
@@ -1289,13 +1319,15 @@
       pointers[ev.pointerId] = local(ev);
       if (gesture.type === "pan") {
         var q = pointers[ev.pointerId], dx = q.x - gesture.sx, dy = q.y - gesture.sy;
-        if (Math.abs(dx) + Math.abs(dy) > 4) { gesture.moved = true; viewport.classList.add("nthview-panning"); }
+        if (!gesture.moved && Math.abs(dx) + Math.abs(dy) <= (ev.pointerType === "mouse" ? 4 : 8)) return;
+        if (!gesture.moved) { gesture.moved = true; S.manual = true; viewport.classList.add("nthview-panning"); }
         cam = { k: gesture.cam0.k, x: gesture.cam0.x + dx, y: gesture.cam0.y + dy }; applyCam();
       } else {
         var ids = Object.keys(pointers);
         if (ids.length < 2) return;
         var a = pointers[ids[0]], b = pointers[ids[1]], d = Math.hypot(a.x - b.x, a.y - b.y), m = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
         var c0 = gesture.cam0, k = clamp(c0.k * d / gesture.d0, .14, 2.6);
+        S.manual = true;
         var mx = (gesture.m0.x - c0.x) / c0.k, my = (gesture.m0.y - c0.y) / c0.k;
         cam = { k: k, x: m.x - mx * k, y: m.y - my * k }; applyCam();
       }
@@ -1305,9 +1337,10 @@
       var g = gesture, pt = pointers[ev.pointerId];
       delete pointers[ev.pointerId];
       viewport.classList.remove("nthview-panning");
+      if (g && (g.moved || g.type === "pinch")) tapBlock = Date.now() + 350;
       if (Object.keys(pointers).length === 0) gesture = null;
       else if (g && g.type === "pinch") { var rest = pointers[Object.keys(pointers)[0]]; gesture = { type: "pan", sx: rest.x, sy: rest.y, cam0: { x: cam.x, y: cam.y, k: cam.k }, moved: true }; }
-      if (g && g.type === "pan" && !g.moved && ev.type === "pointerup") backgroundTap(toMap(pt));
+      if (g && g.type === "pan" && !g.moved && !g.onItem && ev.type === "pointerup") backgroundTap(toMap(pt));
     }
     viewport.addEventListener("pointerup", endPointer);
     viewport.addEventListener("pointercancel", endPointer);
@@ -1319,10 +1352,10 @@
     viewport.addEventListener("keydown", function (ev) {
       if (ev.target !== viewport) return;
       var step = 70, used = true;
-      if (ev.key === "ArrowLeft") { stopCam(); cam.x += step; applyCam(); }
-      else if (ev.key === "ArrowRight") { stopCam(); cam.x -= step; applyCam(); }
-      else if (ev.key === "ArrowUp") { stopCam(); cam.y += step; applyCam(); }
-      else if (ev.key === "ArrowDown") { stopCam(); cam.y -= step; applyCam(); }
+      if (ev.key === "ArrowLeft") { stopCam(); S.manual = true; cam.x += step; applyCam(); }
+      else if (ev.key === "ArrowRight") { stopCam(); S.manual = true; cam.x -= step; applyCam(); }
+      else if (ev.key === "ArrowUp") { stopCam(); S.manual = true; cam.y += step; applyCam(); }
+      else if (ev.key === "ArrowDown") { stopCam(); S.manual = true; cam.y -= step; applyCam(); }
       else if (ev.key === "+" || ev.key === "=" || ev.code === "Equal" || ev.code === "NumpadAdd") zoomBy(1.25);
       else if (ev.key === "-" || ev.key === "_" || ev.code === "Minus" || ev.code === "NumpadSubtract") zoomBy(1 / 1.25);
       else if (ev.key === "0") refit(500, true);
@@ -1340,6 +1373,7 @@
       if (ev.pointerType === "mouse" && ev.button !== 0) return;
       var mode = canDrag(n);
       if (!mode) return;
+      if (mode === "move" && ev.pointerType !== "mouse") return;
       ev.stopPropagation();
       var start = local(ev), orig = pos(n), moved = false, pid = ev.pointerId;
       try { n.el.setPointerCapture(pid); } catch (e1) { /* ignore */ }
@@ -1412,7 +1446,7 @@
         var r = miniSvg.getBoundingClientRect(), sc = Math.min(r.width / miniBox.w, r.height / miniBox.h);
         var ox = r.left + (r.width - miniBox.w * sc) / 2, oy = r.top + (r.height - miniBox.h * sc) / 2;
         var mx = miniBox.x + (ev.clientX - ox) / sc, my = miniBox.y + (ev.clientY - oy) / sc, v = vpSize();
-        stopCam(); cam = { k: cam.k, x: v.w / 2 - mx * cam.k, y: v.h / 2 - my * cam.k }; applyCam();
+        stopCam(); S.manual = true; cam = { k: cam.k, x: v.w / 2 - mx * cam.k, y: v.h / 2 - my * cam.k }; applyCam();
       };
       mini.addEventListener("pointerdown", function (ev) { miniDrag = true; try { mini.setPointerCapture(ev.pointerId); } catch (e1) { /* ignore */ } miniGo(ev); });
       mini.addEventListener("pointermove", function (ev) { if (miniDrag) miniGo(ev); });
@@ -1504,15 +1538,21 @@
     function openDetails(kids, forNode, key) {
       detailsBody.textContent = "";
       kids.forEach(function (k) { if (k) detailsBody.appendChild(k); });
+      /* phones: the sheet covers the guide, so say plainly how to get back to it */
+      var back = btn(S.phase === "tour" ? "Back to the tour" : S.phase === "rebuild" ? "Back to the task" : "Back to the map", "", function () { closeDetails(true); });
+      detailsBody.appendChild(el("div", { class: "nthview-actions nthview-detback" }, [back]));
       nodes.forEach(function (n) { n.el.classList.toggle("nthview-open", n === forNode); });
       S.detailsFor = forNode || null;
       S.detailsKey = key || null;
+      var wasOpen = details.classList.contains("nthview-open");
       details.classList.add("nthview-open"); details.setAttribute("aria-hidden", "false");
       details.scrollTop = 0;
       syncSheet();
+      var framed = !wasOpen && reframe();
       saveNow();
       var h = detailsBody.querySelector("h3");
       setTimeout(function () { if (h) h.focus({ preventScroll: true }); }, 60);
+      return framed;
     }
     function closeDetails(restoreFocus) {
       if (!details.classList.contains("nthview-open")) return;
@@ -1520,6 +1560,7 @@
       var n = S.detailsFor; S.detailsFor = null; S.detailsKey = null;
       nodes.forEach(function (x) { x.el.classList.remove("nthview-open"); });
       syncSheet();
+      if (restoreFocus) reframe();
       saveNow();
       if (restoreFocus && n && !n.el.hidden) n.el.focus({ preventScroll: true });
     }
@@ -1552,8 +1593,8 @@
         });
         kids.push(ul);
       }
-      openDetails(kids, n, { t: "node", id: n.id });
-      setTimeout(function () { if (alive()) ensureVisible(n); }, 80);
+      var framed = openDetails(kids, n, { t: "node", id: n.id });
+      if (!framed || !inBox(n, S.lastBox)) setTimeout(function () { if (alive()) ensureVisible(n); }, 80);
     }
     function openEdgeDetails(e) {
       var sent = el("div", { class: "nthview-sentence" }, [term(e.from), el("span", { class: "nthview-rel", text: e.d.relation }), el("span", { text: "→", "aria-hidden": "true" }), term(e.to)]);
@@ -1685,7 +1726,7 @@
       clearMarks(); setFocus(null); restoreAll(); syncCollapse(); redraw();
       var h = heading(afterTour ? "Now the whole map" : "The whole map");
       var kids = [eyebrow("Explore"), h,
-        p("", "Tap any concept to read its definition and links. Drag the background to pan, scroll or pinch to zoom, and drag a concept to move it."),
+        p("", coarse ? "Tap any concept to read its definition and links. Drag with one finger to pan and pinch to zoom." : "Tap any concept to read its definition and links. Drag the background to pan, scroll or pinch to zoom, and drag a concept to move it."),
         BIG ? p("nthview-small nthview-muted", "Big map: collapse clusters from the legend to see the outline first.") : null,
         p("nthview-small nthview-muted", "When you feel you could draw it yourself, take it apart and rebuild it from memory."),
         el("div", { class: "nthview-actions" }, [btn("Rebuild it from memory", "nthview-primary", startRebuild), btn("Replay the tour", "", function () { showTour(0); })])];

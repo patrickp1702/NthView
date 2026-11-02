@@ -151,61 +151,71 @@ window.NthViewRegistry = {
       "file": "docs/all-types-island-quest.html",
       "title": "Packet Quest",
       "view": "nthview-island-quest",
-      "data": "docs/all-types-island-quest.json"
+      "data": "docs/all-types-island-quest.json",
+      "hash": "14highz"
     },
     {
       "file": "docs/compliance-courier.html",
       "title": "Riverside Rounds",
       "view": "nthview-courier",
-      "data": "docs/compliance-courier.json"
+      "data": "docs/compliance-courier.json",
+      "hash": "1fp2zuk"
     },
     {
       "file": "docs/compliance-detective.html",
       "title": "The Marigold Kitchen Case",
       "view": "nthview-detective",
-      "data": "docs/compliance-detective.json"
+      "data": "docs/compliance-detective.json",
+      "hash": "u2jay4"
     },
     {
       "file": "docs/compliance-island-quest.html",
       "title": "Compliance Cove",
       "view": "nthview-island-quest",
-      "data": "docs/compliance-island-quest.json"
+      "data": "docs/compliance-island-quest.json",
+      "hash": "1i81i0v"
     },
     {
       "file": "docs/compliance-scenario-quiz.html",
       "title": "A Week at BrightPath",
       "view": "nthview-scenario-quiz",
-      "data": "docs/compliance-scenario-quiz.json"
+      "data": "docs/compliance-scenario-quiz.json",
+      "hash": "45pvon"
     },
     {
       "file": "docs/compliance-temple-run.html",
       "title": "Compliance Run",
       "view": "nthview-temple-run",
-      "data": "docs/compliance-temple-run.json"
+      "data": "docs/compliance-temple-run.json",
+      "hash": "km1ps5"
     },
     {
       "file": "docs/greenhouse-effect-concept-map.html",
       "title": "The Greenhouse Effect and Climate Feedbacks",
       "view": "nthview-concept-map",
-      "data": "docs/greenhouse-effect-concept-map.json"
+      "data": "docs/greenhouse-effect-concept-map.json",
+      "hash": "1tgflv2"
     },
     {
       "file": "docs/herd-immunity-explorable.html",
       "title": "How Herd Immunity Works",
       "view": "nthview-explorable",
-      "data": "docs/herd-immunity-explorable.json"
+      "data": "docs/herd-immunity-explorable.json",
+      "hash": "33s6l5"
     },
     {
       "file": "docs/mitre-attack-zoom-map.html",
       "title": "MITRE ATT&CK — How It Works",
       "view": "nthview-zoom-map",
-      "data": "docs/mitre-attack-zoom-map.json"
+      "data": "docs/mitre-attack-zoom-map.json",
+      "hash": "1l4xu2d"
     },
     {
       "file": "docs/tls-13-handshake-sequence.html",
       "title": "The TLS 1.3 handshake, message by message",
       "view": "nthview-sequence",
-      "data": "docs/tls-13-handshake-sequence.json"
+      "data": "docs/tls-13-handshake-sequence.json",
+      "hash": "17cokb5"
     }
   ],
   "lessons": [
@@ -239,7 +249,39 @@ window.NthViewRegistry = {
       "updated": "2026-10-30",
       "objectives": 4,
       "glossary": 8,
-      "highlights": "lessons/artex-global-explained/chapters/00-highlights.html"
+      "highlights": "lessons/artex-global-explained/chapters/00-highlights.html",
+      "chapterList": [
+        {
+          "file": "lessons/artex-global-explained/chapters/00-highlights.html",
+          "title": "Highlights",
+          "view": "nthview-highlights",
+          "hash": "1gix8ex"
+        },
+        {
+          "file": "lessons/artex-global-explained/chapters/01-how-artex-fits-together.html",
+          "title": "How ARTEX Fits Together",
+          "view": "nthview-concept-map",
+          "hash": "1h0fqon"
+        },
+        {
+          "file": "lessons/artex-global-explained/chapters/02-you-are-the-planner.html",
+          "title": "You Are the Planner",
+          "view": "nthview-scenario-quiz",
+          "hash": "1355bik"
+        },
+        {
+          "file": "lessons/artex-global-explained/chapters/03-the-stalled-task.html",
+          "title": "The Stalled Task",
+          "view": "nthview-detective",
+          "hash": "hmmlk8"
+        },
+        {
+          "file": "lessons/artex-global-explained/chapters/04-artex-archipelago.html",
+          "title": "ARTEX Archipelago",
+          "view": "nthview-island-quest",
+          "hash": "1nabnu3"
+        }
+      ]
     },
     {
       "slug": "compliance-for-everyone",
@@ -269,7 +311,33 @@ window.NthViewRegistry = {
       "updated": "2026-10-30",
       "objectives": 4,
       "glossary": 7,
-      "highlights": "lessons/compliance-for-everyone/chapters/00-highlights.html"
+      "highlights": "lessons/compliance-for-everyone/chapters/00-highlights.html",
+      "chapterList": [
+        {
+          "file": "lessons/compliance-for-everyone/chapters/00-highlights.html",
+          "title": "Highlights",
+          "view": "nthview-highlights",
+          "hash": "a0ntmw"
+        },
+        {
+          "file": "lessons/compliance-for-everyone/chapters/01-the-marigold-kitchen-case.html",
+          "title": "The Marigold Kitchen Case",
+          "view": "nthview-detective",
+          "hash": "u2jay4"
+        },
+        {
+          "file": "lessons/compliance-for-everyone/chapters/02-a-week-at-brightpath.html",
+          "title": "A Week at BrightPath",
+          "view": "nthview-scenario-quiz",
+          "hash": "45pvon"
+        },
+        {
+          "file": "lessons/compliance-for-everyone/chapters/03-compliance-cove.html",
+          "title": "Compliance Cove",
+          "view": "nthview-island-quest",
+          "hash": "1i81i0v"
+        }
+      ]
     },
     {
       "slug": "cucumber-bdd",
@@ -302,7 +370,45 @@ window.NthViewRegistry = {
       "updated": "2026-10-30",
       "objectives": 4,
       "glossary": 8,
-      "highlights": "lessons/cucumber-bdd/chapters/00-highlights.html"
+      "highlights": "lessons/cucumber-bdd/chapters/00-highlights.html",
+      "chapterList": [
+        {
+          "file": "lessons/cucumber-bdd/chapters/00-highlights.html",
+          "title": "Highlights",
+          "view": "nthview-highlights",
+          "hash": "16xwt2n"
+        },
+        {
+          "file": "lessons/cucumber-bdd/chapters/01-how-cucumber-fits-together.html",
+          "title": "How Cucumber Fits Together",
+          "view": "nthview-concept-map",
+          "hash": "f7kvr2"
+        },
+        {
+          "file": "lessons/cucumber-bdd/chapters/02-writing-good-scenarios.html",
+          "title": "Writing Good Scenarios",
+          "view": "nthview-scenario-quiz",
+          "hash": "pesv7o"
+        },
+        {
+          "file": "lessons/cucumber-bdd/chapters/03-why-our-bdd-failed.html",
+          "title": "Why Our BDD Failed",
+          "view": "nthview-detective",
+          "hash": "4s1c1t"
+        },
+        {
+          "file": "lessons/cucumber-bdd/chapters/04-suite-maths.html",
+          "title": "Suite Maths",
+          "view": "nthview-explorable",
+          "hash": "1czb3k"
+        },
+        {
+          "file": "lessons/cucumber-bdd/chapters/05-cucumber-archipelago.html",
+          "title": "Cucumber Archipelago",
+          "view": "nthview-island-quest",
+          "hash": "123x3ng"
+        }
+      ]
     },
     {
       "slug": "incident-response-it-ot",
@@ -335,7 +441,45 @@ window.NthViewRegistry = {
       "updated": "2026-10-30",
       "objectives": 4,
       "glossary": 8,
-      "highlights": "lessons/incident-response-it-ot/chapters/00-highlights.html"
+      "highlights": "lessons/incident-response-it-ot/chapters/00-highlights.html",
+      "chapterList": [
+        {
+          "file": "lessons/incident-response-it-ot/chapters/00-highlights.html",
+          "title": "Highlights",
+          "view": "nthview-highlights",
+          "hash": "j5dggv"
+        },
+        {
+          "file": "lessons/incident-response-it-ot/chapters/01-the-incident-response-map.html",
+          "title": "The Incident Response Map",
+          "view": "nthview-concept-map",
+          "hash": "2n7i4p"
+        },
+        {
+          "file": "lessons/incident-response-it-ot/chapters/02-the-first-24-hours.html",
+          "title": "The First 24 Hours",
+          "view": "nthview-scenario-quiz",
+          "hash": "1d2vbzs"
+        },
+        {
+          "file": "lessons/incident-response-it-ot/chapters/03-the-night-shift-anomaly.html",
+          "title": "The Night-Shift Anomaly",
+          "view": "nthview-detective",
+          "hash": "1aubzzh"
+        },
+        {
+          "file": "lessons/incident-response-it-ot/chapters/04-speed-versus-damage.html",
+          "title": "Speed versus Damage",
+          "view": "nthview-explorable",
+          "hash": "12d7gxg"
+        },
+        {
+          "file": "lessons/incident-response-it-ot/chapters/05-response-archipelago.html",
+          "title": "Response Archipelago",
+          "view": "nthview-island-quest",
+          "hash": "znnz7x"
+        }
+      ]
     },
     {
       "slug": "krishnamurti-and-osho",
@@ -367,7 +511,45 @@ window.NthViewRegistry = {
       "updated": "2026-10-30",
       "objectives": 4,
       "glossary": 7,
-      "highlights": "lessons/krishnamurti-and-osho/chapters/00-highlights.html"
+      "highlights": "lessons/krishnamurti-and-osho/chapters/00-highlights.html",
+      "chapterList": [
+        {
+          "file": "lessons/krishnamurti-and-osho/chapters/00-highlights.html",
+          "title": "Highlights",
+          "view": "nthview-highlights",
+          "hash": "10btvet"
+        },
+        {
+          "file": "lessons/krishnamurti-and-osho/chapters/01-two-teachers-one-map.html",
+          "title": "Two Teachers, One Map",
+          "view": "nthview-concept-map",
+          "hash": "l65g87"
+        },
+        {
+          "file": "lessons/krishnamurti-and-osho/chapters/02-the-pathless-land-case.html",
+          "title": "The Pathless Land Case",
+          "view": "nthview-detective",
+          "hash": "10c0x61"
+        },
+        {
+          "file": "lessons/krishnamurti-and-osho/chapters/03-zorba-the-buddha.html",
+          "title": "Zorba the Buddha",
+          "view": "nthview-scenario-quiz",
+          "hash": "12b54hk"
+        },
+        {
+          "file": "lessons/krishnamurti-and-osho/chapters/04-krishnamurti-or-osho.html",
+          "title": "Krishnamurti or Osho?",
+          "view": "nthview-scenario-quiz",
+          "hash": "bz44o8"
+        },
+        {
+          "file": "lessons/krishnamurti-and-osho/chapters/05-islands-of-awareness.html",
+          "title": "Islands of Awareness",
+          "view": "nthview-island-quest",
+          "hash": "1ao2e1i"
+        }
+      ]
     }
   ]
 };

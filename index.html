@@ -12,16 +12,23 @@
       --bg1: #f7f3ec; --bg2: #ece6f6; --ink: #111318; --muted: #5b5a66; --line: rgba(20, 20, 40, .12);
       --surface: rgba(255, 255, 255, .82); --surface-2: rgba(255, 255, 255, .96);
       --accent: #6d4aff; --accent-2: #ff6a8a; --accent-3: #19b3b0;
+      --surface-solid: #fbfaff;
+      /* filled buttons: both gradient stops keep white text at 4.5:1 or better */
+      --grad: linear-gradient(135deg, #6d4aff, #c8326a); --on-accent: #fff;
       --display: "Fraunces", Georgia, serif; --body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
       color-scheme: light dark;
     }
     @media (prefers-color-scheme: dark) {
       :root { --bg1: #0d0f1a; --bg2: #1a1530; --ink: #fafbff; --muted: #b3b6cc; --line: rgba(255, 255, 255, .14);
               --surface: rgba(22, 24, 44, .66); --surface-2: rgba(28, 30, 54, .9);
-              --accent: #9d8bff; --accent-2: #ff8fa8; --accent-3: #4fd6d2; }
+              --accent: #9d8bff; --accent-2: #ff8fa8; --accent-3: #4fd6d2;
+              --surface-solid: #1c1e36;
+              /* light stops need dark text in dark mode; white on #ff8fa8 is about 2:1 */
+              --grad: linear-gradient(135deg, #a594ff, #ff9ab0); --on-accent: #140f2a; }
     }
     * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
+    [hidden] { display: none !important; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
     body { margin: 0; min-height: 100vh; background: var(--bg1); color: var(--ink); font: 16px/1.55 var(--body); position: relative; isolation: isolate; }
     :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
     a { color: var(--accent); }
@@ -31,11 +38,16 @@
     .nv-blob:nth-child(2) { background: color-mix(in srgb, var(--accent-2) 50%, var(--bg1)); top: 10vmax; right: -22vmax; animation-duration: 40s; animation-delay: -10s; }
     .nv-blob:nth-child(3) { background: color-mix(in srgb, var(--accent-3) 50%, var(--bg1)); bottom: -28vmax; left: 20%; animation-duration: 46s; animation-delay: -20s; }
     @keyframes drift { from { transform: translate(0, 0) scale(1); } to { transform: translate(8vmax, 6vmax) scale(1.15); } }
-    @media (prefers-reduced-motion: reduce) { .nv-blob { animation: none !important; } .nv-card { transition: none; } }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .nv-blob { animation: none !important; }
+      *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+      .nv-card:hover, .nv-card:hover .nv-cover svg, .nv-card:hover .nv-cover .nv-num, .nv-dlist a:hover, .nv-llist .nv-lrow:hover, .nv-library:hover { transform: none; }
+    }
 
     main { max-width: 72rem; margin: 0 auto; padding: clamp(1rem, 4vw, 2.5rem) 1rem 4rem; }
     header.nv-hero { display: grid; grid-template-columns: 1.3fr 1fr; gap: 2rem; align-items: center; margin: 1rem 0 2.5rem; }
-    @media (max-width: 760px) { header.nv-hero { grid-template-columns: 1fr; } .nv-kal-wrap { order: -1; max-width: 16rem; margin: 0 auto; } }
+    @media (max-width: 760px) { header.nv-hero { grid-template-columns: 1fr; gap: 1.2rem; margin-top: .4rem; } .nv-kal-wrap { order: -1; width: min(16rem, 62vw); margin: 0 auto; } }
     .nv-eyebrow { font-size: .74rem; letter-spacing: .16em; text-transform: uppercase; font-weight: 700; color: var(--accent); margin: 0 0 .6rem; }
     h1 { font-family: var(--display); font-weight: 800; font-size: clamp(2.6rem, 7vw, 4.6rem); line-height: .98; letter-spacing: -.03em; margin: 0 0 1rem;
          background: linear-gradient(120deg, var(--ink) 0%, var(--ink) 50%, var(--accent) 80%, var(--accent-2) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
@@ -49,12 +61,13 @@
     .nv-kal .nv-kal-rim { fill: none; stroke: color-mix(in srgb, var(--ink) 25%, transparent); stroke-width: 2.5; }
 
     .nv-toolbar { display: flex; gap: .8rem; align-items: center; flex-wrap: wrap; margin: 0 0 1.2rem; }
-    .nv-search { flex: 1; min-width: 14rem; display: flex; align-items: center; gap: .6rem; background: var(--surface); backdrop-filter: blur(14px); border: 1px solid var(--line); border-radius: 999px; padding: .55rem .9rem .55rem 1rem; }
+    .nv-search { flex: 1 1 14rem; min-width: 0; display: flex; align-items: center; gap: .6rem; background: var(--surface); backdrop-filter: blur(14px); border: 1px solid var(--line); border-radius: 999px; padding: .55rem .9rem .55rem 1rem; }
     .nv-search svg { width: 1.1rem; height: 1.1rem; color: var(--muted); flex: none; }
     .nv-search input { flex: 1; border: 0; background: transparent; font: inherit; color: inherit; outline: none; min-width: 0; }
+    .nv-search:focus-within { outline: 3px solid var(--accent); outline-offset: 2px; }
     .nv-count { font-size: .9rem; color: var(--muted); }
 
-    .nv-grid { display: grid; gap: 1.1rem; grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr)); list-style: none; padding: 0; margin: 0; }
+    .nv-grid { display: grid; gap: 1.1rem; grid-template-columns: repeat(auto-fill, minmax(min(18rem, 100%), 1fr)); list-style: none; padding: 0; margin: 0; }
     .nv-card { display: flex; flex-direction: column; background: var(--surface); backdrop-filter: blur(18px) saturate(1.2); border: 1px solid var(--line); border-radius: 1.4rem; overflow: hidden;
                box-shadow: 0 24px 60px -32px rgba(0, 0, 0, .45); transition: transform .25s cubic-bezier(.2, .8, .2, 1), box-shadow .25s; }
     .nv-card { cursor: pointer; }
@@ -74,38 +87,50 @@
     .nv-section { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin: 2.2rem 0 1rem; flex-wrap: wrap; }
     .nv-library { border: 1.5px solid var(--line); background: var(--surface); backdrop-filter: blur(12px); color: var(--ink); border-radius: 999px; padding: .55rem 1rem; font: 600 .9rem/1 var(--body); cursor: pointer; transition: transform .15s, border-color .15s; }
     .nv-library:hover { transform: translateY(-1px); border-color: var(--accent); }
-    .nv-dialog { border: 1px solid var(--line); border-radius: 1.4rem; padding: 0; width: min(44rem, calc(100vw - 2rem)); max-height: calc(100vh - 3rem); background: var(--surface-2); color: var(--ink); box-shadow: 0 40px 90px -30px rgba(0,0,0,.6); }
+    .nv-dialog { border: 1px solid var(--line); border-radius: 1.4rem; padding: 0; width: min(44rem, calc(100vw - 2rem)); max-height: calc(100vh - 3rem); max-height: calc(100dvh - 3rem); background: var(--surface-2); color: var(--ink); box-shadow: 0 40px 90px -30px rgba(0,0,0,.6); overflow: hidden; }
+    /* open dialogs are a column: head and tools stay put, the body scrolls */
+    .nv-dialog[open] { display: flex; flex-direction: column; }
+    .nv-dialog[open] > * { flex: none; }
+    .nv-dialog[open] > #nv-dialog-body, .nv-dialog[open] > .nv-howto-body, .nv-dialog[open] > .nv-md { flex: 1 1 auto; min-height: 0; max-height: none; }
     .nv-dialog::backdrop { background: rgba(10, 10, 20, .55); backdrop-filter: blur(6px); }
-    .nv-dialog-head { display: flex; align-items: center; justify-content: space-between; padding: 1.1rem 1.3rem .6rem; }
+    .nv-dialog-head { display: flex; align-items: center; justify-content: space-between; gap: .8rem; padding: 1.1rem 1.3rem .6rem; }
+    .nv-dialog-head > div:first-child { min-width: 0; }
     .nv-dialog-head h2 { font-family: var(--display); font-weight: 800; font-size: 1.5rem; margin: 0; letter-spacing: -.02em; }
-    .nv-close { width: 2.2rem; height: 2.2rem; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-size: 1.3rem; line-height: 1; cursor: pointer; }
-    #nv-dialog-body { padding: 0 1.3rem 1.3rem; overflow: auto; max-height: calc(100vh - 20rem); min-height: 12rem; }
+    .nv-close { flex: none; width: 2.5rem; height: 2.5rem; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-size: 1.35rem; line-height: 1; cursor: pointer; }
+    .nv-close:hover { border-color: var(--accent); }
+    #nv-dialog-body { padding: 0 1.3rem 1.3rem; overflow: auto; min-height: 12rem; }
     .nv-dlabel { font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; font-weight: 700; color: var(--accent); margin: 1rem 0 .5rem; }
     .nv-dlist { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; }
     .nv-dlist a { display: flex; gap: .8rem; align-items: center; text-decoration: none; color: inherit; border: 1px solid var(--line); border-radius: 1rem; padding: .75rem .9rem; background: var(--surface); transition: transform .15s, border-color .15s; }
     .nv-dlist a:hover { transform: translateX(3px); border-color: var(--accent); }
     .nv-dlist b { display: block; font-family: var(--display); font-size: 1.05rem; line-height: 1.2; }
     .nv-dlist p { margin: .15rem 0 0; color: var(--muted); font-size: .9rem; }
-    .nv-dtag { flex: none; font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; border-radius: 999px; padding: .2rem .55rem; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; }
+    .nv-dtag { flex: none; font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; border-radius: 999px; padding: .2rem .55rem; background: var(--grad); color: var(--on-accent); }
     .nv-dmeta { flex: none; font-size: .78rem; color: var(--muted); white-space: nowrap; }
-    .nv-dlist .nv-dmore { margin-left: .35rem; border: 0; background: none; color: var(--accent); font: inherit; font-size: .9rem; cursor: pointer; padding: 0; }
+    .nv-dmore { border: 0; background: none; color: var(--accent); font: 600 .85rem/1.2 var(--body); cursor: pointer; padding: .35rem .3rem; text-decoration: underline; text-underline-offset: 3px; border-radius: .4rem; }
+    .nv-dmore:hover { color: var(--ink); }
+    .nv-dlist .nv-dmore { margin-left: .35rem; font: inherit; font-size: .9rem; padding: 0; }
     .nv-dlist .nv-dmain { min-width: 0; flex: 1; }
     .nv-dtools { display: flex; gap: .8rem; align-items: center; flex-wrap: wrap; padding: .2rem 1.3rem .6rem; }
     .nv-tabs { display: flex; gap: .3rem; flex-wrap: wrap; }
     .nv-tab { border: 1px solid var(--line); background: var(--surface); color: var(--muted); border-radius: 999px; padding: .4rem .9rem; font: 600 .85rem/1 var(--body); cursor: pointer; }
-    .nv-tab[aria-selected="true"] { background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-color: transparent; color: #fff; }
-    .nv-dfilter { flex: 1; min-width: 10rem; border: 1px solid var(--line); background: var(--surface); color: inherit; border-radius: 999px; padding: .45rem .9rem; font: inherit; font-size: .9rem; }
+    .nv-tab:hover { border-color: var(--accent); color: var(--ink); }
+    .nv-tab[aria-selected="true"] { background: var(--grad); border-color: transparent; color: var(--on-accent); }
+    .nv-dfilter { flex: 1 1 12rem; min-width: 0; border: 1px solid var(--line); background: var(--surface); color: inherit; border-radius: 999px; padding: .45rem .9rem; font: inherit; font-size: .9rem; }
     .nv-dpage { margin: .8rem auto 0; display: block; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: .5rem 1rem; font: 600 .85rem/1 var(--body); cursor: pointer; }
     .nv-filters { display: grid; gap: .5rem; padding: 0 1.3rem .6rem; }
-    .nv-frow { display: flex; gap: .5rem; align-items: center; }
+    .nv-filters > * { min-width: 0; }
+    .nv-frow { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
     .nv-fwrap { flex-wrap: wrap; }
     .nv-seg { display: flex; gap: .3rem; flex-wrap: wrap; }
     .nv-chip { border: 1px solid var(--line); background: var(--surface); color: var(--muted); border-radius: 999px; padding: .35rem .75rem; font: 600 .8rem/1 var(--body); cursor: pointer; }
     .nv-chip:hover { border-color: var(--accent); color: var(--ink); }
     .nv-chip[aria-pressed="true"] { background: var(--ink); color: var(--bg1); border-color: var(--ink); }
-    .nv-tagchip[aria-pressed="true"] { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; border-color: transparent; }
+    .nv-tagchip[aria-pressed="true"] { background: var(--grad); color: var(--on-accent); border-color: transparent; }
     .nv-applied .nv-chip { background: color-mix(in srgb, var(--accent) 14%, var(--surface)); color: var(--ink); border-color: color-mix(in srgb, var(--accent) 40%, var(--line)); }
-    .nv-select, .nv-date { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: .45rem .8rem; font: inherit; font-size: .85rem; }
+    .nv-select, .nv-date { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: .45rem .8rem; font: inherit; font-size: .85rem; max-width: 100%; min-width: 0; }
+    .nv-select option { background: var(--surface-solid); color: var(--ink); }
+    .nv-date { flex: 0 1 10.5rem; }
     .nv-flabel { font-size: .8rem; color: var(--muted); }
     .nv-count { margin: .2rem 0 .6rem; }
     .nv-llist .nv-lrow { display: flex; gap: .8rem; align-items: flex-start; border: 1px solid var(--line); border-radius: 1rem; padding: .85rem 1rem; background: var(--surface); cursor: pointer; transition: transform .15s, border-color .15s; }
@@ -118,11 +143,13 @@
     .nv-rlinks { display: flex; flex-direction: column; gap: .35rem; flex: none; }
     .nv-rlink { font-size: .78rem; font-weight: 700; text-decoration: none; color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: .35rem .7rem; text-align: center; background: var(--surface-2); }
     .nv-rlink:hover { border-color: var(--accent); }
-    .nv-rhl { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; border-color: transparent; }
+    /* .nv-dlist a styles the doc rows; reset them for the small pill links on lesson rows */
+    .nv-dlist a.nv-rlink { display: inline-flex; align-items: center; justify-content: center; gap: 0; padding: .4rem .8rem; border-radius: 999px; background: var(--surface-2); color: var(--ink); }
+    .nv-dlist a.nv-rlink:hover { transform: none; border-color: var(--accent); }
+    .nv-dlist a.nv-rhl { background: var(--grad); color: var(--on-accent); border-color: transparent; }
     #nv-dialog { width: min(52rem, calc(100vw - 2rem)); }
-    @media (max-width: 560px) { .nv-llist .nv-lrow { flex-direction: column; } .nv-rlinks { flex-direction: row; } }
     .nv-howto { width: min(52rem, calc(100vw - 2rem)); }
-    .nv-howto-body { padding: 0 1.3rem 1.4rem; overflow: auto; max-height: calc(100vh - 11rem); line-height: 1.6; }
+    .nv-howto-body { padding: 0 1.3rem 1.4rem; overflow: auto; line-height: 1.6; }
     .nv-howto-body h3 { font-family: var(--display); font-size: 1.15rem; margin: 1.2rem 0 .3rem; }
     .nv-howto-body h3:first-child { margin-top: .4rem; }
     .nv-howto-body p, .nv-howto-body li { color: var(--ink); margin: .3rem 0; }
@@ -130,15 +157,17 @@
     .nv-howto-body ul, .nv-howto-body ol { padding-left: 1.3rem; margin: .3rem 0 .6rem; }
     .nv-code { position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: .8rem; margin: .5rem 0 .9rem; }
     .nv-code pre { margin: 0; padding: .8rem 5.2rem .8rem 1rem; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font: .85rem/1.55 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .nv-code pre code { background: none; border: 0; padding: 0; border-radius: 0; font-size: inherit; }
     .nv-code button { position: absolute; top: .5rem; right: .5rem; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); border-radius: 999px; padding: .3rem .7rem; font: 600 .75rem/1 var(--body); cursor: pointer; }
     .nv-code button:hover { border-color: var(--accent); }
     .nv-section .nv-btns { display: flex; gap: .6rem; flex-wrap: wrap; }
-    .nv-library.nv-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; border-color: transparent; }
+    .nv-library.nv-primary { background: var(--grad); color: var(--on-accent); border-color: transparent; }
     .nv-reader { width: min(60rem, calc(100vw - 2rem)); }
-    .nv-reader-tools { display: flex; align-items: center; gap: .8rem; }
+    .nv-reader-tools { display: flex; align-items: center; gap: .8rem; flex: none; }
     .nv-reader-tools a { font-size: .85rem; color: var(--muted); text-decoration: none; border-bottom: 1px solid transparent; }
     .nv-reader-tools a:hover { color: var(--ink); border-color: currentColor; }
-    .nv-md { padding: 0 1.3rem 1.5rem; overflow: auto; max-height: calc(100vh - 9rem); line-height: 1.6; }
+    .nv-md { padding: 0 1.3rem 1.5rem; overflow: auto; line-height: 1.6; overflow-wrap: break-word; }
+    .nv-md p, .nv-md li, .nv-md td { overflow-wrap: anywhere; }
     .nv-md h1 { font-family: var(--display); font-size: 1.9rem; letter-spacing: -.02em; margin: .4rem 0 .8rem; }
     .nv-md h2 { font-family: var(--display); font-size: 1.4rem; letter-spacing: -.01em; margin: 1.6rem 0 .5rem; padding-top: 1rem; border-top: 1px solid var(--line); }
     .nv-md h3 { font-family: var(--display); font-size: 1.1rem; margin: 1.2rem 0 .4rem; }
@@ -162,19 +191,64 @@
     .nv-name { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .78rem; color: var(--muted); }
     .nv-body p { margin: .2rem 0 .4rem; color: var(--muted); flex: 1; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
     .nv-actions { display: flex; flex-wrap: wrap; gap: 1rem; padding: 0 1.2rem 1.1rem; }
-    .nv-actions a { font-size: .85rem; font-weight: 600; color: var(--muted); text-decoration: none; border-bottom: 1px solid transparent; transition: color .15s, border-color .15s; }
+    .nv-actions a { display: inline-flex; align-items: center; min-height: 2rem; font-size: .85rem; font-weight: 600; color: var(--muted); text-decoration: none; border-bottom: 1px solid transparent; transition: color .15s, border-color .15s; }
     .nv-actions a:hover { color: var(--ink); border-color: currentColor; }
 
-    .nv-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 1rem; margin: 3rem 0 1rem; }
+    .nv-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(14rem, 100%), 1fr)); gap: 1rem; margin: 3rem 0 1rem; }
     .nv-step { background: var(--surface); backdrop-filter: blur(14px); border: 1px solid var(--line); border-radius: 1.2rem; padding: 1.1rem 1.2rem; }
     .nv-step b { display: block; font-family: var(--display); font-size: 1.1rem; margin-bottom: .25rem; }
-    .nv-step span.nv-k { display: inline-grid; place-items: center; width: 1.8rem; height: 1.8rem; border-radius: .6rem; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; font-weight: 800; font-size: .85rem; margin-bottom: .6rem; }
+    .nv-step span.nv-k { display: inline-grid; place-items: center; width: 1.8rem; height: 1.8rem; border-radius: .6rem; background: var(--grad); color: var(--on-accent); font-weight: 800; font-size: .85rem; margin-bottom: .6rem; }
     .nv-step p { margin: 0; color: var(--muted); font-size: .95rem; }
     .nv-empty, .nv-error { border: 1px dashed var(--line); border-radius: 1.2rem; padding: 2rem; color: var(--muted); background: var(--surface); text-align: center; }
     .nv-error { border-style: solid; border-color: #d33; color: #d33; }
     code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .92em; background: var(--surface-2); padding: .1rem .35rem; border-radius: .35rem; }
     footer { margin: 3rem 0 1rem; color: var(--muted); font-size: .9rem; text-align: center; }
     .visually-hidden { position: absolute; left: -9999px; }
+
+    /* ---- touch: thumb-sized controls ---- */
+    @media (pointer: coarse) {
+      .nv-chip, .nv-tab { min-height: 2.5rem; padding: .5rem .9rem; font-size: .875rem; }
+      .nv-rtag { min-height: 2.1rem; padding: .35rem .7rem; }
+      .nv-dmore { min-height: 2.5rem; }
+      .nv-select, .nv-date, .nv-dfilter, .nv-search input { font-size: 1rem; }
+      .nv-select, .nv-date, .nv-dfilter { min-height: 2.75rem; }
+      .nv-library, .nv-dpage { min-height: 2.75rem; }
+      .nv-close { width: 2.75rem; height: 2.75rem; }
+      .nv-code button { min-height: 2.25rem; padding: .45rem .8rem; }
+      .nv-actions a { min-height: 2.75rem; }
+      .nv-rlink { min-height: 2.5rem; display: inline-flex; align-items: center; justify-content: center; }
+    }
+    /* ---- phones (about 320 to 560px wide) ---- */
+    @media (max-width: 560px) {
+      main { padding-top: .75rem; }
+      .nv-lede { font-size: 1.05rem; }
+      .nv-toolbar { gap: .5rem .8rem; }
+      .nv-section { gap: .7rem; margin-top: 1.6rem; }
+      .nv-section .nv-btns { width: 100%; }
+      .nv-section .nv-library { flex: 1 1 auto; }
+      .nv-card:hover { transform: none; }
+      /* dialogs fill the screen and scroll as one page; the head with the close button stays pinned */
+      .nv-dialog, #nv-dialog, .nv-howto, .nv-reader { width: calc(100vw - 1rem); max-width: none; max-height: calc(100vh - 1rem); max-height: calc(100dvh - 1rem); border-radius: 1.1rem; }
+      .nv-dialog[open] { display: block; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; }
+      .nv-dialog[open] > #nv-dialog-body, .nv-dialog[open] > .nv-howto-body, .nv-dialog[open] > .nv-md { overflow: visible; min-height: 0; }
+      .nv-dialog-head { position: sticky; top: 0; z-index: 3; background: var(--surface-solid); padding: .8rem 1rem .6rem; border-bottom: 1px solid var(--line); margin-bottom: .6rem; }
+      .nv-dialog-head h2 { font-size: 1.3rem; }
+      .nv-dtools, .nv-filters { padding-left: 1rem; padding-right: 1rem; }
+      #nv-dialog-body, .nv-howto-body, .nv-md { padding: 0 1rem 1.2rem; }
+      /* four agent tabs as a 2 x 2 grid: every tab stays visible without sideways scrolling */
+      .nv-howto .nv-dtools { display: block; }
+      .nv-howto .nv-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem; }
+      .nv-howto .nv-tab { border-radius: .9rem; line-height: 1.2; white-space: normal; text-align: center; padding: .5rem .6rem; }
+      .nv-code pre { padding: 2.4rem .9rem .8rem; }
+      .nv-md h1 { font-size: 1.6rem; }
+      .nv-dfilter { flex-basis: 100%; }
+      .nv-filters .nv-select { flex: 1 1 auto; }
+      .nv-date { flex: 1 1 8rem; padding-left: .6rem; padding-right: .45rem; }
+      .nv-llist .nv-lrow { flex-direction: column; padding: .85rem .9rem; }
+      .nv-rlinks { flex-direction: row; width: 100%; }
+      .nv-rlink { flex: 1 1 0; }
+      .nv-dlist a { align-items: flex-start; flex-wrap: wrap; }
+    }
   </style>
 </head>
 <body>
@@ -752,6 +826,229 @@
         Array.prototype.forEach.call(grid.children, function (li) { var hit = !q || li.getAttribute("data-search").indexOf(q) !== -1; li.hidden = !hit; if (hit) shown++; });
         status.textContent = q && !shown ? "No views match “" + search.value + "”." : "";
       });
+    })();
+  </script>
+  <style>
+    /* ---- gallery extras: additive only; nothing above is changed ---- */
+    :root[data-scheme="dark"] { --bg1: #0d0f1a; --bg2: #1a1530; --ink: #fafbff; --muted: #b3b6cc; --line: rgba(255, 255, 255, .14);
+                                --surface: rgba(22, 24, 44, .66); --surface-2: rgba(28, 30, 54, .9);
+                                --accent: #9d8bff; --accent-2: #ff8fa8; --accent-3: #4fd6d2; --surface-solid: #1c1e36;
+                                --grad: linear-gradient(135deg, #a594ff, #ff9ab0); --on-accent: #140f2a; color-scheme: dark; }
+    :root[data-scheme="light"] { --bg1: #f7f3ec; --bg2: #ece6f6; --ink: #111318; --muted: #5b5a66; --line: rgba(20, 20, 40, .12);
+                                 --surface: rgba(255, 255, 255, .82); --surface-2: rgba(255, 255, 255, .96);
+                                 --accent: #6d4aff; --accent-2: #ff6a8a; --accent-3: #19b3b0; --surface-solid: #fbfaff;
+                                 --grad: linear-gradient(135deg, #6d4aff, #c8326a); --on-accent: #fff; color-scheme: light; }
+    .nv-scheme { display: inline-flex; border: 1.5px solid var(--line); border-radius: 999px; background: var(--surface); backdrop-filter: blur(12px); overflow: hidden; }
+    .nv-scheme button { border: 0; background: transparent; color: var(--muted); padding: .5rem .7rem; font: 600 .8rem/1 var(--body); cursor: pointer; display: inline-flex; align-items: center; gap: .3rem; }
+    .nv-scheme button[aria-pressed="true"] { background: var(--ink); color: var(--bg1); }
+    .nv-scheme svg { width: .95rem; height: .95rem; }
+    .nv-xbtn { border: 1.5px solid var(--line); background: var(--surface); backdrop-filter: blur(12px); color: var(--ink); border-radius: 999px; padding: .55rem 1rem; font: 600 .9rem/1 var(--body); cursor: pointer; transition: transform .15s, border-color .15s; text-decoration: none; display: inline-flex; align-items: center; gap: .4rem; }
+    .nv-xbtn:hover { transform: translateY(-1px); border-color: var(--accent); }
+    .nv-xbtn svg { width: 1rem; height: 1rem; }
+    .nv-strip { margin: 1.4rem 0 0; }
+    .nv-strip h3 { font-family: var(--display); font-weight: 800; font-size: 1.15rem; letter-spacing: -.01em; margin: 0 0 .6rem; display: flex; align-items: center; gap: .6rem; }
+    .nv-strip h3 span { font: 600 .78rem/1 var(--body); color: var(--muted); letter-spacing: 0; }
+    .nv-strip ul { list-style: none; margin: 0; padding: 0; display: flex; gap: .6rem; overflow-x: auto; scroll-snap-type: x proximity; padding-bottom: .3rem; }
+    .nv-strip li { flex: 0 0 auto; scroll-snap-align: start; }
+    .nv-strip a { display: flex; flex-direction: column; gap: .2rem; min-width: 14rem; max-width: 18rem; text-decoration: none; color: inherit; background: var(--surface); backdrop-filter: blur(12px); border: 1px solid var(--line); border-radius: 1rem; padding: .75rem .9rem; transition: transform .15s, border-color .15s; }
+    .nv-strip a:hover { transform: translateY(-2px); border-color: var(--accent); }
+    .nv-strip b { font-family: var(--display); font-size: 1rem; line-height: 1.2; }
+    .nv-strip small { color: var(--muted); font-size: .78rem; }
+    .nv-strip .nv-prog { height: 4px; border-radius: 2px; background: var(--line); overflow: hidden; margin-top: .3rem; }
+    .nv-strip .nv-prog i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+    .nv-rowx { display: flex; gap: .3rem; align-items: center; flex: none; }
+    .nv-rowx button { border: 1px solid var(--line); background: var(--surface-2); color: var(--muted); border-radius: 999px; width: 2rem; height: 2rem; display: grid; place-items: center; cursor: pointer; padding: 0; }
+    .nv-rowx button:hover { border-color: var(--accent); color: var(--ink); }
+    .nv-rowx button[aria-pressed="true"] { color: var(--accent-2); border-color: var(--accent-2); }
+    .nv-rowx svg { width: .95rem; height: .95rem; }
+    .nv-newtag { display: inline-block; font-size: .64rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #fff; background: linear-gradient(135deg, var(--accent-3), var(--accent)); border-radius: 999px; padding: .15rem .5rem; margin-left: .4rem; vertical-align: middle; }
+    .nv-conttag { display: inline-block; font-size: .64rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: .12rem .5rem; margin-left: .4rem; vertical-align: middle; }
+    .nv-saved-only .nv-dlist > li:not(.nv-fav) { display: none; }
+    .nv-stats { text-align: center; color: var(--muted); font-size: .85rem; margin: 2.2rem 0 -1.6rem; }
+    .nv-stats b { color: var(--ink); font-weight: 600; }
+    .nv-totop { position: fixed; right: 1rem; bottom: 1rem; z-index: 40; width: 2.6rem; height: 2.6rem; border-radius: 50%; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); box-shadow: 0 14px 40px -16px rgba(0,0,0,.5); cursor: pointer; display: grid; place-items: center; opacity: 0; pointer-events: none; transition: opacity .25s; }
+    .nv-totop.nv-show { opacity: 1; pointer-events: auto; }
+    .nv-totop svg { width: 1.1rem; height: 1.1rem; }
+    .nv-toast { position: fixed; left: 50%; bottom: 1.2rem; transform: translateX(-50%); z-index: 60; background: var(--ink); color: var(--bg1); padding: .55rem 1rem; border-radius: 999px; font: 600 .85rem/1.2 var(--body); box-shadow: 0 14px 40px -14px rgba(0,0,0,.6); pointer-events: none; opacity: 0; transition: opacity .3s; }
+    .nv-toast.nv-show { opacity: 1; }
+    .nv-kbd { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .78em; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: .3rem; padding: 0 .35rem; background: var(--surface-2); }
+    @media (prefers-reduced-motion: reduce) { .nv-strip a, .nv-xbtn, .nv-totop, .nv-toast { transition: none; } }
+  </style>
+  <script>
+    /* ---- gallery extras: scheme toggle, saved items, continue-where-you-left-off, recently added, copy links, shortcuts, stats, back to top.
+           Purely additive: it decorates what the script above rendered and touches none of its code. ---- */
+    (function () {
+      var registry = window.NthViewRegistry || {};
+      var docs = registry.docs || [], lessons = registry.lessons || [], skills = (registry.skills || []).filter(function (s) { return !s.hidden; });
+      var SVG = "http://www.w3.org/2000/svg";
+      function el(tag, attrs, children) {
+        var n = document.createElement(tag);
+        Object.keys(attrs || {}).forEach(function (k) { if (k === "text") n.textContent = attrs[k]; else n.setAttribute(k, attrs[k]); });
+        (children || []).forEach(function (c) { n.appendChild(c); });
+        return n;
+      }
+      function icon(d) {
+        var s = document.createElementNS(SVG, "svg"); s.setAttribute("viewBox", "0 0 24 24"); s.setAttribute("aria-hidden", "true"); s.setAttribute("fill", "none"); s.setAttribute("stroke", "currentColor"); s.setAttribute("stroke-width", "2"); s.setAttribute("stroke-linecap", "round"); s.setAttribute("stroke-linejoin", "round");
+        var p = document.createElementNS(SVG, "path"); p.setAttribute("d", d); s.appendChild(p); return s;
+      }
+      var ICONS = {
+        sun: "M12 3v2M12 19v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M3 12h2M19 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z",
+        moon: "M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z",
+        auto: "M12 3a9 9 0 1 0 0 18zM12 3a9 9 0 0 1 0 18",
+        star: "M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.9l-5.2 2.8 1-5.9-4.3-4.1 5.9-.8z",
+        link: "M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1",
+        up: "M12 19V6M6 12l6-6 6 6",
+        dice: "M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM8 8h.01M16 8h.01M12 12h.01M8 16h.01M16 16h.01"
+      };
+      function store(key, val) { try { if (val === undefined) { var r = localStorage.getItem(key); return r ? JSON.parse(r) : null; } localStorage.setItem(key, JSON.stringify(val)); } catch (e) { return null; } }
+      var toast = el("div", { class: "nv-toast", role: "status" }); document.body.appendChild(toast);
+      var toastTimer;
+      function say(msg) { toast.textContent = msg; toast.classList.add("nv-show"); clearTimeout(toastTimer); toastTimer = setTimeout(function () { toast.classList.remove("nv-show"); }, 1600); }
+      function copy(text, label) {
+        var done = function () { say((label || "Link") + " copied"); };
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function () { say("Copy failed"); }); else say("Copy not available here");
+      }
+      function absolute(rel) { try { return new URL(rel, location.href).href; } catch (e) { return rel; } }
+      var fmt = function (iso) { if (!iso) return ""; var d = new Date(iso + "T00:00:00Z"); return isNaN(d) ? iso : d.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }); };
+
+      /* 1. colour scheme: Auto / Light / Dark, remembered per browser */
+      var btns = document.querySelector(".nv-section .nv-btns") || document.querySelector(".nv-section");
+      if (btns) {
+        var scheme = store("nthview:gallery:scheme") || "auto";
+        var group = el("div", { class: "nv-scheme", role: "group", "aria-label": "Colour scheme" });
+        var opts = [["auto", "Auto", ICONS.auto], ["light", "Light", ICONS.sun], ["dark", "Dark", ICONS.moon]];
+        var schemeBtns = opts.map(function (o) {
+          var b = el("button", { type: "button", "aria-pressed": String(scheme === o[0]), title: o[1] + " colours" }, [icon(o[2]), el("span", { text: o[1] })]);
+          b.addEventListener("click", function () { apply(o[0]); });
+          group.appendChild(b); return b;
+        });
+        function apply(s) {
+          scheme = s; store("nthview:gallery:scheme", s);
+          if (s === "auto") document.documentElement.removeAttribute("data-scheme"); else document.documentElement.setAttribute("data-scheme", s);
+          schemeBtns.forEach(function (b, i) { b.setAttribute("aria-pressed", String(opts[i][0] === s)); });
+        }
+        apply(scheme);
+        btns.insertBefore(group, btns.firstChild);
+
+        /* 2. surprise me: a random doc or lesson */
+        var pool = lessons.map(function (l) { return l.path; }).concat(docs.map(function (d) { return d.file; }));
+        if (pool.length) {
+          var rnd = el("button", { type: "button", class: "nv-xbtn", title: "Open a random doc or lesson" }, [icon(ICONS.dice), el("span", { text: "Surprise me" })]);
+          rnd.addEventListener("click", function () { location.href = pool[Math.floor(Math.random() * pool.length)]; });
+          btns.appendChild(rnd);
+        }
+      }
+
+      /* 3. saved items and copy-link on every library row (rows are rendered by the script above; we decorate them as they appear) */
+      var saved = store("nthview:gallery:saved") || {};
+      function rowKey(li) { var a = li.querySelector(".nv-rlink:not(.nv-rhl)") || li.querySelector("a[href]"); return a ? a.getAttribute("href") : null; }
+      function decorate(li) {
+        if (li.getAttribute("data-nvx")) return;
+        var key = rowKey(li); if (!key) return;
+        li.setAttribute("data-nvx", "1");
+        if (saved[key]) li.classList.add("nv-fav");
+        var star = el("button", { type: "button", "aria-pressed": String(!!saved[key]), "aria-label": saved[key] ? "Remove from saved" : "Save for later", title: "Save for later" }, [icon(ICONS.star)]);
+        star.addEventListener("click", function (e) {
+          e.preventDefault(); e.stopPropagation();
+          if (saved[key]) delete saved[key]; else saved[key] = Date.now();
+          store("nthview:gallery:saved", saved);
+          li.classList.toggle("nv-fav", !!saved[key]); star.setAttribute("aria-pressed", String(!!saved[key])); star.setAttribute("aria-label", saved[key] ? "Remove from saved" : "Save for later");
+          say(saved[key] ? "Saved" : "Removed from saved"); updateSavedChip();
+        });
+        var link = el("button", { type: "button", "aria-label": "Copy link", title: "Copy link" }, [icon(ICONS.link)]);
+        link.addEventListener("click", function (e) { e.preventDefault(); e.stopPropagation(); copy(absolute(key)); });
+        var box = el("span", { class: "nv-rowx" }, [star, link]);
+        /* lesson rows have a links column; doc rows are a single anchor */
+        var links = li.querySelector(".nv-rlinks");
+        if (links) links.appendChild(box); else li.appendChild(box);
+        if (!links) { li.style.display = "flex"; li.style.alignItems = "center"; li.style.gap = ".5rem"; var a = li.querySelector("a"); if (a) a.style.flex = "1"; }
+        /* badges: new within 14 days, continue when progress exists on this origin */
+        var title = li.querySelector("b");
+        var lesson = lessons.filter(function (l) { return l.path === key; })[0];
+        if (title && lesson && lesson.created && (Date.now() - new Date(lesson.created + "T00:00:00Z").getTime()) < 14 * 864e5) title.appendChild(el("span", { class: "nv-newtag", text: "New" }));
+        var prog = progressFor(key);
+        if (title && prog) title.appendChild(el("span", { class: "nv-conttag", text: prog.label }));
+      }
+      var dialogBody = document.getElementById("nv-dialog-body");
+      if (dialogBody) {
+        new MutationObserver(function () { Array.prototype.forEach.call(dialogBody.querySelectorAll(".nv-dlist > li"), decorate); }).observe(dialogBody, { childList: true, subtree: true });
+        Array.prototype.forEach.call(dialogBody.querySelectorAll(".nv-dlist > li"), decorate);
+      }
+      /* a "Saved only" chip beside the library filters */
+      var savedChip = null;
+      function updateSavedChip() { if (savedChip) savedChip.textContent = "★ Saved " + Object.keys(saved).length; }
+      var tools = document.getElementById("nv-dialog-tools");
+      if (tools && dialogBody) {
+        savedChip = el("button", { type: "button", class: "nv-chip", "aria-pressed": "false", title: "Show only items you saved" });
+        updateSavedChip();
+        savedChip.addEventListener("click", function () { var on = savedChip.getAttribute("aria-pressed") !== "true"; savedChip.setAttribute("aria-pressed", String(on)); dialogBody.classList.toggle("nv-saved-only", on); });
+        tools.appendChild(savedChip);
+      }
+
+      /* 4. continue where you left off: the views save progress under nthview:<view>:<hash>; the registry carries the same hash */
+      function hasKey(view, hash) { if (!view || !hash) return false; try { return !!localStorage.getItem("nthview:" + view.replace(/^nthview-/, "") + ":" + hash); } catch (e) { return false; } }
+      function progressFor(path) {
+        var d = docs.filter(function (x) { return x.file === path; })[0];
+        if (d) return hasKey(d.view, d.hash) ? { label: "Continue", href: d.file, done: 0, total: 1 } : null;
+        var l = lessons.filter(function (x) { return x.path === path; })[0];
+        if (l && l.chapterList) {
+          var started = l.chapterList.filter(function (c) { return hasKey(c.view, c.hash); });
+          if (!started.length) return null;
+          var last = started[started.length - 1];
+          return { label: "Continue", href: last.file, done: started.length, total: l.chapterList.length, chapter: last.title };
+        }
+        return null;
+      }
+      var status = document.getElementById("nv-status");
+      var host = status ? status.parentNode : null;
+      function strip(title, note, items) {
+        if (!items.length || !host) return;
+        var sec = el("section", { class: "nv-strip", "aria-label": title });
+        sec.appendChild(el("h3", {}, [document.createTextNode(title), el("span", { text: note })]));
+        sec.appendChild(el("ul", {}, items));
+        host.insertBefore(sec, status.nextSibling);
+      }
+      /* 5. recently added lessons */
+      var recent = lessons.filter(function (l) { return l.created; }).sort(function (a, b) { return a.created < b.created ? 1 : -1; }).slice(0, 6);
+      if (recent.length) strip("Recently added", "newest lessons first", recent.map(function (l) {
+        return el("li", {}, [el("a", { href: l.path }, [el("b", { text: l.title }), el("small", { text: [l.level ? l.level[0].toUpperCase() + l.level.slice(1) : null, l.minutes ? "about " + l.minutes + " min" : null, l.chapters + " chapters", fmt(l.created)].filter(Boolean).join(" · ") })])]);
+      }));
+
+      var cont = [];
+      lessons.forEach(function (l) { var p = progressFor(l.path); if (p) cont.push({ title: l.title, sub: "Chapter " + p.done + " of " + p.total + (p.chapter ? " · " + p.chapter : ""), href: p.href, pct: Math.round(100 * p.done / p.total) }); });
+      docs.forEach(function (d) { var p = progressFor(d.file); if (p) cont.push({ title: d.title, sub: "Doc · pick up where you left off", href: d.file, pct: null }); });
+      if (cont.length) strip("Continue where you left off", "progress saved in this browser", cont.slice(0, 8).map(function (c) {
+        var a = el("a", { href: c.href }, [el("b", { text: c.title }), el("small", { text: c.sub })]);
+        if (c.pct !== null) { var bar = el("div", { class: "nv-prog", "aria-hidden": "true" }); var fill = el("i"); fill.style.width = c.pct + "%"; bar.appendChild(fill); a.appendChild(bar); }
+        return el("li", {}, [a]);
+      }));
+
+      /* 6. stats line above the footer */
+      var footer = document.querySelector("footer");
+      if (footer) {
+        var latest = lessons.map(function (l) { return l.updated || l.created || ""; }).concat(docs.map(function () { return ""; })).sort().pop();
+        var bits = [el("b", { text: skills.length + (skills.length === 1 ? " view" : " views") }), document.createTextNode(" · "), el("b", { text: docs.length + (docs.length === 1 ? " doc" : " docs") }), document.createTextNode(" · "), el("b", { text: lessons.length + (lessons.length === 1 ? " lesson" : " lessons") })];
+        if (latest) bits.push(document.createTextNode(" · last updated " + fmt(latest)));
+        bits.push(document.createTextNode(" · press "), el("span", { class: "nv-kbd", text: "/" }), document.createTextNode(" to search, "), el("span", { class: "nv-kbd", text: "?" }), document.createTextNode(" for help"));
+        footer.parentNode.insertBefore(el("p", { class: "nv-stats" }, bits), footer);
+      }
+
+      /* 7. keyboard shortcuts: / focuses search, ? opens How to use, L opens the library */
+      document.addEventListener("keydown", function (e) {
+        var t = e.target, tag = t && t.tagName;
+        if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || (t && t.isContentEditable)) return;
+        if (document.querySelector("dialog[open]")) return;
+        if (e.key === "/") { var s = document.getElementById("nv-search"); if (s) { e.preventDefault(); s.focus(); s.select(); } }
+        else if (e.key === "?") { var h = document.getElementById("nv-howto-btn"); if (h) { e.preventDefault(); h.click(); } }
+        else if (e.key === "l" || e.key === "L") { var lb = document.getElementById("nv-library"); if (lb && !lb.hidden) { e.preventDefault(); lb.click(); } }
+      });
+
+      /* 8. back to top */
+      var top = el("button", { type: "button", class: "nv-totop", "aria-label": "Back to top" }, [icon(ICONS.up)]);
+      top.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); });
+      document.body.appendChild(top);
+      function onScroll() { top.classList.toggle("nv-show", window.scrollY > 600); }
+      window.addEventListener("scroll", onScroll, { passive: true }); onScroll();
     })();
   </script>
 </body>

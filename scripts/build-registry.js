@@ -160,9 +160,18 @@ if (fs.existsSync(docsDir)) {
     var html = fs.readFileSync(path.join(docsDir, f), "utf8");
     var t = html.match(/<title>([^<]*)<\/title>/), v = html.match(/NthView — ([a-z0-9-]+) (?:validator|renderer)/);
     var unesc = function (x) { return x.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, "&"); };
-    docs.push({ file: "docs/" + f, title: t ? unesc(t[1].replace(/\s*—\s*NthView.*$/, "")) : f.replace(/\.html$/, ""), view: v ? "nthview-" + v[1] : null, data: fs.existsSync(path.join(docsDir, f.replace(/\.html$/, ".json"))) ? "docs/" + f.replace(/\.html$/, ".json") : null });
+    var dataFile = fs.existsSync(path.join(docsDir, f.replace(/\.html$/, ".json"))) ? "docs/" + f.replace(/\.html$/, ".json") : null;
+    docs.push({ file: "docs/" + f, title: t ? unesc(t[1].replace(/\s*—\s*NthView.*$/, "")) : f.replace(/\.html$/, ""), view: v ? "nthview-" + v[1] : null, data: dataFile, hash: dataFile ? dataHash(path.join(root, dataFile)) : null });
   });
 }
+/* progress key hash: the same FNV-1a over JSON.stringify(data) every view uses for its localStorage key (AGENTS.md §5.5),
+   so the gallery can show "continue" badges when it is served from the same origin as the pages */
+function dataHash(jsonPath) {
+  try { var s = JSON.stringify(JSON.parse(fs.readFileSync(jsonPath, "utf8"))), h = 2166136261;
+    for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return (h >>> 0).toString(36); } catch (e) { return null; }
+}
+
 /* lessons: lessons/<slug>/lesson.json, built by scripts/build-lesson.js */
 var lessons = [];
 var lessonsDir = path.join(root, "lessons");
@@ -184,7 +193,8 @@ if (fs.existsSync(lessonsDir)) {
     lessons.push({ slug: slug, title: m.title, description: m.description || "", audience: m.audience || null, chapters: m.chapters.length, views: views, path: where + "/index.html", next: m.next || null,
       domain: m.domain || null, level: m.level || null, tags: Array.isArray(m.tags) ? m.tags : [], minutes: mins, created: m.created || null, updated: m.updated || m.created || null,
       objectives: Array.isArray(m.objectives) ? m.objectives.length : 0, glossary: Array.isArray(m.glossary) ? m.glossary.length : 0,
-      highlights: m.chapters.length && m.chapters[0].view === "nthview-highlights" ? where + "/chapters/" + m.chapters[0].file + ".html" : null });
+      highlights: m.chapters.length && m.chapters[0].view === "nthview-highlights" ? where + "/chapters/" + m.chapters[0].file + ".html" : null,
+      chapterList: m.chapters.map(function (c) { return { file: where + "/chapters/" + c.file + ".html", title: c.title, view: c.view, hash: dataHash(path.join(lessonsDir, slug, "chapters", c.file + ".json")) }; }) });
   });
 }
 
