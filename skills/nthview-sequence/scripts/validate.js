@@ -20,8 +20,10 @@
   var COLORS = ["slate", "amber", "green", "blue", "red", "teal", "violet", "pink"];
   var STEP_KINDS = ["sync", "async", "return", "self"];
   var SEVERITIES = ["info", "warning", "danger"];
-  var FRAGMENT_KINDS = ["alt", "opt", "loop"];
+  var FRAGMENT_KINDS = ["alt", "opt", "loop", "group"];
   var MAX_HOLDS = 12;
+  var MAX_DEPTH = 6, WARN_DEPTH = 3, MAX_INNER_LANES = 8;
+  var ROOT_ONLY = ["schemaVersion", "title", "theme", "compareLabel", "zones", "closing"];
 
   function validate(data) {
     var errors = [];
@@ -58,16 +60,65 @@
     optionalString(data, "compareLabel", "$", 60, error);
     optionalStringArray(data, "closing", "$", 0, 4, 600, error);
 
-    /* glossary first: every ((term)) in the text is checked against it */
-    var terms = [], termUsed = {};
-    if (optionalArray(data, "glossary", "$", 0, 40, error)) {
-      (data.glossary || []).forEach(function (g, i) {
-        var p = "glossary[" + i + "]";
+    /* zones live at the top level only; inner participants may name them */
+    var ctx = { error: error, warn: warn, zoneIds: [], ids: {}, terms: {}, termList: [], termUsed: {}, members: [], usedIds: {}, chanUsed: {} };
+    if (optionalArray(data, "zones", "$", 0, 6, error)) {
+      (data.zones || []).forEach(function (z, i) {
+        var p = "zones[" + i + "]";
+        if (!isObject(z, p, error)) return;
+        checkId(z, p, ctx.zoneIds, "zone", error);
+        requireString(z, "name", p, 1, 40, error);
+        optionalString(z, "description", p, 200, error);
+      });
+    }
+
+    var top = checkSeq(data, "$", 0, null, null, ctx);
+    top.marks(data.subtitle, "subtitle");
+    if (Array.isArray(data.closing)) data.closing.forEach(function (t, i) { top.marks(t, "closing[" + i + "]"); });
+
+    /* zones that are empty or split (top-level participants) */
+    var participants = Array.isArray(data.participants) ? data.participants : [];
+    if (Array.isArray(data.zones)) {
+      data.zones.forEach(function (z, i) {
+        if (!z || typeof z.id !== "string") return;
+        var idx = [];
+        participants.forEach(function (pt, k) { if (pt && pt.zone === z.id) idx.push(k); });
+        if (!idx.length) warn("zones[" + i + "]", "zone " + describe(z.id) + " has no participants");
+        else if (idx[idx.length - 1] - idx[0] + 1 !== idx.length) warn("zones[" + i + "]", "the participants of zone " + describe(z.id) + " are not next to each other, so the zone is drawn as separate bands; reorder participants to keep it together");
+      });
+    }
+    ctx.termList.forEach(function (t) {
+      if (!ctx.termUsed[t.key]) warn(t.path, "term " + describe(t.term) + " is never marked with ((...)) in the text; marking it lets the learner tap it for the definition");
+    });
+    ctx.members.forEach(function (m) {
+      if (!ctx.usedIds[m.id]) warn(m.path, "member " + describe(m.id) + " never sends or receives a step at any level; an inner sequence shows what members do");
+    });
+  }
+
+  /* One sequence level: the top level (base "$", depth 0) or a step's inner sequence
+     (base "steps[i].inner", depth 1+). Every rule applies at every level. */
+  function checkSeq(seq, base, depth, parent, init, ctx) {
+    var error = ctx.error, warn = ctx.warn, inner = depth > 0;
+    function at(x) { return base === "$" ? x : base + "." + x; }
+
+    if (inner) {
+      ROOT_ONLY.forEach(function (k) {
+        if (seq[k] !== undefined) error(at(k), "is only allowed at the top level of the document, not in an inner sequence (an inner sequence takes its heading from its parent step)");
+      });
+      optionalString(seq, "subtitle", base, 300, error);
+    }
+
+    /* glossary first: every ((term)) at this level is checked against it and the levels around it */
+    var terms = parent ? parent.terms.slice() : [];
+    if (optionalArray(seq, "glossary", base, 0, 40, error)) {
+      (seq.glossary || []).forEach(function (g, i) {
+        var p = at("glossary[" + i + "]");
         if (!isObject(g, p, error)) return;
         if (requireString(g, "term", p, 1, 40, error)) {
-          var key = g.term.trim().toLowerCase();
-          if (terms.indexOf(key) !== -1) error(p + ".term", "duplicate glossary term " + describe(g.term) + "; terms must be unique (ignoring case)");
-          else terms.push(key);
+          var key = g.term.trim().toLowerCase(), prev = ctx.terms[key];
+          if (prev && prev.base === base) error(p + ".term", "duplicate glossary term " + describe(g.term) + "; terms must be unique (ignoring case)");
+          else if (prev) error(p + ".term", "glossary term " + describe(g.term) + " is already defined at " + prev.path + "; terms are unique across the whole document, inner sequences included");
+          else { ctx.terms[key] = { base: base, path: p + ".term" }; terms.push(key); ctx.termList.push({ term: g.term, key: key, path: p + ".term" }); }
         }
         requireString(g, "definition", p, 1, 300, error);
       });
@@ -79,39 +130,51 @@
         var parts = m[1].split("|"), term = parts[parts.length - 1].trim().toLowerCase();
         if (parts.length > 2 || !term || !parts[0].trim()) { error(path, "glossary mark ((" + m[1] + ")) must be ((term)) or ((shown text|term))"); continue; }
         if (terms.indexOf(term) === -1) error(path, "glossary mark ((" + m[1] + ")) names " + describe(parts[parts.length - 1].trim()) + ", which is not a glossary term" + (terms.length ? " (terms: " + terms.join(", ") + ")" : " (the document has no glossary)"));
-        else termUsed[term] = true;
+        else ctx.termUsed[term] = true;
       }
     }
-    marks(data.subtitle, "subtitle");
-    if (Array.isArray(data.closing)) data.closing.forEach(function (t, i) { marks(t, "closing[" + i + "]"); });
-    if (Array.isArray(data.glossary)) data.glossary.forEach(function (g, i) { if (g) marks(g.definition, "glossary[" + i + "].definition"); });
+    if (inner) marks(seq.subtitle, at("subtitle"));
+    if (Array.isArray(seq.glossary)) seq.glossary.forEach(function (g, i) { if (g) marks(g.definition, at("glossary[" + i + "].definition")); });
 
-    /* zones */
-    var zoneIds = [];
-    if (optionalArray(data, "zones", "$", 0, 6, error)) {
-      (data.zones || []).forEach(function (z, i) {
-        var p = "zones[" + i + "]";
-        if (!isObject(z, p, error)) return;
-        checkId(z, p, zoneIds, "zone", error);
-        requireString(z, "name", p, 1, 40, error);
-        optionalString(z, "description", p, 200, error);
-      });
-    }
-
-    /* participants */
-    var pids = [], participants = Array.isArray(data.participants) ? data.participants : [];
-    var initialHolds = {};
-    if (requireArray(data, "participants", "$", 2, 8, error)) {
-      participants.forEach(function (pt, i) {
-        var p = "participants[" + i + "]";
+    /* participants: ids unique across the whole tree; groups carry 2–12 members */
+    var own = Array.isArray(seq.participants) ? seq.participants : [];
+    var visible = {}, hereMember = {}, groupsHere = [];
+    if (parent) Object.keys(parent.visible).forEach(function (k) { visible[k] = true; });
+    var state0 = {};
+    if (init) Object.keys(init).forEach(function (k) { state0[k] = init[k].slice(); });
+    var pOk = inner ? optionalArray(seq, "participants", base, 0, 8, error) : requireArray(seq, "participants", base, 2, 8, error);
+    if (pOk) {
+      own.forEach(function (pt, i) {
+        var p = at("participants[" + i + "]");
         if (!isObject(pt, p, error)) return;
-        checkId(pt, p, pids, "participant", error);
+        var idOk = checkTreeId(pt, p, ctx);
         requireString(pt, "name", p, 1, 32, error);
         optionalString(pt, "role", p, 60, error);
-        if (pt.kind !== undefined && KINDS.indexOf(pt.kind) === -1) error(p + ".kind", "must be one of " + KINDS.join(", ") + "; got " + describe(pt.kind));
+        var isGroup = pt.kind === "group";
+        if (pt.kind !== undefined && !isGroup && KINDS.indexOf(pt.kind) === -1) error(p + ".kind", "must be one of " + KINDS.concat(["group"]).join(", ") + "; got " + describe(pt.kind));
+        if (idOk) { visible[pt.id] = true; state0[pt.id] = []; }
+        if (isGroup) {
+          var memberIds = [];
+          requireArray(pt, "members", p, 2, 12, error);
+          if (Array.isArray(pt.members)) {
+            pt.members.forEach(function (m, k) {
+              var mp = p + ".members[" + k + "]";
+              if (!isObject(m, mp, error)) return;
+              var mOk = checkTreeId(m, mp, ctx);
+              requireString(m, "name", mp, 1, 32, error);
+              optionalString(m, "role", mp, 60, error);
+              if (m.kind !== undefined && KINDS.indexOf(m.kind) === -1) error(mp + ".kind", m.kind === "group" ? "a member cannot itself be a group; declare it as a participant of an inner sequence to give it members" : "must be one of " + KINDS.join(", ") + "; got " + describe(m.kind));
+              ["holds", "members", "zone"].forEach(function (x) { if (m[x] !== undefined) error(mp + "." + x, "a member has only id, name, role and kind; it starts holding nothing and sits in its group's zone"); });
+              if (mOk) { visible[m.id] = true; state0[m.id] = []; memberIds.push(m.id); if (idOk) hereMember[m.id] = pt.id; ctx.members.push({ id: m.id, path: mp }); }
+            });
+          }
+          if (idOk) groupsHere.push({ id: pt.id, path: p, members: memberIds });
+        } else if (pt.members !== undefined) {
+          error(p + ".members", "only a participant with kind \"group\" has members; set kind to \"group\" or remove members");
+        }
         if (pt.zone !== undefined) {
           if (typeof pt.zone !== "string") error(p + ".zone", "must be a zone id string, got " + describe(pt.zone));
-          else if (zoneIds.indexOf(pt.zone) === -1) error(p + ".zone", "zone id " + describe(pt.zone) + " is not defined in zones" + (zoneIds.length ? " (zones: " + zoneIds.join(", ") + ")" : " (the document has no zones)"));
+          else if (ctx.zoneIds.indexOf(pt.zone) === -1) error(p + ".zone", "zone id " + describe(pt.zone) + " is not defined in zones" + (ctx.zoneIds.length ? " (zones: " + ctx.zoneIds.join(", ") + ")" : " (the document has no zones)"));
         }
         if (pt.holds !== undefined && checkItemList(pt.holds, p + ".holds", 0, MAX_HOLDS, error)) {
           var seen = [];
@@ -119,29 +182,29 @@
             if (seen.indexOf(h) !== -1) error(p + ".holds[" + k + "]", "duplicate item " + describe(h) + "; each item is held once");
             seen.push(h);
           });
-          if (typeof pt.id === "string") initialHolds[pt.id] = seen.slice();
+          if (idOk) state0[pt.id] = seen.slice();
         }
       });
-      if (participants.length > 6) warn("participants", participants.length + " participants make narrow lanes on a phone; 2–6 read best");
+      if (!inner && own.length > 6) warn("participants", own.length + " participants make narrow lanes on a phone; 2–6 read best");
     }
-    /* zones that are empty or split */
-    if (Array.isArray(data.zones)) {
-      data.zones.forEach(function (z, i) {
-        if (!z || typeof z.id !== "string") return;
-        var idx = [];
-        participants.forEach(function (pt, k) { if (pt && pt.zone === z.id) idx.push(k); });
-        if (!idx.length) warn("zones[" + i + "]", "zone " + describe(z.id) + " has no participants");
-        else if (idx[idx.length - 1] - idx[0] + 1 !== idx.length) warn("zones[" + i + "]", "the participants of zone " + describe(z.id) + " are not next to each other, so the zone is drawn as separate bands; reorder participants to keep it together");
-      });
+    var vis = Object.keys(visible);
+    function unknownP(id) {
+      return "participant id " + describe(id) + (inner ? " is not visible in this inner sequence (its own participants, group members and the participants of the sequences around it: " : " is not defined in participants" + (groupsHere.length ? " or their members" : "") + " (ids: ") + vis.join(", ") + ")";
     }
 
-    /* channels */
-    var cids = [];
-    if (requireArray(data, "channels", "$", 1, 8, error)) {
-      data.channels.forEach(function (c, i) {
-        var p = "channels[" + i + "]";
+    /* channels: inherited from the enclosing sequences, extended here */
+    var chans = parent ? parent.channels.slice() : [], ownC = [];
+    var cOk = inner ? optionalArray(seq, "channels", base, 0, 8, error) : requireArray(seq, "channels", base, 1, 8, error);
+    if (cOk) {
+      (seq.channels || []).forEach(function (c, i) {
+        var p = at("channels[" + i + "]");
         if (!isObject(c, p, error)) return;
-        checkId(c, p, cids, "channel", error);
+        if (requireString(c, "id", p, 1, 40, error)) {
+          if (!KEBAB.test(c.id)) error(p + ".id", "must be kebab-case (lowercase letters, digits, single hyphens), got " + describe(c.id));
+          else if (ownC.indexOf(c.id) !== -1) error(p + ".id", "duplicate channel id " + describe(c.id) + "; ids must be unique");
+          else if (chans.indexOf(c.id) !== -1) error(p + ".id", "channel id " + describe(c.id) + " is already defined by an enclosing sequence; inner sequences inherit those channels, so reuse it or pick a new id");
+          else { chans.push(c.id); ownC.push({ id: c.id, path: p }); }
+        }
         requireString(c, "name", p, 1, 60, error);
         if (COLORS.indexOf(c.color) === -1) error(p + ".color", "must be one of " + COLORS.join(", ") + "; got " + describe(c.color));
         optionalString(c, "description", p, 240, error);
@@ -149,21 +212,21 @@
     }
 
     /* steps */
-    var steps = Array.isArray(data.steps) ? data.steps : [];
-    var N = steps.length, stepsOk = requireArray(data, "steps", "$", 2, 60, error);
-    var usedP = {}, usedC = {}, anyCheck = false;
+    var steps = Array.isArray(seq.steps) ? seq.steps : [];
+    var N = steps.length, stepsOk = requireArray(seq, "steps", base, 2, 60, error);
+    var usedHere = {}, anyCheck = false, inners = [];
     if (stepsOk) {
       steps.forEach(function (s, i) {
-        var p = "steps[" + i + "]";
+        var p = at("steps[" + i + "]");
         if (!isObject(s, p, error)) return;
         ["from", "to"].forEach(function (k) {
           if (typeof s[k] !== "string") error(p + "." + k, "must be a participant id string, got " + describe(s[k]));
-          else if (pids.indexOf(s[k]) === -1) error(p + "." + k, "participant id " + describe(s[k]) + " is not defined in participants (ids: " + pids.join(", ") + ")");
-          else usedP[s[k]] = true;
+          else if (!visible[s[k]]) error(p + "." + k, unknownP(s[k]));
+          else { usedHere[s[k]] = true; ctx.usedIds[s[k]] = true; }
         });
         if (typeof s.channel !== "string") error(p + ".channel", "must be a channel id string, got " + describe(s.channel));
-        else if (cids.indexOf(s.channel) === -1) error(p + ".channel", "channel id " + describe(s.channel) + " is not defined in channels (ids: " + cids.join(", ") + ")");
-        else usedC[s.channel] = true;
+        else if (chans.indexOf(s.channel) === -1) error(p + ".channel", "channel id " + describe(s.channel) + " is not defined in channels" + (inner ? " here or in an enclosing sequence" : "") + " (ids: " + chans.join(", ") + ")");
+        else ctx.chanUsed[s.channel] = true;
         if (requireString(s, "payload", p, 1, 40, error) && s.payload.length > 24) warn(p + ".payload", "is " + s.payload.length + " characters; 24 or fewer fit on the arrow without crowding");
         requireString(s, "title", p, 1, 120, error);
         if (s.wire === undefined) warn(p + ".wire", "no wire block; showing what actually travels is what makes this view concrete");
@@ -190,24 +253,50 @@
           if (SEVERITIES.indexOf(s.note.severity) === -1) error(p + ".note.severity", "must be one of " + SEVERITIES.join(", ") + "; got " + describe(s.note.severity));
           if (requireString(s.note, "text", p + ".note", 1, 300, error)) marks(s.note.text, p + ".note.text");
         }
-        if (s.holds !== undefined) checkStepHolds(s, p, pids, error);
-        if (s.check !== undefined) { anyCheck = true; checkCheck(s, p, pids, error, marks); }
+        if (s.holds !== undefined) checkStepHolds(s, p, visible, unknownP, error);
+        if (s.check !== undefined) { anyCheck = true; checkCheck(s, p, visible, unknownP, error, marks); }
+        if (s.inner !== undefined && isObject(s.inner, p + ".inner", error)) {
+          if (depth + 1 > MAX_DEPTH) error(p + ".inner", "is nested " + (depth + 1) + " levels deep; at most " + MAX_DEPTH + " levels are allowed, so move these steps up a level");
+          else {
+            if (depth + 1 > WARN_DEPTH) warn(p + ".inner", "is nested " + (depth + 1) + " levels deep; more than " + WARN_DEPTH + " levels are hard to follow");
+            inners.push(i);
+          }
+        }
       });
-      if (N < 3) warn("steps", "only " + N + " steps; a sequence usually needs 4 or more to teach");
-      if (N >= 6 && !anyCheck) warn("steps", "no step has a check; one or two light \"who sends next?\" checks help the learner predict");
-      participants.forEach(function (pt, i) { if (pt && typeof pt.id === "string" && !usedP[pt.id]) warn("participants[" + i + "]", "participant " + describe(pt.id) + " never sends or receives a step"); });
-      (Array.isArray(data.channels) ? data.channels : []).forEach(function (c, i) { if (c && typeof c.id === "string" && !usedC[c.id]) warn("channels[" + i + "]", "channel " + describe(c.id) + " is not used by any step"); });
+      if (N < 3) warn(at("steps"), "only " + N + " steps; a sequence usually needs 4 or more to teach");
+      if (N >= 6 && !anyCheck) warn(at("steps"), "no step has a check; one or two light \"who sends next?\" checks help the learner predict");
+      own.forEach(function (pt, i) {
+        if (!pt || typeof pt.id !== "string") return;
+        if (pt.kind === "group") {
+          var touched = usedHere[pt.id] || (Array.isArray(pt.members) && pt.members.some(function (m) { return m && usedHere[m.id]; }));
+          if (!touched) warn(at("participants[" + i + "]"), "group " + describe(pt.id) + ": no step at its level sends to or from it or any of its members");
+        } else if (!usedHere[pt.id]) warn(at("participants[" + i + "]"), "participant " + describe(pt.id) + " never sends or receives a step");
+      });
+      if (inner) {
+        var lanes = {};
+        own.forEach(function (pt) { if (pt && typeof pt.id === "string") lanes[pt.id] = true; });
+        Object.keys(usedHere).forEach(function (id) { lanes[hereMember[id] || id] = true; });
+        var nl = Object.keys(lanes).length;
+        if (nl > MAX_INNER_LANES) warn(base, "shows " + nl + " lanes at once; more than " + MAX_INNER_LANES + " get narrow, so gather some parties into a group or move them into a deeper inner sequence");
+      }
     }
 
     /* fragments */
     var frags = [], fragsOk = true;
-    if (optionalArray(data, "fragments", "$", 0, 20, error)) {
-      (data.fragments || []).forEach(function (f, i) {
-        var p = "fragments[" + i + "]";
+    if (optionalArray(seq, "fragments", base, 0, 20, error)) {
+      (seq.fragments || []).forEach(function (f, i) {
+        var p = at("fragments[" + i + "]");
         if (!isObject(f, p, error)) { fragsOk = false; return; }
         var ok = true;
         if (FRAGMENT_KINDS.indexOf(f.kind) === -1) { error(p + ".kind", "must be one of " + FRAGMENT_KINDS.join(", ") + "; got " + describe(f.kind)); ok = false; }
-        optionalString(f, "label", p, 40, error);
+        if (f.kind === "group") {
+          requireString(f, "label", p, 1, 80, error);
+          if (optionalString(f, "summary", p, 200, error)) marks(f.summary, p + ".summary");
+          optionalBool(f, "collapsed", p, error);
+        } else {
+          optionalString(f, "label", p, 40, error);
+          ["summary", "collapsed"].forEach(function (x) { if (f[x] !== undefined) error(p + "." + x, "only a group fragment has " + x + "; remove it or use kind \"group\""); });
+        }
         if (!checkIndex(f, "start", p, N, error)) ok = false;
         if (!checkIndex(f, "end", p, N, error)) ok = false;
         if (ok && f.end < f.start) { error(p + ".end", "step index " + f.end + " is before start " + f.start + "; end must be greater than or equal to start"); ok = false; }
@@ -231,6 +320,10 @@
               });
             }
           } else ok = false;
+        } else if (f.kind === "group") {
+          if (f.condition !== undefined) error(p + ".condition", "a group fragment has a label, not a condition");
+          if (f.branches !== undefined) error(p + ".branches", "only an alt fragment has branches");
+          if (ok && f.end === f.start) { error(p + ".end", "a group needs at least 2 consecutive steps, but start and end are both " + f.start + "; widen it or remove the fragment"); ok = false; }
         } else if (FRAGMENT_KINDS.indexOf(f.kind) !== -1) {
           requireString(f, "condition", p, 1, 80, error);
           if (f.branches !== undefined) error(p + ".branches", "only an alt fragment has branches; " + f.kind + " uses condition");
@@ -245,31 +338,44 @@
           var separate = A.end < B.start || B.end < A.start;
           var aInB = A.start >= B.start && A.end <= B.end, bInA = B.start >= A.start && B.end <= A.end;
           if (!separate && !aInB && !bInA) {
-            error("fragments[" + b.i + "]", "steps " + B.start + "–" + B.end + " partly overlap fragments[" + a.i + "] (steps " + A.start + "–" + A.end + "); fragments must be nested or separate");
+            error(at("fragments[" + b.i + "]"), "steps " + B.start + "–" + B.end + " partly overlap fragments[" + a.i + "] (steps " + A.start + "–" + A.end + "); fragments must be nested or separate");
             fragsOk = false; return;
           }
-          var outer = null, inner = null, innerI = -1, outerI = -1;
-          if (bInA && !(aInB)) { outer = A; inner = B; innerI = b.i; outerI = a.i; }
-          else if (aInB && !bInA) { outer = B; inner = A; innerI = a.i; outerI = b.i; }
-          else if (aInB && bInA) { outer = A; inner = B; innerI = b.i; outerI = a.i; }
+          var outer = null, innerF = null, innerI = -1, outerI = -1;
+          if (bInA && !(aInB)) { outer = A; innerF = B; innerI = b.i; outerI = a.i; }
+          else if (aInB && !bInA) { outer = B; innerF = A; innerI = a.i; outerI = b.i; }
+          else if (aInB && bInA) { outer = A; innerF = B; innerI = b.i; outerI = a.i; }
           if (outer && outer.kind === "alt") {
-            var inOne = outer.branches.some(function (br) { return inner.start >= br.start && inner.end <= br.end; });
-            if (!inOne) { error("fragments[" + innerI + "]", "steps " + inner.start + "–" + inner.end + " cross a branch boundary of the alt fragments[" + outerI + "]; a nested fragment must lie inside one branch"); fragsOk = false; }
+            var inOne = outer.branches.some(function (br) { return innerF.start >= br.start && innerF.end <= br.end; });
+            if (!inOne) { error(at("fragments[" + innerI + "]"), "steps " + innerF.start + "–" + innerF.end + " cross a branch boundary of the alt fragments[" + outerI + "]; a nested fragment must lie inside one branch"); fragsOk = false; }
           }
         });
       });
+      if (stepsOk && N > 0) {
+        var covered = 0;
+        for (var si = 0; si < N; si++) {
+          if (frags.some(function (x) { return x.f.kind === "group" && x.f.collapsed !== false && si >= x.f.start && si <= x.f.end; })) covered++;
+        }
+        if (covered === N) warn(at("fragments"), inner ? "every step of this inner sequence is inside a collapsed group; it has nothing to read until the learner expands one" : "every step is inside a collapsed group; the main level has nothing to read");
+      }
     }
 
-    /* holds simulation: needs valid steps, participants and fragments */
-    if (stepsOk && fragsOk && Array.isArray(data.participants)) {
-      simulateHolds(data, initialHolds, error, warn);
-    }
+    /* holds simulation: needs valid steps and fragments, and a known starting state */
+    var before = null;
+    if (stepsOk && fragsOk && (!inner || init)) before = simulateHolds(seq, state0, at, error, warn);
 
-    if (Array.isArray(data.glossary)) {
-      data.glossary.forEach(function (g, i) {
-        if (g && typeof g.term === "string" && !termUsed[g.term.trim().toLowerCase()]) warn("glossary[" + i + "].term", "term " + describe(g.term) + " is never marked with ((...)) in the text; marking it lets the learner tap it for the definition");
-      });
-    }
+    var lv = { terms: terms, visible: visible, channels: chans, marks: marks };
+
+    /* inner sequences: each starts from the holds just before its parent step */
+    inners.forEach(function (i) {
+      checkSeq(steps[i].inner, at("steps[" + i + "].inner"), depth + 1, lv, before ? before[i] : null, ctx);
+    });
+
+    /* channels declared here and never used here or deeper */
+    ownC.forEach(function (c) {
+      if (!ctx.chanUsed[c.id]) warn(c.path, "channel " + describe(c.id) + " is not used by any step");
+    });
+    return lv;
   }
 
   function checkId(obj, path, list, what, error) {
@@ -277,6 +383,15 @@
     if (!KEBAB.test(obj.id)) error(path + ".id", "must be kebab-case (lowercase letters, digits, single hyphens), got " + describe(obj.id));
     else if (list.indexOf(obj.id) !== -1) error(path + ".id", "duplicate " + what + " id " + describe(obj.id) + "; ids must be unique");
     else list.push(obj.id);
+  }
+  /* participant and member ids are unique across the whole document */
+  function checkTreeId(obj, path, ctx) {
+    var error = ctx.error;
+    if (!requireString(obj, "id", path, 1, 40, error)) return false;
+    if (!KEBAB.test(obj.id)) { error(path + ".id", "must be kebab-case (lowercase letters, digits, single hyphens), got " + describe(obj.id)); return false; }
+    if (ctx.ids[obj.id]) { error(path + ".id", "duplicate participant id " + describe(obj.id) + ", already used at " + ctx.ids[obj.id] + "; participant and member ids must be unique across the whole document"); return false; }
+    ctx.ids[obj.id] = path + ".id";
+    return true;
   }
   function checkIndex(obj, key, parent, N, error) {
     var path = join(parent, key), v = obj[key];
@@ -293,14 +408,14 @@
     return ok;
   }
 
-  function checkStepHolds(s, p, pids, error) {
+  function checkStepHolds(s, p, visible, unknownP, error) {
     var hp = p + ".holds";
     if (!isObject(s.holds, hp, error)) return;
     var keys = Object.keys(s.holds);
     if (!keys.length) error(hp, "must name at least one participant; omit holds when nothing changes");
     keys.forEach(function (id) {
       var ip = hp + "." + id, h = s.holds[id];
-      if (pids.indexOf(id) === -1) { error(ip, "participant id " + describe(id) + " is not defined in participants (ids: " + pids.join(", ") + ")"); return; }
+      if (!visible[id]) { error(ip, unknownP(id)); return; }
       if (!isObject(h, ip, error)) return;
       Object.keys(h).forEach(function (k) { if (k !== "add" && k !== "remove") error(ip + "." + k, "unknown key; a holds change has only add and remove"); });
       var a = h.add === undefined || checkItemList(h.add, ip + ".add", 0, MAX_HOLDS, error);
@@ -310,14 +425,14 @@
     });
   }
 
-  /* Holds are cumulative from participants[].holds. Removes apply before adds. A non-first
+  /* Holds are cumulative from the starting state. Removes apply before adds. A non-first
      branch of an alt starts from the state before the alt and does not carry forward; after
-     the alt the state is that at the end of its first branch. Mirrors computeHolds in view.js. */
-  function simulateHolds(data, initial, error, warn) {
-    var steps = data.steps, N = steps.length, frags = data.fragments || [];
-    var state = {};
-    data.participants.forEach(function (pt) { if (pt && typeof pt.id === "string") state[pt.id] = (initial[pt.id] || []).slice(); });
+     the alt the state is that at the end of its first branch. Returns the state just before
+     each step (an inner sequence starts from it). Mirrors computeHolds in view.js. */
+  function simulateHolds(seq, initial, at, error, warn) {
+    var steps = seq.steps, N = steps.length, frags = seq.fragments || [];
     function clone(st) { var o = {}; Object.keys(st).forEach(function (k) { o[k] = st[k].slice(); }); return o; }
+    var state = clone(initial), before = [];
     var alts = frags.map(function (f, i) { return { f: f, i: i }; }).filter(function (x) { return x.f.kind === "alt"; });
     var startSnap = {}, firstEnd = {};
     for (var i = 0; i <= N; i++) {
@@ -336,34 +451,36 @@
       alts.filter(function (x) { return x.f.start === i; })
         .sort(function (a, b) { return (b.f.end - b.f.start) - (a.f.end - a.f.start) || a.i - b.i; })
         .forEach(function (x) { startSnap[x.i] = clone(state); });
+      before.push(clone(state));
       var s = steps[i];
       if (!s || !s.holds || typeof s.holds !== "object") continue;
       Object.keys(s.holds).forEach(function (id) {
         var h = s.holds[id];
         if (!state[id] || !h || typeof h !== "object") return;
         (Array.isArray(h.remove) ? h.remove : []).forEach(function (x, k) {
-          var at = state[id].indexOf(x);
-          if (at === -1) error("steps[" + i + "].holds." + id + ".remove[" + k + "]", describe(x) + " is not held by " + describe(id) + " at this step (it holds: " + (state[id].length ? state[id].join(", ") : "nothing") + ")");
-          else state[id].splice(at, 1);
+          var pos = state[id].indexOf(x);
+          if (pos === -1) error(at("steps[" + i + "].holds." + id + ".remove[" + k + "]"), describe(x) + " is not held by " + describe(id) + " at this step (it holds: " + (state[id].length ? state[id].join(", ") : "nothing") + ")");
+          else state[id].splice(pos, 1);
         });
         (Array.isArray(h.add) ? h.add : []).forEach(function (x, k) {
-          if (state[id].indexOf(x) !== -1) warn("steps[" + i + "].holds." + id + ".add[" + k + "]", describe(id) + " already holds " + describe(x) + "; it is not marked as new");
+          if (state[id].indexOf(x) !== -1) warn(at("steps[" + i + "].holds." + id + ".add[" + k + "]"), describe(id) + " already holds " + describe(x) + "; it is not marked as new");
           else state[id].push(x);
         });
-        if (state[id].length > MAX_HOLDS) warn("steps[" + i + "].holds." + id, describe(id) + " now holds " + state[id].length + " items; more than " + MAX_HOLDS + " crowd the strip, so remove what it no longer needs");
+        if (state[id].length > MAX_HOLDS) warn(at("steps[" + i + "].holds." + id), describe(id) + " now holds " + state[id].length + " items; more than " + MAX_HOLDS + " crowd the strip, so remove what it no longer needs");
       });
     }
+    return before;
   }
 
-  function checkCheck(s, p, pids, error, marks) {
+  function checkCheck(s, p, visible, unknownP, error, marks) {
     var cp = p + ".check", c = s.check;
     if (!isObject(c, cp, error)) return;
     if (c.type === "who") {
       optionalString(c, "prompt", cp, 200, error);
       if (c.why !== undefined && optionalString(c, "why", cp, 500, error)) marks(c.why, cp + ".why");
       if (typeof c.answer !== "string") error(cp + ".answer", "must be the id of the participant who sends this step, got " + describe(c.answer));
-      else if (pids.indexOf(c.answer) === -1) error(cp + ".answer", "participant id " + describe(c.answer) + " is not defined in participants (ids: " + pids.join(", ") + ")");
-      else if (typeof s.from === "string" && pids.indexOf(s.from) !== -1 && c.answer !== s.from) error(cp + ".answer", describe(c.answer) + " does not send this step; " + p + ".from is " + describe(s.from) + ", so the answer must be " + describe(s.from));
+      else if (!visible[c.answer]) error(cp + ".answer", unknownP(c.answer));
+      else if (typeof s.from === "string" && visible[s.from] && c.answer !== s.from) error(cp + ".answer", describe(c.answer) + " does not send this step; " + p + ".from is " + describe(s.from) + ", so the answer must be " + describe(s.from));
       if (c.options !== undefined) error(cp + ".options", "a \"who\" check takes its options from the participants; remove options or use type \"choice\"");
     } else if (c.type === "choice") {
       if (requireString(c, "prompt", cp, 1, 300, error)) marks(c.prompt, cp + ".prompt");

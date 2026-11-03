@@ -1,6 +1,6 @@
 ---
 name: nthview-sequence
-description: Explains a protocol, handshake or any exchange between parties as an interactive sequence diagram: the learner steps through one message at a time, sees exactly what travels on each arrow, which channel carries it and what every party holds afterwards, and can open the whole exchange as a UML-style diagram with trust zones, alt/opt/loop frames and notes. Use when the user wants to understand a flow, protocol, handshake, login, API call chain, workflow or "who sends what to whom", or asks for a sequence diagram or a step-by-step walkthrough; not for ideas without parties exchanging messages or for drilling facts.
+description: Explains a protocol, handshake or any exchange between parties as an interactive sequence diagram: the learner steps through one message at a time, sees exactly what travels on each arrow, which channel carries it and what every party holds afterwards, and can open the whole exchange as a UML-style diagram with trust zones, alt/opt/loop frames and notes. Use when the user wants to understand a flow, protocol, handshake, login, API call chain, workflow or "who sends what to whom", or asks for a sequence diagram or a step-by-step walkthrough, including long exchanges with many parties that need nesting; not for ideas without parties exchanging messages or for drilling facts.
 ---
 
 # NthView — Sequence
@@ -19,9 +19,19 @@ numbered arrows, trust zones, alt/opt/loop frames, notes); selecting any
 arrow opens that step. A recap lists every step, the final holdings and the
 check results.
 
+Long exchanges stay readable through two kinds of folding. A step can open an
+**inner sequence** that shows how it is carried out, between parties that
+appear only there (often the members of a **group** participant, which is one
+lane at the main level); the learner drills in and back out with a
+breadcrumb, and the diagram draws the step as a UML `ref` frame. A run of
+consecutive steps can be a **group fragment**, folded into one summary card
+and one diagram frame until the learner expands it. "Expand all" in the
+diagram draws everything in place.
+
 The output is one self-contained HTML file with no libraries and no fonts to
 fetch: it works offline. Four themes (`paper`, `slate`, `blueprint`, `mint`),
-light and dark. Progress (step, mode, zoom, toggles, answered checks) is saved
+light and dark. Progress (the path into the tree, step, mode, zoom, Expand
+all, expanded groups, toggles, answered checks at every level) is saved
 in the browser (localStorage) at every change, so reopening the file resumes
 where the learner left off; the Restart button in the header clears it.
 
@@ -55,6 +65,11 @@ optional or repeated parts: they become `alt`, `opt` and `loop` fragments.
 Find the two or three moments where learners usually go wrong: they get a
 `note`, a `compare`, or a check.
 
+For a long exchange, mark the parties that take part in only a short stretch
+and the steps whose mechanism is a sequence of its own: those become inner
+sequences (see Content guidance). Mark runs that read as one sub-routine
+(setup, teardown, retries): those may become group fragments.
+
 ### 2. Prepare the JSON
 Follow `references/schema.md` exactly. Set `"schemaVersion": 1`.
 - Declare `channels` by what they mean for the learner (visible to an
@@ -75,6 +90,19 @@ Follow `references/schema.md` exactly. Set `"schemaVersion": 1`.
   test understanding of the flow, `choice` for "why" questions.
 - Pick a `theme` (table in `references/schema.md`); if omitted, one is
   derived from the title.
+- Nesting: a step's `inner` holds `steps` (2 or more), optional
+  `participants`, `channels`, `fragments`, `glossary` and `subtitle`; channels
+  and glossary are inherited. Inner steps may name the level's own parties,
+  the members of any group at that level or above, and every enclosing
+  level's parties, so the first inner step can show the outer message
+  arriving and the last the reply leaving. Ids are unique across the whole
+  document. Inner holds start from the state just before the parent step;
+  keep the parent step's `holds` as the net result.
+- A group participant has `kind: "group"` and 2–12 `members`
+  (`{id, name, role?, kind?}`); at its own level it is one lane.
+- A group fragment is `{ "kind": "group", "label", "summary"?, "start", "end",
+  "collapsed"? }` over 2 or more consecutive steps; it nests with alt, opt,
+  loop and other groups like any fragment.
 
 ### 3. Validate
 Write the JSON to a file and run:
@@ -118,13 +146,37 @@ tool does nothing beyond that template, so the result is identical.
 
 ### 5. Deliver
 Hand the user the single file. It needs no internet access. Mention that the
-"Full diagram" button shows the whole exchange. Build no other view unless
+"Full diagram" button shows the whole exchange, and, when the document nests,
+that "Expand all" draws every inner sequence in place. Build no other view unless
 asked.
 
 ## Content guidance
-- **Length.** 8–20 steps is the sweet spot; up to 60 are allowed. Split a
-  very long protocol into a lesson of several sequences (for example the
-  handshake, then resumption).
+- **Length.** 8–20 steps is the sweet spot; up to 60 are allowed per level.
+  When you use inner sequences, keep the main level under about 12 steps and
+  6 lanes: it carries the story, the inner levels carry the mechanism. Split
+  a protocol with several independent phases into a lesson instead (for
+  example the handshake, then resumption).
+- **When to nest.** Give a step an `inner` sequence when a party takes part
+  in fewer than about 15% of the steps (give it a lane only inside the inner
+  sequence, or make it a member of a group), or when the step's mechanism is
+  a sequence of its own (inside the authorization server, inside the key
+  schedule). The inner sequence explains that one step, so it starts with the
+  outer message arriving and ends with the result or reply leaving. Two
+  levels are usually enough; more than 3 warns, more than 6 is refused.
+- **Groups versus inner sequences.** Use `inner` when the hidden parties are
+  different from the main ones. Use a `group` fragment when the parties are
+  the same but the run is long. Do not group everything: group only a run
+  that reads as one sub-routine a learner can skip on a first pass (setup,
+  teardown, retries, a handshake inside a bigger flow) and that carries no
+  new teaching point of its own. The main story stays visible; a sequence
+  whose every step sits in a collapsed group gets a warning.
+- **Converting a flat sequence.** Find the parties used by only a few steps
+  and the stretch where they appear. Replace that stretch by one step between
+  the main parties (the outer request and its result), move the stretch into
+  its `inner`, and either declare the extra parties in the inner
+  `participants` or gather them as `members` of a group that replaces their
+  old lanes. Move their holds and checks with them, re-check `who` answers
+  and fragment indexes (they are per level), and re-run the validator.
 - **Exactness over decoration.** The `wire` block is where the learning
   happens: show the real field names and values, aligned, with `→` lines for
   what the receiver does with them. Keep it under about 15 lines.
@@ -159,10 +211,19 @@ asked.
   `example.com`-style names.
 - An `alt` where the main path is not first → put the happy path in
   `branches[0]`.
+- An inner step naming a party that is not visible there → declare it in the
+  inner `participants`, as a member of a group at that level or above, or at
+  an enclosing level.
+- Reusing an id in an inner sequence (`app` again) → ids are unique across
+  the whole document; reference the outer party instead of redeclaring it.
+- A fragment in an inner sequence using the parent's step numbers → indexes
+  count from 0 within that inner sequence.
+- A `group` fragment over one step, or one that partly overlaps an alt →
+  groups cover 2 or more steps and nest like any fragment.
 - Hand-editing the HTML → change the JSON, re-validate, rebuild.
 
 ## Files
-- `references/schema.md` — the JSON format (single source of truth) and the complete OAuth 2.1 example
+- `references/schema.md` — the JSON format (single source of truth), including inner sequences, groups and visibility, and the complete OAuth 2.1 example
 - `scripts/validate.js` — `NthView.validate(data)`, Node CLI and browser
-- `assets/view.js` — `NthView.build(container, data)`; step mode, full diagram, the four themes in `PALETTES`, `NthView.THEMES`
+- `assets/view.js` — `NthView.build(container, data)`; step mode with inner sequences and groups, full diagram with ref frames and Expand all, the four themes in `PALETTES`, `NthView.THEMES`
 - `examples/example.html` — the OAuth 2.1 with PKCE sequence, a working standalone sample built from the schema example

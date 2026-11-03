@@ -13,7 +13,7 @@
 {
   "schemaVersion": 1,
   "title": "Signing in with OAuth 2.1 and PKCE",
-  "subtitle": "How a photo-printing app gets permission to read your photos without ever seeing your password, one message at a time. Amber hops pass through your browser; green hops go straight between servers.",
+  "subtitle": "How a photo-printing app gets permission to read your photos without ever seeing your password, one message at a time. Amber hops pass through your browser; green hops go straight between servers. Step 6 opens to show what happens inside the authorization server.",
   "theme": "slate",
   "compareLabel": "Show what OAuth 2.0 still allowed here",
   "zones": [
@@ -60,11 +60,43 @@
       "id": "auth",
       "name": "Authorization server",
       "role": "signs you in, issues tokens",
-      "kind": "server",
+      "kind": "group",
       "zone": "provider",
       "holds": [
         "your account",
         "the app's registration"
+      ],
+      "members": [
+        {
+          "id": "token-endpoint",
+          "name": "Token endpoint",
+          "role": "the /token URL, runs the checks",
+          "kind": "server"
+        },
+        {
+          "id": "client-registry",
+          "name": "Client registry",
+          "role": "registered apps and their secrets",
+          "kind": "database"
+        },
+        {
+          "id": "grant-store",
+          "name": "Grant store",
+          "role": "codes, grants, what was consented",
+          "kind": "database"
+        },
+        {
+          "id": "pkce-verifier",
+          "name": "PKCE verifier",
+          "role": "checks verifier against challenge",
+          "kind": "service"
+        },
+        {
+          "id": "token-issuer",
+          "name": "Token issuer",
+          "role": "mints and signs tokens",
+          "kind": "service"
+        }
       ]
     },
     {
@@ -338,6 +370,229 @@
             "used-code record"
           ]
         }
+      },
+      "inner": {
+        "subtitle": "One outer message, eight hops inside the provider: the request arrives at the token endpoint, which consults three internal services before anything is issued.",
+        "channels": [
+          {
+            "id": "internal",
+            "name": "Inside the provider",
+            "color": "teal",
+            "description": "Calls between the authorization server's own components, on its private network."
+          }
+        ],
+        "glossary": [
+          {
+            "term": "client authentication",
+            "definition": "The app proving it is the registered client, for example with a secret over HTTP Basic or a signed assertion."
+          }
+        ],
+        "steps": [
+          {
+            "from": "app",
+            "to": "token-endpoint",
+            "channel": "back",
+            "payload": "code + verifier",
+            "title": "The request from step 6 arrives at the token endpoint",
+            "wire": "POST /token   (from the app's backend, over TLS)\nAuthorization: Basic …\n\ngrant_type=authorization_code\n&code=…\n&redirect_uri=https://app.example/callback\n&code_verifier=…\n\n→ nothing is trusted yet; four checks follow",
+            "why": "This is the outer message seen from inside. The token endpoint is only a front door: it parses the form and asks the provider's own services before it answers.",
+            "holds": {
+              "token-endpoint": {
+                "add": [
+                  "code from the request",
+                  "verifier from the request"
+                ]
+              }
+            }
+          },
+          {
+            "from": "token-endpoint",
+            "to": "client-registry",
+            "channel": "internal",
+            "payload": "client_id + secret",
+            "title": "Is this really the registered print app?",
+            "wire": "lookup client_id = print-app\n  secret matches the stored hash         ✓\n  redirect URI on file:\n    https://app.example/callback        ✓ exact match\n\n← client ok",
+            "why": "((client authentication)) comes first, so a stranger who copied the code cannot even reach the PKCE check. The redirect URI must match the registered one character for character.",
+            "detail": [
+              {
+                "label": "Worth knowing",
+                "text": "Public clients such as mobile apps have no secret; for them PKCE is the only proof, which is why OAuth 2.1 requires it everywhere."
+              }
+            ]
+          },
+          {
+            "from": "token-endpoint",
+            "to": "grant-store",
+            "channel": "internal",
+            "payload": "look up the code",
+            "title": "The token endpoint looks up the code",
+            "wire": "find code = …\n  issued to    print-app\n  for user     you\n  scope        photos.read\n  challenge    … (from step 2)\n  expires      in 41 s\n  used         no",
+            "why": "The code is only a key to a record the provider kept. Everything that matters, who consented to what and which challenge was sent, lives in that record, not in the code.",
+            "check": {
+              "type": "choice",
+              "prompt": "Suppose the grant store answered **used: yes**. What should the token endpoint do?",
+              "options": [
+                {
+                  "text": "Refuse, and revoke the tokens already issued for that code",
+                  "correct": true,
+                  "why": "A second redemption means someone else has the code. OAuth advises revoking what the first redemption produced, because the server cannot tell which caller was honest."
+                },
+                {
+                  "text": "Issue the tokens again; the app probably retried",
+                  "why": "A retry with the same code is indistinguishable from a replay by a thief, so the code is single-use with no exceptions."
+                },
+                {
+                  "text": "Ask you to sign in again",
+                  "why": "You are not part of this back-channel call; the server has no way to reach you here."
+                }
+              ]
+            }
+          },
+          {
+            "from": "grant-store",
+            "to": "token-endpoint",
+            "kind": "return",
+            "channel": "internal",
+            "payload": "grant + challenge",
+            "title": "The grant store answers and burns the code",
+            "wire": "← grant record   user, print-app, photos.read\n← code_challenge …\n→ code marked used, in the same transaction",
+            "why": "Marking the code used in the same transaction as the lookup closes the race where two requests redeem one code at the same moment.",
+            "holds": {
+              "token-endpoint": {
+                "add": [
+                  "stored code_challenge",
+                  "grant record"
+                ]
+              },
+              "auth": {
+                "remove": [
+                  "issued code"
+                ],
+                "add": [
+                  "used-code record"
+                ]
+              }
+            }
+          },
+          {
+            "from": "token-endpoint",
+            "to": "pkce-verifier",
+            "channel": "internal",
+            "payload": "verifier + challenge",
+            "title": "The PKCE verifier compares the two halves",
+            "wire": "verifier   from this request\nchallenge  stored with the code in step 2\n\n→ hash the verifier, compare with the challenge",
+            "why": "Only the app that created the verifier in step 1 can make this comparison succeed. Open the inner sequence to see the comparison itself.",
+            "inner": {
+              "glossary": [
+                {
+                  "term": "constant-time comparison",
+                  "definition": "Comparing two values in a way that always takes the same time, so an attacker cannot learn how many leading characters matched."
+                }
+              ],
+              "participants": [
+                {
+                  "id": "sha256",
+                  "name": "SHA-256",
+                  "role": "a one-way hash function",
+                  "kind": "service"
+                }
+              ],
+              "steps": [
+                {
+                  "from": "pkce-verifier",
+                  "to": "sha256",
+                  "channel": "local",
+                  "payload": "code_verifier",
+                  "title": "Hash the verifier",
+                  "wire": "input   ASCII bytes of the code_verifier (43–128 characters)",
+                  "why": "SHA-256 is one-way: the challenge seen in the browser gives no route back to the verifier."
+                },
+                {
+                  "from": "sha256",
+                  "to": "pkce-verifier",
+                  "kind": "return",
+                  "channel": "local",
+                  "payload": "32-byte digest",
+                  "title": "The digest comes back",
+                  "wire": "← 32 bytes",
+                  "why": "The same verifier always gives the same 32 bytes, so the app and the server agree without sharing anything secret in advance.",
+                  "holds": {
+                    "pkce-verifier": {
+                      "add": [
+                        "digest"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "from": "pkce-verifier",
+                  "to": "pkce-verifier",
+                  "channel": "local",
+                  "payload": "encode and compare",
+                  "title": "Encode and compare",
+                  "wire": "BASE64URL(digest), no padding  =?  stored code_challenge\n→ equal: PKCE passes\n→ different: invalid_grant, no tokens",
+                  "why": "The comparison is a ((constant-time comparison)) so its timing reveals nothing. A mismatch ends the request with `invalid_grant`.",
+                  "holds": {
+                    "pkce-verifier": {
+                      "remove": [
+                        "digest"
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "from": "pkce-verifier",
+            "to": "token-endpoint",
+            "kind": "return",
+            "channel": "internal",
+            "payload": "match",
+            "title": "The verifier matches the challenge",
+            "wire": "← PKCE ok\n→ all four checks passed: client, code, redirect URI, verifier",
+            "why": "Every check has passed, so the caller is the client that started the flow and the code is fresh and unused."
+          },
+          {
+            "from": "token-endpoint",
+            "to": "token-issuer",
+            "channel": "internal",
+            "payload": "grant + audience",
+            "title": "The token issuer mints the tokens",
+            "wire": "access token claims\n  iss    https://auth.example\n  sub    (your user id)\n  aud    https://api.example\n  scope  photos.read\n  exp    now + 3600 s\n→ signed with the provider's current signing key\n← access token, refresh token",
+            "why": "The access token names its audience, the photo API, so another API must refuse it. The refresh token is stored against the grant, which is how revoking the grant later cuts off renewals.",
+            "holds": {
+              "token-endpoint": {
+                "add": [
+                  "access token",
+                  "refresh token"
+                ]
+              }
+            }
+          },
+          {
+            "from": "token-endpoint",
+            "to": "app",
+            "kind": "return",
+            "channel": "back",
+            "payload": "access + refresh token",
+            "title": "The reply leaves the provider: step 7 in the main sequence",
+            "wire": "200 OK\nCache-Control: no-store\n{ \"access_token\": \"…\", \"refresh_token\": \"…\", … }",
+            "why": "This is the reply the main sequence shows as step 7. `Cache-Control: no-store` keeps the tokens out of any cache on the way.",
+            "holds": {
+              "token-endpoint": {
+                "remove": [
+                  "code from the request",
+                  "verifier from the request",
+                  "stored code_challenge",
+                  "grant record",
+                  "access token",
+                  "refresh token"
+                ]
+              }
+            }
+          }
+        ]
       }
     },
     {
@@ -480,6 +735,13 @@
   ],
   "fragments": [
     {
+      "kind": "group",
+      "label": "Sign-in and consent",
+      "summary": "You sign in with the provider and approve what the app may see. The app takes no part in either step.",
+      "start": 2,
+      "end": 3
+    },
+    {
       "kind": "alt",
       "label": "state check",
       "start": 5,
@@ -568,8 +830,10 @@
   var COLORS = ["slate", "amber", "green", "blue", "red", "teal", "violet", "pink"];
   var STEP_KINDS = ["sync", "async", "return", "self"];
   var SEVERITIES = ["info", "warning", "danger"];
-  var FRAGMENT_KINDS = ["alt", "opt", "loop"];
+  var FRAGMENT_KINDS = ["alt", "opt", "loop", "group"];
   var MAX_HOLDS = 12;
+  var MAX_DEPTH = 6, WARN_DEPTH = 3, MAX_INNER_LANES = 8;
+  var ROOT_ONLY = ["schemaVersion", "title", "theme", "compareLabel", "zones", "closing"];
 
   function validate(data) {
     var errors = [];
@@ -606,16 +870,65 @@
     optionalString(data, "compareLabel", "$", 60, error);
     optionalStringArray(data, "closing", "$", 0, 4, 600, error);
 
-    /* glossary first: every ((term)) in the text is checked against it */
-    var terms = [], termUsed = {};
-    if (optionalArray(data, "glossary", "$", 0, 40, error)) {
-      (data.glossary || []).forEach(function (g, i) {
-        var p = "glossary[" + i + "]";
+    /* zones live at the top level only; inner participants may name them */
+    var ctx = { error: error, warn: warn, zoneIds: [], ids: {}, terms: {}, termList: [], termUsed: {}, members: [], usedIds: {}, chanUsed: {} };
+    if (optionalArray(data, "zones", "$", 0, 6, error)) {
+      (data.zones || []).forEach(function (z, i) {
+        var p = "zones[" + i + "]";
+        if (!isObject(z, p, error)) return;
+        checkId(z, p, ctx.zoneIds, "zone", error);
+        requireString(z, "name", p, 1, 40, error);
+        optionalString(z, "description", p, 200, error);
+      });
+    }
+
+    var top = checkSeq(data, "$", 0, null, null, ctx);
+    top.marks(data.subtitle, "subtitle");
+    if (Array.isArray(data.closing)) data.closing.forEach(function (t, i) { top.marks(t, "closing[" + i + "]"); });
+
+    /* zones that are empty or split (top-level participants) */
+    var participants = Array.isArray(data.participants) ? data.participants : [];
+    if (Array.isArray(data.zones)) {
+      data.zones.forEach(function (z, i) {
+        if (!z || typeof z.id !== "string") return;
+        var idx = [];
+        participants.forEach(function (pt, k) { if (pt && pt.zone === z.id) idx.push(k); });
+        if (!idx.length) warn("zones[" + i + "]", "zone " + describe(z.id) + " has no participants");
+        else if (idx[idx.length - 1] - idx[0] + 1 !== idx.length) warn("zones[" + i + "]", "the participants of zone " + describe(z.id) + " are not next to each other, so the zone is drawn as separate bands; reorder participants to keep it together");
+      });
+    }
+    ctx.termList.forEach(function (t) {
+      if (!ctx.termUsed[t.key]) warn(t.path, "term " + describe(t.term) + " is never marked with ((...)) in the text; marking it lets the learner tap it for the definition");
+    });
+    ctx.members.forEach(function (m) {
+      if (!ctx.usedIds[m.id]) warn(m.path, "member " + describe(m.id) + " never sends or receives a step at any level; an inner sequence shows what members do");
+    });
+  }
+
+  /* One sequence level: the top level (base "$", depth 0) or a step's inner sequence
+     (base "steps[i].inner", depth 1+). Every rule applies at every level. */
+  function checkSeq(seq, base, depth, parent, init, ctx) {
+    var error = ctx.error, warn = ctx.warn, inner = depth > 0;
+    function at(x) { return base === "$" ? x : base + "." + x; }
+
+    if (inner) {
+      ROOT_ONLY.forEach(function (k) {
+        if (seq[k] !== undefined) error(at(k), "is only allowed at the top level of the document, not in an inner sequence (an inner sequence takes its heading from its parent step)");
+      });
+      optionalString(seq, "subtitle", base, 300, error);
+    }
+
+    /* glossary first: every ((term)) at this level is checked against it and the levels around it */
+    var terms = parent ? parent.terms.slice() : [];
+    if (optionalArray(seq, "glossary", base, 0, 40, error)) {
+      (seq.glossary || []).forEach(function (g, i) {
+        var p = at("glossary[" + i + "]");
         if (!isObject(g, p, error)) return;
         if (requireString(g, "term", p, 1, 40, error)) {
-          var key = g.term.trim().toLowerCase();
-          if (terms.indexOf(key) !== -1) error(p + ".term", "duplicate glossary term " + describe(g.term) + "; terms must be unique (ignoring case)");
-          else terms.push(key);
+          var key = g.term.trim().toLowerCase(), prev = ctx.terms[key];
+          if (prev && prev.base === base) error(p + ".term", "duplicate glossary term " + describe(g.term) + "; terms must be unique (ignoring case)");
+          else if (prev) error(p + ".term", "glossary term " + describe(g.term) + " is already defined at " + prev.path + "; terms are unique across the whole document, inner sequences included");
+          else { ctx.terms[key] = { base: base, path: p + ".term" }; terms.push(key); ctx.termList.push({ term: g.term, key: key, path: p + ".term" }); }
         }
         requireString(g, "definition", p, 1, 300, error);
       });
@@ -627,39 +940,51 @@
         var parts = m[1].split("|"), term = parts[parts.length - 1].trim().toLowerCase();
         if (parts.length > 2 || !term || !parts[0].trim()) { error(path, "glossary mark ((" + m[1] + ")) must be ((term)) or ((shown text|term))"); continue; }
         if (terms.indexOf(term) === -1) error(path, "glossary mark ((" + m[1] + ")) names " + describe(parts[parts.length - 1].trim()) + ", which is not a glossary term" + (terms.length ? " (terms: " + terms.join(", ") + ")" : " (the document has no glossary)"));
-        else termUsed[term] = true;
+        else ctx.termUsed[term] = true;
       }
     }
-    marks(data.subtitle, "subtitle");
-    if (Array.isArray(data.closing)) data.closing.forEach(function (t, i) { marks(t, "closing[" + i + "]"); });
-    if (Array.isArray(data.glossary)) data.glossary.forEach(function (g, i) { if (g) marks(g.definition, "glossary[" + i + "].definition"); });
+    if (inner) marks(seq.subtitle, at("subtitle"));
+    if (Array.isArray(seq.glossary)) seq.glossary.forEach(function (g, i) { if (g) marks(g.definition, at("glossary[" + i + "].definition")); });
 
-    /* zones */
-    var zoneIds = [];
-    if (optionalArray(data, "zones", "$", 0, 6, error)) {
-      (data.zones || []).forEach(function (z, i) {
-        var p = "zones[" + i + "]";
-        if (!isObject(z, p, error)) return;
-        checkId(z, p, zoneIds, "zone", error);
-        requireString(z, "name", p, 1, 40, error);
-        optionalString(z, "description", p, 200, error);
-      });
-    }
-
-    /* participants */
-    var pids = [], participants = Array.isArray(data.participants) ? data.participants : [];
-    var initialHolds = {};
-    if (requireArray(data, "participants", "$", 2, 8, error)) {
-      participants.forEach(function (pt, i) {
-        var p = "participants[" + i + "]";
+    /* participants: ids unique across the whole tree; groups carry 2–12 members */
+    var own = Array.isArray(seq.participants) ? seq.participants : [];
+    var visible = {}, hereMember = {}, groupsHere = [];
+    if (parent) Object.keys(parent.visible).forEach(function (k) { visible[k] = true; });
+    var state0 = {};
+    if (init) Object.keys(init).forEach(function (k) { state0[k] = init[k].slice(); });
+    var pOk = inner ? optionalArray(seq, "participants", base, 0, 8, error) : requireArray(seq, "participants", base, 2, 8, error);
+    if (pOk) {
+      own.forEach(function (pt, i) {
+        var p = at("participants[" + i + "]");
         if (!isObject(pt, p, error)) return;
-        checkId(pt, p, pids, "participant", error);
+        var idOk = checkTreeId(pt, p, ctx);
         requireString(pt, "name", p, 1, 32, error);
         optionalString(pt, "role", p, 60, error);
-        if (pt.kind !== undefined && KINDS.indexOf(pt.kind) === -1) error(p + ".kind", "must be one of " + KINDS.join(", ") + "; got " + describe(pt.kind));
+        var isGroup = pt.kind === "group";
+        if (pt.kind !== undefined && !isGroup && KINDS.indexOf(pt.kind) === -1) error(p + ".kind", "must be one of " + KINDS.concat(["group"]).join(", ") + "; got " + describe(pt.kind));
+        if (idOk) { visible[pt.id] = true; state0[pt.id] = []; }
+        if (isGroup) {
+          var memberIds = [];
+          requireArray(pt, "members", p, 2, 12, error);
+          if (Array.isArray(pt.members)) {
+            pt.members.forEach(function (m, k) {
+              var mp = p + ".members[" + k + "]";
+              if (!isObject(m, mp, error)) return;
+              var mOk = checkTreeId(m, mp, ctx);
+              requireString(m, "name", mp, 1, 32, error);
+              optionalString(m, "role", mp, 60, error);
+              if (m.kind !== undefined && KINDS.indexOf(m.kind) === -1) error(mp + ".kind", m.kind === "group" ? "a member cannot itself be a group; declare it as a participant of an inner sequence to give it members" : "must be one of " + KINDS.join(", ") + "; got " + describe(m.kind));
+              ["holds", "members", "zone"].forEach(function (x) { if (m[x] !== undefined) error(mp + "." + x, "a member has only id, name, role and kind; it starts holding nothing and sits in its group's zone"); });
+              if (mOk) { visible[m.id] = true; state0[m.id] = []; memberIds.push(m.id); if (idOk) hereMember[m.id] = pt.id; ctx.members.push({ id: m.id, path: mp }); }
+            });
+          }
+          if (idOk) groupsHere.push({ id: pt.id, path: p, members: memberIds });
+        } else if (pt.members !== undefined) {
+          error(p + ".members", "only a participant with kind \"group\" has members; set kind to \"group\" or remove members");
+        }
         if (pt.zone !== undefined) {
           if (typeof pt.zone !== "string") error(p + ".zone", "must be a zone id string, got " + describe(pt.zone));
-          else if (zoneIds.indexOf(pt.zone) === -1) error(p + ".zone", "zone id " + describe(pt.zone) + " is not defined in zones" + (zoneIds.length ? " (zones: " + zoneIds.join(", ") + ")" : " (the document has no zones)"));
+          else if (ctx.zoneIds.indexOf(pt.zone) === -1) error(p + ".zone", "zone id " + describe(pt.zone) + " is not defined in zones" + (ctx.zoneIds.length ? " (zones: " + ctx.zoneIds.join(", ") + ")" : " (the document has no zones)"));
         }
         if (pt.holds !== undefined && checkItemList(pt.holds, p + ".holds", 0, MAX_HOLDS, error)) {
           var seen = [];
@@ -667,29 +992,29 @@
             if (seen.indexOf(h) !== -1) error(p + ".holds[" + k + "]", "duplicate item " + describe(h) + "; each item is held once");
             seen.push(h);
           });
-          if (typeof pt.id === "string") initialHolds[pt.id] = seen.slice();
+          if (idOk) state0[pt.id] = seen.slice();
         }
       });
-      if (participants.length > 6) warn("participants", participants.length + " participants make narrow lanes on a phone; 2–6 read best");
+      if (!inner && own.length > 6) warn("participants", own.length + " participants make narrow lanes on a phone; 2–6 read best");
     }
-    /* zones that are empty or split */
-    if (Array.isArray(data.zones)) {
-      data.zones.forEach(function (z, i) {
-        if (!z || typeof z.id !== "string") return;
-        var idx = [];
-        participants.forEach(function (pt, k) { if (pt && pt.zone === z.id) idx.push(k); });
-        if (!idx.length) warn("zones[" + i + "]", "zone " + describe(z.id) + " has no participants");
-        else if (idx[idx.length - 1] - idx[0] + 1 !== idx.length) warn("zones[" + i + "]", "the participants of zone " + describe(z.id) + " are not next to each other, so the zone is drawn as separate bands; reorder participants to keep it together");
-      });
+    var vis = Object.keys(visible);
+    function unknownP(id) {
+      return "participant id " + describe(id) + (inner ? " is not visible in this inner sequence (its own participants, group members and the participants of the sequences around it: " : " is not defined in participants" + (groupsHere.length ? " or their members" : "") + " (ids: ") + vis.join(", ") + ")";
     }
 
-    /* channels */
-    var cids = [];
-    if (requireArray(data, "channels", "$", 1, 8, error)) {
-      data.channels.forEach(function (c, i) {
-        var p = "channels[" + i + "]";
+    /* channels: inherited from the enclosing sequences, extended here */
+    var chans = parent ? parent.channels.slice() : [], ownC = [];
+    var cOk = inner ? optionalArray(seq, "channels", base, 0, 8, error) : requireArray(seq, "channels", base, 1, 8, error);
+    if (cOk) {
+      (seq.channels || []).forEach(function (c, i) {
+        var p = at("channels[" + i + "]");
         if (!isObject(c, p, error)) return;
-        checkId(c, p, cids, "channel", error);
+        if (requireString(c, "id", p, 1, 40, error)) {
+          if (!KEBAB.test(c.id)) error(p + ".id", "must be kebab-case (lowercase letters, digits, single hyphens), got " + describe(c.id));
+          else if (ownC.indexOf(c.id) !== -1) error(p + ".id", "duplicate channel id " + describe(c.id) + "; ids must be unique");
+          else if (chans.indexOf(c.id) !== -1) error(p + ".id", "channel id " + describe(c.id) + " is already defined by an enclosing sequence; inner sequences inherit those channels, so reuse it or pick a new id");
+          else { chans.push(c.id); ownC.push({ id: c.id, path: p }); }
+        }
         requireString(c, "name", p, 1, 60, error);
         if (COLORS.indexOf(c.color) === -1) error(p + ".color", "must be one of " + COLORS.join(", ") + "; got " + describe(c.color));
         optionalString(c, "description", p, 240, error);
@@ -697,21 +1022,21 @@
     }
 
     /* steps */
-    var steps = Array.isArray(data.steps) ? data.steps : [];
-    var N = steps.length, stepsOk = requireArray(data, "steps", "$", 2, 60, error);
-    var usedP = {}, usedC = {}, anyCheck = false;
+    var steps = Array.isArray(seq.steps) ? seq.steps : [];
+    var N = steps.length, stepsOk = requireArray(seq, "steps", base, 2, 60, error);
+    var usedHere = {}, anyCheck = false, inners = [];
     if (stepsOk) {
       steps.forEach(function (s, i) {
-        var p = "steps[" + i + "]";
+        var p = at("steps[" + i + "]");
         if (!isObject(s, p, error)) return;
         ["from", "to"].forEach(function (k) {
           if (typeof s[k] !== "string") error(p + "." + k, "must be a participant id string, got " + describe(s[k]));
-          else if (pids.indexOf(s[k]) === -1) error(p + "." + k, "participant id " + describe(s[k]) + " is not defined in participants (ids: " + pids.join(", ") + ")");
-          else usedP[s[k]] = true;
+          else if (!visible[s[k]]) error(p + "." + k, unknownP(s[k]));
+          else { usedHere[s[k]] = true; ctx.usedIds[s[k]] = true; }
         });
         if (typeof s.channel !== "string") error(p + ".channel", "must be a channel id string, got " + describe(s.channel));
-        else if (cids.indexOf(s.channel) === -1) error(p + ".channel", "channel id " + describe(s.channel) + " is not defined in channels (ids: " + cids.join(", ") + ")");
-        else usedC[s.channel] = true;
+        else if (chans.indexOf(s.channel) === -1) error(p + ".channel", "channel id " + describe(s.channel) + " is not defined in channels" + (inner ? " here or in an enclosing sequence" : "") + " (ids: " + chans.join(", ") + ")");
+        else ctx.chanUsed[s.channel] = true;
         if (requireString(s, "payload", p, 1, 40, error) && s.payload.length > 24) warn(p + ".payload", "is " + s.payload.length + " characters; 24 or fewer fit on the arrow without crowding");
         requireString(s, "title", p, 1, 120, error);
         if (s.wire === undefined) warn(p + ".wire", "no wire block; showing what actually travels is what makes this view concrete");
@@ -738,24 +1063,50 @@
           if (SEVERITIES.indexOf(s.note.severity) === -1) error(p + ".note.severity", "must be one of " + SEVERITIES.join(", ") + "; got " + describe(s.note.severity));
           if (requireString(s.note, "text", p + ".note", 1, 300, error)) marks(s.note.text, p + ".note.text");
         }
-        if (s.holds !== undefined) checkStepHolds(s, p, pids, error);
-        if (s.check !== undefined) { anyCheck = true; checkCheck(s, p, pids, error, marks); }
+        if (s.holds !== undefined) checkStepHolds(s, p, visible, unknownP, error);
+        if (s.check !== undefined) { anyCheck = true; checkCheck(s, p, visible, unknownP, error, marks); }
+        if (s.inner !== undefined && isObject(s.inner, p + ".inner", error)) {
+          if (depth + 1 > MAX_DEPTH) error(p + ".inner", "is nested " + (depth + 1) + " levels deep; at most " + MAX_DEPTH + " levels are allowed, so move these steps up a level");
+          else {
+            if (depth + 1 > WARN_DEPTH) warn(p + ".inner", "is nested " + (depth + 1) + " levels deep; more than " + WARN_DEPTH + " levels are hard to follow");
+            inners.push(i);
+          }
+        }
       });
-      if (N < 3) warn("steps", "only " + N + " steps; a sequence usually needs 4 or more to teach");
-      if (N >= 6 && !anyCheck) warn("steps", "no step has a check; one or two light \"who sends next?\" checks help the learner predict");
-      participants.forEach(function (pt, i) { if (pt && typeof pt.id === "string" && !usedP[pt.id]) warn("participants[" + i + "]", "participant " + describe(pt.id) + " never sends or receives a step"); });
-      (Array.isArray(data.channels) ? data.channels : []).forEach(function (c, i) { if (c && typeof c.id === "string" && !usedC[c.id]) warn("channels[" + i + "]", "channel " + describe(c.id) + " is not used by any step"); });
+      if (N < 3) warn(at("steps"), "only " + N + " steps; a sequence usually needs 4 or more to teach");
+      if (N >= 6 && !anyCheck) warn(at("steps"), "no step has a check; one or two light \"who sends next?\" checks help the learner predict");
+      own.forEach(function (pt, i) {
+        if (!pt || typeof pt.id !== "string") return;
+        if (pt.kind === "group") {
+          var touched = usedHere[pt.id] || (Array.isArray(pt.members) && pt.members.some(function (m) { return m && usedHere[m.id]; }));
+          if (!touched) warn(at("participants[" + i + "]"), "group " + describe(pt.id) + ": no step at its level sends to or from it or any of its members");
+        } else if (!usedHere[pt.id]) warn(at("participants[" + i + "]"), "participant " + describe(pt.id) + " never sends or receives a step");
+      });
+      if (inner) {
+        var lanes = {};
+        own.forEach(function (pt) { if (pt && typeof pt.id === "string") lanes[pt.id] = true; });
+        Object.keys(usedHere).forEach(function (id) { lanes[hereMember[id] || id] = true; });
+        var nl = Object.keys(lanes).length;
+        if (nl > MAX_INNER_LANES) warn(base, "shows " + nl + " lanes at once; more than " + MAX_INNER_LANES + " get narrow, so gather some parties into a group or move them into a deeper inner sequence");
+      }
     }
 
     /* fragments */
     var frags = [], fragsOk = true;
-    if (optionalArray(data, "fragments", "$", 0, 20, error)) {
-      (data.fragments || []).forEach(function (f, i) {
-        var p = "fragments[" + i + "]";
+    if (optionalArray(seq, "fragments", base, 0, 20, error)) {
+      (seq.fragments || []).forEach(function (f, i) {
+        var p = at("fragments[" + i + "]");
         if (!isObject(f, p, error)) { fragsOk = false; return; }
         var ok = true;
         if (FRAGMENT_KINDS.indexOf(f.kind) === -1) { error(p + ".kind", "must be one of " + FRAGMENT_KINDS.join(", ") + "; got " + describe(f.kind)); ok = false; }
-        optionalString(f, "label", p, 40, error);
+        if (f.kind === "group") {
+          requireString(f, "label", p, 1, 80, error);
+          if (optionalString(f, "summary", p, 200, error)) marks(f.summary, p + ".summary");
+          optionalBool(f, "collapsed", p, error);
+        } else {
+          optionalString(f, "label", p, 40, error);
+          ["summary", "collapsed"].forEach(function (x) { if (f[x] !== undefined) error(p + "." + x, "only a group fragment has " + x + "; remove it or use kind \"group\""); });
+        }
         if (!checkIndex(f, "start", p, N, error)) ok = false;
         if (!checkIndex(f, "end", p, N, error)) ok = false;
         if (ok && f.end < f.start) { error(p + ".end", "step index " + f.end + " is before start " + f.start + "; end must be greater than or equal to start"); ok = false; }
@@ -779,6 +1130,10 @@
               });
             }
           } else ok = false;
+        } else if (f.kind === "group") {
+          if (f.condition !== undefined) error(p + ".condition", "a group fragment has a label, not a condition");
+          if (f.branches !== undefined) error(p + ".branches", "only an alt fragment has branches");
+          if (ok && f.end === f.start) { error(p + ".end", "a group needs at least 2 consecutive steps, but start and end are both " + f.start + "; widen it or remove the fragment"); ok = false; }
         } else if (FRAGMENT_KINDS.indexOf(f.kind) !== -1) {
           requireString(f, "condition", p, 1, 80, error);
           if (f.branches !== undefined) error(p + ".branches", "only an alt fragment has branches; " + f.kind + " uses condition");
@@ -793,31 +1148,44 @@
           var separate = A.end < B.start || B.end < A.start;
           var aInB = A.start >= B.start && A.end <= B.end, bInA = B.start >= A.start && B.end <= A.end;
           if (!separate && !aInB && !bInA) {
-            error("fragments[" + b.i + "]", "steps " + B.start + "–" + B.end + " partly overlap fragments[" + a.i + "] (steps " + A.start + "–" + A.end + "); fragments must be nested or separate");
+            error(at("fragments[" + b.i + "]"), "steps " + B.start + "–" + B.end + " partly overlap fragments[" + a.i + "] (steps " + A.start + "–" + A.end + "); fragments must be nested or separate");
             fragsOk = false; return;
           }
-          var outer = null, inner = null, innerI = -1, outerI = -1;
-          if (bInA && !(aInB)) { outer = A; inner = B; innerI = b.i; outerI = a.i; }
-          else if (aInB && !bInA) { outer = B; inner = A; innerI = a.i; outerI = b.i; }
-          else if (aInB && bInA) { outer = A; inner = B; innerI = b.i; outerI = a.i; }
+          var outer = null, innerF = null, innerI = -1, outerI = -1;
+          if (bInA && !(aInB)) { outer = A; innerF = B; innerI = b.i; outerI = a.i; }
+          else if (aInB && !bInA) { outer = B; innerF = A; innerI = a.i; outerI = b.i; }
+          else if (aInB && bInA) { outer = A; innerF = B; innerI = b.i; outerI = a.i; }
           if (outer && outer.kind === "alt") {
-            var inOne = outer.branches.some(function (br) { return inner.start >= br.start && inner.end <= br.end; });
-            if (!inOne) { error("fragments[" + innerI + "]", "steps " + inner.start + "–" + inner.end + " cross a branch boundary of the alt fragments[" + outerI + "]; a nested fragment must lie inside one branch"); fragsOk = false; }
+            var inOne = outer.branches.some(function (br) { return innerF.start >= br.start && innerF.end <= br.end; });
+            if (!inOne) { error(at("fragments[" + innerI + "]"), "steps " + innerF.start + "–" + innerF.end + " cross a branch boundary of the alt fragments[" + outerI + "]; a nested fragment must lie inside one branch"); fragsOk = false; }
           }
         });
       });
+      if (stepsOk && N > 0) {
+        var covered = 0;
+        for (var si = 0; si < N; si++) {
+          if (frags.some(function (x) { return x.f.kind === "group" && x.f.collapsed !== false && si >= x.f.start && si <= x.f.end; })) covered++;
+        }
+        if (covered === N) warn(at("fragments"), inner ? "every step of this inner sequence is inside a collapsed group; it has nothing to read until the learner expands one" : "every step is inside a collapsed group; the main level has nothing to read");
+      }
     }
 
-    /* holds simulation: needs valid steps, participants and fragments */
-    if (stepsOk && fragsOk && Array.isArray(data.participants)) {
-      simulateHolds(data, initialHolds, error, warn);
-    }
+    /* holds simulation: needs valid steps and fragments, and a known starting state */
+    var before = null;
+    if (stepsOk && fragsOk && (!inner || init)) before = simulateHolds(seq, state0, at, error, warn);
 
-    if (Array.isArray(data.glossary)) {
-      data.glossary.forEach(function (g, i) {
-        if (g && typeof g.term === "string" && !termUsed[g.term.trim().toLowerCase()]) warn("glossary[" + i + "].term", "term " + describe(g.term) + " is never marked with ((...)) in the text; marking it lets the learner tap it for the definition");
-      });
-    }
+    var lv = { terms: terms, visible: visible, channels: chans, marks: marks };
+
+    /* inner sequences: each starts from the holds just before its parent step */
+    inners.forEach(function (i) {
+      checkSeq(steps[i].inner, at("steps[" + i + "].inner"), depth + 1, lv, before ? before[i] : null, ctx);
+    });
+
+    /* channels declared here and never used here or deeper */
+    ownC.forEach(function (c) {
+      if (!ctx.chanUsed[c.id]) warn(c.path, "channel " + describe(c.id) + " is not used by any step");
+    });
+    return lv;
   }
 
   function checkId(obj, path, list, what, error) {
@@ -825,6 +1193,15 @@
     if (!KEBAB.test(obj.id)) error(path + ".id", "must be kebab-case (lowercase letters, digits, single hyphens), got " + describe(obj.id));
     else if (list.indexOf(obj.id) !== -1) error(path + ".id", "duplicate " + what + " id " + describe(obj.id) + "; ids must be unique");
     else list.push(obj.id);
+  }
+  /* participant and member ids are unique across the whole document */
+  function checkTreeId(obj, path, ctx) {
+    var error = ctx.error;
+    if (!requireString(obj, "id", path, 1, 40, error)) return false;
+    if (!KEBAB.test(obj.id)) { error(path + ".id", "must be kebab-case (lowercase letters, digits, single hyphens), got " + describe(obj.id)); return false; }
+    if (ctx.ids[obj.id]) { error(path + ".id", "duplicate participant id " + describe(obj.id) + ", already used at " + ctx.ids[obj.id] + "; participant and member ids must be unique across the whole document"); return false; }
+    ctx.ids[obj.id] = path + ".id";
+    return true;
   }
   function checkIndex(obj, key, parent, N, error) {
     var path = join(parent, key), v = obj[key];
@@ -841,14 +1218,14 @@
     return ok;
   }
 
-  function checkStepHolds(s, p, pids, error) {
+  function checkStepHolds(s, p, visible, unknownP, error) {
     var hp = p + ".holds";
     if (!isObject(s.holds, hp, error)) return;
     var keys = Object.keys(s.holds);
     if (!keys.length) error(hp, "must name at least one participant; omit holds when nothing changes");
     keys.forEach(function (id) {
       var ip = hp + "." + id, h = s.holds[id];
-      if (pids.indexOf(id) === -1) { error(ip, "participant id " + describe(id) + " is not defined in participants (ids: " + pids.join(", ") + ")"); return; }
+      if (!visible[id]) { error(ip, unknownP(id)); return; }
       if (!isObject(h, ip, error)) return;
       Object.keys(h).forEach(function (k) { if (k !== "add" && k !== "remove") error(ip + "." + k, "unknown key; a holds change has only add and remove"); });
       var a = h.add === undefined || checkItemList(h.add, ip + ".add", 0, MAX_HOLDS, error);
@@ -858,14 +1235,14 @@
     });
   }
 
-  /* Holds are cumulative from participants[].holds. Removes apply before adds. A non-first
+  /* Holds are cumulative from the starting state. Removes apply before adds. A non-first
      branch of an alt starts from the state before the alt and does not carry forward; after
-     the alt the state is that at the end of its first branch. Mirrors computeHolds in view.js. */
-  function simulateHolds(data, initial, error, warn) {
-    var steps = data.steps, N = steps.length, frags = data.fragments || [];
-    var state = {};
-    data.participants.forEach(function (pt) { if (pt && typeof pt.id === "string") state[pt.id] = (initial[pt.id] || []).slice(); });
+     the alt the state is that at the end of its first branch. Returns the state just before
+     each step (an inner sequence starts from it). Mirrors computeHolds in view.js. */
+  function simulateHolds(seq, initial, at, error, warn) {
+    var steps = seq.steps, N = steps.length, frags = seq.fragments || [];
     function clone(st) { var o = {}; Object.keys(st).forEach(function (k) { o[k] = st[k].slice(); }); return o; }
+    var state = clone(initial), before = [];
     var alts = frags.map(function (f, i) { return { f: f, i: i }; }).filter(function (x) { return x.f.kind === "alt"; });
     var startSnap = {}, firstEnd = {};
     for (var i = 0; i <= N; i++) {
@@ -884,34 +1261,36 @@
       alts.filter(function (x) { return x.f.start === i; })
         .sort(function (a, b) { return (b.f.end - b.f.start) - (a.f.end - a.f.start) || a.i - b.i; })
         .forEach(function (x) { startSnap[x.i] = clone(state); });
+      before.push(clone(state));
       var s = steps[i];
       if (!s || !s.holds || typeof s.holds !== "object") continue;
       Object.keys(s.holds).forEach(function (id) {
         var h = s.holds[id];
         if (!state[id] || !h || typeof h !== "object") return;
         (Array.isArray(h.remove) ? h.remove : []).forEach(function (x, k) {
-          var at = state[id].indexOf(x);
-          if (at === -1) error("steps[" + i + "].holds." + id + ".remove[" + k + "]", describe(x) + " is not held by " + describe(id) + " at this step (it holds: " + (state[id].length ? state[id].join(", ") : "nothing") + ")");
-          else state[id].splice(at, 1);
+          var pos = state[id].indexOf(x);
+          if (pos === -1) error(at("steps[" + i + "].holds." + id + ".remove[" + k + "]"), describe(x) + " is not held by " + describe(id) + " at this step (it holds: " + (state[id].length ? state[id].join(", ") : "nothing") + ")");
+          else state[id].splice(pos, 1);
         });
         (Array.isArray(h.add) ? h.add : []).forEach(function (x, k) {
-          if (state[id].indexOf(x) !== -1) warn("steps[" + i + "].holds." + id + ".add[" + k + "]", describe(id) + " already holds " + describe(x) + "; it is not marked as new");
+          if (state[id].indexOf(x) !== -1) warn(at("steps[" + i + "].holds." + id + ".add[" + k + "]"), describe(id) + " already holds " + describe(x) + "; it is not marked as new");
           else state[id].push(x);
         });
-        if (state[id].length > MAX_HOLDS) warn("steps[" + i + "].holds." + id, describe(id) + " now holds " + state[id].length + " items; more than " + MAX_HOLDS + " crowd the strip, so remove what it no longer needs");
+        if (state[id].length > MAX_HOLDS) warn(at("steps[" + i + "].holds." + id), describe(id) + " now holds " + state[id].length + " items; more than " + MAX_HOLDS + " crowd the strip, so remove what it no longer needs");
       });
     }
+    return before;
   }
 
-  function checkCheck(s, p, pids, error, marks) {
+  function checkCheck(s, p, visible, unknownP, error, marks) {
     var cp = p + ".check", c = s.check;
     if (!isObject(c, cp, error)) return;
     if (c.type === "who") {
       optionalString(c, "prompt", cp, 200, error);
       if (c.why !== undefined && optionalString(c, "why", cp, 500, error)) marks(c.why, cp + ".why");
       if (typeof c.answer !== "string") error(cp + ".answer", "must be the id of the participant who sends this step, got " + describe(c.answer));
-      else if (pids.indexOf(c.answer) === -1) error(cp + ".answer", "participant id " + describe(c.answer) + " is not defined in participants (ids: " + pids.join(", ") + ")");
-      else if (typeof s.from === "string" && pids.indexOf(s.from) !== -1 && c.answer !== s.from) error(cp + ".answer", describe(c.answer) + " does not send this step; " + p + ".from is " + describe(s.from) + ", so the answer must be " + describe(s.from));
+      else if (!visible[c.answer]) error(cp + ".answer", unknownP(c.answer));
+      else if (typeof s.from === "string" && visible[s.from] && c.answer !== s.from) error(cp + ".answer", describe(c.answer) + " does not send this step; " + p + ".from is " + describe(s.from) + ", so the answer must be " + describe(s.from));
       if (c.options !== undefined) error(cp + ".options", "a \"who\" check takes its options from the participants; remove options or use type \"choice\"");
     } else if (c.type === "choice") {
       if (requireString(c, "prompt", cp, 1, 300, error)) marks(c.prompt, cp + ".prompt");
@@ -1019,6 +1398,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
   <script>
 /* NthView — sequence renderer — schemaVersion 1
  * Requires scripts/validate.js to be loaded first. No libraries: plain DOM, CSS and inline SVG.
+ * A document is a tree: any step may carry an inner sequence, rendered as its own level.
  */
 (function (root) {
   "use strict";
@@ -1218,7 +1598,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     ".nthview-ghost{border:1px solid var(--nv-border);background:transparent;padding:.42rem .8rem;border-radius:.5rem;cursor:pointer;font-size:.88rem;color:var(--nv-muted)}",
     /* recap */
     ".nthview-recap-list{margin:0 0 1rem;padding:0;list-style:none;counter-reset:none;display:grid;gap:.2rem}",
-    ".nthview-recap-list button{width:100%;display:grid;grid-template-columns:2rem 1fr;gap:.5rem;text-align:left;border:0;background:transparent;padding:.4rem .5rem;border-radius:.4rem;cursor:pointer}",
+    ".nthview-recap-list button{width:100%;display:grid;grid-template-columns:minmax(2rem,auto) 1fr;gap:.5rem;text-align:left;border:0;background:transparent;padding:.4rem .5rem;border-radius:.4rem;cursor:pointer}",
     ".nthview-recap-list button:hover{background:var(--sq-soft)}",
     ".nthview-recap-n{font-family:var(--sq-mono);font-size:.78rem;color:var(--nv-muted);padding-top:.1rem}",
     ".nthview-recap-route{display:block;font-size:.8rem;color:var(--nv-muted)}",
@@ -1269,6 +1649,45 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     ".nthview-resume{margin:0 0 .8rem;padding:.5rem .8rem;border-radius:.5rem;background:var(--sq-hi);border:1px solid var(--nv-accent);font-size:.88rem;transition:opacity .4s}",
     ".nthview-resume.nthview-resume-hide{opacity:0}",
     ".nthview-sequence [hidden]{display:none!important}",
+    /* inner sequences, groups and the breadcrumb */
+    ".nthview-crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem .6rem;margin:0 0 .8rem;padding:.55rem .75rem;background:var(--sq-panel);border:1px solid var(--nv-accent);border-left-width:4px;border-radius:.6rem;font-size:.86rem}",
+    ".nthview-crumbs ol{display:flex;flex-wrap:wrap;align-items:center;gap:.15rem;margin:0;padding:0;list-style:none;flex:1 1 16rem;min-width:0}",
+    ".nthview-crumbs li{display:flex;align-items:center;min-width:0;max-width:100%}",
+    ".nthview-crumbs li+li::before{content:'\\203A';color:var(--nv-muted);padding:0 .3rem;font-size:1.05rem}",
+    ".nthview-crumb{border:0;background:transparent;color:var(--nv-accent);padding:.2rem .35rem;border-radius:.35rem;cursor:pointer;text-decoration:underline;text-underline-offset:2px;max-width:17rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}",
+    ".nthview-crumb:hover{background:var(--sq-soft)}",
+    ".nthview-crumb-cur{font-weight:650;padding:.2rem .35rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}",
+    ".nthview-crumbs-info{flex-basis:100%;margin:0;color:var(--nv-muted);font-size:.84rem}",
+    ".nthview-innerbox{margin-top:.9rem;padding:.75rem .9rem;border:1px dashed var(--nv-accent);border-radius:.55rem;background:var(--sq-hi);display:flex;flex-wrap:wrap;gap:.6rem .9rem;align-items:center}",
+    ".nthview-innerbox p{margin:0;flex:1 1 14rem;font-size:.9rem}",
+    ".nthview-innerbox .nthview-nav{white-space:normal;text-align:left}",
+    ".nthview-lane .nthview-inside{display:inline-block;margin-top:.2rem;font-size:.68rem;font-weight:650;color:var(--nv-accent);border:1px solid var(--nv-accent);border-radius:.3rem;padding:0 .3rem;line-height:1.45}",
+    ".nthview-lane.nthview-lane-group{border:3px double var(--nv-muted)}",
+    ".nthview-lane.nthview-lane-group.nthview-on{border-color:var(--nv-accent)}",
+    ".nthview-grouprow{position:relative;display:grid;align-items:end}",
+    ".nthview-grouplabel{margin:0 .25rem .3rem;font-size:.7rem;font-weight:650;color:var(--nv-accent);text-align:center;border-bottom:2px solid var(--nv-accent);padding-bottom:.1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
+    ".nthview-chip.nthview-chip-group{border:2px dashed var(--h-teal);color:var(--h-teal);padding:0 .45rem;font-weight:600}",
+    ".nthview-chip.nthview-chip-group[aria-current=step]{background:var(--h-teal);border-color:var(--h-teal);color:var(--sq-panel)}",
+    ".nthview-chip.nthview-has-inner{box-shadow:inset 0 -3px 0 var(--nv-accent)}",
+    ".nthview-gcard{background:var(--sq-panel);border:2px dashed var(--h-teal);border-radius:.7rem;padding:1.1rem 1.2rem}",
+    ".nthview-gcard-label{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--h-teal);font-weight:700;margin:0 0 .2rem}",
+    ".nthview-gcard h2{font-family:var(--sq-head);font-size:1.22rem;line-height:1.3;margin:.1rem 0 .5rem;font-weight:650}",
+    ".nthview-gcard .nthview-route{margin-top:.7rem}",
+    ".nthview-ghead{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem .7rem;margin:0 0 .6rem;padding:.4rem .5rem .4rem .8rem;border:1px dashed var(--h-teal);border-radius:.55rem;background:var(--t-teal);font-size:.86rem}",
+    ".nthview-ghead b{color:var(--h-teal);text-transform:uppercase;letter-spacing:.08em;font-size:.72rem}",
+    ".nthview-ghead span{font-weight:600}",
+    ".nthview-ghead .nthview-ghead-n{font-weight:400;color:var(--nv-muted);font-size:.8rem}",
+    ".nthview-ghead .nthview-ghost{margin-left:auto;padding:.25rem .7rem;background:var(--sq-panel)}",
+    ".nthview-recap-inner{margin:.05rem 0 .2rem 1.3rem;padding:0 0 0 .5rem;border-left:2px solid var(--nv-accent)}",
+    ".nthview-recap-glabel{font-size:.76rem;color:var(--h-teal);font-weight:700;padding:.4rem .5rem 0;letter-spacing:.02em}",
+    ".nthview-recap-ingroup{border-left:2px dashed var(--h-teal);margin-left:.5rem}",
+    ".nthview-recap-list .nthview-recap-open{display:inline-block;width:auto;margin:.05rem 0 .35rem 1.8rem;font-size:.82rem;padding:.25rem .65rem;border:1px solid var(--nv-border);border-radius:.45rem;color:var(--nv-accent);background:var(--sq-panel)}",
+    ".nthview-dtools .nthview-expand[aria-pressed=true]{background:var(--nv-accent);border-color:var(--nv-accent);color:var(--sq-on-accent);font-weight:600}",
+    ".nthview-ref{cursor:pointer}",
+    ".nthview-sequence .nthview-ref:focus{outline:none}",
+    ".nthview-ref:hover .nthview-ref-box{filter:brightness(.97)}",
+    ".nthview-ref:focus-visible .nthview-ref-box,.nthview-ref.nthview-cur .nthview-ref-box{stroke-width:3}",
+    ".nthview-ref:focus-visible>path:first-child{opacity:.8}",
     /* small screens */
     "@media (max-width:700px){",
     "  .nthview-sequence{--sq-lane-min:4.75rem;padding:.9rem .75rem 5.5rem;font-size:16px}",
@@ -1328,6 +1747,18 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     "  .nthview-dtools .nthview-zoomv{font-size:.88rem;min-width:2.8rem}",
     "  .nthview-wide{display:none}",
     "  .nthview-dpanel{max-height:calc(100vh - 6rem);max-height:calc(100svh - 6rem);overscroll-behavior:auto}",
+    "  .nthview-crumbs{font-size:.95rem;padding:.5rem .6rem}",
+    "  .nthview-crumb{min-height:40px;max-width:12rem}",
+    "  .nthview-crumbs .nthview-up{flex:1 1 100%;min-height:44px;font-size:.95rem}",
+    "  .nthview-crumbs-info{font-size:.9rem}",
+    "  .nthview-innerbox .nthview-nav{flex:1 1 100%;min-height:46px}",
+    "  .nthview-gcard{padding:.9rem .85rem}",
+    "  .nthview-ghead{font-size:.92rem}",
+    "  .nthview-ghead .nthview-ghost{min-height:40px}",
+    "  .nthview-lane .nthview-inside{font-size:.72rem}",
+    "  .nthview-grouplabel{font-size:.75rem}",
+    "  .nthview-recap-inner{margin-left:.6rem}",
+    "  .nthview-recap-list .nthview-recap-open{margin-left:.8rem;min-height:40px}",
     "}",
     "@media (prefers-reduced-motion:reduce){",
     "  .nthview-sequence *,.nthview-sequence *::before,.nthview-sequence *::after{transition:none!important;animation:none!important}",
@@ -1413,7 +1844,8 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     service: [["path", { d: "M7.5 18.5h9.2a3.8 3.8 0 0 0 .6-7.55A5.5 5.5 0 0 0 6.7 10.2a4.2 4.2 0 0 0 .8 8.3z" }]],
     database: [["ellipse", { cx: 12, cy: 6, rx: 7, ry: 2.8 }], ["path", { d: "M5 6v12c0 1.55 3.13 2.8 7 2.8s7-1.25 7-2.8V6M5 12c0 1.55 3.13 2.8 7 2.8s7-1.25 7-2.8" }]],
     device: [["rect", { x: 7, y: 2.5, width: 10, height: 19, rx: 2.2 }], ["path", { d: "M10.5 18.5h3" }]],
-    other: [["circle", { cx: 12, cy: 12, r: 8 }], ["circle", { cx: 12, cy: 12, r: 2.2 }]]
+    other: [["circle", { cx: 12, cy: 12, r: 8 }], ["circle", { cx: 12, cy: 12, r: 2.2 }]],
+    group: [["rect", { x: 2.5, y: 2.5, width: 19, height: 19, rx: 3 }], ["rect", { x: 6, y: 6, width: 5, height: 5, rx: 1 }], ["rect", { x: 13, y: 6, width: 5, height: 5, rx: 1 }], ["rect", { x: 6, y: 13, width: 5, height: 5, rx: 1 }], ["rect", { x: 13, y: 13, width: 5, height: 5, rx: 1 }]]
   };
   function glyph(kind, attrs) {
     var s = sv("svg", { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", "stroke-width": "1.8", "stroke-linecap": "round", "stroke-linejoin": "round", "aria-hidden": "true", focusable: "false" });
@@ -1446,16 +1878,17 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
   }
   function stepKind(s) { return s.kind || (s.from === s.to ? "self" : "sync"); }
   function pad2(n, w) { var s = String(n); while (s.length < w) s = "0" + s; return s; }
+  function clip(text, n) { text = String(text); return text.length > n ? text.slice(0, n - 1) + "…" : text; }
+  function cloneState(st) { var o = {}; Object.keys(st).forEach(function (k) { o[k] = st[k].slice(); }); return o; }
 
-  /* Holds: cumulative from participants[].holds; removes before adds; a non-first alt branch
-     starts from the state before the alt and does not carry forward. Mirrors validate.js. */
-  function computeHolds(data) {
-    var steps = data.steps, N = steps.length, frags = data.fragments || [];
-    var state = {};
-    data.participants.forEach(function (pt) { state[pt.id] = (pt.holds || []).slice(); });
-    function clone(st) { var o = {}; Object.keys(st).forEach(function (k) { o[k] = st[k].slice(); }); return o; }
+  /* Holds of one level: cumulative from the level's starting state; removes before adds; a non-first
+     alt branch starts from the state before the alt and does not carry forward. `before[i]` is the state
+     just before step i, where that step's inner sequence starts. Mirrors validate.js. */
+  function computeHolds(seq, init) {
+    var steps = seq.steps, N = steps.length, frags = seq.fragments || [];
+    var state = cloneState(init), clone = cloneState;
     var alts = frags.map(function (f, i) { return { f: f, i: i }; }).filter(function (x) { return x.f.kind === "alt"; });
-    var startSnap = {}, firstEnd = {}, after = [], added = [], removed = [];
+    var startSnap = {}, firstEnd = {}, before = [], after = [], added = [], removed = [];
     for (var i = 0; i <= N; i++) {
       alts.filter(function (x) { return x.f.end === i - 1; })
         .sort(function (a, b) { return (a.f.end - a.f.start) - (b.f.end - b.f.start) || b.i - a.i; })
@@ -1469,6 +1902,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       alts.filter(function (x) { return x.f.start === i; })
         .sort(function (a, b) { return (b.f.end - b.f.start) - (a.f.end - a.f.start) || a.i - b.i; })
         .forEach(function (x) { startSnap[x.i] = clone(state); });
+      before.push(clone(state));
       var s = steps[i], add = {}, rem = {};
       if (s.holds) {
         Object.keys(s.holds).forEach(function (id) {
@@ -1480,14 +1914,14 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       }
       after.push(clone(state)); added.push(add); removed.push(rem);
     }
-    return { after: after, added: added, removed: removed, final: clone(state) };
+    return { before: before, after: after, added: added, removed: removed, final: clone(state) };
   }
 
   /* For each step: the fragments around it, outermost first, with the alt branch it sits in. */
-  function fragmentInfo(data) {
-    var frags = (data.fragments || []).map(function (f, i) { return { f: f, i: i }; });
+  function fragmentInfo(seq) {
+    var frags = (seq.fragments || []).map(function (f, i) { return { f: f, i: i }; });
     frags.sort(function (a, b) { return a.f.start - b.f.start || (b.f.end - b.f.start) - (a.f.end - a.f.start) || a.i - b.i; });
-    return data.steps.map(function (s, k) {
+    return seq.steps.map(function (s, k) {
       return frags.filter(function (x) { return k >= x.f.start && k <= x.f.end; }).map(function (x) {
         var branch = -1;
         if (x.f.kind === "alt") x.f.branches.forEach(function (b, bi) { if (k >= b.start && k <= b.end) branch = bi; });
@@ -1496,33 +1930,153 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     });
   }
 
+  /* The tree of sequences. Participant ids are unique across the tree, so one map serves every level.
+     Columns follow one global order: the top-level participants, each followed by its group members and
+     by the own participants of inner sequences whose parent step is addressed to it. */
+  function buildModel(data) {
+    var PMAP = {}, LEVELS = {}, GLOSS = {}, KIDS = {}, PARENT = {}, RANK = {};
+    function kid(parentId, id) { (KIDS[parentId] = KIDS[parentId] || []).push(id); PARENT[id] = parentId; }
+    function level(seq, parent, parentIdx, init) {
+      var path = parent ? parent.path.concat([parentIdx]) : [];
+      var Lv = { key: path.join("."), path: path, seq: seq, parent: parent, parentIdx: parentIdx, depth: path.length, S: seq.steps, N: seq.steps.length, own: seq.participants || [] };
+      var anchor = parent ? parent.S[parentIdx].to : null;
+      var st = cloneState(init || {});
+      Lv.own.forEach(function (p) {
+        PMAP[p.id] = { p: p, level: Lv.key, group: null, isGroup: p.kind === "group" };
+        if (anchor) kid(anchor, p.id);
+        st[p.id] = (p.holds || []).slice();
+        (p.kind === "group" ? p.members : []).forEach(function (m) { PMAP[m.id] = { p: m, level: Lv.key, group: p.id, isGroup: false }; kid(p.id, m.id); st[m.id] = []; });
+      });
+      (seq.glossary || []).forEach(function (g) { GLOSS[g.term.trim().toLowerCase()] = g; });
+      Lv.C = {};
+      if (parent) Object.keys(parent.C).forEach(function (k) { Lv.C[k] = parent.C[k]; });
+      (seq.channels || []).forEach(function (c) { Lv.C[c.id] = c; });
+      Lv.FRAG = fragmentInfo(seq);
+      Lv.init = st;
+      Lv.HOLDS = computeHolds(seq, st);
+      LEVELS[Lv.key] = Lv;
+      Lv.S.forEach(function (s, i) { if (s.inner) level(s.inner, Lv, i, Lv.HOLDS.before[i]); });
+      return Lv;
+    }
+    var ROOT = level(data, null, 0, {});
+    var n = 0;
+    function dfs(id) { RANK[id] = n++; (KIDS[id] || []).forEach(dfs); }
+    ROOT.own.forEach(function (p) { dfs(p.id); });
+    Object.keys(PMAP).forEach(function (id) { if (RANK[id] === undefined) RANK[id] = n++; });
+    function byRank(a, b) { return RANK[a] - RANK[b]; }
+    Object.keys(LEVELS).forEach(function (k) {
+      var Lv = LEVELS[k], set = {};
+      /* a member of a group declared at this level is drawn on its group's lane */
+      Lv.resolve = function (id) { var m = PMAP[id]; return m.group && PMAP[m.group].level === Lv.key ? m.group : id; };
+      Lv.own.forEach(function (p) { set[p.id] = true; });
+      Lv.S.forEach(function (s) { set[Lv.resolve(s.from)] = true; set[Lv.resolve(s.to)] = true; });
+      Lv.lanes = Object.keys(set).sort(byRank);
+      Lv.LI = {};
+      Lv.lanes.forEach(function (id, i) { Lv.LI[id] = i; });
+      Lv.laneOf = function (id) { return Lv.LI[Lv.resolve(id)]; };
+      var cand = {};
+      Lv.lanes.forEach(function (id) { cand[id] = true; });
+      Lv.S.forEach(function (s) { if (s.holds) Object.keys(s.holds).forEach(function (id) { cand[id] = true; }); });
+      Lv.holders = Object.keys(cand).sort(byRank).filter(function (id) {
+        return (Lv.init[id] || []).length || Lv.S.some(function (s) { return s.holds && s.holds[id] && (s.holds[id].add || []).length; });
+      });
+      var used = {};
+      Lv.S.forEach(function (s) { used[s.channel] = true; });
+      Lv.channelsUsed = Object.keys(Lv.C).filter(function (c) { return used[c]; }).map(function (c) { return Lv.C[c]; });
+    });
+    return { ROOT: ROOT, LEVELS: LEVELS, PMAP: PMAP, GLOSS: GLOSS, RANK: RANK, PARENT: PARENT, byRank: byRank };
+  }
+
   function render(container, data) {
     var doc = root.document;
     var reduceMotion = !!(root.matchMedia && root.matchMedia("(prefers-reduced-motion: reduce)").matches);
-    var P = data.participants, S = data.steps, N = S.length, C = {};
-    var PI = {}; P.forEach(function (p, i) { PI[p.id] = i; });
-    data.channels.forEach(function (c) { C[c.id] = c; });
-    var GLOSS = {}; (data.glossary || []).forEach(function (g) { GLOSS[g.term.trim().toLowerCase()] = g; });
-    var HOLDS = computeHolds(data), FRAG = fragmentInfo(data);
-    var anyCompare = S.some(function (s) { return !!s.compare; });
-    var holders = P.filter(function (p) {
-      if ((p.holds || []).length) return true;
-      return S.some(function (s) { return s.holds && s.holds[p.id] && (s.holds[p.id].add || []).length; });
-    });
+    var M = buildModel(data), PMAP = M.PMAP, LEVELS = M.LEVELS, GLOSS = M.GLOSS, PARENT = M.PARENT, byRank = M.byRank;
+    var zones = data.zones || [], ZI = {};
+    zones.forEach(function (z) { ZI[z.id] = z; });
+    var levelKeys = Object.keys(LEVELS), innerCount = levelKeys.length - 1;
+    var anyCompare = levelKeys.some(function (k) { return LEVELS[k].S.some(function (s) { return !!s.compare; }); });
+    var anyFold = innerCount > 0 || levelKeys.some(function (k) { return (LEVELS[k].seq.fragments || []).some(function (f) { return f.kind === "group"; }); });
     var key = storageKey(data);
-    var state = { step: 0, mode: "step", zoom: "fit", compare: false, details: false, checks: {}, summarySeen: false };
+    var state = { path: [], step: 0, mode: "step", zoom: "fit", expand: false, compare: false, details: false, checks: {}, groups: {}, summarySeen: false, recapSeen: {} };
+    /* the level being shown, and shortcuts into it */
+    var L, S, N, C, FRAG, HOLDS, holders;
+    function useLevel() {
+      L = LEVELS[state.path.join(".")] || M.ROOT;
+      state.path = L.path.slice();
+      S = L.S; N = L.N; C = L.C; FRAG = L.FRAG; HOLDS = L.HOLDS; holders = L.holders;
+    }
+    useLevel();
     container.setAttribute("data-theme", pickTheme(data));
 
     function hue(c) { return "var(--h-" + c + ")"; }
     function tint(c) { return "var(--t-" + c + ")"; }
     function chColor(s) { return C[s.channel].color; }
-    function nameOf(id) { return P[PI[id]].name; }
+    function pOf(id) { return PMAP[id].p; }
+    function nameOf(id) { return PMAP[id].p.name; }
+    function kindOf(id) { return PMAP[id].p.kind || "other"; }
+    function ckey(Lv, i) { return Lv.key ? Lv.key + "." + i : String(i); }
+    function numLabel(Lv, i) { return Lv.path.map(function (x) { return x + 1; }).concat([i + 1]).join("."); }
+    function innerOf(Lv, i) { return LEVELS[ckey(Lv, i)]; }
+    function parentStep(Lv) { return Lv.parent.S[Lv.parentIdx]; }
+    function zoneOf(id) { var p = PMAP[id].p; return p.zone || (PARENT[id] !== undefined ? zoneOf(PARENT[id]) : null); }
+    /* contiguous runs of the same zone over an ordered list of ids */
+    function zoneRuns(ids) {
+      var runs = [];
+      ids.forEach(function (id, i) {
+        var z = zoneOf(id), last = runs[runs.length - 1];
+        if (last && last.zone === z) last.n++; else runs.push({ zone: z, start: i, n: 1 });
+      });
+      return runs;
+    }
+    /* bands of group members over an ordered list of ids: [{g, c0, c1, depth}] */
+    function groupBands(ids) {
+      var cols = {};
+      ids.forEach(function (id, c) {
+        var x = id;
+        while (x !== undefined) {
+          var g = PMAP[x] && PMAP[x].group;
+          if (g) (cols[g] = cols[g] || []).push(c);
+          x = PARENT[x];
+        }
+      });
+      var bands = Object.keys(cols).map(function (g) {
+        var cs = cols[g], own = ids.indexOf(g);
+        if (own !== -1) cs = cs.concat([own]);
+        return { g: g, c0: Math.min.apply(null, cs), c1: Math.max.apply(null, cs), hasOwn: own !== -1 };
+      });
+      bands.forEach(function (b) { b.depth = bands.filter(function (o) { return o !== b && o.c0 <= b.c0 && o.c1 >= b.c1 && (o.c1 - o.c0 > b.c1 - b.c0 || o.g < b.g); }).length; });
+      return bands;
+    }
+
+    /* ---------- collapsible groups (fragments of kind "group") ---------- */
+    function gkey(Lv, fi) { return Lv.key + "#g" + fi; }
+    function isOpen(Lv, fi) { var k = gkey(Lv, fi); return state.groups[k] !== undefined ? state.groups[k] : Lv.seq.fragments[fi].collapsed === false; }
+    function groupFrags(Lv) { return (Lv.seq.fragments || []).map(function (f, i) { return { f: f, i: i }; }).filter(function (x) { return x.f.kind === "group"; }); }
+    function outerFirst(a, b) { return a.f.start - b.f.start || (b.f.end - b.f.start) - (a.f.end - a.f.start) || a.i - b.i; }
+    /* what the learner moves through: single steps, or a collapsed group as one unit */
+    function unitsOf(Lv, all) {
+      var gs = groupFrags(Lv), out = [], i = 0;
+      function pick(x) { return x.f.start === i && !(all || isOpen(Lv, x.i)); }
+      while (i < Lv.N) {
+        var c = gs.filter(pick).sort(outerFirst)[0];
+        if (c) { out.push({ g: c.f, gi: c.i, start: i, end: c.f.end }); i = c.f.end + 1; }
+        else { out.push({ start: i, end: i }); i++; }
+      }
+      return out;
+    }
+    function unitAt(us, i) { for (var k = 0; k < us.length; k++) if (i >= us[k].start && i <= us[k].end) return k; return -1; }
+    function reveal(Lv, i) { groupFrags(Lv).forEach(function (x) { if (i >= x.f.start && i <= x.f.end && !isOpen(Lv, x.i)) state.groups[gkey(Lv, x.i)] = true; }); }
+    function partiesOf(Lv, a, b) {
+      var set = {};
+      for (var i = a; i <= b; i++) { set[Lv.resolve(Lv.S[i].from)] = true; set[Lv.resolve(Lv.S[i].to)] = true; }
+      return Object.keys(set).sort(byRank);
+    }
 
     /* ---------- progress (§5.5) ---------- */
-    function untouched() { return state.step === 0 && state.mode === "step" && !Object.keys(state.checks).length && !state.compare && !state.details && state.zoom === "fit"; }
+    function untouched() { return !state.path.length && state.step === 0 && state.mode === "step" && !Object.keys(state.checks).length && !Object.keys(state.groups).length && !state.compare && !state.details && !state.expand && state.zoom === "fit"; }
     function persist() {
-      if (untouched()) return;
-      saveState(key, { step: state.step, mode: state.mode, zoom: state.zoom, compare: state.compare, details: state.details, checks: state.checks, summarySeen: state.summarySeen });
+      if (untouched()) { clearState(key); return; }
+      saveState(key, { path: state.path.slice(), step: state.step, mode: state.mode, zoom: state.zoom, expand: state.expand, compare: state.compare, details: state.details, checks: state.checks, groups: state.groups, summarySeen: state.summarySeen, recapSeen: state.recapSeen });
     }
     function resumeNotice(text) {
       var n = el("div", { class: "nthview-resume", role: "status" }, [el("span", { text: text })]);
@@ -1563,15 +2117,16 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
 
     /* ---------- header ---------- */
     var status = el("div", { class: "nthview-sr", "aria-live": "polite" });
-    var headText = el("div", { class: "nthview-head-text" }, [el("p", { class: "nthview-eyebrow", text: "Sequence · " + N + " steps · " + P.length + " parties" }), el("h1", { class: "nthview-title", text: data.title })]);
+    var RN = M.ROOT.N;
+    var headText = el("div", { class: "nthview-head-text" }, [el("p", { class: "nthview-eyebrow", text: "Sequence · " + RN + " steps · " + M.ROOT.lanes.length + " parties" + (innerCount ? " · " + innerCount + " inner sequence" + (innerCount > 1 ? "s" : "") : "") }), el("h1", { class: "nthview-title", text: data.title })]);
     if (data.subtitle) headText.appendChild(para("nthview-sub", data.subtitle));
     var bStep = el("button", { type: "button", "aria-pressed": "true", text: "Step by step" });
     var bDiag = el("button", { type: "button", "aria-pressed": "false", text: "Full diagram" });
-    bStep.addEventListener("click", function () { setMode("step"); });
+    bStep.addEventListener("click", function () { setMode("step", true); });
     bDiag.addEventListener("click", function () { setMode("diagram", true); });
     var toolbar = el("div", { class: "nthview-toolbar" }, [el("div", { class: "nthview-seg", role: "group", "aria-label": "View mode" }, [bStep, bDiag])]);
     var glossBtn = null;
-    if ((data.glossary || []).length) {
+    if (Object.keys(GLOSS).length) {
       glossBtn = el("button", { type: "button", class: "nthview-tbtn", "aria-expanded": "false", text: "Glossary" });
       toolbar.appendChild(glossBtn);
     }
@@ -1583,59 +2138,102 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     var resumeSlot = el("div");
     container.appendChild(resumeSlot);
     container.appendChild(prog);
+    var touchFirst = !!(root.matchMedia && root.matchMedia("(hover: none) and (pointer: coarse)").matches);
 
-    /* ---------- step mode: stage ---------- */
-    var cols = "repeat(" + P.length + ",minmax(0,1fr))";
+    /* ---------- breadcrumb: where the learner is in the tree ---------- */
+    var crumbs = el("nav", { class: "nthview-crumbs", "aria-label": "Where you are in the sequence", hidden: "" });
+    container.appendChild(crumbs);
+    function buildCrumbs() {
+      crumbs.textContent = "";
+      if (!L.depth) { crumbs.hidden = true; return; }
+      crumbs.hidden = false;
+      var chain = [], x;
+      for (x = L; x; x = x.parent) chain.unshift(x);
+      var ol = el("ol");
+      chain.forEach(function (lv, k) {
+        var label = k === 0 ? "Main" : numLabel(lv.parent, lv.parentIdx) + " " + clip(parentStep(lv).title, 34);
+        var full = k === 0 ? "The main sequence" : "Step " + numLabel(lv.parent, lv.parentIdx) + ": " + parentStep(lv).title;
+        if (k === chain.length - 1) { ol.appendChild(el("li", {}, [el("span", { class: "nthview-crumb-cur", "aria-current": "location", title: full, text: label })])); return; }
+        var b = el("button", { type: "button", class: "nthview-crumb", title: "Go to " + full, text: label }), target = chain[k + 1];
+        b.addEventListener("click", function () { gotoLevel(lv.path, target.parentIdx, { reveal: true }); });
+        ol.appendChild(el("li", {}, [b]));
+      });
+      var up = el("button", { type: "button", class: "nthview-tbtn nthview-up", text: "Back to step " + numLabel(L.parent, L.parentIdx) });
+      up.addEventListener("click", upLevel);
+      crumbs.appendChild(ol);
+      crumbs.appendChild(up);
+      crumbs.appendChild(el("p", { class: "nthview-crumbs-info", text: "Inside step " + numLabel(L.parent, L.parentIdx) + ": how it is carried out, " + N + " steps between " + L.lanes.length + " parties." + (touchFirst ? "" : " Escape or Backspace goes back up.") }));
+      if (L.seq.subtitle) crumbs.appendChild(para("nthview-crumbs-info", L.seq.subtitle));
+    }
+
+    /* ---------- step mode: stage, rebuilt for each level ---------- */
     var stage = el("div", { class: "nthview-stage" });
     /* lanes keep a readable width (--sq-lane-min); when they do not fit, they scroll sideways inside the stage */
     var stageScroll = el("div", { class: "nthview-stage-scroll" });
     var stageIn = el("div", { class: "nthview-stage-in" });
-    stageIn.style.setProperty("--sq-lanes", String(P.length));
     stageScroll.appendChild(stageIn); stage.appendChild(stageScroll);
-    var stageMore = el("p", { class: "nthview-stage-more", hidden: "", text: P.length + " parties: swipe or scroll sideways to see them all. The view follows each message." });
-    var zones = data.zones || [], ZI = {}; zones.forEach(function (z, i) { ZI[z.id] = z; });
-    /* contiguous runs of the same zone */
-    var runs = [];
-    P.forEach(function (p, i) {
-      var z = p.zone || null, last = runs[runs.length - 1];
-      if (last && last.zone === z) last.n++; else runs.push({ zone: z, start: i, n: 1 });
-    });
-    if (zones.length) {
-      var zbg = el("div", { class: "nthview-zonebg", "aria-hidden": "true" }); zbg.style.gridTemplateColumns = cols;
-      var zrow = el("div", { class: "nthview-zonerow" }); zrow.style.gridTemplateColumns = cols;
-      var zk = 0;
-      runs.forEach(function (r) {
-        var band = el("div"), lab = el("div", { class: "nthview-zonelabel" });
-        band.style.gridColumn = lab.style.gridColumn = (r.start + 1) + " / span " + r.n;
-        if (r.zone) {
-          band.className = "nthview-zoneband " + (zk++ % 2 ? "nthview-zb" : "nthview-za");
-          lab.textContent = ZI[r.zone].name;
-          if (ZI[r.zone].description) lab.title = ZI[r.zone].description;
-        }
-        zbg.appendChild(band); zrow.appendChild(lab);
-      });
-      stageIn.appendChild(zbg); stageIn.appendChild(zrow);
-    }
-    var lanes = el("div", { class: "nthview-lanes" }); lanes.style.gridTemplateColumns = cols;
-    var laneEls = P.map(function (p) {
-      var l = el("div", { class: "nthview-lane", title: p.name + (p.role ? " — " + p.role : "") }, [glyph(p.kind || "other"), el("b", { text: p.name })]);
-      if (p.role) l.appendChild(el("small", { text: p.role }));
-      lanes.appendChild(l); return l;
-    });
-    stageIn.appendChild(lanes);
-    var track = el("div", { class: "nthview-track", "aria-hidden": "true" });
-    var rails = el("div", { class: "nthview-rails" }); rails.style.gridTemplateColumns = cols;
-    P.forEach(function () { rails.appendChild(el("div", { class: "nthview-rail" })); });
-    track.appendChild(rails);
+    var stageMore = el("p", { class: "nthview-stage-more", hidden: "" });
     var flight = el("div", { class: "nthview-flight" });
     var packet = el("div", { class: "nthview-packet" });
     var loop = el("div", { class: "nthview-loop" });
     var payload = el("div", { class: "nthview-payload" });
-    var waiting = el("div", { class: "nthview-waiting", text: "Answer the check below to see this message." });
-    [flight, packet, loop, payload].forEach(function (n) { track.appendChild(n); });
-    stageIn.appendChild(track);
+    var waiting = el("div", { class: "nthview-waiting" });
     /* the waiting note sits over the track but outside the scroller, so it stays in view however far the lanes scroll */
     stage.appendChild(waiting); stage.appendChild(stageMore);
+    var laneEls = [], track = null, nLanes = 0, stageKey = null;
+    function buildStage() {
+      stageKey = L.key;
+      stageIn.textContent = "";
+      var ids = L.lanes;
+      nLanes = ids.length;
+      var cols = "repeat(" + nLanes + ",minmax(0,1fr))";
+      stageIn.style.setProperty("--sq-lanes", String(nLanes));
+      stageMore.textContent = nLanes + " parties: swipe or scroll sideways to see them all. The view follows each message.";
+      var runs = zoneRuns(ids);
+      if (runs.some(function (r) { return r.zone; })) {
+        var zbg = el("div", { class: "nthview-zonebg", "aria-hidden": "true" }); zbg.style.gridTemplateColumns = cols;
+        var zrow = el("div", { class: "nthview-zonerow" }); zrow.style.gridTemplateColumns = cols;
+        var zk = 0;
+        runs.forEach(function (r) {
+          var band = el("div"), lab = el("div", { class: "nthview-zonelabel" });
+          band.style.gridColumn = lab.style.gridColumn = (r.start + 1) + " / span " + r.n;
+          if (r.zone) {
+            band.className = "nthview-zoneband " + (zk++ % 2 ? "nthview-zb" : "nthview-za");
+            lab.textContent = ZI[r.zone].name;
+            if (ZI[r.zone].description) lab.title = ZI[r.zone].description;
+          }
+          zbg.appendChild(band); zrow.appendChild(lab);
+        });
+        stageIn.appendChild(zbg); stageIn.appendChild(zrow);
+      }
+      var bands = groupBands(ids);
+      if (bands.length) {
+        var grow = el("div", { class: "nthview-grouprow" }); grow.style.gridTemplateColumns = cols;
+        bands.forEach(function (b) {
+          var lab = el("div", { class: "nthview-grouplabel", title: nameOf(b.g) + ": the parties inside it", text: nameOf(b.g) + (b.hasOwn ? "" : " · inside") });
+          lab.style.gridColumn = (b.c0 + 1) + " / span " + (b.c1 - b.c0 + 1);
+          lab.style.gridRow = String(b.depth + 1);
+          grow.appendChild(lab);
+        });
+        stageIn.appendChild(grow);
+      }
+      var lanes = el("div", { class: "nthview-lanes" }); lanes.style.gridTemplateColumns = cols;
+      laneEls = ids.map(function (id) {
+        var p = pOf(id), grp = PMAP[id].isGroup;
+        var l = el("div", { class: "nthview-lane" + (grp ? " nthview-lane-group" : ""), title: p.name + (p.role ? " — " + p.role : "") + (grp ? " (" + p.members.length + " parties inside)" : "") }, [glyph(kindOf(id)), el("b", { text: p.name })]);
+        if (p.role) l.appendChild(el("small", { text: p.role }));
+        if (grp) l.appendChild(el("span", { class: "nthview-inside", text: p.members.length + " inside" }));
+        lanes.appendChild(l); return l;
+      });
+      stageIn.appendChild(lanes);
+      track = el("div", { class: "nthview-track", "aria-hidden": "true" });
+      var rails = el("div", { class: "nthview-rails" }); rails.style.gridTemplateColumns = cols;
+      ids.forEach(function () { rails.appendChild(el("div", { class: "nthview-rail" })); });
+      track.appendChild(rails);
+      [flight, packet, loop, payload].forEach(function (n) { track.appendChild(n); });
+      stageIn.appendChild(track);
+      stageScroll.scrollLeft = 0;
+    }
     function placeWaiting() { waiting.style.top = (stageScroll.offsetTop + track.offsetTop) + "px"; waiting.style.height = track.offsetHeight + "px"; }
     function updateStageOverflow() {
       var over = stageScroll.scrollWidth > stageScroll.clientWidth + 1;
@@ -1673,20 +2271,43 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     var back = el("button", { type: "button", class: "nthview-nav", text: "Back" });
     var next = el("button", { type: "button", class: "nthview-nav nthview-primary", text: "Next" });
     var chipsBox = el("div", { class: "nthview-chips", role: "group", "aria-label": "Steps" });
-    var chips = S.map(function (s, i) {
-      var inAltSide = FRAG[i].some(function (x) { return x.f.kind === "alt" && x.branch > 0; });
-      var c = el("button", { type: "button", class: "nthview-chip" + (s.check ? " nthview-has-check" : "") + (inAltSide ? " nthview-alt-chip" : ""), text: String(i + 1), "aria-label": "Step " + (i + 1) + ": " + s.title + (inAltSide ? " (alternative path)" : "") + (s.check ? " (has a check)" : "") });
-      c.addEventListener("click", function () { go(i); });
-      chipsBox.appendChild(c); return c;
-    });
-    var endChip = el("button", { type: "button", class: "nthview-chip", text: "End", "aria-label": "Recap of the whole sequence" });
-    endChip.addEventListener("click", function () { go(N); });
-    chipsBox.appendChild(endChip); chips.push(endChip);
-    back.addEventListener("click", function () { go(state.step - 1); });
+    var chips = [];
+    /* one chip per unit: a collapsed group folds its steps' chips into one */
+    var chipsSig = null;
+    function buildChips() {
+      var us = unitsOf(L, false), sig = L.key + "|" + us.map(function (u) { return u.start + "-" + u.end; }).join(",");
+      if (sig === chipsSig) {
+        chips.forEach(function (c) { if (!c.u.g && c.u.start < N && S[c.u.start].check) c.node.classList.toggle("nthview-check-done", !!state.checks[ckey(L, c.u.start)]); });
+        return;
+      }
+      chipsSig = sig;
+      chipsBox.textContent = ""; chips = [];
+      us.forEach(function (u) {
+        var c;
+        if (u.g) {
+          var a = u.start + 1, b = u.end + 1;
+          c = el("button", { type: "button", class: "nthview-chip nthview-chip-group", text: a + "–" + b, "aria-label": "Steps " + a + " to " + b + ": " + u.g.label + " (collapsed group)" });
+        } else {
+          var i = u.start, s = S[i];
+          var inAltSide = FRAG[i].some(function (x) { return x.f.kind === "alt" && x.branch > 0; });
+          c = el("button", { type: "button", class: "nthview-chip" + (s.check ? " nthview-has-check" : "") + (inAltSide ? " nthview-alt-chip" : "") + (s.inner ? " nthview-has-inner" : ""), text: String(i + 1), "aria-label": "Step " + (i + 1) + ": " + s.title + (inAltSide ? " (alternative path)" : "") + (s.check ? " (has a check)" : "") + (s.inner ? " (has an inner sequence)" : "") });
+          if (s.check) c.classList.toggle("nthview-check-done", !!state.checks[ckey(L, i)]);
+        }
+        c.addEventListener("click", function () { go(u.start); });
+        chipsBox.appendChild(c); chips.push({ node: c, u: u });
+      });
+      var endChip = el("button", { type: "button", class: "nthview-chip", text: "End", "aria-label": L.depth ? "Recap of this inner sequence" : "Recap of the whole sequence" });
+      endChip.addEventListener("click", function () { go(N); });
+      chipsBox.appendChild(endChip); chips.push({ node: endChip, u: { start: N, end: N } });
+    }
+    function chipNodes() { return chips.map(function (c) { return c.node; }); }
+    back.addEventListener("click", function () { if (state.step > 0) go(state.step - 1); });
     next.addEventListener("click", function () {
-      var s = S[state.step];
-      if (s && s.check && !state.checks[state.step]) { state.checks[state.step] = { skipped: true }; persist(); renderStep(true); status.textContent = "Check skipped. Step " + (state.step + 1) + " shown."; return; }
-      go(state.step + 1);
+      if (state.step >= N) return;
+      var us = unitsOf(L, false), u = us[unitAt(us, state.step)];
+      var ck = ckey(L, u.start);
+      if (!u.g && S[u.start].check && !state.checks[ck]) { state.checks[ck] = { skipped: true }; persist(); renderStep(true); status.textContent = "Check skipped. Step " + (u.start + 1) + " shown."; return; }
+      go(u.end + 1);
     });
     var controls = el("div", { class: "nthview-controls" }, [back, chipsBox, next]);
     var cardSlot = el("div", { "aria-live": "off" });
@@ -1696,35 +2317,41 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       cmpBox.addEventListener("change", function () { state.compare = cmpBox.checked; persist(); renderStep(false); });
       cmpToggle = el("label", { class: "nthview-toggle" }, [cmpBox, el("span", { text: data.compareLabel || "Show the comparison" })]);
     }
-    var touchFirst = !!(root.matchMedia && root.matchMedia("(hover: none) and (pointer: coarse)").matches);
-    var hint = el("p", { class: "nthview-hint", text: (touchFirst ? "Tap Next or a step number to move. " : "Arrow keys step through, Home and End jump. ") + "The colour of an arrow is its channel; a dashed arrow is a reply." });
-    var legend = channelLegend();
+    var hint = el("p", { class: "nthview-hint", text: (touchFirst ? "Tap Next or a step number to move. " : "Arrow keys step through, Home and End jump" + (innerCount ? ", Escape or Backspace leaves an inner sequence" : "") + ". ") + "The colour of an arrow is its channel; a dashed arrow is a reply." });
+    var legendSlot = el("div");
     var stepMode = el("section", { class: "nthview-stepmode", "aria-label": "Step by step" }, [stage, controls, cardSlot]);
     if (cmpToggle) stepMode.appendChild(cmpToggle);
-    stepMode.appendChild(legend);
+    stepMode.appendChild(legendSlot);
     stepMode.appendChild(hint);
     container.appendChild(stepMode);
 
-    function channelLegend() {
+    function channelLegend(list) {
       var ul = el("ul", { class: "nthview-legend", "aria-label": "Channels" });
-      data.channels.forEach(function (c) {
+      list.forEach(function (c) {
         var li = el("li", { title: c.description || c.name }, [el("i"), el("span", { text: c.name })]);
         li.querySelector("i").style.color = hue(c.color);
         ul.appendChild(li);
       });
       return ul;
     }
+    function setupLevel() {
+      buildCrumbs();
+      if (stageKey !== L.key) buildStage();
+      legendSlot.textContent = "";
+      legendSlot.appendChild(channelLegend(L.depth ? L.channelsUsed : data.channels));
+      prog.setAttribute("aria-valuemax", String(N));
+    }
 
     /* ---------- step mode: flight ---------- */
-    function laneX(i) { return (i + 0.5) / P.length * 100; }
+    function laneX(i) { return (i + 0.5) / nLanes * 100; }
     function showFlight(s, animate) {
       var k = stepKind(s), color = hue(chColor(s));
-      var a = PI[s.from], b = PI[s.to];
+      var a = L.laneOf(s.from), b = L.laneOf(s.to);
       [flight, packet, loop, payload].forEach(function (n) { n.style.color = color; });
       waiting.hidden = true;
       payload.textContent = s.payload; payload.hidden = false;
       laneEls.forEach(function (l, i) { l.classList.toggle("nthview-on", i === a || i === b); l.classList.toggle("nthview-sender", i === a); });
-      if (k === "self") {
+      if (k === "self" || a === b) {
         flight.hidden = true; packet.classList.remove("nthview-go"); packet.hidden = true;
         loop.hidden = false; loop.textContent = ""; loop.appendChild(headTip("sync"));
         loop.style.left = laneX(a) + "%";
@@ -1781,24 +2408,24 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       return b;
     }
     function holdsStrip(i, atEnd) {
-      var box = el("div", { class: "nthview-holds" }, [el("h3", { text: atEnd ? "Where everyone ends up" : "What each party holds now" })]);
+      var box = el("div", { class: "nthview-holds" }, [el("h3", { text: atEnd ? (L.depth ? "Where everyone ends up in this inner sequence" : "Where everyone ends up") : "What each party holds now" })]);
       var grid = el("div", { class: "nthview-hgrid" });
       var st = atEnd ? HOLDS.final : HOLDS.after[i], add = atEnd ? {} : HOLDS.added[i], rem = atEnd ? {} : HOLDS.removed[i];
-      holders.forEach(function (p) {
-        var items = st[p.id] || [], pills = el("div", { class: "nthview-pills" });
+      holders.forEach(function (id) {
+        var items = st[id] || [], pills = el("div", { class: "nthview-pills" });
         items.forEach(function (x) {
-          var isNew = (add[p.id] || []).indexOf(x) !== -1;
+          var isNew = (add[id] || []).indexOf(x) !== -1;
           var pill = el("span", { class: "nthview-pill" + (isNew ? " nthview-new" : ""), text: x });
           if (isNew) pill.appendChild(el("span", { class: "nthview-sr", text: " (new at this step)" }));
           pills.appendChild(pill);
         });
-        (rem[p.id] || []).forEach(function (x) {
+        (rem[id] || []).forEach(function (x) {
           var pill = el("span", { class: "nthview-pill nthview-gone", text: x });
           pill.appendChild(el("span", { class: "nthview-sr", text: " (given up at this step)" }));
           pills.appendChild(pill);
         });
         if (!pills.childNodes.length) pills.appendChild(el("span", { class: "nthview-none", text: "nothing yet" }));
-        grid.appendChild(el("div", { class: "nthview-hcol" }, [el("h4", {}, [glyph(p.kind || "other"), el("span", { text: p.name })]), pills]));
+        grid.appendChild(el("div", { class: "nthview-hcol" }, [el("h4", {}, [glyph(kindOf(id)), el("span", { text: nameOf(id) })]), pills]));
       });
       box.appendChild(grid);
       return box;
@@ -1806,21 +2433,23 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     function stepCard(i) {
       var s = S[i], c = chColor(s), k = stepKind(s);
       var card = el("article", { class: "nthview-card", "aria-labelledby": "nthview-step-title" });
-      var meta = el("div", { class: "nthview-meta" }, [el("span", { class: "nthview-idx", text: pad2(i + 1, 2) + " / " + pad2(N, 2) }), badge(C[s.channel].name, c)]);
+      var meta = el("div", { class: "nthview-meta" }, [el("span", { class: "nthview-idx", text: (L.depth ? "Step " + numLabel(L, i) + " · " : "") + pad2(i + 1, 2) + " / " + pad2(N, 2) }), badge(C[s.channel].name, c)]);
       meta.appendChild(el("span", { class: "nthview-badge nthview-plain", text: KIND_NAMES[k] }));
       if (s.note) meta.appendChild(el("span", { class: "nthview-badge nthview-sevb-" + s.note.severity, text: s.note.severity === "danger" ? "Security-critical" : s.note.severity === "warning" ? "Watch out" : "Note" }));
+      if (s.inner) meta.appendChild(el("span", { class: "nthview-badge nthview-plain", text: "has an inner sequence" }));
       card.appendChild(meta);
       var route = el("p", { class: "nthview-route" });
-      var fp = P[PI[s.from]], tp = P[PI[s.to]];
-      var fromB = el("b", {}, [glyph(fp.kind || "other"), doc.createTextNode(fp.name)]);
+      var fromB = el("b", {}, [glyph(kindOf(s.from)), doc.createTextNode(nameOf(s.from))]);
       route.appendChild(fromB);
       if (k === "self") route.appendChild(el("span", { text: "works on its own" }));
-      else { route.appendChild(el("span", { text: k === "return" ? "replies to" : "→" })); route.appendChild(el("b", {}, [glyph(tp.kind || "other"), doc.createTextNode(tp.name)])); }
+      else { route.appendChild(el("span", { text: k === "return" ? "replies to" : "→" })); route.appendChild(el("b", {}, [glyph(kindOf(s.to)), doc.createTextNode(nameOf(s.to))])); }
       route.appendChild(el("span", { text: "·" }));
       route.appendChild(el("span", {}, [doc.createTextNode("carries "), el("code", { text: s.payload })]));
       card.appendChild(route);
       FRAG[i].forEach(function (x) {
-        var f = x.f, line = el("p", { class: "nthview-frag" }, [el("b", { text: f.kind })]);
+        var f = x.f;
+        if (f.kind === "group") return;
+        var line = el("p", { class: "nthview-frag" }, [el("b", { text: f.kind })]);
         if (f.label) line.appendChild(el("span", { text: f.label }));
         var cond = f.kind === "alt" ? f.branches[x.branch].condition : f.condition;
         line.appendChild(el("span", { text: "[" + cond + "]" }));
@@ -1836,6 +2465,12 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       card.appendChild(el("h2", { id: "nthview-step-title", tabindex: "-1", text: s.title }));
       if (s.wire) { var w = el("pre", { class: "nthview-wire", "aria-label": "What travels" }, [el("code", { text: s.wire })]); w.firstChild.style.cssText = "background:none;border:0;padding:0;font-size:1em"; w.style.borderLeftColor = hue(c); card.appendChild(w); }
       card.appendChild(para("nthview-why", s.why));
+      if (s.inner) {
+        var IL = innerOf(L, i);
+        var ob = el("button", { type: "button", class: "nthview-nav nthview-primary nthview-open-inner", text: "Open the inner sequence · " + IL.lanes.length + " parties · " + IL.N + " steps" });
+        ob.addEventListener("click", function () { openInner(i); });
+        card.appendChild(el("div", { class: "nthview-innerbox" }, [el("p", { text: "This step is a sequence of its own. Open it to see how it is carried out, then come back here." }), ob]));
+      }
       if (s.compare && state.compare) {
         var cmp = el("div", { class: "nthview-compare" }, [el("b", { text: s.compare.label + ": " })]);
         cmp.appendChild(rich(s.compare.text)); card.appendChild(cmp);
@@ -1858,18 +2493,54 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       return card;
     }
 
+    /* ---------- groups in step mode: a summary card, or a header with Collapse ---------- */
+    function groupRange(Lv, f) { return numLabel(Lv, f.start) + "–" + numLabel(Lv, f.end); }
+    function groupCard(u) {
+      var n = u.end - u.start + 1, k = gkey(L, u.gi);
+      var box = el("section", { class: "nthview-gcard", tabindex: "0", "aria-labelledby": "nthview-step-title" });
+      box.appendChild(el("p", { class: "nthview-gcard-label", text: "Group · steps " + groupRange(L, u.g) }));
+      box.appendChild(el("h2", { id: "nthview-step-title", text: u.g.label }));
+      if (u.g.summary) box.appendChild(para("nthview-why", u.g.summary));
+      var route = el("p", { class: "nthview-route" }, [el("span", { text: "Between" })]);
+      partiesOf(L, u.start, u.end).forEach(function (id) { route.appendChild(el("b", {}, [glyph(kindOf(id)), doc.createTextNode(nameOf(id))])); });
+      box.appendChild(route);
+      box.appendChild(el("p", { class: "nthview-hint", text: n + " steps, folded so the main story stays in view. Expand them to go one by one, or press Next to move past the group." }));
+      var ex = el("button", { type: "button", class: "nthview-nav nthview-primary", text: "Expand the " + n + " steps" });
+      function expand() {
+        state.groups[k] = true; D = null; persist();
+        var f = renderStep(true);
+        status.textContent = u.g.label + " expanded: " + n + " steps.";
+        if (f) setTimeout(function () { f.focus({ preventScroll: true }); }, 30);
+      }
+      ex.addEventListener("click", expand);
+      box.addEventListener("keydown", function (e) { if (e.key === "Enter" && e.target === box) { e.preventDefault(); expand(); } });
+      box.appendChild(el("div", { class: "nthview-check-actions" }, [ex]));
+      return box;
+    }
+    function groupHead(x, i) {
+      var f = x.f, n = f.end - f.start + 1;
+      var col = el("button", { type: "button", class: "nthview-ghost", text: "Collapse", "aria-label": "Collapse the group " + f.label });
+      col.addEventListener("click", function () {
+        state.groups[gkey(L, x.i)] = false; state.step = f.start; D = null; persist();
+        var fo = renderStep(true);
+        status.textContent = f.label + " collapsed.";
+        if (fo) setTimeout(function () { fo.focus({ preventScroll: true }); }, 30);
+      });
+      return el("div", { class: "nthview-ghead", role: "group", "aria-label": "Group " + f.label }, [el("b", { text: "Group" }), el("span", { text: f.label }), el("span", { class: "nthview-ghead-n", text: "step " + (i - f.start + 1) + " of " + n + " · steps " + groupRange(L, f) }), col]);
+    }
+
     /* ---------- checks: learning first, a wrong pick explains and reveals ---------- */
     function checkPanel(i) {
-      var s = S[i], ck = s.check, ans = state.checks[i];
-      var box = el("section", { class: "nthview-check", "aria-label": "Check before step " + (i + 1) });
-      box.appendChild(el("p", { class: "nthview-check-label", text: ans ? "Check · step " + (i + 1) : "Before you see step " + (i + 1) }));
+      var s = S[i], ck = s.check, ans = state.checks[ckey(L, i)];
+      var box = el("section", { class: "nthview-check", "aria-label": "Check before step " + numLabel(L, i) });
+      box.appendChild(el("p", { class: "nthview-check-label", text: ans ? "Check · step " + numLabel(L, i) : "Before you see step " + numLabel(L, i) }));
       var h = el("h2", { tabindex: "-1" }); h.appendChild(rich(ck.type === "who" ? (ck.prompt || "Who sends the next message?") : ck.prompt)); box.appendChild(h);
       var opts = el("ul", { class: "nthview-opts" + (ck.type === "who" ? " nthview-who" : "") });
-      var correctIdx = ck.type === "who" ? PI[ck.answer] : ck.options.map(function (o) { return !!o.correct; }).indexOf(true);
-      var list = ck.type === "who" ? P : ck.options;
+      var correctIdx = ck.type === "who" ? L.laneOf(ck.answer) : ck.options.map(function (o) { return !!o.correct; }).indexOf(true);
+      var list = ck.type === "who" ? L.lanes : ck.options;
       list.forEach(function (o, j) {
         var b = el("button", { type: "button", class: "nthview-opt" });
-        if (ck.type === "who") { b.appendChild(glyph(o.kind || "other")); b.appendChild(el("span", { text: o.name })); }
+        if (ck.type === "who") { b.appendChild(glyph(kindOf(o))); b.appendChild(el("span", { text: nameOf(o) })); }
         else { b.appendChild(el("span", { class: "nthview-key", "aria-hidden": "true", text: LETTERS[j] })); var t = el("span"); t.appendChild(rich(o.text)); b.appendChild(t); }
         if (ans && !ans.skipped) {
           if (j === correctIdx) { b.classList.add("nthview-right"); b.appendChild(el("span", { class: "nthview-opt-tag", text: j === ans.picked ? "Your pick, right" : "Right answer" })); }
@@ -1882,59 +2553,78 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       box.appendChild(opts);
       if (ans) {
         var fb = el("div", { class: "nthview-fb" + (ans.correct ? "" : " nthview-no"), role: "status" });
-        var right = ck.type === "who" ? P[correctIdx].name : ck.options[correctIdx].text;
+        var right = ck.type === "who" ? nameOf(L.lanes[correctIdx]) : ck.options[correctIdx].text;
         fb.appendChild(el("h3", { text: ans.skipped ? "Skipped. The answer: " + right : ans.correct ? "Right." : "Not quite. The answer: " + right }));
         if (ck.type === "choice") {
           if (!ans.skipped && !ans.correct) fb.appendChild(para("", "**Your pick:** " + ck.options[ans.picked].why));
           fb.appendChild(para("", (ans.correct ? "" : "**Why the answer is right:** ") + ck.options[correctIdx].why));
         } else {
-          if (!ans.skipped && !ans.correct) fb.appendChild(para("", P[ans.picked].name + " does not send this one; " + P[correctIdx].name + " does."));
+          if (!ans.skipped && !ans.correct) fb.appendChild(para("", nameOf(L.lanes[ans.picked]) + " does not send this one; " + nameOf(L.lanes[correctIdx]) + " does."));
           if (ck.why) fb.appendChild(para("", ck.why));
         }
         box.appendChild(fb);
       } else {
         box.appendChild(el("p", { class: "nthview-hint", text: "Take a guess. A wrong one is fine: you get the explanation and the step straight away." }));
         var skip = el("button", { type: "button", class: "nthview-ghost", text: "Just show me the step" });
-        skip.addEventListener("click", function () { state.checks[i] = { skipped: true }; persist(); renderStep(true); });
+        skip.addEventListener("click", function () { state.checks[ckey(L, i)] = { skipped: true }; persist(); renderStep(true); });
         box.appendChild(el("div", { class: "nthview-check-actions" }, [skip]));
       }
       return { node: box, focus: h };
     }
     function answer(i, j, ok) {
-      state.checks[i] = { picked: j, correct: ok };
+      state.checks[ckey(L, i)] = { picked: j, correct: ok };
       persist();
       status.textContent = ok ? "Right." : "Not quite; the answer and the step are shown.";
       renderStep(true, true);
     }
 
-    /* ---------- recap ---------- */
-    function recap() {
-      var box = el("section", { class: "nthview-recap", "aria-labelledby": "nthview-recap-title" });
-      box.appendChild(el("h2", { id: "nthview-recap-title", tabindex: "-1", text: "The whole sequence" }));
-      box.appendChild(el("p", { class: "nthview-sub", text: N + " steps between " + P.length + " parties. Select a line to revisit that step." }));
-      var ol = el("ol", { class: "nthview-recap-list" });
-      S.forEach(function (s, i) {
+    /* ---------- recap: the steps of this level, inner sequences indented under their step ---------- */
+    function recapList(Lv, nested) {
+      var ol = el("ol", { class: "nthview-recap-list" + (nested ? " nthview-recap-inner" : "") });
+      var gs = groupFrags(Lv);
+      Lv.S.forEach(function (s, i) {
+        gs.filter(function (x) { return x.f.start === i; }).sort(outerFirst).forEach(function (x) {
+          ol.appendChild(el("li", { class: "nthview-recap-glabel", text: "Group: " + x.f.label + " · " + (x.f.end - x.f.start + 1) + " steps" }));
+        });
         var k = stepKind(s), route = el("span", { class: "nthview-recap-route" });
-        var dot = el("i"); dot.style.background = hue(chColor(s)); route.appendChild(dot);
+        var dot = el("i"); dot.style.background = hue(Lv.C[s.channel].color); route.appendChild(dot);
         route.appendChild(doc.createTextNode(k === "self" ? nameOf(s.from) + " (on its own) · " : nameOf(s.from) + (k === "return" ? " ⇢ " : " → ") + nameOf(s.to) + " · "));
         route.appendChild(el("code", { text: s.payload }));
-        if (FRAG[i].some(function (x) { return x.f.kind === "alt" && x.branch > 0; })) route.appendChild(el("span", { class: "nthview-recap-alt", text: "alternative" }));
-        var b = el("button", { type: "button" }, [el("span", { class: "nthview-recap-n", text: pad2(i + 1, 2) }), el("span", {}, [el("span", { text: s.title }), route])]);
-        b.addEventListener("click", function () { go(i); });
-        ol.appendChild(el("li", {}, [b]));
+        if (Lv.FRAG[i].some(function (x) { return x.f.kind === "alt" && x.branch > 0; })) route.appendChild(el("span", { class: "nthview-recap-alt", text: "alternative" }));
+        var b = el("button", { type: "button" }, [el("span", { class: "nthview-recap-n", text: numLabel(Lv, i) }), el("span", {}, [el("span", { text: s.title }), route])]);
+        b.addEventListener("click", function () { gotoLevel(Lv.path, i, { reveal: true }); });
+        var inGroup = gs.some(function (x) { return i >= x.f.start && i <= x.f.end; });
+        var li = el("li", inGroup ? { class: "nthview-recap-ingroup" } : {}, [b]);
+        if (s.inner) {
+          var IL = innerOf(Lv, i);
+          li.appendChild(recapList(IL, true));
+          var rb = el("button", { type: "button", class: "nthview-ghost nthview-recap-open", text: "Recap of the inner sequence of step " + numLabel(Lv, i) });
+          rb.addEventListener("click", function () { gotoLevel(IL.path, IL.N); });
+          li.appendChild(rb);
+        }
+        ol.appendChild(li);
       });
-      box.appendChild(ol);
+      return ol;
+    }
+    function recap() {
+      var inner = L.depth > 0;
+      var box = el("section", { class: "nthview-recap", "aria-labelledby": "nthview-recap-title" });
+      box.appendChild(el("h2", { id: "nthview-recap-title", tabindex: "-1", text: inner ? "Inside step " + numLabel(L.parent, L.parentIdx) + ": " + parentStep(L).title : "The whole sequence" }));
+      var nestedHere = S.some(function (s) { return !!s.inner; });
+      box.appendChild(el("p", { class: "nthview-sub", text: N + " steps between " + L.lanes.length + " parties. Select a line to revisit that step" + (nestedHere ? "; indented lines are inner sequences." : ".") }));
+      box.appendChild(recapList(L, false));
       if (holders.length) box.appendChild(holdsStrip(N - 1, true));
-      var checked = S.map(function (s, i) { return s.check ? i : -1; }).filter(function (i) { return i >= 0; });
+      var checked = [];
+      (function walk(Lv) { Lv.S.forEach(function (s, i) { if (s.check) checked.push({ Lv: Lv, i: i }); if (s.inner) walk(innerOf(Lv, i)); }); })(L);
       if (checked.length) {
         var right = 0, wrong = 0, skipped = 0, open = 0;
-        checked.forEach(function (i) { var a = state.checks[i]; if (!a) open++; else if (a.skipped) skipped++; else if (a.correct) right++; else wrong++; });
+        checked.forEach(function (c) { var a = state.checks[ckey(c.Lv, c.i)]; if (!a) open++; else if (a.skipped) skipped++; else if (a.correct) right++; else wrong++; });
         box.appendChild(el("h3", { text: "Your checks" }));
         box.appendChild(el("p", { text: right + " of " + checked.length + " right first time" + (wrong ? ", " + wrong + " learned on the way" : "") + (skipped ? ", " + skipped + " skipped" : "") + (open ? ", " + open + " not reached" : "") + ". Nothing here is a score; the checks are there to make you predict." }));
         var cl = el("ul", { class: "nthview-recap-checks" });
-        checked.forEach(function (i) {
-          var s = S[i], a = state.checks[i], li = el("li");
-          li.appendChild(el("span", { text: "Step " + (i + 1) + ": " }));
+        checked.forEach(function (c) {
+          var s = c.Lv.S[c.i], a = state.checks[ckey(c.Lv, c.i)], li = el("li");
+          li.appendChild(el("span", { text: "Step " + numLabel(c.Lv, c.i) + ": " }));
           li.appendChild(rich(s.check.type === "who" ? (s.check.prompt || "Who sends the next message?") : s.check.prompt));
           li.appendChild(doc.createTextNode(" "));
           li.appendChild(el("span", { class: !a || a.skipped ? "" : a.correct ? "nthview-ok-t" : "nthview-no-t", text: !a ? "(not reached)" : a.skipped ? "(skipped)" : a.correct ? "Right" : "Not quite" }));
@@ -1942,24 +2632,39 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         });
         box.appendChild(cl);
       }
-      (data.closing || []).forEach(function (t) { box.appendChild(para("", t)); });
-      var toDiag = el("button", { type: "button", class: "nthview-nav nthview-primary", text: "See the full diagram" });
+      if (!inner) (data.closing || []).forEach(function (t) { box.appendChild(para("", t)); });
+      var toDiag = el("button", { type: "button", class: "nthview-nav" + (inner ? "" : " nthview-primary"), text: "See the full diagram" });
       toDiag.addEventListener("click", function () { setMode("diagram", true); });
-      var again = el("button", { type: "button", class: "nthview-nav", text: "Start again" });
-      again.addEventListener("click", function () { clearState(key); state.checks = {}; state.summarySeen = false; state.compare = false; state.details = false; state.zoom = "fit"; if (cmpBox) cmpBox.checked = false; buildDiagram(); go(0); });
-      box.appendChild(el("div", { class: "nthview-actions" }, [toDiag, again]));
+      var acts = el("div", { class: "nthview-actions" });
+      if (inner) {
+        var up = el("button", { type: "button", class: "nthview-nav nthview-primary", text: "Back to step " + numLabel(L.parent, L.parentIdx) + ": " + clip(parentStep(L).title, 48) });
+        up.addEventListener("click", upLevel);
+        acts.appendChild(up); acts.appendChild(toDiag);
+      } else {
+        var again = el("button", { type: "button", class: "nthview-nav", text: "Start again" });
+        again.addEventListener("click", function () {
+          clearState(key);
+          state.checks = {}; state.groups = {}; state.summarySeen = false; state.recapSeen = {}; state.compare = false; state.details = false; state.zoom = "fit"; state.expand = false;
+          if (cmpBox) cmpBox.checked = false;
+          D = null;
+          gotoLevel([], 0);
+        });
+        acts.appendChild(toDiag); acts.appendChild(again);
+      }
+      box.appendChild(acts);
       return box;
     }
 
     /* ---------- step mode render ---------- */
     function renderStep(animate, keepCheckFocus) {
+      if (stageKey !== L.key) setupLevel();
+      var us = unitsOf(L, false), u = null;
+      if (state.step < N) { u = us[unitAt(us, state.step)]; state.step = u.start; }
       var i = state.step;
       closePop();
       updateStageOverflow();
-      chips.forEach(function (c, k) {
-        if (k === i) c.setAttribute("aria-current", "step"); else c.removeAttribute("aria-current");
-        if (k < N && S[k].check) c.classList.toggle("nthview-check-done", !!state.checks[k]);
-      });
+      buildChips();
+      chips.forEach(function (c) { if (c.u.start === i) c.node.setAttribute("aria-current", "step"); else c.node.removeAttribute("aria-current"); });
       progBar.style.width = Math.round(Math.min(i + 1, N) / N * 100) + "%";
       prog.setAttribute("aria-valuenow", String(Math.min(i + 1, N)));
       back.disabled = i === 0;
@@ -1971,37 +2676,81 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         next.textContent = "Next";
         var r = recap(); cardSlot.appendChild(r); focusEl = r.querySelector("h2");
         if (cmpToggle) cmpToggle.hidden = true;
-        status.textContent = "Recap of the whole sequence.";
+        status.textContent = L.depth ? "Recap of the inner sequence of step " + numLabel(L.parent, L.parentIdx) + "." : "Recap of the whole sequence.";
         return focusEl;
       }
       if (cmpToggle) { cmpToggle.hidden = false; cmpBox.checked = state.compare; }
-      var s = S[i];
-      var pending = s.check && !state.checks[i];
+      groupFrags(L).filter(function (x) { return i >= x.f.start && i <= x.f.end && isOpen(L, x.i) && !(u.g && x.f === u.g); }).sort(outerFirst).forEach(function (x) { cardSlot.appendChild(groupHead(x, i)); });
+      if (u.g) {
+        next.textContent = u.end >= N - 1 ? "Recap" : "Next";
+        hideFlight();
+        var inv = partiesOf(L, u.start, u.end);
+        inv.forEach(function (id) { var l = laneEls[L.LI[id]]; if (l) l.classList.add("nthview-on"); });
+        waiting.textContent = "Steps " + groupRange(L, u.g) + " are folded into one group. Expand it to see each message.";
+        waiting.hidden = false; placeWaiting();
+        var gc = groupCard(u); cardSlot.appendChild(gc);
+        status.textContent = "Steps " + groupRange(L, u.g) + ": " + u.g.label + ", a collapsed group.";
+        return gc;
+      }
+      var s = S[i], ck = ckey(L, i);
+      var pending = s.check && !state.checks[ck];
       next.textContent = pending ? "Show step" : i === N - 1 ? "Recap" : "Next";
       if (s.check) {
         var cp = checkPanel(i); cardSlot.appendChild(cp.node);
         if (pending || keepCheckFocus) focusEl = cp.focus;
       }
-      if (pending) { hideFlight(); waiting.hidden = false; placeWaiting(); status.textContent = "Step " + (i + 1) + " of " + N + ": a check comes first."; return focusEl; }
+      if (pending) { hideFlight(); waiting.textContent = "Answer the check below to see this message."; waiting.hidden = false; placeWaiting(); status.textContent = "Step " + numLabel(L, i) + " of " + N + ": a check comes first."; return focusEl; }
       showFlight(s, animate);
       var card = stepCard(i); if (animate) card.classList.add("nthview-fade"); cardSlot.appendChild(card);
       var wire = card.querySelector(".nthview-wire");
       if (wire && wire.scrollWidth > wire.clientWidth + 1) { wire.setAttribute("tabindex", "0"); wire.setAttribute("role", "region"); }
       if (!focusEl) focusEl = card.querySelector("h2");
-      if (!keepCheckFocus) status.textContent = "Step " + (i + 1) + " of " + N + ": " + s.title;
+      if (!keepCheckFocus) status.textContent = "Step " + numLabel(L, i) + " of " + N + ": " + s.title;
       return focusEl;
     }
 
+    function markSeen() { if (state.step >= N) { if (L.depth) state.recapSeen[L.key] = true; else state.summarySeen = true; } }
     function go(i, opts) {
       opts = opts || {};
       i = Math.max(0, Math.min(N, i));
+      if (opts.reveal && i < N) reveal(L, i);
+      if (i < N) { var us = unitsOf(L, false); i = us[unitAt(us, i)].start; }
       var moved = i !== state.step;
       state.step = i;
-      if (i >= N) state.summarySeen = true;
+      markSeen();
       persist();
       if (state.mode === "diagram") { highlightDiagram(true); return; }
       var f = renderStep(moved || opts.animate);
-      if (f && opts.focus !== false && moved) setTimeout(function () { if (!stepMode.contains(doc.activeElement) || doc.activeElement === doc.body || chips.indexOf(doc.activeElement) === -1) f.focus({ preventScroll: true }); }, 30);
+      if (f && opts.focus !== false && moved) setTimeout(function () { if (!stepMode.contains(doc.activeElement) || doc.activeElement === doc.body || chipNodes().indexOf(doc.activeElement) === -1) f.focus({ preventScroll: true }); }, 30);
+    }
+
+    /* ---------- moving between levels ---------- */
+    function gotoLevel(path, step, opts) {
+      opts = opts || {};
+      state.path = path.slice(); useLevel();
+      state.step = Math.max(0, Math.min(N, step));
+      if (opts.reveal && state.step < N) reveal(L, state.step);
+      markSeen();
+      setupLevel();
+      if (state.mode === "diagram") {
+        persist();
+        buildDiagram(); highlightDiagram(true);
+        focusDiagram();
+      } else {
+        var f = renderStep(true);
+        persist();
+        var top = (crumbs.hidden ? stage : crumbs).getBoundingClientRect().top;
+        if (top < 0) root.scrollTo(0, Math.max(0, (root.pageYOffset || 0) + top - 8));
+        if (f) setTimeout(function () { f.focus({ preventScroll: true }); }, 30);
+      }
+      status.textContent = L.depth ? "Inside step " + numLabel(L.parent, L.parentIdx) + ": " + parentStep(L).title + ". " + N + " steps." : "Main sequence.";
+    }
+    function openInner(i) { gotoLevel(state.path.concat([i]), 0); }
+    function upLevel() {
+      if (!state.path.length) return false;
+      var p = state.path.slice(), idx = p.pop();
+      gotoLevel(p, idx, { reveal: true });
+      return true;
     }
 
     /* ---------- full diagram ---------- */
@@ -2009,20 +2758,27 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     var zoomIn = el("button", { type: "button", class: "nthview-tbtn", "aria-label": "Zoom in", text: "+" });
     var zoomFit = el("button", { type: "button", class: "nthview-tbtn", text: "Fit" });
     var zoomVal = el("span", { class: "nthview-zoomv", "aria-live": "polite" });
+    var bExpand = el("button", { type: "button", class: "nthview-tbtn nthview-expand", "aria-pressed": "false", text: "Expand all", title: "Draw every inner sequence and group in place" });
+    bExpand.addEventListener("click", function () {
+      state.expand = !state.expand; persist();
+      buildDiagram(); highlightDiagram(true);
+      status.textContent = state.expand ? "Every inner sequence and group is drawn in place." : "Inner sequences and groups are folded again.";
+    });
     var toStep = el("button", { type: "button", class: "nthview-tbtn" });
-    toStep.addEventListener("click", function () { setMode("step"); });
+    toStep.addEventListener("click", function () { setMode("step", true); });
     var dpanel = el("div", { class: "nthview-dpanel", tabindex: "0", role: "region", "aria-label": "Sequence diagram, scrollable" });
-    var diagMode = el("section", { class: "nthview-diagmode", "aria-label": "Full diagram", hidden: "" }, [
-      el("div", { class: "nthview-dtools" }, [zoomOut, zoomVal, zoomIn, zoomFit, el("span", { class: "nthview-spacer" }), toStep]),
-      dpanel,
-      diagramLegend()
-    ]);
+    var dtools = el("div", { class: "nthview-dtools" }, [zoomOut, zoomVal, zoomIn, zoomFit]);
+    if (anyFold) dtools.appendChild(bExpand);
+    dtools.appendChild(el("span", { class: "nthview-spacer" }));
+    dtools.appendChild(toStep);
+    var dChannels = el("div");
+    var diagMode = el("section", { class: "nthview-diagmode", "aria-label": "Full diagram", hidden: "" }, [dtools, dpanel, diagramLegend()]);
     container.appendChild(diagMode);
-    var D = null; /* { svg, w, h, arrows[], rows[] } */
+    var D = null; /* { svg, w, h, units[], key, expand } */
 
     function diagramLegend() {
       var box = el("div", { class: "nthview-dlegend" });
-      box.appendChild(channelLegend());
+      box.appendChild(dChannels);
       var kinds = el("ul", { class: "nthview-kinds", "aria-label": "Arrow kinds" });
       [["sync", "call: the sender waits"], ["async", "async message: no waiting"], ["return", "reply"]].forEach(function (k) {
         var s = sv("svg", { viewBox: "0 0 40 12", "aria-hidden": "true", focusable: "false" });
@@ -2032,6 +2788,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       });
       box.appendChild(kinds);
       box.appendChild(el("p", { text: "Thin bars on a lifeline show when that party is busy: each run of consecutive steps it takes part in. Frames mark alt (one branch or another), opt (only sometimes) and loop (repeats). Shaded bands are trust zones. Select any arrow to open that step." }));
+      if (anyFold) box.appendChild(el("p", { text: "A frame marked ref is a step with an inner sequence: select it to open that sequence's own diagram. A frame marked group folds a run of steps; select it to unfold them. Expand all draws every inner sequence and group in place, with the parties inside a group in a shaded band under its name." }));
       box.appendChild(el("p", { text: "Zoom with the − and + buttons, a pinch on a touch screen, or Ctrl and the scroll wheel; drag or scroll to move around." }));
       return box;
     }
@@ -2046,133 +2803,220 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       if (lines.length > maxLines) { lines = lines.slice(0, maxLines); lines[maxLines - 1] = lines[maxLines - 1].replace(/\s*\S*$/, "") + " …"; }
       return lines;
     }
-    function clip(text, n) { text = String(text); return text.length > n ? text.slice(0, n - 1) + "…" : text; }
 
+    /* The diagram of the current level. Collapsed: a step with an inner sequence is a ref frame and a
+       collapsed group is one frame. Expand all: inner steps are drawn inside their ref frame, extra parties
+       get lifelines (members in a band under their group), groups are unfolded, to any depth. */
     function buildDiagram() {
-      var COL = 184, PADX = 28, HEADH = 70, ZONEH = zones.length ? 24 : 0, CW = 7.25;
-      var nP = P.length;
-      function cx(i) { return PADX + COL * (i + 0.5); }
+      var EXP = state.expand, B = L;
+      var COL = 184, PADX = 28, HEADH = 70, CW = 7.25;
+      var set = {};
+      B.lanes.forEach(function (id) { set[id] = true; });
+      if (EXP) (function walkIds(Lv, top) {
+        if (!top) Lv.own.forEach(function (p) { set[p.id] = true; });
+        Lv.S.forEach(function (s, i) { set[s.from] = true; set[s.to] = true; if (s.inner) walkIds(innerOf(Lv, i), false); });
+      })(B, true);
+      var ids = Object.keys(set).sort(byRank), nP = ids.length, CI = {};
+      ids.forEach(function (id, c) { CI[id] = c; });
+      function colOf(id) { if (CI[id] !== undefined) return CI[id]; var g = PMAP[id].group; return g && CI[g] !== undefined ? CI[g] : 0; }
+      function cx(c) { return PADX + COL * (c + 0.5); }
       var W = PADX * 2 + nP * COL;
-      /* label geometry first: a self step's label sits right of its loop and may widen the canvas */
-      var labels = S.map(function (s) {
-        var k = stepKind(s), a = PI[s.from], b = PI[s.to];
-        var span = Math.abs(cx(b) - cx(a));
-        var txt = clip(s.payload, k === "self" ? 40 : Math.max(26, Math.floor((span - 40) / CW)));
-        var w = txt.length * CW + 30;
-        if (k === "self") { var bx = cx(a) + 50; W = Math.max(W, bx + w + 12); return { txt: txt, w: w, x: bx }; }
-        return { txt: txt, w: w, mid: (cx(a) + cx(b)) / 2 };
-      });
-      labels.forEach(function (l) { if (l.mid !== undefined) l.x = Math.max(4, Math.min(W - l.w - 4, l.mid - l.w / 2)); });
-      var frags = (data.fragments || []).map(function (f, i) { return { f: f, i: i }; });
-      /* nesting height: how many levels sit inside each fragment */
-      function inside(a, b) { return a !== b && a.f.start >= b.f.start && a.f.end <= b.f.end && (a.f.start !== b.f.start || a.f.end !== b.f.end || a.i > b.i); }
-      function levels(x) { var m = 0; frags.forEach(function (y) { if (inside(y, x)) m = Math.max(m, 1 + levels(y)); }); return m; }
-      frags.forEach(function (x) { x.lv = levels(x); });
-
-      var y = ZONEH + 10 + HEADH + 22, rows = [], fy = {};
-      S.forEach(function (s, i) {
-        var row = {};
-        /* fragments opening here, outermost first */
-        frags.filter(function (x) { return x.f.start === i; }).sort(function (a, b) { return b.lv - a.lv || a.i - b.i; }).forEach(function (x) {
-          fy[x.i] = { y0: y, guards: [] }; y += 24;
-          fy[x.i].guards.push({ y: y, text: x.f.kind === "alt" ? x.f.branches[0].condition : x.f.condition }); y += 16;
-        });
-        frags.forEach(function (x) {
-          if (x.f.kind !== "alt") return;
-          x.f.branches.forEach(function (br, k) { if (k > 0 && br.start === i) { fy[x.i].guards.push({ y: y + 4, text: br.condition, divider: y - 4 }); y += 26; } });
-        });
-        var k = stepKind(s), a = PI[s.from], b = PI[s.to], L = labels[i];
-        row.y = y; row.h = k === "self" ? 66 : 52; row.arrowY = y + (k === "self" ? 24 : 34);
-        row.x0 = Math.min(cx(a), cx(b), L.x) - 14; row.x1 = Math.max(cx(a), cx(b) + (k === "self" ? 46 : 0), L.x + L.w) + 6;
+      var zrun = zoneRuns(ids), hasZones = zrun.some(function (r) { return r.zone; });
+      var bands = groupBands(ids), bandRows = bands.reduce(function (m, b) { return Math.max(m, b.depth + 1); }, 0);
+      var ZONEH = hasZones ? 24 : 0, BANDH = bandRows * 22, HEADY = ZONEH + 10 + BANDH;
+      var y = HEADY + HEADH + 22;
+      var rows = [], boxes = [], frames = [], stack = [], units = [], usedCh = {};
+      function relNum(Lv, i) { return Lv.path.slice(B.path.length).map(function (x) { return x + 1; }).concat([i + 1]).join("."); }
+      function touch(x0, x1) { var t = stack[stack.length - 1]; if (t) { t.lo = Math.min(t.lo, x0); t.hi = Math.max(t.hi, x1); } }
+      function openFrame(fr) { fr.y0 = y; fr.lo = Infinity; fr.hi = -Infinity; fr.guards = []; stack.push(fr); frames.push(fr); }
+      function closeFrame() {
+        var fr = stack.pop();
+        y += 10; fr.y1 = y;
+        if (fr.lo === Infinity) { fr.lo = cx(0); fr.hi = cx(0); }
+        fr.x0 = fr.lo - 14; fr.x1 = fr.hi + 14;
+        var need = 260;
+        fr.guards.forEach(function (g) { need = Math.max(need, g.text.length * 6.3 + 40); });
+        if (fr.tag) need = Math.max(need, fr.tag.length * 7 + 60);
+        if (fr.x1 - fr.x0 < need) { var grow = (need - (fr.x1 - fr.x0)) / 2; fr.x0 -= grow; fr.x1 += grow; }
+        if (fr.x0 < 4) { fr.x1 += 4 - fr.x0; fr.x0 = 4; }
+        touch(fr.x0, fr.x1);
+      }
+      function wideBox(lo, hi, min) {
+        if (hi - lo < min) { var g = (min - (hi - lo)) / 2; lo -= g; hi += g; }
+        if (lo < 8) { hi += 8 - lo; lo = 8; }
+        return [lo, hi];
+      }
+      function stepRow(Lv, i, depth) {
+        var s = Lv.S[i], a = colOf(s.from), b = colOf(s.to), k = stepKind(s);
+        var selfish = k === "self" || a === b, num = relNum(Lv, i);
+        var nb = Math.max(15, num.length * 6.4 + 8), span = Math.abs(cx(b) - cx(a));
+        var txt = clip(s.payload, selfish ? 40 : Math.max(26, Math.floor((span - 40) / CW)));
+        var w = txt.length * CW + nb + 15 + (s.inner ? 20 : 0);
+        var lx = selfish ? cx(a) + 50 : Math.max(4, (cx(a) + cx(b)) / 2 - w / 2);
+        var row = { Lv: Lv, i: i, s: s, a: a, b: b, k: k, selfish: selfish, num: num, nb: nb, txt: txt, w: w, lx: lx, col: hue(Lv.C[s.channel].color) };
+        usedCh[s.channel] = Lv.C[s.channel];
+        row.y = y; row.h = selfish ? 66 : 52; row.arrowY = y + (selfish ? 24 : 34);
+        row.x0 = Math.min(cx(a), cx(b), lx) - 14; row.x1 = Math.max(cx(a), cx(b) + (selfish ? 46 : 0), lx + w) + 6;
         y += row.h;
         if (s.note) {
           var lines = wrapText(s.note.text, 52, 5), nw = 344;
-          if (k !== "self") nw = Math.max(nw, Math.abs(cx(b) - cx(a)) + 40);
-          var nx = k === "self" ? cx(a) - 24 : (cx(a) + cx(b)) / 2 - nw / 2;
-          nx = Math.max(8, Math.min(W - nw - 8, nx));
+          if (!selfish) nw = Math.max(nw, span + 40);
+          var nx = selfish ? cx(a) - 24 : (cx(a) + cx(b)) / 2 - nw / 2;
+          nx = Math.max(8, nx);
           row.note = { y: y + 2, lines: lines, h: lines.length * 15 + 14, x: nx, w: nw };
           row.x0 = Math.min(row.x0, nx); row.x1 = Math.max(row.x1, nx + nw);
           y += row.note.h + 10;
         }
-        rows.push(row);
-        frags.filter(function (x) { return x.f.end === i; }).sort(function (a, b) { return a.lv - b.lv || b.i - a.i; }).forEach(function (x) { y += 10; fy[x.i].y1 = y; });
-      });
-      var bottomHeads = N > 8;
+        rows.push(row); touch(row.x0, row.x1);
+        if (Lv === B) units.push({ start: i, end: i, row: row, xm: selfish ? cx(a) : (cx(a) + cx(b)) / 2 });
+        if (s.inner) {
+          var IL = innerOf(Lv, i);
+          if (EXP) {
+            var fr = { type: "inner", Lv: IL, num: num, tag: "ref  " + num + "  " + clip(s.title, 44) };
+            openFrame(fr); y += 30;
+            walk(IL);
+            closeFrame(); y += 6;
+          } else {
+            var xs = wideBox(Math.min(cx(a), cx(b)) - 60, Math.max(cx(a), cx(b)) + 60 + (selfish ? 40 : 0), 330);
+            var bx = { type: "ref", Lv: Lv, i: i, IL: IL, num: num, x0: xs[0], x1: xs[1], y: y + 2, h: 46 };
+            boxes.push(bx); touch(bx.x0, bx.x1); y += 56;
+          }
+        }
+      }
+      function groupBox(Lv, u) {
+        var cs = [];
+        for (var j = u.start; j <= u.end; j++) cs.push(colOf(Lv.S[j].from), colOf(Lv.S[j].to));
+        var xs = wideBox(cx(Math.min.apply(null, cs)) - 50, cx(Math.max.apply(null, cs)) + 50, 330);
+        var bx = { type: "group", Lv: Lv, u: u, x0: xs[0], x1: xs[1], y: y + 4, h: 50, range: relNum(Lv, u.start) + "–" + relNum(Lv, u.end) };
+        boxes.push(bx); touch(bx.x0, bx.x1); y += 62;
+        if (Lv === B) units.push({ start: u.start, end: u.end, box: bx, xm: (bx.x0 + bx.x1) / 2 });
+      }
+      function walk(Lv) {
+        var frs = (Lv.seq.fragments || []).map(function (f, fi) { return { f: f, i: fi }; });
+        function inside(a, b) { return a !== b && a.f.start >= b.f.start && a.f.end <= b.f.end && (a.f.start !== b.f.start || a.f.end !== b.f.end || a.i > b.i); }
+        function levels(x) { var m = 0; frs.forEach(function (o) { if (inside(o, x)) m = Math.max(m, 1 + levels(o)); }); return m; }
+        frs.forEach(function (x) { x.lv = levels(x); });
+        var us = unitsOf(Lv, EXP);
+        var folded = us.filter(function (u) { return u.g; }).map(function (u) { return frs[u.gi]; });
+        var drawn = frs.filter(function (x) { return folded.indexOf(x) === -1 && !folded.some(function (g) { return inside(x, g); }); });
+        us.forEach(function (u) {
+          var i = u.start;
+          drawn.forEach(function (x) {
+            if (x.f.kind !== "alt" || !x.frame) return;
+            x.f.branches.forEach(function (br, k) { if (k > 0 && br.start === i) { x.frame.guards.push({ y: y + 4, text: br.condition, divider: y - 4 }); y += 26; } });
+          });
+          drawn.filter(function (x) { return x.f.start === i; }).sort(function (a, b) { return b.lv - a.lv || a.i - b.i; }).forEach(function (x) {
+            var f = x.f, fr = { type: f.kind === "group" ? "group" : "frag", f: f, Lv: Lv, fi: x.i, tag: f.kind + (f.label ? "  " + f.label : "") };
+            x.frame = fr;
+            openFrame(fr); y += 24;
+            if (f.kind !== "group") { fr.guards.push({ y: y, text: f.kind === "alt" ? f.branches[0].condition : f.condition }); y += 16; }
+            else y += 4;
+          });
+          if (u.g) groupBox(Lv, u); else stepRow(Lv, i);
+          drawn.filter(function (x) { return x.f.end === u.end; }).forEach(function () { closeFrame(); });
+        });
+      }
+      walk(B);
+      var right = W;
+      rows.forEach(function (r) { right = Math.max(right, r.x1 + 8); });
+      boxes.concat(frames).forEach(function (b) { right = Math.max(right, b.x1 + 8); });
+      W = right;
+      var bottomHeads = rows.length + boxes.length > 8;
       var lifeEnd = y + 14;
       var H = lifeEnd + (bottomHeads ? HEADH + 16 : 12);
 
-      var svgEl = sv("svg", { class: "nthview-dsvg", viewBox: "0 0 " + W + " " + H, role: "group", "aria-label": "Sequence diagram of " + N + " steps between " + nP + " parties" });
-      svgEl.appendChild(sv("title", { text: data.title + ": full sequence diagram" }));
-      var gBack = sv("g"), gZones = sv("g", { "aria-hidden": "true" }), gLife = sv("g", { "aria-hidden": "true" }), gFr = sv("g", { "aria-hidden": "true" }), gAct = sv("g", { "aria-hidden": "true" }), gFrTop = sv("g", { "aria-hidden": "true" }), gNotes = sv("g", { "aria-hidden": "true" }), gArr = sv("g"), gHead = sv("g", { "aria-hidden": "true" });
-      [gBack, gZones, gLife, gFr, gAct, gFrTop, gNotes, gArr, gHead].forEach(function (g) { svgEl.appendChild(g); });
+      var where = B.depth ? "inner sequence of step " + numLabel(B.parent, B.parentIdx) : "sequence";
+      var svgEl = sv("svg", { class: "nthview-dsvg", viewBox: "0 0 " + W + " " + H, role: "group", "aria-label": "Diagram of the " + where + ": " + B.N + " steps between " + B.lanes.length + " parties" + (EXP ? ", every inner sequence and group drawn in place" : "") });
+      svgEl.appendChild(sv("title", { text: (B.depth ? "Step " + numLabel(B.parent, B.parentIdx) + ", " + parentStep(B).title : data.title) + ": sequence diagram" }));
+      var gBack = sv("g"), gZones = sv("g", { "aria-hidden": "true" }), gBands = sv("g", { "aria-hidden": "true" }), gLife = sv("g", { "aria-hidden": "true" }), gFr = sv("g", { "aria-hidden": "true" }), gAct = sv("g", { "aria-hidden": "true" }), gFrTop = sv("g"), gBox = sv("g"), gNotes = sv("g", { "aria-hidden": "true" }), gArr = sv("g"), gHead = sv("g", { "aria-hidden": "true" });
+      [gBack, gZones, gBands, gLife, gFr, gAct, gFrTop, gBox, gNotes, gArr, gHead].forEach(function (g) { svgEl.appendChild(g); });
       gBack.appendChild(sv("rect", { x: 0, y: 0, width: W, height: H, fill: "var(--sq-panel)" }));
 
       /* zones */
       var zk = 0;
-      runs.forEach(function (r) {
+      zrun.forEach(function (r) {
         if (!r.zone) return;
         var x0 = cx(r.start) - COL / 2 + 5, w = r.n * COL - 10;
         if (r.start + r.n === nP) w = Math.max(w, W - x0 - 6);
         gZones.appendChild(sv("rect", { x: x0, y: 6, width: w, height: H - 12, rx: 10, fill: zk++ % 2 ? "var(--sq-zone-b)" : "var(--sq-zone-a)", stroke: "var(--nv-border)", "stroke-dasharray": "5 4" }));
         gZones.appendChild(sv("text", { x: x0 + (r.n * COL - 10) / 2, y: 22, "text-anchor": "middle", "font-size": 10.5, "font-weight": 600, "letter-spacing": "1.2", class: "nthview-muted-t", text: clip(ZI[r.zone].name.toUpperCase(), Math.floor((r.n * COL - 10) / 8)) }));
       });
+      /* group bands: the parties inside a group, under its name */
+      bands.forEach(function (b) {
+        var inset = 9 + b.depth * 5, x0 = cx(b.c0) - COL / 2 + inset, x1 = cx(b.c1) + COL / 2 - inset, top = ZONEH + 8 + b.depth * 22;
+        gBands.appendChild(sv("rect", { x: x0, y: top, width: x1 - x0, height: lifeEnd - top + 6, rx: 8, fill: "var(--sq-hi)", "fill-opacity": ".55", stroke: "var(--nv-accent)", "stroke-width": 1, "stroke-dasharray": "4 3" }));
+        gBands.appendChild(sv("text", { x: (x0 + x1) / 2, y: top + 15, "text-anchor": "middle", "font-size": 11, "font-weight": 700, style: "fill:var(--nv-accent)", text: clip(nameOf(b.g) + (b.hasOwn ? "" : " · inside"), Math.floor((x1 - x0) / 7)) }));
+      });
 
       /* participant heads and lifelines */
-      function head(i, top) {
-        var p = P[i], w = COL - 22, x0 = cx(i) - w / 2, tx = x0 + 38, room = w - 44;
+      function head(c, top) {
+        var id = ids[c], p = pOf(id), grp = PMAP[id].isGroup, w = COL - 22, x0 = cx(c) - w / 2, tx = x0 + 38, room = w - 44;
         var g = sv("g");
-        g.appendChild(sv("rect", { x: x0, y: top, width: w, height: HEADH - 8, rx: 8, fill: "var(--sq-panel)", stroke: "var(--nv-fg)", "stroke-width": 1.3 }));
-        var gl = glyph(p.kind || "other", { x: x0 + 9, y: top + (HEADH - 8) / 2 - 11, width: 22, height: 22 }); gl.style.color = "var(--nv-muted)";
+        g.appendChild(sv("rect", { x: x0, y: top, width: w, height: HEADH - 8, rx: 8, fill: "var(--sq-panel)", stroke: "var(--nv-fg)", "stroke-width": grp ? 2.6 : 1.3 }));
+        var gl = glyph(kindOf(id), { x: x0 + 9, y: top + (HEADH - 8) / 2 - 11, width: 22, height: 22 }); gl.style.color = "var(--nv-muted)";
         g.appendChild(gl);
         var nameLines = wrapText(p.name, Math.floor(room / 7.3), 2);
-        var roleLines = p.role ? wrapText(p.role, Math.floor(room / 5.7), 3 - nameLines.length) : [];
-        var total = nameLines.length * 15 + roleLines.length * 13, ty = top + (HEADH - 8 - total) / 2 + 11;
+        var extra = grp ? [p.members.length + " inside"] : [];
+        var roleRoom = 3 - nameLines.length - extra.length, roleLines = p.role && roleRoom > 0 ? wrapText(p.role, Math.floor(room / 5.7), roleRoom) : [];
+        var total = nameLines.length * 15 + (roleLines.length + extra.length) * 13, ty = top + (HEADH - 8 - total) / 2 + 11;
         nameLines.forEach(function (t) { g.appendChild(sv("text", { x: tx, y: ty, "font-size": 13, "font-weight": 650, text: t })); ty += 15; });
         roleLines.forEach(function (t) { g.appendChild(sv("text", { x: tx, y: ty, "font-size": 10.5, class: "nthview-muted-t", text: t })); ty += 13; });
-        g.appendChild(sv("title", { text: p.name + (p.role ? ": " + p.role : "") }));
+        extra.forEach(function (t) { g.appendChild(sv("text", { x: tx, y: ty, "font-size": 10.5, "font-weight": 700, style: "fill:var(--nv-accent)", text: t })); ty += 13; });
+        g.appendChild(sv("title", { text: p.name + (p.role ? ": " + p.role : "") + (grp ? " (" + p.members.length + " parties inside)" : "") }));
         gHead.appendChild(g);
       }
-      P.forEach(function (p, i) {
-        head(i, ZONEH + 10);
-        gLife.appendChild(sv("line", { x1: cx(i), y1: ZONEH + 10 + HEADH - 8, x2: cx(i), y2: lifeEnd, stroke: "var(--nv-muted)", "stroke-width": 1.2, "stroke-dasharray": "4 5" }));
-        if (bottomHeads) head(i, lifeEnd);
+      ids.forEach(function (id, c) {
+        head(c, HEADY);
+        gLife.appendChild(sv("line", { x1: cx(c), y1: HEADY + HEADH - 8, x2: cx(c), y2: lifeEnd, stroke: "var(--nv-muted)", "stroke-width": 1.2, "stroke-dasharray": "4 5" }));
+        if (bottomHeads) head(c, lifeEnd);
       });
 
-      /* activation bars: each run of consecutive steps a party takes part in */
-      P.forEach(function (p, pi) {
-        var startI = -1;
-        for (var i = 0; i <= N; i++) {
-          var involved = i < N && (PI[S[i].from] === pi || PI[S[i].to] === pi);
-          if (involved && startI === -1) startI = i;
-          if (!involved && startI !== -1) {
-            var a = rows[startI], b = rows[i - 1];
-            var y0 = a.arrowY - 10, y1 = (stepKind(S[i - 1]) === "self" ? b.arrowY + 26 : b.arrowY) + 10;
-            gAct.appendChild(sv("rect", { x: cx(pi) - 5, y: y0, width: 10, height: Math.max(16, y1 - y0), fill: "var(--sq-soft)", stroke: "var(--nv-fg)", "stroke-width": 1 }));
-            startI = -1;
+      /* activation bars: each run of consecutive drawn steps a party takes part in */
+      ids.forEach(function (id, c) {
+        var startR = -1;
+        for (var r = 0; r <= rows.length; r++) {
+          var involved = r < rows.length && (rows[r].a === c || rows[r].b === c);
+          if (involved && startR === -1) startR = r;
+          if (!involved && startR !== -1) {
+            var a = rows[startR], b = rows[r - 1];
+            var y0 = a.arrowY - 10, y1 = (b.selfish ? b.arrowY + 26 : b.arrowY) + 10;
+            gAct.appendChild(sv("rect", { x: cx(c) - 5, y: y0, width: 10, height: Math.max(16, y1 - y0), fill: "var(--sq-soft)", stroke: "var(--nv-fg)", "stroke-width": 1 }));
+            startR = -1;
           }
         }
-        S.forEach(function (s, i) {
-          if (stepKind(s) === "self" && PI[s.from] === pi) gAct.appendChild(sv("rect", { x: cx(pi) + 1, y: rows[i].arrowY + 4, width: 10, height: 26, fill: "var(--sq-hi)", stroke: "var(--nv-fg)", "stroke-width": 1 }));
-        });
+        rows.forEach(function (row) { if (row.selfish && row.a === c) gAct.appendChild(sv("rect", { x: cx(c) + 1, y: row.arrowY + 4, width: 10, height: 26, fill: "var(--sq-hi)", stroke: "var(--nv-fg)", "stroke-width": 1 })); });
       });
 
-      /* fragments: frame below the bars, tab and guards above them */
-      frags.forEach(function (x) {
-        var f = x.f, lo = Infinity, hi = -Infinity;
-        for (var i = f.start; i <= f.end; i++) { lo = Math.min(lo, rows[i].x0); hi = Math.max(hi, rows[i].x1); }
-        var padF = 14 + 10 * x.lv;
-        var x0 = Math.max(4, lo - padF), x1 = Math.min(W - 4, hi + padF);
-        var need = 260;
-        fy[x.i].guards.forEach(function (g) { need = Math.max(need, g.text.length * 6.3 + 40); });
-        need = Math.min(need, W - 8);
-        if (x1 - x0 < need) { var grow = (need - (x1 - x0)) / 2; x0 = x0 - grow; x1 = x1 + grow; if (x0 < 4) { x1 += 4 - x0; x0 = 4; } if (x1 > W - 4) { x0 = Math.max(4, x0 - (x1 - W + 4)); x1 = W - 4; } }
-        var y0 = fy[x.i].y0, y1 = fy[x.i].y1;
-        var col = f.kind === "alt" ? "var(--h-violet)" : f.kind === "loop" ? "var(--h-teal)" : "var(--h-blue)";
-        gFr.appendChild(sv("rect", { x: x0, y: y0, width: x1 - x0, height: y1 - y0, rx: 4, fill: "none", stroke: col, "stroke-width": 1.4 }));
-        var tag = f.kind + (f.label ? "  " + f.label : ""), tw = Math.min(x1 - x0 - 10, tag.length * 7 + 22);
-        gFrTop.appendChild(sv("path", { d: "M" + x0 + " " + y0 + "h" + tw + "v12l-8 8H" + x0 + "z", fill: col }));
-        gFrTop.appendChild(sv("text", { x: x0 + 7, y: y0 + 14.5, "font-size": 11.5, "font-weight": 700, style: "fill:var(--sq-panel)", text: clip(tag, Math.floor((tw - 12) / 7)) }));
-        fy[x.i].guards.forEach(function (g) {
+      function button(g, label, act) {
+        g.setAttribute("role", "button"); g.setAttribute("tabindex", "0"); g.setAttribute("aria-label", label);
+        g.addEventListener("click", function (e) { e.stopPropagation(); act(); });
+        g.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); act(); } });
+      }
+      /* frames: alt/opt/loop, unfolded groups and, with Expand all, inner sequences */
+      frames.forEach(function (fr) {
+        var x0 = fr.x0, x1 = Math.min(W - 4, fr.x1), y0 = fr.y0, y1 = fr.y1;
+        var col = fr.type === "inner" ? "var(--nv-accent)" : fr.type === "group" ? "var(--h-teal)" : fr.f.kind === "alt" ? "var(--h-violet)" : fr.f.kind === "loop" ? "var(--h-teal)" : "var(--h-blue)";
+        gFr.appendChild(sv("rect", { x: x0, y: y0, width: x1 - x0, height: y1 - y0, rx: 4, fill: "none", stroke: col, "stroke-width": fr.type === "frag" ? 1.4 : 1.8, "stroke-dasharray": fr.type === "group" ? "7 4" : "none" }));
+        var tw = Math.min(x1 - x0 - 10, fr.tag.length * 7 + 22);
+        var tab = sv("g");
+        tab.appendChild(sv("path", { d: "M" + x0 + " " + y0 + "h" + tw + "v12l-8 8H" + x0 + "z", fill: col }));
+        tab.appendChild(sv("text", { x: x0 + 7, y: y0 + 14.5, "font-size": 11.5, "font-weight": 700, style: "fill:var(--sq-panel)", text: clip(fr.tag, Math.floor((tw - 12) / 7)) }));
+        gFrTop.appendChild(tab);
+        if (fr.type === "inner") {
+          tab.setAttribute("class", "nthview-ref");
+          tab.appendChild(sv("text", { x: x0 + tw + 8, y: y0 + 14.5, "font-size": 11, class: "nthview-muted-t", text: fr.Lv.lanes.length + " parties · " + fr.Lv.N + " steps · open" }));
+          button(tab, "Open the diagram of the inner sequence of step " + numLabel(fr.Lv.parent, fr.Lv.parentIdx), function () { gotoLevel(fr.Lv.path, 0); });
+        } else if (fr.type === "group" && !EXP) {
+          var mx = x1 - 26, my = y0 + 4;
+          var cb = sv("g", { class: "nthview-ref" }, [sv("rect", { class: "nthview-ref-box", x: mx, y: my, width: 20, height: 18, rx: 4, fill: "var(--sq-panel)", stroke: col, "stroke-width": 1.4 }), sv("path", { d: "M" + (mx + 5) + " " + (my + 9) + "h10", stroke: col, "stroke-width": 2, "stroke-linecap": "round" })]);
+          button(cb, "Collapse the group " + fr.f.label, function () {
+            state.groups[gkey(fr.Lv, fr.fi)] = false;
+            if (fr.Lv === L && state.step >= fr.f.start && state.step <= fr.f.end) state.step = fr.f.start;
+            persist(); buildDiagram(); highlightDiagram(false); focusDiagram();
+          });
+          gFrTop.appendChild(cb);
+        }
+        fr.guards.forEach(function (g) {
           if (g.divider !== undefined) gFr.appendChild(sv("line", { x1: x0, y1: g.divider, x2: x1, y2: g.divider, stroke: col, "stroke-width": 1.2, "stroke-dasharray": "6 4" }));
           var gt = "[" + clip(g.text, Math.floor((x1 - x0 - 24) / 6.3)) + "]";
           gFrTop.appendChild(sv("rect", { x: x0 + 6, y: g.y - 4, width: Math.min(x1 - x0 - 12, gt.length * 6.3 + 8), height: 16, rx: 3, fill: "var(--sq-panel)", opacity: ".92" }));
@@ -2180,15 +3024,52 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         });
       });
 
+      /* folded boxes: a step's inner sequence (ref) or a collapsed group */
+      boxes.forEach(function (bx) {
+        var g = sv("g", { class: "nthview-ref" }), col = bx.type === "ref" ? "var(--nv-accent)" : "var(--h-teal)";
+        var x0 = bx.x0, x1 = bx.x1, w = x1 - x0, room = Math.floor((w - 80) / 6.8);
+        g.appendChild(sv("rect", { class: "nthview-ref-box", x: x0, y: bx.y, width: w, height: bx.h, rx: 6, fill: bx.type === "ref" ? "var(--sq-soft)" : "var(--t-teal)", stroke: col, "stroke-width": 1.6, "stroke-dasharray": bx.type === "group" ? "7 4" : "none" }));
+        var tag = bx.type === "ref" ? "ref" : "group", tw = tag.length * 7 + 18;
+        g.appendChild(sv("path", { d: "M" + x0 + " " + bx.y + "h" + tw + "v11l-7 7H" + x0 + "z", fill: col }));
+        g.appendChild(sv("text", { x: x0 + 6, y: bx.y + 13, "font-size": 11, "font-weight": 700, style: "fill:var(--sq-panel)", text: tag }));
+        var line1, line2, label;
+        if (bx.type === "ref") {
+          var st = bx.Lv.S[bx.i];
+          line1 = bx.num + "  " + st.title;
+          line2 = bx.IL.lanes.length + " parties · " + bx.IL.N + " steps · select to open";
+          label = "Step " + bx.num + " has an inner sequence: " + st.title + ", " + bx.IL.lanes.length + " parties, " + bx.IL.N + " steps. Open its diagram.";
+          button(g, label, function () { gotoLevel(bx.IL.path, 0); });
+        } else {
+          var n = bx.u.end - bx.u.start + 1;
+          line1 = bx.u.g.label;
+          line2 = "steps " + bx.range + " · " + n + " steps · " + partiesOf(bx.Lv, bx.u.start, bx.u.end).map(nameOf).join(", ");
+          label = "Group " + bx.u.g.label + ", steps " + bx.range + ", collapsed. Expand it.";
+          button(g, label, function () {
+            state.groups[gkey(bx.Lv, bx.u.gi)] = true; persist();
+            buildDiagram(); highlightDiagram(false); focusDiagram();
+          });
+        }
+        g.appendChild(sv("text", { x: x0 + tw + 10, y: bx.y + 20, "font-size": 12.5, "font-weight": 650, text: clip(line1, room - 4) }));
+        g.appendChild(sv("text", { x: x0 + tw + 10, y: bx.y + 37, "font-size": 11, class: "nthview-muted-t", text: clip(line2, room) }));
+        /* the plus marker: there is more inside */
+        var px = x1 - 20, py = bx.y + bx.h / 2;
+        g.appendChild(sv("circle", { cx: px, cy: py, r: 9, fill: col }));
+        g.appendChild(sv("path", { d: "M" + (px - 4.5) + " " + py + "h9M" + px + " " + (py - 4.5) + "v9", stroke: "var(--sq-panel)", "stroke-width": 2, "stroke-linecap": "round" }));
+        g.appendChild(sv("title", { text: label }));
+        gBox.appendChild(g);
+        bx.node = g;
+      });
+
       /* arrows */
-      var arrows = S.map(function (s, i) {
-        var k = stepKind(s), a = PI[s.from], b = PI[s.to], row = rows[i], col = hue(chColor(s)), L = labels[i];
-        var g = sv("g", { class: "nthview-arrow", role: "button", tabindex: "-1", "aria-label": "Step " + (i + 1) + ": " + (k === "self" ? nameOf(s.from) + " on its own" : nameOf(s.from) + " to " + nameOf(s.to)) + ", " + s.payload + ". " + s.title + ". Open in step mode." });
+      rows.forEach(function (row) {
+        var s = row.s, k = row.k, a = row.a, b = row.b, col = row.col, top = row.Lv === B;
+        var who = row.selfish ? nameOf(s.from) + " on its own" : nameOf(s.from) + " to " + nameOf(s.to);
+        var g = sv("g", { class: "nthview-arrow", role: "button", tabindex: "-1", "aria-label": "Step " + row.num + ": " + who + ", " + s.payload + ". " + s.title + (s.inner ? ". Has an inner sequence" : "") + ". Open in step mode." });
         g.appendChild(sv("rect", { class: "nthview-hit", x: row.x0, y: row.y + 2, width: row.x1 - row.x0, height: row.h - 4, rx: 6 }));
         var ly;
-        if (k === "self") {
+        if (row.selfish) {
           var x = cx(a) + 6, yy = row.arrowY;
-          g.appendChild(sv("path", { class: "nthview-line", d: "M" + x + " " + yy + "h34a13 13 0 0 1 0 26H" + (x + 12), fill: "none", stroke: col, "stroke-width": 2 }));
+          g.appendChild(sv("path", { class: "nthview-line", d: "M" + x + " " + yy + "h34a13 13 0 0 1 0 26H" + (x + 12), fill: "none", stroke: col, "stroke-width": 2, "stroke-dasharray": k === "return" ? "7 5" : "none" }));
           g.appendChild(sv("path", { d: "M" + (x + 13) + " " + (yy + 21.5) + " " + (x + 5) + " " + (yy + 26) + " " + (x + 13) + " " + (yy + 30.5) + "z", fill: col }));
           ly = yy + 17;
         } else {
@@ -2198,38 +3079,57 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
           else g.appendChild(sv("path", { d: "M" + (x2 - dir * 10) + " " + (yy2 - 5.5) + "L" + x2 + " " + yy2 + "L" + (x2 - dir * 10) + " " + (yy2 + 5.5), fill: "none", stroke: col, "stroke-width": 2, "stroke-linecap": "round", "stroke-linejoin": "round" }));
           ly = yy2 - 12;
         }
-        var bx = L.x, lg = sv("g");
-        lg.appendChild(sv("rect", { class: "nthview-lbl", x: bx, y: ly - 13, width: L.w, height: 19, rx: 9.5, fill: "var(--sq-panel)", stroke: col, "stroke-width": 1 }));
-        lg.appendChild(sv("circle", { cx: bx + 10, cy: ly - 3.5, r: 7.5, fill: col }));
-        lg.appendChild(sv("text", { x: bx + 10, y: ly, "text-anchor": "middle", "font-size": i >= 9 ? 8.5 : 9.5, "font-weight": 700, style: "fill:var(--sq-panel)", text: String(i + 1) }));
-        lg.appendChild(sv("text", { x: bx + 22, y: ly + 0.5, "font-size": 12, class: "nthview-mono", text: L.txt }));
+        var bx = row.lx, lg = sv("g");
+        lg.appendChild(sv("rect", { class: "nthview-lbl", x: bx, y: ly - 13, width: row.w, height: 19, rx: 9.5, fill: "var(--sq-panel)", stroke: col, "stroke-width": 1 }));
+        lg.appendChild(sv("rect", { x: bx + 2.5, y: ly - 11, width: row.nb, height: 15, rx: 7.5, fill: col }));
+        lg.appendChild(sv("text", { x: bx + 2.5 + row.nb / 2, y: ly, "text-anchor": "middle", "font-size": row.num.length > 1 ? 8.5 : 9.5, "font-weight": 700, style: "fill:var(--sq-panel)", text: row.num }));
+        lg.appendChild(sv("text", { x: bx + row.nb + 9, y: ly + 0.5, "font-size": 12, class: "nthview-mono", text: row.txt }));
+        if (s.inner) {
+          var mx = bx + row.w - 12, my = ly - 3.5;
+          lg.appendChild(sv("circle", { cx: mx, cy: my, r: 7, fill: col }));
+          lg.appendChild(sv("path", { d: "M" + (mx - 3.5) + " " + my + "h7M" + mx + " " + (my - 3.5) + "v7", stroke: "var(--sq-panel)", "stroke-width": 1.8, "stroke-linecap": "round" }));
+        }
         g.appendChild(lg);
-        g.appendChild(sv("title", { text: (i + 1) + ". " + s.title }));
-        function open() { state.step = i; persist(); setMode("step"); }
+        g.appendChild(sv("title", { text: row.num + ". " + s.title }));
+        function open() {
+          if (top) { state.step = row.i; reveal(L, row.i); persist(); setMode("step", true); return; }
+          state.mode = "step";
+          gotoLevel(row.Lv.path, row.i, { reveal: true });
+          setMode("step", true);
+        }
         g.addEventListener("click", open);
         g.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); open(); } });
-        g.addEventListener("focus", function () { if (state.step !== i && state.mode === "diagram") { state.step = i; persist(); highlightDiagram(false); } });
+        if (top) g.addEventListener("focus", function () { if (state.step !== row.i && state.mode === "diagram") { state.step = row.i; persist(); highlightDiagram(false); } });
         gArr.appendChild(g);
-        return g;
+        row.node = g;
       });
 
       /* notes: folded-corner boxes under their step */
-      S.forEach(function (s, i) {
-        var n = rows[i].note; if (!n) return;
-        var c = s.note.severity === "danger" ? "red" : s.note.severity === "warning" ? "amber" : "blue";
+      rows.forEach(function (row) {
+        var n = row.note; if (!n) return;
+        var c = row.s.note.severity === "danger" ? "red" : row.s.note.severity === "warning" ? "amber" : "blue";
         gNotes.appendChild(sv("path", { d: "M" + n.x + " " + n.y + "h" + (n.w - 12) + "l12 12v" + (n.h - 12) + "H" + n.x + "z", fill: tint(c), stroke: hue(c), "stroke-width": 1.1 }));
         gNotes.appendChild(sv("path", { d: "M" + (n.x + n.w - 12) + " " + n.y + "v12h12", fill: "none", stroke: hue(c), "stroke-width": 1.1 }));
         n.lines.forEach(function (line, k) {
           gNotes.appendChild(sv("text", { x: n.x + 10, y: n.y + 18 + k * 15, "font-size": 11.5, text: line }));
         });
       });
+      units.forEach(function (u) {
+        u.node = u.row ? u.row.node : u.box.node;
+        u.y = u.row ? u.row.y : u.box.y; u.h = u.row ? u.row.h : u.box.h;
+        if (u.box) u.node.setAttribute("tabindex", "-1");
+        if (u.box) u.node.addEventListener("focus", function () { if (state.mode === "diagram" && (state.step < u.start || state.step > u.end)) { state.step = u.start; persist(); highlightDiagram(false); } });
+      });
       dpanel.textContent = "";
       dpanel.appendChild(svgEl);
-      D = { svg: svgEl, w: W, h: H, arrows: arrows, rows: rows };
+      dChannels.textContent = "";
+      dChannels.appendChild(channelLegend(Object.keys(usedCh).map(function (c) { return usedCh[c]; })));
+      D = { svg: svgEl, w: W, h: H, units: units, key: B.key, expand: EXP };
+      bExpand.setAttribute("aria-pressed", String(EXP));
       applyZoom();
     }
 
-    function fitZoom() { var pw = dpanel.clientWidth || container.clientWidth || 800; return Math.max(0.7, Math.min(1.25, (pw - 2) / D.w)); }
+    function fitZoom() { var pw = dpanel.clientWidth || container.clientWidth || 800; return Math.max(state.expand ? 0.5 : 0.7, Math.min(1.25, (pw - 2) / D.w)); }
     function currentZoom() { return state.zoom === "fit" ? fitZoom() : state.zoom; }
     function applyZoom() {
       if (!D) return;
@@ -2276,23 +3176,36 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     /* Safari sends its own pinch events; stop them zooming the whole page while the fingers are on the diagram */
     ["gesturestart", "gesturechange"].forEach(function (t) { dpanel.addEventListener(t, function (e) { e.preventDefault(); }, { passive: false }); });
 
+    function curUnit() { if (!D || !D.units.length) return -1; var k = unitAt(D.units, Math.min(state.step, N - 1)); return k === -1 ? 0 : k; }
     function highlightDiagram(scroll) {
       if (!D) return;
-      var i = Math.min(state.step, N - 1);
-      D.arrows.forEach(function (g, k) {
-        g.classList.toggle("nthview-cur", k === i && state.step < N);
-        g.setAttribute("tabindex", k === i ? "0" : "-1");
+      var k = curUnit();
+      D.units.forEach(function (u, j) {
+        u.node.classList.toggle("nthview-cur", j === k && state.step < N);
+        u.node.setAttribute("tabindex", j === k ? "0" : "-1");
       });
       toStep.textContent = "";
-      if (state.step < N) { toStep.appendChild(doc.createTextNode("Open step " + (state.step + 1))); toStep.appendChild(el("span", { class: "nthview-wide", text: " in step mode" })); }
-      else toStep.textContent = "Back to the recap";
+      if (state.step < N) { toStep.appendChild(doc.createTextNode("Open step " + numLabel(L, state.step))); toStep.appendChild(el("span", { class: "nthview-wide", text: " in step mode" })); }
+      else toStep.textContent = L.depth ? "Back to the inner recap" : "Back to the recap";
       progBar.style.width = Math.round(Math.min(state.step + 1, N) / N * 100) + "%";
-      if (scroll && state.step < N) {
-        var z = currentZoom(), r = D.rows[i], top = r.y * z, ph = dpanel.clientHeight;
-        if (top < dpanel.scrollTop + 20 || top + r.h * z > dpanel.scrollTop + ph - 20) dpanel.scrollTop = Math.max(0, top - ph / 3);
-        var a = PI[S[i].from], b = PI[S[i].to], xm = (28 + ((a + b) / 2 + 0.5) * 184) * z, pw = dpanel.clientWidth;
+      if (scroll && state.step < N && k !== -1) {
+        var z = currentZoom(), u = D.units[k], top = u.y * z, ph = dpanel.clientHeight;
+        if (top < dpanel.scrollTop + 20 || top + u.h * z > dpanel.scrollTop + ph - 20) dpanel.scrollTop = Math.max(0, top - ph / 3);
+        var xm = u.xm * z, pw = dpanel.clientWidth;
         if (xm < dpanel.scrollLeft + 40 || xm > dpanel.scrollLeft + pw - 40) dpanel.scrollLeft = Math.max(0, xm - pw / 2);
       }
+    }
+    function focusDiagram() {
+      var k = curUnit();
+      var cur = k === -1 ? null : D.units[k].node;
+      setTimeout(function () { if (cur && state.mode === "diagram") cur.focus({ preventScroll: true }); }, 30);
+    }
+    function diagGo(k) {
+      if (!D || !D.units.length) return;
+      k = Math.max(0, Math.min(D.units.length - 1, k));
+      state.step = D.units[k].start; persist();
+      highlightDiagram(true);
+      D.units[k].node.focus({ preventScroll: true });
     }
 
     function setMode(m, fromUser) {
@@ -2301,19 +3214,21 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       bDiag.setAttribute("aria-pressed", String(m === "diagram"));
       stepMode.hidden = m !== "step";
       diagMode.hidden = m !== "diagram";
-      persist();
+      setupLevel();
       if (m === "diagram") {
-        if (!D) buildDiagram(); else applyZoom();
+        if (!D || D.key !== L.key || D.expand !== state.expand) buildDiagram(); else applyZoom();
+        persist();
         if (fromUser && root.matchMedia && root.matchMedia("(max-width: 700px)").matches) {
-          var dt = diagMode.firstChild, top = dt.getBoundingClientRect().top + (root.pageYOffset || 0);
+          var top = dtools.getBoundingClientRect().top + (root.pageYOffset || 0);
           if (top > (root.pageYOffset || 0) + 8) root.scrollTo(0, Math.max(0, top - 4));
         }
         highlightDiagram(true);
         status.textContent = "Full diagram. Arrow keys move between steps; Enter opens one.";
-        var cur = D.arrows[Math.min(state.step, N - 1)];
-        setTimeout(function () { if (cur && state.mode === "diagram") cur.focus({ preventScroll: true }); }, 30);
+        focusDiagram();
       } else {
+        if (fromUser && state.step < N) { var us = unitsOf(L, false), u = us[unitAt(us, state.step)]; if (u.g && state.step !== u.start) reveal(L, state.step); }
         var f = renderStep(true);
+        persist();
         setTimeout(function () { if (f) f.focus({ preventScroll: true }); }, 30);
       }
     }
@@ -2354,7 +3269,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       closeBtn.firstChild.setAttribute("width", "16"); closeBtn.firstChild.setAttribute("height", "16");
       drawer.appendChild(el("div", { class: "nthview-drawer-head" }, [el("h2", { text: "Glossary" }), closeBtn]));
       var dl = el("dl", { class: "nthview-gloss" });
-      data.glossary.forEach(function (g) { dl.appendChild(el("dt", { text: g.term })); var dd = el("dd"); dd.appendChild(rich(g.definition)); dl.appendChild(dd); });
+      Object.keys(GLOSS).forEach(function (k) { var g = GLOSS[k]; dl.appendChild(el("dt", { text: g.term })); var dd = el("dd"); dd.appendChild(rich(g.definition)); dl.appendChild(dd); });
       drawer.appendChild(dl);
       container.appendChild(scrim); container.appendChild(drawer);
       glossBtn.addEventListener("click", function () { drawerReturn = doc.activeElement; drawer.classList.add("nthview-open"); scrim.classList.add("nthview-open"); glossBtn.setAttribute("aria-expanded", "true"); setTimeout(function () { closeBtn.focus(); }, 50); });
@@ -2375,22 +3290,28 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     }
 
     /* ---------- keyboard ---------- */
-    /* keys work from the page body too, so the learner need not click into the view first */
+    /* keys work from the page body too, so the learner need not click into the view first;
+       arrows stay within the current level, Escape and Backspace go up one level */
     function onKey(e) {
       if (!container.isConnected || !(e.target === doc.body || e.target === doc.documentElement || container.contains(e.target))) return;
-      if (e.key === "Escape") { if (closeGlossary() || pop) { closePop(); e.preventDefault(); } return; }
+      if (e.key === "Escape") {
+        if (closeGlossary() || pop) { closePop(); e.preventDefault(); return; }
+        if (state.path.length) { e.preventDefault(); upLevel(); }
+        return;
+      }
       if (drawer && drawer.classList.contains("nthview-open")) return;
       var t = e.target;
       if (t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) return;
       if (e.altKey || e.ctrlKey || e.metaKey) return;
+      if (e.key === "Backspace") { if (state.path.length) { e.preventDefault(); upLevel(); } return; }
       var diag = state.mode === "diagram", d = 0;
       if (e.key === "ArrowRight" || (diag && e.key === "ArrowDown")) d = 1;
       else if (e.key === "ArrowLeft" || (diag && e.key === "ArrowUp")) d = -1;
-      else if (e.key === "Home") { e.preventDefault(); go(0); if (diag) D.arrows[0].focus({ preventScroll: true }); return; }
-      else if (e.key === "End") { e.preventDefault(); go(diag ? N - 1 : N); if (diag) D.arrows[N - 1].focus({ preventScroll: true }); return; }
+      else if (e.key === "Home") { e.preventDefault(); if (diag) diagGo(0); else go(0); return; }
+      else if (e.key === "End") { e.preventDefault(); if (diag) diagGo(D ? D.units.length - 1 : 0); else go(N); return; }
       if (!d) return;
       e.preventDefault();
-      if (diag) { var to = Math.max(0, Math.min(N - 1, Math.min(state.step, N - 1) + d)); go(to); D.arrows[to].focus({ preventScroll: true }); }
+      if (diag) diagGo(curUnit() + d);
       else if (d > 0) next.click(); else if (state.step > 0) go(state.step - 1);
     }
     if (container.__nthviewSeqKeys) doc.removeEventListener("keydown", container.__nthviewSeqKeys);
@@ -2402,26 +3323,47 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     /* ---------- restore saved progress; fields that no longer fit are ignored ---------- */
     var saved = loadState(key);
     if (saved) {
-      if (Number.isInteger(saved.step) && saved.step >= 0 && saved.step <= N) state.step = saved.step;
+      var path = [], lv = M.ROOT, full = true;
+      if (Array.isArray(saved.path)) {
+        for (var pi = 0; pi < saved.path.length; pi++) {
+          var x = saved.path[pi];
+          if (Number.isInteger(x) && x >= 0 && x < lv.N && lv.S[x].inner) { path.push(x); lv = innerOf(lv, x); } else { full = false; break; }
+        }
+      }
+      state.path = path; useLevel();
+      if (full && Number.isInteger(saved.step) && saved.step >= 0 && saved.step <= N) state.step = saved.step;
+      else if (!full && Number.isInteger(saved.path[path.length]) && saved.path[path.length] >= 0 && saved.path[path.length] < N) state.step = saved.path[path.length];
       if (saved.mode === "step" || saved.mode === "diagram") state.mode = saved.mode;
       if (saved.zoom === "fit" || (typeof saved.zoom === "number" && saved.zoom >= 0.4 && saved.zoom <= 2.5)) state.zoom = saved.zoom;
-      state.compare = saved.compare === true; state.details = saved.details === true; state.summarySeen = saved.summarySeen === true;
+      state.compare = saved.compare === true; state.details = saved.details === true; state.summarySeen = saved.summarySeen === true; state.expand = saved.expand === true;
+      if (saved.recapSeen && typeof saved.recapSeen === "object") Object.keys(saved.recapSeen).forEach(function (k) { if (LEVELS[k] && k && saved.recapSeen[k] === true) state.recapSeen[k] = true; });
+      if (saved.groups && typeof saved.groups === "object") {
+        Object.keys(saved.groups).forEach(function (k) {
+          var m = /^(.*)#g(\d+)$/.exec(k), lvl = m && LEVELS[m[1]], f = lvl && (lvl.seq.fragments || [])[+m[2]];
+          if (f && f.kind === "group" && String(+m[2]) === m[2] && typeof saved.groups[k] === "boolean") state.groups[k] = saved.groups[k];
+        });
+      }
       if (saved.checks && typeof saved.checks === "object") {
         Object.keys(saved.checks).forEach(function (k) {
-          var i = parseInt(k, 10), a = saved.checks[k], s = S[i];
-          if (!s || !s.check || String(i) !== k || !a || typeof a !== "object") return;
-          if (a.skipped === true) { state.checks[i] = { skipped: true }; return; }
-          var n = s.check.type === "who" ? P.length : s.check.options.length;
+          var parts = k.split("."), last = parts.pop(), lvl = LEVELS[parts.join(".")], i = parseInt(last, 10), a = saved.checks[k];
+          if (!lvl || String(i) !== last || !a || typeof a !== "object") return;
+          var s = lvl.S[i];
+          if (!s || !s.check) return;
+          if (a.skipped === true) { state.checks[k] = { skipped: true }; return; }
+          var n = s.check.type === "who" ? lvl.lanes.length : s.check.options.length;
           if (!Number.isInteger(a.picked) || a.picked < 0 || a.picked >= n) return;
-          var ok = s.check.type === "who" ? P[a.picked].id === s.check.answer : !!s.check.options[a.picked].correct;
-          state.checks[i] = { picked: a.picked, correct: ok };
+          var ok = s.check.type === "who" ? lvl.lanes[a.picked] === lvl.resolve(s.check.answer) : !!s.check.options[a.picked].correct;
+          state.checks[k] = { picked: a.picked, correct: ok };
         });
       }
     }
+    setupLevel();
     if (state.mode === "diagram") setMode("diagram"); else { renderStep(false); }
     if (saved && !untouched()) {
-      var where = state.step >= N ? "the recap" : "step " + (state.step + 1) + " of " + N;
-      resumeSlot.appendChild(resumeNotice("Welcome back, continuing from " + where + (state.mode === "diagram" ? " in the full diagram" : "") + "."));
+      var whereTxt = L.depth
+        ? (state.step >= N ? "the recap of the inner sequence of step " + numLabel(L.parent, L.parentIdx) : "step " + numLabel(L, state.step) + ", inside step " + numLabel(L.parent, L.parentIdx))
+        : (state.step >= N ? "the recap" : "step " + (state.step + 1) + " of " + N);
+      resumeSlot.appendChild(resumeNotice("Welcome back, continuing from " + whereTxt + (state.mode === "diagram" ? " in the full diagram" : "") + "."));
     }
   }
 
