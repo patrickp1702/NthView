@@ -59,6 +59,11 @@ One concept, many dimensions, one view at a time.
   everything a lesson or document covers, one idea per card, with a recap
   and a call to action. Every lesson opens with one. Demo:
   `skills/nthview-highlights/examples/example.html`.
+- **Dataflow** (`skills/nthview-dataflow`) — an interactive explainer in the
+  style of a protocol site for any flow of data or work: a hero definition,
+  topics and numbered steps, a network and a sequence diagram, a message flow
+  the learner plays with the exact payload annotated field by field, and an
+  optional version time machine. Demo: `skills/nthview-dataflow/examples/example.html`.
 
 Open `index.html` for the gallery of all views, or visit the hosted copy at
 https://patrickp1702.github.io/NthView/ (served by GitHub Pages straight from
