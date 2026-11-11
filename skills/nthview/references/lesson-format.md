@@ -103,8 +103,8 @@ duration. Follow `skills/nthview-highlights/SKILL.md` for the cards.
 | `demonstrate` | A worked example or a model to predict and tinker with | Sequence, Explorable Lab, Detective Case |
 | `apply` | Use the ideas with explanatory feedback | Scenario Quiz, Courier, Explorable Lab |
 | `confront` | Meet and rule out the tempting wrong model | Detective Case |
-| `consolidate` | Interleaved practice over everything so far | Island Quest, Temple Run |
-| `assess` | A scored check (Island Quest exam, Temple Run `strictMode`) | Island Quest, Temple Run |
+| `consolidate` | Interleaved practice over everything so far | Island Quest, Temple Run, Hunter |
+| `assess` | A scored check (Island Quest exam, Temple Run or Hunter `strictMode`) | Island Quest, Temple Run, Hunter |
 | `recap` | Summary and transfer, never new content (last chapter) | Highlights |
 
 Templates by content type, after `00-highlights`:
