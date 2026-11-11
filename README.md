@@ -50,6 +50,13 @@ One concept, many dimensions, one view at a time.
   of 31 activity types, in a card or as a trial on the track; learning or quiz
   mode, four themes. Demo: `skills/nthview-temple-run/examples/example.html`.
 
+- **Hunter** (`skills/nthview-hunter`) — a Hunter Assassin style top-down 3D
+  stealth game: every room is a lesson with eleven kinds of soldier, real
+  flashlights that cast shadows, chases, alarms and a boss, whose secret box
+  asks about it with one of 31 activity types, in a card or as a task in the
+  room; one-time powers, learning or quiz mode, four themes.
+  Demo: `skills/nthview-hunter/examples/example.html`.
+
 - **Sequence** (`skills/nthview-sequence`) — a protocol or any exchange between
   parties, one message at a time: what travels on each arrow, over which
   channel, and what every party holds afterwards, plus a full UML-style
