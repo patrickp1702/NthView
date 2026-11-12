@@ -15,7 +15,6 @@
   "startLabel": "Start the lessons",
   "jumps": ["signin", "token", "refresh"],
   "theme": "graphite",
-  "defaultMode": "sequence",
   "versions": [
     { "id": "2025-03-26", "label": "Mar '25", "date": "2025-03-26", "note": "Authorization enters the spec: OAuth 2.1 with PKCE, metadata discovery and dynamic client registration. The MCP server is both resource and authorization server." },
     { "id": "2025-06-18", "label": "Jun '25", "date": "2025-06-18", "note": "The MCP server becomes a plain resource server: its metadata points at the authorization server, and tokens are bound to one server with the resource parameter." },

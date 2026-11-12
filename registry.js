@@ -241,7 +241,7 @@ window.NthViewRegistry = {
       "title": "OAuth for MCP, step by step",
       "view": "nthview-dataflow",
       "data": "docs/mcp-authorization-dataflow.json",
-      "hash": "1mcv0oe"
+      "hash": "6xmr89"
     },
     {
       "file": "docs/mitre-attack-zoom-map.html",
