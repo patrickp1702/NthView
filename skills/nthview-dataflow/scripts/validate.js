@@ -58,6 +58,7 @@
     optionalString(data, "versionsLabel", "$", 24, error, 1);
     optionalString(data, "footer", "$", 300, error);
     optionalEnum(data, "theme", "$", THEMES, error);
+    optionalEnum(data, "defaultMode", "$", ["network", "sequence"], error);
 
     if (data.facts !== undefined && requireArray(data, "facts", "$", 0, 8, error)) {
       data.facts.forEach(function (f, i) {

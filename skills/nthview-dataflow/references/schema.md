@@ -35,6 +35,7 @@ string length. Ids are lowercase kebab-case (`card-network`), 1–40 characters.
 | `startLabel` | string | no | 1–40 chars; default "Start the lessons" | Text of the hero button |
 | `jumps` | string[] | no | 0–4 topic ids, no duplicates | "or jump to …" links under the hero button |
 | `theme` | string | no | one of `graphite`, `paper`, `blueprint`, `amber`; default `graphite` | Visual theme (see Themes) |
+| `defaultMode` | string | no | `network` or `sequence`; default `network` | The diagram shown first. `sequence` suits a document whose point is the order of messages |
 | `versions` | array | no | 0–8 Version objects, in chronological order | The time machine. Absent or fewer than 2 entries: no timeline is shown |
 | `versionsLabel` | string | no | 1–24 chars; default "Version" | Label beside the timeline, e.g. "Spec" |
 | `zones` | array | no | 0–10 Zone objects | Labelled groups the entities sit in |

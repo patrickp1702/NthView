@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
-  <title>MCP authorization explained — NthView</title>
+  <title>OAuth for MCP, step by step — NthView</title>
 </head>
 <body>
   <div id="app"></div>
@@ -12,56 +12,62 @@
   <script type="application/json" id="nthview-data">
 {
   "schemaVersion": 1,
-  "title": "MCP authorization explained",
-  "kicker": "Model Context Protocol · OAuth 2.1",
-  "heading": "How Claude signs in to an MCP server",
-  "lead": "A remote MCP server guards something useful, such as your tickets, documents or repositories, and will not hand it to just any program. When Claude Code connects, the server refuses the first request and points at where its sign-in rules are published. Claude then walks the OAuth 2.1 path: discover the authorization server, send you to a browser to approve, trade the resulting code for a token, and retry with that token attached. This explainer follows every request on that path and what each version of the specification changed.",
+  "title": "OAuth for MCP, step by step",
+  "kicker": "OAuth 2.1 · Model Context Protocol",
+  "heading": "How an agent gets access and refresh tokens",
+  "lead": "An agent such as Claude Code wants to use a remote MCP server that holds your data. The server will not serve a stranger, and you should never type your password into the agent. OAuth solves this with four roles and one short dance: the agent discovers who issues tokens for the server, sends **you** to a browser to sign in and approve, receives a one-time code, and trades that code for two tokens. The **access token** goes on every request and dies within an hour. The **refresh token** lives longer and quietly buys new access tokens. Eight numbered topics follow every message in order and show exactly what each one carries.",
   "facts": [
     {
+      "term": "Resource owner",
+      "text": "you: the person whose data it is and who says yes or no"
+    },
+    {
       "term": "Client",
-      "text": "Claude Code, the MCP client; it keeps one connection and one set of tokens per server"
+      "text": "the agent (here Claude Code); it asks for access and holds the tokens, never your password"
     },
     {
       "term": "Resource server",
-      "text": "the MCP server; it guards the tools and data and checks every token"
+      "text": "the MCP server; it checks the access token on every request and serves tools and data"
     },
     {
       "term": "Authorization server",
-      "text": "issues the tokens; run by the server's owner or by a separate identity provider"
+      "text": "signs you in, asks for your consent and mints the tokens; run by the server's owner or an identity provider"
     },
     {
-      "term": "PKCE",
-      "text": "proof that the program redeeming the code is the one that started the sign-in; mandatory in OAuth 2.1"
+      "term": "Access token",
+      "text": "a short-lived bearer credential sent as `Authorization: Bearer …` on every request to one server"
     },
     {
-      "term": "Not a password",
-      "text": "Claude never sees your password. It sees a short-lived token that works for one server only"
+      "term": "Refresh token",
+      "text": "a long-lived secret the agent exchanges for a fresh access token when the old one expires, without bothering you"
     }
   ],
   "startLabel": "Start the lessons",
   "jumps": [
     "signin",
-    "passthrough"
+    "token",
+    "refresh"
   ],
   "theme": "graphite",
+  "defaultMode": "sequence",
   "versions": [
     {
       "id": "2025-03-26",
       "label": "Mar '25",
       "date": "2025-03-26",
-      "note": "Authorization enters the spec: OAuth 2.1 with PKCE, metadata discovery and dynamic client registration. The MCP server is both the resource and the authorization server."
+      "note": "Authorization enters the spec: OAuth 2.1 with PKCE, metadata discovery and dynamic client registration. The MCP server is both resource and authorization server."
     },
     {
       "id": "2025-06-18",
       "label": "Jun '25",
       "date": "2025-06-18",
-      "note": "The MCP server becomes a plain resource server: protected resource metadata points at the authorization server, and tokens are bound to one server with resource indicators."
+      "note": "The MCP server becomes a plain resource server: its metadata points at the authorization server, and tokens are bound to one server with the resource parameter."
     },
     {
       "id": "2025-11-25",
       "label": "Nov '25",
       "date": "2025-11-25",
-      "note": "Client ID metadata documents join dynamic registration as a way to identify a client, and a server can ask for more scope step by step.",
+      "note": "Client ID metadata documents join dynamic registration, and a server can ask for more scope step by step.",
       "default": true
     }
   ],
@@ -75,7 +81,7 @@
     {
       "id": "server",
       "name": "MCP SERVER",
-      "subtitle": "remote resource server",
+      "subtitle": "resource server",
       "remote": true
     },
     {
@@ -95,21 +101,21 @@
     {
       "id": "user",
       "name": "You",
-      "subtitle": "at the keyboard",
+      "subtitle": "resource owner",
       "kind": "person",
       "zone": "local"
     },
     {
       "id": "claude",
       "name": "Claude Code",
-      "subtitle": "MCP client",
+      "subtitle": "the client",
       "kind": "client",
       "zone": "local"
     },
     {
       "id": "browser",
       "name": "Browser",
-      "subtitle": "system browser",
+      "subtitle": "where you sign in",
       "kind": "browser",
       "zone": "local"
     },
@@ -151,12 +157,12 @@
     {
       "from": "user",
       "to": "browser",
-      "label": "clicks"
+      "label": "sign-in page"
     },
     {
       "from": "claude",
       "to": "browser",
-      "label": "loopback"
+      "label": "localhost"
     },
     {
       "from": "claude",
@@ -196,16 +202,16 @@
   ],
   "sections": [
     {
-      "title": "The handshake",
+      "title": "The flow, step by step",
       "topics": [
         {
           "id": "challenge",
-          "title": "The 401 challenge",
-          "subtitle": "No token, no service",
+          "title": "1 · Connect and get challenged",
+          "subtitle": "The first request has no token and is refused",
           "article": {
             "body": [
-              "Claude does not know in advance whether a server wants a token. It simply sends the first MCP request, `initialize`, and lets the server answer. A server that requires authorization replies **401 Unauthorized** with a `WWW-Authenticate` header, the standard HTTP way of saying \"you need credentials, and here is what kind\".",
-              "Since the June 2025 revision the header also carries a `resource_metadata` URL. That one pointer removes all configuration: Claude fetches the document, learns which authorization server protects this MCP server and what scopes exist, and can start the sign-in without anyone typing a URL."
+              "Nothing in OAuth starts with a login screen. It starts with the client simply trying. Claude sends the first MCP request, `initialize`, with no credentials at all. A server that requires authorization answers **401 Unauthorized** and adds a `WWW-Authenticate` header: the HTTP way of saying \"you need a bearer token, and here is where to learn how to get one\".",
+              "What is passed matters. The request carries the MCP protocol version and the client's name. The 401 carries one URL, `resource_metadata`, pointing at a small JSON document the server publishes about itself. That single pointer is what makes the rest automatic: no server URL to configure, no list of identity providers built into the agent."
             ],
             "referencesLabel": "Spec",
             "references": [
@@ -214,48 +220,43 @@
                 "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization"
               },
               {
-                "label": "RFC 9728 · Protected resource metadata",
-                "url": "https://www.rfc-editor.org/rfc/rfc9728"
-              },
-              {
                 "label": "RFC 6750 · Bearer tokens",
                 "url": "https://www.rfc-editor.org/rfc/rfc6750"
               }
             ],
             "versionNotes": [
               {
-                "version": "2025-03-26",
-                "heading": "In 2025-03-26",
-                "items": [
-                  "A bare 401. The client assumes the MCP server is also the authorization server and looks for metadata at the server's own origin."
-                ]
-              },
-              {
                 "version": "2025-06-18",
                 "items": [
                   "The 401 carries `resource_metadata`, a URL to the protected resource metadata document (RFC 9728).",
-                  "The MCP server is a resource server only; the authorization server may be anyone."
+                  "Before this revision the 401 was bare and the client assumed the MCP server issued its own tokens."
                 ]
               }
             ]
           },
           "steps": [
             {
-              "title": "Try without a token",
-              "explanation": "You add the server; Claude opens its MCP endpoint and sends the first request of any session. There is no token yet, so the server refuses and says where its sign-in rules are published.",
+              "title": "You add the server",
+              "explanation": "You tell Claude about a remote MCP server by its URL. Nothing else: no username, no password, no key. Claude will work out how to get in by asking the server itself.",
               "messages": [
                 {
                   "from": "user",
                   "to": "claude",
-                  "name": "add server mcp.example.com",
-                  "info": "connect to a remote MCP server",
+                  "name": "add server https://mcp.example.com/mcp",
+                  "info": "carries: the server URL only",
                   "kind": "transport"
-                },
+                }
+              ]
+            },
+            {
+              "title": "Claude knocks without a token",
+              "explanation": "Claude sends the first MCP request, initialize, to the server's endpoint. It carries the protocol version Claude speaks and Claude's name and version. There is no Authorization header yet, on purpose: the server's answer will tell Claude what it needs.",
+              "messages": [
                 {
                   "from": "claude",
                   "to": "mcp",
-                  "name": "POST /mcp",
-                  "info": "initialize, no Authorization header",
+                  "name": "POST /mcp · initialize",
+                  "info": "carries: protocolVersion, clientInfo; no Authorization header",
                   "kind": "transport",
                   "size": "230 B",
                   "payload": {
@@ -280,20 +281,30 @@
                   },
                   "annotations": [
                     {
-                      "field": "Accept",
-                      "text": "The Streamable HTTP transport lets the server answer with plain JSON or with an event stream; the client accepts both."
+                      "field": "headers",
+                      "text": "No `Authorization` header. The client has nothing to send yet."
                     },
                     {
                       "field": "body.method",
-                      "text": "`initialize` always goes first. The server has not seen a token, so it never gets to run it."
+                      "text": "`initialize` is always the first MCP request. The server never runs it here; it stops at the missing token."
+                    },
+                    {
+                      "field": "body.params.protocolVersion",
+                      "text": "The spec revision the client speaks. The server will answer with the one it accepts."
                     }
                   ]
-                },
+                }
+              ]
+            },
+            {
+              "title": "The server answers 401 and points to its metadata",
+              "explanation": "The MCP server refuses. Its 401 carries a WWW-Authenticate header with the scheme Bearer, which means \"send me a bearer token\", and a resource_metadata URL, which is where Claude goes next to learn who issues tokens for this server.",
+              "messages": [
                 {
                   "from": "mcp",
                   "to": "claude",
                   "name": "401 Unauthorized",
-                  "info": "WWW-Authenticate with resource_metadata",
+                  "info": "carries: WWW-Authenticate: Bearer resource_metadata=\u003cURL>",
                   "kind": "error",
                   "versions": [
                     "2025-06-18",
@@ -303,11 +314,11 @@
                   "annotations": [
                     {
                       "field": "WWW-Authenticate",
-                      "text": "The scheme is `Bearer`: present a token in the Authorization header. The parameter says where to learn how to get one."
+                      "text": "The scheme `Bearer` tells the client which kind of credential to present: a token in the Authorization header."
                     },
                     {
                       "field": "resource_metadata",
-                      "text": "URL of the protected resource metadata (RFC 9728). Claude fetches it next; nothing about the server is configured by hand."
+                      "text": "The URL of the protected resource metadata (RFC 9728). Claude fetches it in the next topic."
                     }
                   ]
                 },
@@ -315,7 +326,7 @@
                   "from": "mcp",
                   "to": "claude",
                   "name": "401 Unauthorized",
-                  "info": "bare challenge, no pointer",
+                  "info": "carries: WWW-Authenticate: Bearer, nothing else",
                   "kind": "error",
                   "versions": [
                     "2025-03-26"
@@ -324,46 +335,52 @@
                   "annotations": [
                     {
                       "field": "WWW-Authenticate",
-                      "text": "In the first revision the header carried no pointer. The client assumed the MCP server itself issues tokens and looked for metadata at its origin."
+                      "text": "In the first revision there was no pointer. The client assumed the MCP server was also the authorization server."
                     }
                   ]
                 }
               ]
-            },
+            }
+          ]
+        },
+        {
+          "id": "discovery",
+          "title": "2 · Discover where to sign in",
+          "subtitle": "Two metadata documents name every endpoint",
+          "article": {
+            "body": [
+              "OAuth servers describe themselves in JSON documents at well-known URLs, so a client never needs them configured. There are two. The **protected resource metadata** belongs to the MCP server and says: this is my identifier, these are the authorization servers that protect me, these are the scopes I understand. The **authorization server metadata** (RFC 8414) belongs to the authorization server and lists its endpoints: where to send the browser (`authorization_endpoint`), where to exchange codes for tokens (`token_endpoint`), where a client may register, and which code challenge methods it accepts.",
+              "Claude reads both, checks that the authorization server supports PKCE with `S256`, and now knows every URL it will need for the rest of the flow."
+            ],
+            "referencesLabel": "Spec",
+            "references": [
+              {
+                "label": "RFC 9728 · Protected resource metadata",
+                "url": "https://www.rfc-editor.org/rfc/rfc9728"
+              },
+              {
+                "label": "RFC 8414 · Authorization server metadata",
+                "url": "https://www.rfc-editor.org/rfc/rfc8414"
+              }
+            ]
+          },
+          "steps": [
             {
               "title": "Read the protected resource metadata",
-              "explanation": "Claude fetches the document the 401 pointed at. It names the authorization servers that protect this resource and the scopes the server understands.",
-              "check": {
-                "prompt": "Where does Claude learn which authorization server to talk to?",
-                "options": [
-                  {
-                    "text": "From the metadata document the 401 pointed at",
-                    "correct": true,
-                    "why": "Right. The server publishes it at a well-known path and names its authorization servers there, so no client needs a list of servers built in."
-                  },
-                  {
-                    "text": "From a list of known authorization servers shipped with Claude",
-                    "why": "A built-in list would break for every new server. The protocol makes the server announce its own authorization server."
-                  },
-                  {
-                    "text": "By asking you to type the sign-in URL",
-                    "why": "You never type anything but your password, and you type that into the authorization server's own page, not into Claude."
-                  }
-                ]
-              },
+              "explanation": "Claude fetches the URL from the 401. The MCP server answers with its own identifier, the list of authorization servers that protect it and the scopes it understands. Claude now knows which authorization server to talk to.",
               "messages": [
                 {
                   "from": "claude",
                   "to": "mcp",
                   "name": "GET /.well-known/oauth-protected-resource",
-                  "info": "protected resource metadata",
+                  "info": "carries: nothing; a plain GET",
                   "size": "120 B"
                 },
                 {
                   "from": "mcp",
                   "to": "claude",
-                  "name": "200 OK",
-                  "info": "authorization_servers, scopes_supported",
+                  "name": "200 OK · resource metadata",
+                  "info": "carries: resource, authorization_servers, scopes_supported",
                   "kind": "response",
                   "size": "310 B",
                   "payload": {
@@ -382,15 +399,19 @@
                   "annotations": [
                     {
                       "field": "resource",
-                      "text": "The identifier of this protected resource. Claude will ask for tokens bound to exactly this value."
+                      "text": "The server's identifier. Claude will ask for tokens bound to exactly this value, so a token for this server works nowhere else."
                     },
                     {
                       "field": "authorization_servers",
-                      "text": "Who issues tokens for it. One is usual; with several, the client picks one it can work with."
+                      "text": "Who issues tokens for this server. Claude picks one and fetches its metadata next."
+                    },
+                    {
+                      "field": "scopes_supported",
+                      "text": "The permissions the server understands; Claude requests a subset at sign-in."
                     },
                     {
                       "field": "bearer_methods_supported",
-                      "text": "`header` only: the token travels in the Authorization header, never in the URL."
+                      "text": "`header` only: the token goes in the Authorization header, never in a URL."
                     }
                   ]
                 }
@@ -398,7 +419,7 @@
               "versions": {
                 "2025-03-26": {
                   "title": "Assume the server issues its own tokens",
-                  "explanation": "The first revision had no protected resource metadata. Claude assumed the MCP server was also the authorization server and went straight to its origin for the authorization server metadata.",
+                  "explanation": "The first revision had no protected resource metadata. Claude took the MCP server's own origin as the authorization server and looked for the authorization server metadata there.",
                   "messages": [
                     {
                       "from": "claude",
@@ -413,47 +434,23 @@
                   ]
                 }
               }
-            }
-          ]
-        },
-        {
-          "id": "discovery",
-          "title": "Discover the authorization server",
-          "subtitle": "Metadata says where to go",
-          "article": {
-            "body": [
-              "An OAuth authorization server describes itself in a JSON document at a well-known path (RFC 8414). It lists the endpoints a client needs, the code challenge methods it accepts and the ways a client may register. Claude fetches it once per server and caches it.",
-              "Two details matter for MCP. The server **must** support PKCE with `S256`; a client refuses to continue without it. And the metadata may name a registration endpoint, which decides how Claude will identify itself in the next topic."
-            ],
-            "referencesLabel": "Spec",
-            "references": [
-              {
-                "label": "RFC 8414 · Authorization server metadata",
-                "url": "https://www.rfc-editor.org/rfc/rfc8414"
-              },
-              {
-                "label": "OpenID Connect Discovery",
-                "url": "https://openid.net/specs/openid-connect-discovery-1_0.html"
-              }
-            ]
-          },
-          "steps": [
+            },
             {
               "title": "Fetch the authorization server metadata",
-              "explanation": "Claude takes the authorization server's URL and asks for its well-known metadata. OpenID-style discovery at a different path is tried as a fallback.",
+              "explanation": "Claude asks the authorization server for its well-known metadata. The answer carries the issuer name and the three endpoints the flow needs: authorize, token and register, plus the PKCE methods and the grant types it supports.",
               "messages": [
                 {
                   "from": "claude",
                   "to": "auth",
                   "name": "GET /.well-known/oauth-authorization-server",
-                  "info": "RFC 8414 metadata",
+                  "info": "carries: nothing; a plain GET",
                   "size": "110 B"
                 },
                 {
                   "from": "auth",
                   "to": "claude",
-                  "name": "200 OK",
-                  "info": "endpoints, S256, registration",
+                  "name": "200 OK · server metadata",
+                  "info": "carries: issuer, authorization/token/registration endpoints, S256, grant types",
                   "kind": "response",
                   "size": "640 B",
                   "payload": {
@@ -483,33 +480,41 @@
                   "annotations": [
                     {
                       "field": "issuer",
-                      "text": "The server's identity. Claude keys stored tokens by it, so two servers behind different issuers never mix."
+                      "text": "The server's identity. Claude stores tokens keyed by it, so two servers behind different issuers never mix."
+                    },
+                    {
+                      "field": "authorization_endpoint",
+                      "text": "Where the browser is sent in topic 4."
+                    },
+                    {
+                      "field": "token_endpoint",
+                      "text": "Where the code is exchanged for tokens in topic 5, and where refresh happens in topic 7."
                     },
                     {
                       "field": "code_challenge_methods_supported",
-                      "text": "Must include `S256`. Without PKCE an intercepted code could be redeemed by someone else."
+                      "text": "Must include `S256`. Claude refuses to continue without PKCE."
                     },
                     {
-                      "field": "registration_endpoint",
-                      "text": "Present when the server accepts dynamic client registration; optional."
+                      "field": "grant_types_supported",
+                      "text": "`authorization_code` for the sign-in, `refresh_token` for silent renewal."
                     },
                     {
                       "field": "token_endpoint_auth_methods_supported",
-                      "text": "`none` means a public client like Claude, which cannot keep a secret, may use the token endpoint with PKCE alone."
+                      "text": "`none` lets a public client like Claude, which cannot keep a secret, use PKCE alone."
                     }
                   ]
                 }
               ]
             },
             {
-              "title": "Check the essentials",
-              "explanation": "Before anything leaves the machine, Claude checks that the metadata supports the authorization code grant with PKCE S256 and notes the endpoints it will use.",
+              "title": "Check PKCE support",
+              "explanation": "Before anything leaves the machine, Claude checks the metadata: the code grant must be supported and S256 must be listed. If either is missing, the server cannot be used safely and Claude stops here.",
               "messages": [
                 {
                   "from": "claude",
                   "to": "claude",
                   "name": "verify metadata",
-                  "info": "code grant, S256, endpoints present",
+                  "info": "code grant and S256 present; endpoints noted",
                   "kind": "local",
                   "payload": "response_types_supported     includes \"code\"        ok\ncode_challenge_methods       includes \"S256\"        ok\nauthorization_endpoint       https://auth.example.com/authorize\ntoken_endpoint               https://auth.example.com/token\nregistration_endpoint        https://auth.example.com/register   (optional)"
                 }
@@ -519,13 +524,12 @@
         },
         {
           "id": "registration",
-          "title": "Identify the client",
-          "subtitle": "Dynamic registration or a metadata document",
+          "title": "3 · Introduce the client",
+          "subtitle": "How Claude gets a client_id",
           "article": {
             "body": [
-              "OAuth was designed for apps that register with a service by hand and receive a `client_id`. MCP clients connect to servers nobody registered them with, so the spec needs a way for a client to introduce itself on the fly. The first answer was **dynamic client registration** (RFC 7591): post a description, receive a `client_id`.",
-              "The November 2025 revision added **client ID metadata documents**: the `client_id` is itself an `https` URL under the client publisher's control, and the authorization server fetches the client's description from it. No registration call, no per-server state, and the server can see who publishes the client.",
-              "Claude keeps whichever `client_id` it ended up with, per authorization server, next to the tokens."
+              "Every OAuth client has a `client_id`, a public name the authorization server knows it by. Web apps get one when a developer registers them by hand. An agent connects to servers nobody registered it with, so MCP needs a way to introduce a client on the fly. **Dynamic client registration** (RFC 7591) does this: Claude posts a short description of itself, including the loopback address it will listen on, and receives a `client_id` in return. Public clients like Claude get no secret, because a program on a laptop cannot keep one.",
+              "The November 2025 revision added a second way, **client ID metadata documents**: the `client_id` is itself an `https` URL under the client publisher's control, and the authorization server fetches the client's description from there. No registration call, and the server can see who publishes the client."
             ],
             "referencesLabel": "Spec",
             "references": [
@@ -543,7 +547,7 @@
                 "version": "2025-11-25",
                 "items": [
                   "Client ID metadata documents: the `client_id` is an `https` URL the authorization server dereferences for the client's metadata.",
-                  "Dynamic registration remains available; a client may offer both."
+                  "Dynamic registration remains available."
                 ]
               }
             ]
@@ -551,13 +555,13 @@
           "steps": [
             {
               "title": "Register dynamically",
-              "explanation": "If the metadata lists a registration endpoint, Claude posts a short description of itself and receives a client id for this authorization server. Public clients get no secret.",
+              "explanation": "Claude posts its description to the registration endpoint: a display name, the loopback redirect URI where the browser should come back, the grant types it will use, and token_endpoint_auth_method none. The server answers with the client_id Claude will use from now on.",
               "messages": [
                 {
                   "from": "claude",
                   "to": "auth",
                   "name": "POST /register",
-                  "info": "client name, redirect URIs, no secret",
+                  "info": "carries: client_name, redirect_uris, grant_types, auth method none",
                   "size": "280 B",
                   "payload": {
                     "client_name": "Claude Code",
@@ -579,16 +583,20 @@
                       "text": "A loopback address on your machine. The browser will be sent back here with the code; only a program on this machine can receive it."
                     },
                     {
+                      "field": "grant_types",
+                      "text": "Claude declares both grants it will use: the code exchange now and refresh later."
+                    },
+                    {
                       "field": "token_endpoint_auth_method",
-                      "text": "`none`: a desktop client cannot hide a secret, so it authenticates the code exchange with PKCE instead."
+                      "text": "`none`: no client secret. PKCE will prove that the code exchange comes from the same program that started the sign-in."
                     }
                   ]
                 },
                 {
                   "from": "auth",
                   "to": "claude",
-                  "name": "201 Created",
-                  "info": "client_id for this server",
+                  "name": "201 Created · client_id",
+                  "info": "carries: client_id, the registered redirect URIs",
                   "kind": "response",
                   "payload": {
                     "client_id": "cid_8f2a…",
@@ -601,7 +609,7 @@
                   "annotations": [
                     {
                       "field": "client_id",
-                      "text": "Meaningful only to this authorization server. Claude stores it next to the tokens, keyed by issuer."
+                      "text": "Public, not secret. Meaningful only to this authorization server; Claude stores it next to the tokens."
                     }
                   ]
                 }
@@ -609,7 +617,7 @@
             },
             {
               "title": "Or present a client ID metadata document",
-              "explanation": "Instead of registering, Claude can use an https URL as its client id. The authorization server fetches the document behind it, finds the client's name and redirect URIs, and treats the publisher of that URL as the party to trust.",
+              "explanation": "Instead of registering, Claude can use an https URL as its client_id. The authorization server fetches the document behind that URL, reads the client's name and redirect URIs from it, and trusts the publisher of the domain to describe their own client.",
               "messages": [
                 {
                   "from": "claude",
@@ -624,8 +632,8 @@
                 {
                   "from": "auth",
                   "to": "auth",
-                  "name": "GET client_id URL",
-                  "info": "fetch and validate the client metadata document",
+                  "name": "GET the client_id URL",
+                  "info": "carries back: client_name, redirect_uris, auth method",
                   "kind": "local",
                   "tags": [
                     "new"
@@ -645,11 +653,11 @@
                   "annotations": [
                     {
                       "field": "client_id",
-                      "text": "Must equal the URL the document was fetched from. The server trusts the domain owner to describe their own client."
+                      "text": "Must equal the URL the document was fetched from."
                     },
                     {
                       "field": "redirect_uris",
-                      "text": "The server only redirects to URIs listed here, so a document published by the real client publisher protects its users."
+                      "text": "The server redirects only to URIs listed here, so a document published by the real client publisher protects its users."
                     }
                   ]
                 }
@@ -657,12 +665,12 @@
               "versions": {
                 "2025-03-26": {
                   "title": "Not yet specified",
-                  "explanation": "Client ID metadata documents arrive in the 2025-11-25 revision. In this revision a client registers dynamically or has a pre-configured client id.",
+                  "explanation": "Client ID metadata documents arrive in the 2025-11-25 revision. In this revision a client registers dynamically or has a pre-configured client_id.",
                   "messages": []
                 },
                 "2025-06-18": {
                   "title": "Not yet specified",
-                  "explanation": "Client ID metadata documents arrive in the 2025-11-25 revision. In this revision a client registers dynamically or has a pre-configured client id.",
+                  "explanation": "Client ID metadata documents arrive in the 2025-11-25 revision. In this revision a client registers dynamically or has a pre-configured client_id.",
                   "messages": []
                 }
               }
@@ -671,12 +679,12 @@
         },
         {
           "id": "signin",
-          "title": "Sign in with PKCE",
-          "subtitle": "The browser does the talking",
+          "title": "4 · Authorize in the browser",
+          "subtitle": "You sign in; Claude receives a one-time code",
           "article": {
             "body": [
-              "Claude never asks for your password. It opens the authorization server's page in your browser, you sign in there, and the server sends the browser back to Claude with a one-time **authorization code**. The code is useless on its own: whoever redeems it must also present the **code verifier**, a random secret Claude generated before opening the browser and only ever sends over the back channel. The browser carried only its hash, the code challenge.",
-              "From the June 2025 revision the request also names the **resource** the token is for, so the authorization server can mint a token that works at that MCP server and nowhere else."
+              "This is the only part you see. Claude opens the authorization server's page in your browser. You sign in there, with your password, a passkey or your company's single sign-on, and approve what Claude may do. The authorization server then sends the browser back to a loopback address on your machine with a one-time **authorization code**. Claude never sees your password; it receives only the code.",
+              "Two values protect the code. **PKCE**: before opening the browser, Claude generates a random **code verifier** and sends only its hash, the **code challenge**, in the URL. Whoever later redeems the code must present the verifier, which never travelled through the browser. **state**: a random value that comes back with the code so Claude can tell the callback belongs to the request it made. Since the June 2025 revision the request also names the **resource**, the MCP server the token is for."
             ],
             "referencesLabel": "Spec",
             "references": [
@@ -697,35 +705,35 @@
               {
                 "version": "2025-06-18",
                 "items": [
-                  "The authorization request carries `resource=` with the MCP server's URL (RFC 8707), so the token is audience-bound."
+                  "The authorization request carries `resource=` with the MCP server's identifier, so the token is bound to one server."
                 ]
               }
             ]
           },
           "steps": [
             {
-              "title": "Make a PKCE pair",
-              "explanation": "Claude draws a long random string, the code verifier, and hashes it into the code challenge. Only the challenge will leave the machine through the browser; the verifier stays until the token request.",
+              "title": "Generate the PKCE pair and a state value",
+              "explanation": "Claude draws a long random string, the code verifier, and keeps it secret. It hashes it with SHA-256 into the code challenge, which is safe to show in a URL. It also draws a random state value to recognise the callback later.",
               "messages": [
                 {
                   "from": "claude",
                   "to": "claude",
-                  "name": "generate code_verifier and code_challenge",
-                  "info": "43–128 random characters; S256 hash",
+                  "name": "generate code_verifier, code_challenge, state",
+                  "info": "verifier stays on the machine; the challenge is its hash",
                   "kind": "local",
-                  "payload": "code_verifier   = 43–128 chars from [A-Z a-z 0-9 - . _ ~], kept secret\ncode_challenge  = BASE64URL( SHA-256( code_verifier ) )\nstate           = random, to match the callback to this request"
+                  "payload": "code_verifier   = 43–128 random chars from [A-Z a-z 0-9 - . _ ~]   (secret, kept)\ncode_challenge  = BASE64URL( SHA-256( code_verifier ) )         (goes in the URL)\nstate           = random string                                 (matches the callback to this request)"
                 }
               ]
             },
             {
-              "title": "Open the browser",
-              "explanation": "Claude starts a tiny web server on a loopback port to catch the callback, then opens the authorization URL in your default browser.",
+              "title": "Open the authorization URL",
+              "explanation": "Claude starts a tiny web server on a loopback port to catch the callback, then opens the authorization endpoint in your browser. The URL carries: response_type code, Claude's client_id, the loopback redirect URI, the code challenge and its method, the resource (the MCP server), the scopes it wants, and the state.",
               "messages": [
                 {
                   "from": "claude",
                   "to": "browser",
                   "name": "open /authorize?…",
-                  "info": "code challenge, redirect to localhost, resource",
+                  "info": "carries: client_id, redirect_uri, code_challenge, resource, scope, state",
                   "kind": "transport",
                   "versions": [
                     "2025-06-18",
@@ -734,20 +742,32 @@
                   "payload": "https://auth.example.com/authorize\n  ?response_type=code\n  &client_id=cid_8f2a…\n  &redirect_uri=http://localhost:52341/callback\n  &code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM\n  &code_challenge_method=S256\n  &resource=https://mcp.example.com/mcp\n  &scope=mcp:tools mcp:resources\n  &state=af0ifjsldkj",
                   "annotations": [
                     {
-                      "field": "code_challenge",
-                      "text": "The hash of the verifier. Seeing it in the browser history tells an attacker nothing useful."
+                      "field": "response_type",
+                      "text": "`code`: Claude wants an authorization code, not a token, in the browser. The token comes later over the back channel."
                     },
                     {
-                      "field": "resource",
-                      "text": "The MCP server's identifier from its metadata. Asks for a token whose audience is that server only."
+                      "field": "client_id",
+                      "text": "Who is asking, from topic 3."
                     },
                     {
                       "field": "redirect_uri",
-                      "text": "A loopback address: only a program on your machine can receive the callback."
+                      "text": "Where the browser must be sent back with the code: a loopback address only a program on your machine can receive."
+                    },
+                    {
+                      "field": "code_challenge",
+                      "text": "The hash of the verifier. Seeing it in the browser history gives an attacker nothing."
+                    },
+                    {
+                      "field": "resource",
+                      "text": "The MCP server's identifier from topic 2. The token will be minted for that server only."
+                    },
+                    {
+                      "field": "scope",
+                      "text": "What Claude asks permission for; you see these on the consent page."
                     },
                     {
                       "field": "state",
-                      "text": "Random value echoed back by the server so Claude can match the callback to its own request."
+                      "text": "Echoed back by the server so Claude can match the callback to this request."
                     }
                   ]
                 },
@@ -755,7 +775,7 @@
                   "from": "claude",
                   "to": "browser",
                   "name": "open /authorize?…",
-                  "info": "code challenge, redirect to localhost",
+                  "info": "carries: client_id, redirect_uri, code_challenge, state",
                   "kind": "transport",
                   "versions": [
                     "2025-03-26"
@@ -771,70 +791,56 @@
               ]
             },
             {
-              "title": "You approve",
-              "explanation": "The browser shows the authorization server's own sign-in and consent page. You prove who you are to the server, never to Claude, and approve what the client may do.",
+              "title": "You sign in and consent",
+              "explanation": "The browser loads the authorization server's page. You prove who you are to that server, never to Claude, and the page lists what Claude asked for: the scopes. You approve. The browser posts your consent back to the authorization server.",
               "messages": [
                 {
                   "from": "browser",
                   "to": "auth",
-                  "name": "GET /authorize",
-                  "info": "the URL Claude opened"
+                  "name": "GET /authorize?…",
+                  "info": "carries: the full URL Claude opened"
                 },
                 {
                   "from": "auth",
                   "to": "browser",
-                  "name": "sign-in and consent page",
-                  "info": "the server's own page",
+                  "name": "200 · sign-in and consent page",
+                  "info": "carries: the server's own login form and the requested scopes",
                   "kind": "response"
                 },
                 {
                   "from": "user",
                   "to": "browser",
-                  "name": "sign in, approve",
-                  "info": "password, passkey or SSO; then consent",
+                  "name": "sign in, then approve",
+                  "info": "carries: your password or passkey, to the authorization server only",
                   "kind": "transport"
                 },
                 {
                   "from": "browser",
                   "to": "auth",
-                  "name": "POST consent",
-                  "info": "approve mcp:tools, mcp:resources"
+                  "name": "POST /authorize · consent",
+                  "info": "carries: your approval of mcp:tools and mcp:resources"
                 }
               ]
             },
             {
-              "title": "Back to Claude with a code",
-              "explanation": "The server redirects the browser to the loopback address with a one-time code. Claude's tiny server receives it, checks the state, and closes the tab.",
-              "check": {
-                "prompt": "The authorization code travels through the browser and its history. Why can someone who copies it not use it?",
-                "options": [
-                  {
-                    "text": "Redeeming it requires the code verifier, which only Claude holds and never sent through the browser",
-                    "correct": true,
-                    "why": "Right. The token endpoint hashes the verifier and compares it to the challenge sent at the start; a thief has the code but not the verifier."
-                  },
-                  {
-                    "text": "The code is encrypted with the browser's key",
-                    "why": "The code is an opaque string in a URL; nothing encrypts it. PKCE makes it worthless on its own instead."
-                  },
-                  {
-                    "text": "The server only accepts it from the same IP address",
-                    "why": "IP checks would break on mobile networks and VPNs, and they are not part of OAuth. The verifier is the proof."
-                  }
-                ]
-              },
+              "title": "The code comes back to Claude",
+              "explanation": "The authorization server redirects the browser to the loopback address with two values: the one-time authorization code and the state. Claude's tiny server receives them, checks that the state matches, and tells the browser the tab can be closed. The code alone is worthless: redeeming it needs the verifier Claude kept.",
               "messages": [
                 {
                   "from": "auth",
                   "to": "browser",
-                  "name": "302 Found",
-                  "info": "Location: http://localhost:52341/callback?code=…&state=…",
+                  "name": "302 Found → localhost callback",
+                  "info": "carries: code, state in the Location URL",
                   "kind": "response",
                   "payload": "HTTP/1.1 302 Found\nLocation: http://localhost:52341/callback?code=SplxlOBeZQQYbYS6WxSbIA&state=af0ifjsldkj",
                   "annotations": [
                     {
                       "field": "code",
-                      "text": "Single use and short-lived, typically under a minute. Useless without the code verifier."
+                      "text": "The authorization code: single use, short-lived, typically under a minute. Useless without the code verifier."
+                    },
+                    {
+                      "field": "state",
+                      "text": "The same value Claude sent. A callback with a different state is ignored."
                     }
                   ]
                 },
@@ -842,20 +848,20 @@
                   "from": "browser",
                   "to": "claude",
                   "name": "GET /callback?code=…&state=…",
-                  "info": "to the loopback server Claude started"
+                  "info": "carries: code, state to Claude's loopback server"
                 },
                 {
                   "from": "claude",
                   "to": "claude",
                   "name": "check state",
-                  "info": "must equal the state sent in step 2",
+                  "info": "must equal the state from step 1",
                   "kind": "local"
                 },
                 {
                   "from": "claude",
                   "to": "browser",
-                  "name": "200 OK",
-                  "info": "\"You can close this tab\"",
+                  "name": "200 OK · \"you can close this tab\"",
+                  "info": "carries: a short confirmation page",
                   "kind": "response"
                 }
               ]
@@ -864,12 +870,12 @@
         },
         {
           "id": "token",
-          "title": "Trade the code for a token",
-          "subtitle": "Back channel, with proof",
+          "title": "5 · Exchange the code for tokens",
+          "subtitle": "Back channel: code + verifier in, access and refresh tokens out",
           "article": {
             "body": [
-              "The code exchange happens directly between Claude and the authorization server, with no browser in between. Claude sends the code, the redirect URI it used, its client id, the **code verifier** and, since June 2025, the **resource**. The server hashes the verifier, compares it with the challenge it saw when the sign-in started, and only then issues tokens.",
-              "The **access token** is a bearer token: whoever presents it is served. That is why it is short-lived, scoped and bound to one audience. The **refresh token** lets Claude get a new access token later without bothering you again."
+              "Now the browser is out of the picture. Claude talks to the authorization server's token endpoint directly over HTTPS. It sends the code it received, the same redirect URI it used, its client_id, the **code verifier** and the **resource**. The server hashes the verifier, compares it with the challenge it saw when the sign-in started, checks the code is unused and unexpired, and only then answers.",
+              "The answer is the goal of the whole flow. The **access token** is a bearer credential: whoever presents it is served, which is why it is scoped, short-lived and bound to one audience. The **refresh token** is a longer-lived secret that lets Claude obtain a new access token later without a browser. Claude stores both in the operating system's credential store, keyed by the authorization server and the MCP server."
             ],
             "referencesLabel": "Spec",
             "references": [
@@ -885,14 +891,14 @@
           },
           "steps": [
             {
-              "title": "POST to the token endpoint",
-              "explanation": "Claude redeems the code over HTTPS, proving it started the flow by including the code verifier.",
+              "title": "Send the code and the verifier",
+              "explanation": "Claude posts to the token endpoint: grant_type authorization_code, the code, the redirect URI used, its client_id, the code verifier and the resource. The verifier is the proof: only the program that generated the challenge can produce it.",
               "messages": [
                 {
                   "from": "claude",
                   "to": "auth",
                   "name": "POST /token",
-                  "info": "code, code_verifier, resource",
+                  "info": "carries: grant_type, code, redirect_uri, client_id, code_verifier, resource",
                   "size": "320 B",
                   "versions": [
                     "2025-06-18",
@@ -901,12 +907,24 @@
                   "payload": "POST /token HTTP/1.1\nHost: auth.example.com\nContent-Type: application/x-www-form-urlencoded\n\ngrant_type=authorization_code\n&code=SplxlOBeZQQYbYS6WxSbIA\n&redirect_uri=http://localhost:52341/callback\n&client_id=cid_8f2a…\n&code_verifier=dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk\n&resource=https://mcp.example.com/mcp",
                   "annotations": [
                     {
+                      "field": "grant_type",
+                      "text": "`authorization_code`: exchange a code for tokens."
+                    },
+                    {
+                      "field": "code",
+                      "text": "The one-time code from topic 4."
+                    },
+                    {
+                      "field": "redirect_uri",
+                      "text": "Must match the one used in the authorization request; a mismatch is refused."
+                    },
+                    {
                       "field": "code_verifier",
-                      "text": "The secret from step 1 of the sign-in. The server checks BASE64URL(SHA-256(verifier)) equals the code_challenge it stored."
+                      "text": "The secret from topic 4, step 1. The server checks BASE64URL(SHA-256(verifier)) equals the stored code_challenge."
                     },
                     {
                       "field": "resource",
-                      "text": "Repeated here so the issued token is bound to this MCP server."
+                      "text": "Repeated so the issued token is bound to this MCP server."
                     },
                     {
                       "field": "client_id",
@@ -918,7 +936,7 @@
                   "from": "claude",
                   "to": "auth",
                   "name": "POST /token",
-                  "info": "code and code_verifier",
+                  "info": "carries: grant_type, code, redirect_uri, client_id, code_verifier",
                   "size": "270 B",
                   "versions": [
                     "2025-03-26"
@@ -928,14 +946,14 @@
               ]
             },
             {
-              "title": "Receive the tokens",
-              "explanation": "The server answers with a short-lived access token, its lifetime, the granted scope and a refresh token.",
+              "title": "Receive the access token and the refresh token",
+              "explanation": "The authorization server answers with the two tokens. The access token, its type Bearer, its lifetime in seconds, the scope actually granted, and the refresh token. From here on Claude is authorized.",
               "messages": [
                 {
                   "from": "auth",
                   "to": "claude",
-                  "name": "200 OK",
-                  "info": "access_token, refresh_token, expires_in",
+                  "name": "200 OK · tokens",
+                  "info": "carries: access_token, token_type, expires_in, refresh_token, scope",
                   "kind": "response",
                   "size": "480 B",
                   "payload": {
@@ -948,29 +966,37 @@
                   "annotations": [
                     {
                       "field": "access_token",
-                      "text": "Opaque to Claude. The MCP server knows how to validate it, by signature or by asking the issuer. Its audience is the MCP server named in `resource`."
+                      "text": "What Claude sends on every request to the MCP server. Opaque to Claude; the server knows how to validate it. Its audience is the MCP server named in `resource`."
+                    },
+                    {
+                      "field": "token_type",
+                      "text": "`Bearer`: present it as `Authorization: Bearer \u003ctoken>`."
                     },
                     {
                       "field": "expires_in",
-                      "text": "Seconds until the access token dies. Short lifetimes limit the damage of a leak."
+                      "text": "Seconds until the access token dies, here one hour. Short lifetimes limit the damage of a leak."
                     },
                     {
                       "field": "refresh_token",
-                      "text": "Lets Claude get a new access token without a browser. It is the more valuable secret and is stored in the keychain."
+                      "text": "Lets Claude get a new access token without a browser. It is the more valuable secret and goes in the keychain."
+                    },
+                    {
+                      "field": "scope",
+                      "text": "What was actually granted; it may be less than what was asked."
                     }
                   ]
                 }
               ]
             },
             {
-              "title": "Store them safely",
-              "explanation": "Claude saves the tokens in the operating system's credential store, keyed by the authorization server and the MCP server, and never writes them to a project file.",
+              "title": "Store both tokens safely",
+              "explanation": "Claude saves the tokens in the operating system's credential store, keyed by the authorization server's issuer and the MCP server's resource identifier, together with the client_id. Nothing is written to a project file.",
               "messages": [
                 {
                   "from": "claude",
                   "to": "claude",
                   "name": "store credentials",
-                  "info": "OS keychain, keyed by issuer and server",
+                  "info": "OS keychain, keyed by issuer and resource",
                   "kind": "local",
                   "payload": "keychain entry\n  issuer         https://auth.example.com\n  resource       https://mcp.example.com/mcp\n  client_id      cid_8f2a…\n  access_token   at_…        expires 2025-11-25T10:42Z\n  refresh_token  rt_…"
                 }
@@ -979,44 +1005,32 @@
           ]
         },
         {
-          "id": "retry",
-          "title": "Retry and keep the session",
-          "subtitle": "Bearer tokens, refresh and step-up",
+          "id": "use",
+          "title": "6 · Use the access token",
+          "subtitle": "Every MCP request now carries Authorization: Bearer",
           "article": {
             "body": [
-              "With a token in hand, Claude repeats the very first request, this time with an `Authorization: Bearer` header. The MCP server validates the token, in particular that its **audience** is this server, and the normal MCP session begins: initialize, list tools, call tools.",
-              "When the access token expires the server answers 401 again; Claude uses the refresh token and retries without opening a browser. When a tool needs more than the granted scope, a server following the November 2025 revision can answer **403** with `insufficient_scope` and the scope it wants; Claude then runs the sign-in again asking for the union of old and new scopes."
+              "With a token in hand, Claude repeats the very first request, this time with an `Authorization: Bearer` header. The MCP server validates the token: its signature or introspection result, its expiry, its scope, and above all its **audience**, which must be this server. Then the ordinary MCP session begins: initialize, list tools, call tools, each request carrying the same header.",
+              "The token is opaque to Claude. It does not read it, parse it or forward it anywhere; it only presents it to the one server it was minted for."
             ],
             "referencesLabel": "Spec",
             "references": [
               {
                 "label": "RFC 6750 · Bearer token usage",
                 "url": "https://www.rfc-editor.org/rfc/rfc6750"
-              },
-              {
-                "label": "MCP authorization",
-                "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization"
-              }
-            ],
-            "versionNotes": [
-              {
-                "version": "2025-11-25",
-                "items": [
-                  "Scope challenges: a 403 with `insufficient_scope` names the scope a request needs, and the client asks for it incrementally."
-                ]
               }
             ]
           },
           "steps": [
             {
-              "title": "Retry the first request",
-              "explanation": "The same initialize request, now with the bearer token. The server checks signature, expiry and audience, then answers as any MCP server would.",
+              "title": "Retry the first request with the bearer token",
+              "explanation": "The same initialize request as in topic 1, now with the header Authorization: Bearer and the access token. Everything else is unchanged.",
               "messages": [
                 {
                   "from": "claude",
                   "to": "mcp",
-                  "name": "POST /mcp",
-                  "info": "initialize with Authorization: Bearer",
+                  "name": "POST /mcp · initialize",
+                  "info": "carries: Authorization: Bearer \u003caccess token>, the initialize body",
                   "kind": "transport",
                   "payload": "POST /mcp HTTP/1.1\nHost: mcp.example.com\nAuthorization: Bearer at_2YotnFZFEjr1zCsicMWpAA…\nContent-Type: application/json\n\n{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"initialize\",\"params\":{\"protocolVersion\":\"2025-11-25\",\"capabilities\":{},\"clientInfo\":{\"name\":\"claude-code\",\"version\":\"2.x\"}}}",
                   "annotations": [
@@ -1025,20 +1039,32 @@
                       "text": "The bearer token, in the header only. Never in the URL, never in the JSON body."
                     }
                   ]
-                },
+                }
+              ]
+            },
+            {
+              "title": "The server validates the token",
+              "explanation": "The MCP server checks the token before running anything: the issuer's signature or an introspection call, the expiry time, the scope the request needs, and that the audience is this very server. A token minted for another server is rejected here.",
+              "messages": [
                 {
                   "from": "mcp",
                   "to": "mcp",
                   "name": "validate token",
-                  "info": "signature, expiry, audience = this server",
+                  "info": "signature, expiry, scope, audience = this server",
                   "kind": "local",
-                  "payload": "signature   issuer's key           ok\nexpiry      not before now         ok\naudience    https://mcp.example.com/mcp   ok   (reject anything else)\nscope       mcp:tools mcp:resources"
-                },
+                  "payload": "signature   issuer's key                  ok\nexpiry      not before now                ok\naudience    https://mcp.example.com/mcp   ok   (anything else: reject)\nscope       mcp:tools mcp:resources       ok"
+                }
+              ]
+            },
+            {
+              "title": "The MCP session proceeds",
+              "explanation": "The server answers initialize as any MCP server would, and Claude goes on to list and call tools. Every one of those requests carries the same Authorization header until the token expires.",
+              "messages": [
                 {
                   "from": "mcp",
                   "to": "claude",
-                  "name": "200 OK",
-                  "info": "initialize result, session id",
+                  "name": "200 OK · initialize result",
+                  "info": "carries: protocolVersion, server capabilities, serverInfo",
                   "kind": "response",
                   "payload": {
                     "jsonrpc": "2.0",
@@ -1057,72 +1083,192 @@
                       }
                     }
                   }
+                },
+                {
+                  "from": "claude",
+                  "to": "mcp",
+                  "name": "POST /mcp · tools/list",
+                  "info": "carries: Authorization: Bearer, the tools/list request",
+                  "kind": "transport"
+                },
+                {
+                  "from": "mcp",
+                  "to": "claude",
+                  "name": "200 OK · tools",
+                  "info": "carries: the server's tools",
+                  "kind": "response"
                 }
               ]
-            },
+            }
+          ]
+        },
+        {
+          "id": "refresh",
+          "title": "7 · Refresh when the access token expires",
+          "subtitle": "The refresh token buys a new access token, silently",
+          "article": {
+            "body": [
+              "Access tokens are deliberately short-lived. When one expires the MCP server answers **401** again, this time with `error=\"invalid_token\"`. Claude does not reopen the browser. It posts the **refresh token** to the token endpoint with `grant_type=refresh_token` and receives a fresh access token, and often a fresh refresh token too. Then it retries the request that failed. You notice nothing.",
+              "Many servers rotate refresh tokens: each use returns a new one and invalidates the old. Claude replaces the stored one every time. If the refresh token itself is revoked or expired, the server answers an error and Claude falls back to the full browser sign-in from topic 4."
+            ],
+            "referencesLabel": "Spec",
+            "references": [
+              {
+                "label": "OAuth 2.1 draft · refreshing an access token",
+                "url": "https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1"
+              }
+            ]
+          },
+          "steps": [
             {
-              "title": "Refresh when it expires",
-              "explanation": "An hour later the access token is dead. The server says 401, Claude posts the refresh token to the token endpoint and continues. You notice nothing.",
+              "title": "The access token has expired",
+              "explanation": "An hour later a request fails. The server answers 401 with error invalid_token and a description. This is a different 401 from topic 1: Claude has credentials, they are just stale.",
               "messages": [
+                {
+                  "from": "claude",
+                  "to": "mcp",
+                  "name": "POST /mcp · tools/call",
+                  "info": "carries: Authorization: Bearer \u003cexpired access token>",
+                  "kind": "transport"
+                },
                 {
                   "from": "mcp",
                   "to": "claude",
                   "name": "401 Unauthorized",
-                  "info": "token expired",
+                  "info": "carries: WWW-Authenticate: Bearer error=\"invalid_token\"",
                   "kind": "error",
-                  "payload": "HTTP/1.1 401 Unauthorized\nWWW-Authenticate: Bearer error=\"invalid_token\", error_description=\"The access token expired\""
-                },
+                  "payload": "HTTP/1.1 401 Unauthorized\nWWW-Authenticate: Bearer error=\"invalid_token\", error_description=\"The access token expired\"",
+                  "annotations": [
+                    {
+                      "field": "error",
+                      "text": "`invalid_token` means the credential is unusable; `error_description` says why. Claude tries the refresh token before anything else."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "Send the refresh token",
+              "explanation": "Claude posts to the token endpoint with grant_type refresh_token, the refresh token, its client_id and the resource. No browser, no user interaction.",
+              "messages": [
                 {
                   "from": "claude",
                   "to": "auth",
                   "name": "POST /token",
-                  "info": "grant_type=refresh_token",
-                  "payload": "grant_type=refresh_token\n&refresh_token=rt_tGzv3JOkF0XG5Qx2TlKWIA…\n&client_id=cid_8f2a…\n&resource=https://mcp.example.com/mcp"
-                },
+                  "info": "carries: grant_type=refresh_token, refresh_token, client_id, resource",
+                  "payload": "POST /token HTTP/1.1\nHost: auth.example.com\nContent-Type: application/x-www-form-urlencoded\n\ngrant_type=refresh_token\n&refresh_token=rt_tGzv3JOkF0XG5Qx2TlKWIA…\n&client_id=cid_8f2a…\n&resource=https://mcp.example.com/mcp",
+                  "annotations": [
+                    {
+                      "field": "grant_type",
+                      "text": "`refresh_token`: trade a refresh token for a new access token."
+                    },
+                    {
+                      "field": "refresh_token",
+                      "text": "The long-lived secret from topic 5. It is sent only here, only to the token endpoint, only over HTTPS."
+                    },
+                    {
+                      "field": "resource",
+                      "text": "The new access token must be bound to the same MCP server."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "New tokens, then retry",
+              "explanation": "The authorization server answers with a new access token and, when it rotates, a new refresh token. Claude replaces both in the keychain and retries the failed request with the new access token.",
+              "messages": [
                 {
                   "from": "auth",
                   "to": "claude",
-                  "name": "200 OK",
-                  "info": "new access token, maybe a new refresh token",
+                  "name": "200 OK · new tokens",
+                  "info": "carries: access_token, expires_in, and often a new refresh_token",
                   "kind": "response",
                   "payload": {
                     "access_token": "at_9f1c…",
                     "token_type": "Bearer",
                     "expires_in": 3600,
-                    "refresh_token": "rt_7d3e…"
+                    "refresh_token": "rt_7d3e…",
+                    "scope": "mcp:tools mcp:resources"
                   },
                   "annotations": [
                     {
+                      "field": "access_token",
+                      "text": "A fresh token for another hour."
+                    },
+                    {
                       "field": "refresh_token",
-                      "text": "Many servers rotate it on every use; Claude replaces the stored one and the old one stops working."
+                      "text": "A rotated refresh token. The old one stops working; Claude stores the new one."
                     }
                   ]
                 },
                 {
                   "from": "claude",
+                  "to": "claude",
+                  "name": "replace stored tokens",
+                  "info": "keychain updated",
+                  "kind": "local"
+                },
+                {
+                  "from": "claude",
                   "to": "mcp",
-                  "name": "POST /mcp",
-                  "info": "the failed request, retried with the new token",
+                  "name": "POST /mcp · tools/call",
+                  "info": "carries: Authorization: Bearer \u003cnew access token>; the request that failed",
                   "kind": "transport"
+                },
+                {
+                  "from": "mcp",
+                  "to": "claude",
+                  "name": "200 OK · tool result",
+                  "info": "carries: the tool's result",
+                  "kind": "response"
                 }
               ]
-            },
+            }
+          ]
+        },
+        {
+          "id": "stepup",
+          "title": "8 · Step up for more scope",
+          "subtitle": "A 403 names the missing permission",
+          "availableFrom": "2025-11-25",
+          "article": {
+            "body": [
+              "A token carries the scopes you approved. When a tool needs more, a server following the November 2025 revision answers **403 Forbidden** with `error=\"insufficient_scope\"` and the scope it wants. Claude runs the browser sign-in again asking for the union of the old and new scopes, so you approve only the addition and nothing already granted is lost."
+            ],
+            "referencesLabel": "Spec",
+            "references": [
+              {
+                "label": "MCP authorization",
+                "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization"
+              }
+            ],
+            "versionNotes": [
+              {
+                "version": "2025-11-25",
+                "items": [
+                  "Scope challenges: a 403 with `insufficient_scope` names the scope a request needs, and the client asks for it incrementally."
+                ]
+              }
+            ]
+          },
+          "steps": [
             {
-              "title": "Step up for more scope",
-              "explanation": "A tool needs a scope the token does not carry. The server refuses with 403 and names the missing scope; Claude asks for the union of the old and new scopes and repeats the browser sign-in.",
+              "title": "The server asks for more",
+              "explanation": "Claude calls a tool that writes. The token only has read scopes, so the server refuses with 403, names the scope it needs and repeats the metadata pointer.",
               "messages": [
                 {
                   "from": "claude",
                   "to": "mcp",
-                  "name": "tools/call",
-                  "info": "create_ticket, needs tickets:write",
-                  "size": "190 B"
+                  "name": "POST /mcp · tools/call create_ticket",
+                  "info": "carries: Authorization: Bearer; token has mcp:tools, mcp:resources",
+                  "kind": "transport"
                 },
                 {
                   "from": "mcp",
                   "to": "claude",
                   "name": "403 Forbidden",
-                  "info": "insufficient_scope, scope=\"tickets:write\"",
+                  "info": "carries: error=\"insufficient_scope\", scope=\"tickets:write\"",
                   "kind": "error",
                   "tags": [
                     "new"
@@ -1131,209 +1277,60 @@
                   "annotations": [
                     {
                       "field": "scope",
-                      "text": "What this request needs. The client asks for the union of what it has and what is missing, so it does not lose the old grant."
+                      "text": "What this request needs. Claude asks for the union of what it has and what is missing."
                     }
                   ]
-                },
+                }
+              ]
+            },
+            {
+              "title": "Sign in again with the union of scopes",
+              "explanation": "Claude repeats topic 4 with scope set to the old scopes plus tickets:write, exchanges the code as in topic 5, and retries the tool call with the upgraded token.",
+              "messages": [
                 {
                   "from": "claude",
                   "to": "browser",
                   "name": "open /authorize?…&scope=… tickets:write",
-                  "info": "the sign-in again, with more scope",
+                  "info": "carries: the same parameters as topic 4, with the enlarged scope",
                   "kind": "transport"
                 },
                 {
                   "from": "claude",
-                  "to": "mcp",
-                  "name": "tools/call",
-                  "info": "retried with the upgraded token"
-                }
-              ],
-              "versions": {
-                "2025-03-26": {
-                  "title": "No step-up path",
-                  "explanation": "Scope challenges arrive in the 2025-11-25 revision. Earlier, a client that lacked a scope could only start a fresh sign-in on its own initiative.",
-                  "messages": []
+                  "to": "auth",
+                  "name": "POST /token",
+                  "info": "carries: the new code and its code_verifier"
                 },
-                "2025-06-18": {
-                  "title": "No step-up path",
-                  "explanation": "Scope challenges arrive in the 2025-11-25 revision. Earlier, a client that lacked a scope could only start a fresh sign-in on its own initiative.",
-                  "messages": []
+                {
+                  "from": "auth",
+                  "to": "claude",
+                  "name": "200 OK · tokens",
+                  "info": "carries: an access token with all three scopes",
+                  "kind": "response"
+                },
+                {
+                  "from": "claude",
+                  "to": "mcp",
+                  "name": "POST /mcp · tools/call create_ticket",
+                  "info": "carries: Authorization: Bearer \u003cupgraded token>",
+                  "kind": "transport"
                 }
-              }
+              ]
             }
           ]
         }
       ]
     },
     {
-      "title": "Break it: attacks and defences",
+      "title": "Why it is safe",
       "topics": [
-        {
-          "id": "passthrough",
-          "title": "Token passthrough",
-          "subtitle": "The confused deputy",
-          "article": {
-            "body": [
-              "Many MCP servers are thin wrappers around another API. The tempting shortcut is to take the token Claude sent and forward it upstream. The spec forbids it: the token's audience is the MCP server, not the upstream API, and an upstream that accepts it cannot tell whether the request was authorised for this purpose. A server that forwards tokens becomes a **confused deputy**, lending its authority to whoever can reach it.",
-              "The right design is two tokens: Claude's token proves the user to the MCP server, and the MCP server obtains its own credentials for the upstream, by token exchange, by its own client credentials, or by a separate consent for the upstream. Each token means one thing to one audience."
-            ],
-            "referencesLabel": "Spec",
-            "references": [
-              {
-                "label": "MCP security best practices",
-                "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/security_best_practices"
-              },
-              {
-                "label": "RFC 8693 · Token exchange",
-                "url": "https://www.rfc-editor.org/rfc/rfc8693"
-              }
-            ],
-            "versionNotes": [
-              {
-                "version": "2025-06-18",
-                "items": [
-                  "Token passthrough is explicitly forbidden; servers must validate that a token was issued for them.",
-                  "A security best practices document accompanies the authorization spec."
-                ]
-              }
-            ],
-            "boxes": [
-              {
-                "title": "Rule of thumb",
-                "tone": "attention",
-                "items": [
-                  {
-                    "text": "A token has one audience. If you did not mint or request it for the service you are calling, do not send it there."
-                  }
-                ]
-              }
-            ]
-          },
-          "steps": [
-            {
-              "title": "The tempting shortcut",
-              "explanation": "The MCP server receives a tool call with Claude's bearer token and simply forwards that token to the upstream API. The upstream either rejects it for the wrong audience or, worse, accepts it without knowing who approved what.",
-              "check": {
-                "prompt": "The MCP server must call a third-party API on your behalf. What may it do with the token Claude sent?",
-                "options": [
-                  {
-                    "text": "Validate it for its own use and obtain its own token for the upstream",
-                    "correct": true,
-                    "why": "Right. Claude's token proves the user to the MCP server only. The server gets separate credentials for the upstream, so every token has exactly one audience."
-                  },
-                  {
-                    "text": "Forward it as it is, since you already consented",
-                    "why": "You consented to the MCP server, not to every service it talks to. Forwarding makes the server a confused deputy and is forbidden by the spec."
-                  },
-                  {
-                    "text": "Forward it after checking that its scope covers the API",
-                    "why": "Scope is not audience. Even a token with a matching scope was minted for the MCP server, and the upstream cannot tell how the request was authorised."
-                  }
-                ]
-              },
-              "messages": [
-                {
-                  "from": "claude",
-                  "to": "mcp",
-                  "name": "tools/call",
-                  "info": "list_repos, Authorization: Bearer at_…",
-                  "size": "210 B"
-                },
-                {
-                  "from": "mcp",
-                  "to": "upstream",
-                  "name": "GET /repos",
-                  "info": "Authorization: Bearer at_… (Claude's token)",
-                  "tags": [
-                    "forbidden"
-                  ],
-                  "payload": "GET /repos HTTP/1.1\nHost: api.example.net\nAuthorization: Bearer at_2YotnFZFEjr1zCsicMWpAA…   \u003c- minted for mcp.example.com, not for api.example.net",
-                  "annotations": [
-                    {
-                      "field": "Authorization",
-                      "text": "The wrong token for this audience. An upstream that checks audiences rejects it; one that does not has just been fooled."
-                    }
-                  ]
-                },
-                {
-                  "from": "upstream",
-                  "to": "mcp",
-                  "name": "401 Unauthorized",
-                  "info": "invalid_token: wrong audience",
-                  "kind": "error"
-                }
-              ]
-            },
-            {
-              "title": "The right way",
-              "explanation": "The MCP server validates Claude's token for itself, then gets its own token for the upstream, here by exchanging the user's token at the authorization server, and calls the upstream with that.",
-              "messages": [
-                {
-                  "from": "mcp",
-                  "to": "mcp",
-                  "name": "validate Claude's token",
-                  "info": "audience = mcp.example.com, scope ok",
-                  "kind": "local"
-                },
-                {
-                  "from": "mcp",
-                  "to": "auth",
-                  "name": "POST /token",
-                  "info": "grant_type=token-exchange, audience=api.example.net",
-                  "payload": "grant_type=urn:ietf:params:oauth:grant-type:token-exchange\n&subject_token=at_2YotnFZFEjr1zCsicMWpAA…\n&subject_token_type=urn:ietf:params:oauth:token-type:access_token\n&audience=https://api.example.net\n&client_id=mcp-server\n&client_secret=…",
-                  "annotations": [
-                    {
-                      "field": "audience",
-                      "text": "The server asks for a token that is valid at the upstream and says so. The authorization server decides whether this delegation is allowed."
-                    }
-                  ]
-                },
-                {
-                  "from": "auth",
-                  "to": "mcp",
-                  "name": "200 OK",
-                  "info": "token for api.example.net",
-                  "kind": "response",
-                  "payload": {
-                    "access_token": "at_up_5c8d…",
-                    "token_type": "Bearer",
-                    "expires_in": 600
-                  }
-                },
-                {
-                  "from": "mcp",
-                  "to": "upstream",
-                  "name": "GET /repos",
-                  "info": "Authorization: Bearer at_up_… (its own token)"
-                },
-                {
-                  "from": "upstream",
-                  "to": "mcp",
-                  "name": "200 OK",
-                  "info": "repositories",
-                  "kind": "response"
-                },
-                {
-                  "from": "mcp",
-                  "to": "claude",
-                  "name": "result",
-                  "info": "tool result for list_repos",
-                  "kind": "response"
-                }
-              ]
-            }
-          ]
-        },
         {
           "id": "audience",
           "title": "Audience binding",
-          "subtitle": "Why resource indicators exist",
+          "subtitle": "A token for one server works nowhere else",
           "availableFrom": "2025-06-18",
           "article": {
             "body": [
-              "A bearer token is only as safe as the set of places that accept it. If one token worked at every MCP server behind the same authorization server, a rogue server you were tricked into connecting to could take the token you sent it and replay it at the real one. **Resource indicators** (RFC 8707) close that hole: the client names the server it wants a token for, the authorization server records that audience in the token, and every server rejects tokens whose audience is not itself.",
-              "This is why the June 2025 revision made the `resource` parameter mandatory in both the authorization and the token request, and why servers must check it."
+              "A bearer token is only as safe as the set of places that accept it. If one token worked at every MCP server behind the same authorization server, a rogue server you were tricked into connecting to could replay the token you sent it at the real one. The `resource` parameter in topics 4 and 5 asks for a token whose **audience** is one named server; the authorization server records it in the token; every server rejects tokens whose audience is not itself. This is why the June 2025 revision made `resource` mandatory and why servers must check it."
             ],
             "referencesLabel": "Spec",
             "references": [
@@ -1345,32 +1342,24 @@
                 "label": "MCP security best practices",
                 "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/security_best_practices"
               }
-            ],
-            "versionNotes": [
-              {
-                "version": "2025-06-18",
-                "items": [
-                  "`resource` is required in the authorization and token requests; tokens carry an audience and servers must check it."
-                ]
-              }
             ]
           },
           "steps": [
             {
               "title": "A token minted for one server",
-              "explanation": "Because Claude named the resource when it asked, the token it holds carries that server as its audience.",
+              "explanation": "Because Claude named the resource when it asked, the token carries that server as its audience.",
               "messages": [
                 {
                   "from": "claude",
                   "to": "auth",
                   "name": "POST /token",
-                  "info": "resource=https://mcp.example.com/mcp"
+                  "info": "carries: resource=https://mcp.example.com/mcp"
                 },
                 {
                   "from": "auth",
                   "to": "claude",
-                  "name": "200 OK",
-                  "info": "token with aud = mcp.example.com",
+                  "name": "200 OK · token",
+                  "info": "carries: an access token with aud = mcp.example.com",
                   "kind": "response",
                   "payload": {
                     "access_token": "at_… (aud: https://mcp.example.com/mcp)",
@@ -1381,21 +1370,21 @@
               ]
             },
             {
-              "title": "Replayed at another server",
-              "explanation": "Suppose you were tricked into connecting Claude to a rogue server and it received a token. It tries to use that token at the real server. The audience check stops it.",
+              "title": "Replayed at another server, and rejected",
+              "explanation": "Suppose you were tricked into connecting Claude to a rogue server and it received a token minted for itself. It replays that token at the real server. The audience check in topic 6 stops it.",
               "messages": [
                 {
                   "from": "claude",
                   "to": "rogue",
                   "name": "POST /mcp",
-                  "info": "a token minted for evil.example, not for mcp.example.com",
+                  "info": "carries: a token whose audience is evil.example",
                   "kind": "transport"
                 },
                 {
                   "from": "rogue",
                   "to": "mcp",
                   "name": "POST /mcp",
-                  "info": "replaying the token it received",
+                  "info": "carries: that same token, replayed",
                   "kind": "transport",
                   "tags": [
                     "attack"
@@ -1413,8 +1402,124 @@
                   "from": "mcp",
                   "to": "rogue",
                   "name": "401 Unauthorized",
-                  "info": "invalid_token",
+                  "info": "carries: error=\"invalid_token\"",
                   "kind": "error"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "passthrough",
+          "title": "Token passthrough",
+          "subtitle": "Why the MCP server must not forward Claude's token",
+          "article": {
+            "body": [
+              "Many MCP servers wrap another API. The tempting shortcut is to forward the token Claude sent to that upstream API. The spec forbids it: the token's audience is the MCP server, and an upstream that accepts it cannot tell how the request was authorised. A server that forwards tokens becomes a **confused deputy**, lending its authority to whoever reaches it.",
+              "The right design is two tokens. Claude's token proves the user to the MCP server. The MCP server obtains its own credentials for the upstream, by token exchange, by its own client credentials, or by a separate consent. Each token means one thing to one audience."
+            ],
+            "referencesLabel": "Spec",
+            "references": [
+              {
+                "label": "MCP security best practices",
+                "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/security_best_practices"
+              },
+              {
+                "label": "RFC 8693 · Token exchange",
+                "url": "https://www.rfc-editor.org/rfc/rfc8693"
+              }
+            ],
+            "boxes": [
+              {
+                "title": "Rule of thumb",
+                "tone": "attention",
+                "items": [
+                  {
+                    "text": "A token has one audience. If you did not mint or request it for the service you are calling, do not send it there."
+                  }
+                ]
+              }
+            ]
+          },
+          "steps": [
+            {
+              "title": "The tempting shortcut",
+              "explanation": "The MCP server receives a tool call with Claude's bearer token and simply forwards that token to the upstream API. An upstream that checks audiences rejects it; one that does not has just been fooled.",
+              "messages": [
+                {
+                  "from": "claude",
+                  "to": "mcp",
+                  "name": "tools/call list_repos",
+                  "info": "carries: Authorization: Bearer at_… (audience: the MCP server)",
+                  "size": "210 B"
+                },
+                {
+                  "from": "mcp",
+                  "to": "upstream",
+                  "name": "GET /repos",
+                  "info": "carries: Claude's token, forwarded; forbidden",
+                  "tags": [
+                    "forbidden"
+                  ],
+                  "payload": "GET /repos HTTP/1.1\nHost: api.example.net\nAuthorization: Bearer at_2YotnFZFEjr1zCsicMWpAA…   \u003c- minted for mcp.example.com, not for api.example.net"
+                },
+                {
+                  "from": "upstream",
+                  "to": "mcp",
+                  "name": "401 Unauthorized",
+                  "info": "carries: error=\"invalid_token\", wrong audience",
+                  "kind": "error"
+                }
+              ]
+            },
+            {
+              "title": "The right way",
+              "explanation": "The MCP server validates Claude's token for itself, then gets its own token for the upstream by exchanging the user's token at the authorization server, and calls the upstream with that.",
+              "messages": [
+                {
+                  "from": "mcp",
+                  "to": "mcp",
+                  "name": "validate Claude's token",
+                  "info": "audience = mcp.example.com, scope ok",
+                  "kind": "local"
+                },
+                {
+                  "from": "mcp",
+                  "to": "auth",
+                  "name": "POST /token · token exchange",
+                  "info": "carries: subject_token (Claude's), audience=api.example.net, the server's own client credentials",
+                  "payload": "grant_type=urn:ietf:params:oauth:grant-type:token-exchange\n&subject_token=at_2YotnFZFEjr1zCsicMWpAA…\n&subject_token_type=urn:ietf:params:oauth:token-type:access_token\n&audience=https://api.example.net\n&client_id=mcp-server\n&client_secret=…"
+                },
+                {
+                  "from": "auth",
+                  "to": "mcp",
+                  "name": "200 OK · upstream token",
+                  "info": "carries: an access token for api.example.net",
+                  "kind": "response",
+                  "payload": {
+                    "access_token": "at_up_5c8d…",
+                    "token_type": "Bearer",
+                    "expires_in": 600
+                  }
+                },
+                {
+                  "from": "mcp",
+                  "to": "upstream",
+                  "name": "GET /repos",
+                  "info": "carries: Authorization: Bearer at_up_… (its own token)"
+                },
+                {
+                  "from": "upstream",
+                  "to": "mcp",
+                  "name": "200 OK · repositories",
+                  "kind": "response"
+                },
+                {
+                  "from": "mcp",
+                  "to": "claude",
+                  "name": "tool result",
+                  "info": "carries: the list of repositories",
+                  "kind": "response"
                 }
               ]
             }
@@ -1508,6 +1613,7 @@
     optionalString(data, "versionsLabel", "$", 24, error, 1);
     optionalString(data, "footer", "$", 300, error);
     optionalEnum(data, "theme", "$", THEMES, error);
+    optionalEnum(data, "defaultMode", "$", ["network", "sequence"], error);
 
     if (data.facts !== undefined && requireArray(data, "facts", "$", 0, 8, error)) {
       data.facts.forEach(function (f, i) {
@@ -1994,7 +2100,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     /* ---- view-specific styles below, every class prefixed nthview- ---- */
     themeCss(),
     ".nthview-dataflow{--df-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace;--df-border:rgba(var(--df-rgb),.14);--df-soft:rgba(var(--df-rgb),.07);--df-hover:rgba(var(--df-rgb),.04);--df-faint:rgba(var(--df-rgb),.3);--df-face-t:rgba(var(--df-rgb),.11);--df-face-l:rgba(var(--df-rgb),.045);--df-face-r:var(--nv-bg);",
-    "  max-width:none;padding:0;margin:0;min-height:100vh;display:flex;flex-direction:column;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}",
+    "  max-width:none;padding:0;margin:0;min-height:100vh;display:flex;flex-direction:column;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}",
     ":where(.nthview-dataflow) button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-align:left}",
     Z + "a{color:var(--nv-fg);text-decoration-color:var(--df-faint);text-underline-offset:2px}",
     Z + "a:hover{text-decoration-color:var(--nv-fg)}",
@@ -2014,7 +2120,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     ".nthview-df-btn-primary:hover{background:var(--nv-fg);opacity:.9}",
     ".nthview-df-btn svg{width:14px;height:14px;fill:currentColor}",
     ".nthview-df-seg{display:inline-flex;border:1px solid var(--df-border);border-radius:8px;padding:2px;background:var(--df-hover)}",
-    ".nthview-df-seg button{min-height:30px;padding:0 10px;border-radius:6px;font-size:13px;color:var(--nv-muted)}",
+    ".nthview-df-seg button{min-height:28px;padding:0 10px;border-radius:6px;font-size:12.5px;color:var(--nv-muted)}",
     ".nthview-df-seg button[aria-pressed=true]{background:var(--nv-bg);color:var(--nv-fg);box-shadow:0 1px 2px rgba(0,0,0,.15)}",
     ".nthview-restart{min-height:36px;padding:0 12px;border:1px solid var(--df-border);border-radius:8px;font-size:13px;color:var(--nv-muted);white-space:nowrap}",
     ".nthview-restart:hover{color:var(--nv-fg);background:var(--df-hover)}",
@@ -2042,8 +2148,8 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     ".nthview-df-tmselect{display:none}",
     /* hero */
     ".nthview-df-intro{flex:1;display:grid;grid-template-columns:minmax(380px,520px) minmax(0,1fr);min-height:0}",
-    ".nthview-df-hero{display:flex;align-items:center;border-right:1px solid var(--df-border);overflow:auto;padding:40px}",
-    ".nthview-df-hero-in{max-width:460px}",
+    ".nthview-df-hero{display:flex;flex-direction:column;border-right:1px solid var(--df-border);overflow:auto;padding:40px}",
+    ".nthview-df-hero-in{max-width:460px;margin:auto 0}",
     ".nthview-df-kicker{font-size:13px;color:var(--nv-muted);margin-bottom:14px}",
     ".nthview-df-hero h2{font-size:clamp(30px,4.6vw,46px);line-height:1.1;margin-bottom:18px}",
     ".nthview-df-lead{font-size:17px;line-height:1.55;color:var(--nv-fg);margin-bottom:26px}",
@@ -2058,11 +2164,17 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     ".nthview-df-preview .nthview-df-stage{flex:1}",
     ".nthview-df-preview-cap{padding:20px 24px 0;font-size:13px;color:var(--nv-muted)}",
     /* lesson grid */
-    ".nthview-df-lesson{flex:1;display:grid;grid-template-columns:300px minmax(0,1fr) 380px;min-height:0}",
+    ".nthview-df-lesson{flex:1;display:grid;grid-template-columns:316px minmax(0,1fr) 380px;min-height:0;transition:grid-template-columns .5s cubic-bezier(.2,.7,.2,1)}",
+    ".nthview-df-side,.nthview-df-right{transition:opacity .3s}",
+    ".nthview-df-focus .nthview-df-lesson{grid-template-columns:0 minmax(0,1fr) 0}",
+    ".nthview-df-focus .nthview-df-side,.nthview-df-focus .nthview-df-right{opacity:0;overflow:hidden;pointer-events:none}",
+    ".nthview-df-stagewrap{display:flex;flex-direction:column;min-height:0;min-width:0}",
     ".nthview-df-side,.nthview-df-right{border-right:1px solid var(--df-border);min-height:0}",
     ".nthview-df-right{border-right:0;border-left:1px solid var(--df-border)}",
     ".nthview-df-center{display:flex;flex-direction:column;min-width:0;min-height:0}",
-    "@media (min-width:1024px){.nthview-dataflow{height:100vh}.nthview-df-side,.nthview-df-right,.nthview-df-center{overflow:auto}.nthview-df-intro{overflow:hidden}}",
+    "@media (min-width:1024px){.nthview-dataflow{height:100vh}.nthview-df-side,.nthview-df-right{overflow:auto}.nthview-df-intro{overflow:hidden}",
+    "  .nthview-df-center{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) 300px;overflow:hidden}.nthview-df-stage,.nthview-df-flow{min-width:0}.nthview-df-stagewrap{overflow:hidden}.nthview-df-stage{min-height:0}.nthview-df-stage svg{min-height:0}",
+    "  .nthview-df-flow{display:flex;flex-direction:column;min-height:0}.nthview-df-tablewrap{flex:1;min-height:0;overflow:auto}.nthview-df-nexttopic{flex:0 0 auto}}",
     /* sidebar */
     ".nthview-df-sidehead{padding:16px 20px 10px;border-bottom:1px solid var(--df-border)}",
     ".nthview-df-sidehead h2{font-size:17px}",
@@ -2073,11 +2185,11 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     ".nthview-df-th{display:block;width:100%;padding:10px 20px;min-height:44px}",
     ".nthview-df-th:hover{background:var(--df-hover)}",
     ".nthview-df-topic-open>.nthview-df-th{background:var(--df-soft)}",
-    ".nthview-df-th b{font-weight:500;display:block;font-size:15px}",
+    ".nthview-df-th b{font-weight:500;display:block;font-size:14px}",
     ".nthview-df-th em{display:block;font-style:normal;font-size:12px;color:var(--nv-muted)}",
     ".nthview-df-topic-off .nthview-df-th b{color:var(--nv-muted)}",
     ".nthview-df-steps{list-style:none;margin:0;padding:6px 12px 12px 20px}",
-    ".nthview-df-steps li button{display:flex;align-items:center;gap:12px;width:100%;min-height:36px;padding:4px 8px;border-radius:6px;font-size:14px}",
+    ".nthview-df-steps li button{display:flex;align-items:center;gap:12px;width:100%;min-height:34px;padding:4px 8px;border-radius:6px;font-size:13.5px}",
     ".nthview-df-steps li button:hover{background:var(--df-hover)}",
     ".nthview-df-steps li button[aria-current=step]{background:var(--df-soft)}",
     ".nthview-df-num{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;border:1px solid var(--df-faint);font:11px var(--df-mono);color:var(--nv-muted);flex:0 0 auto}",
@@ -2097,11 +2209,13 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     ".nthview-df-drawerhead{display:none}",
     /* centre: caption, stage, flow */
     ".nthview-df-stagebar{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;padding:16px 20px 0}",
-    ".nthview-df-cap{min-height:96px;flex:1;min-width:0}",
+    ".nthview-df-cap{min-height:84px;flex:1;min-width:0;max-width:680px}",
+    "@keyframes nthview-df-fade{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}",
+    ".nthview-df-fadein{animation:nthview-df-fade .28s ease-out}",
     ".nthview-df-eyebrow{font-size:12px;color:var(--nv-muted)}",
-    ".nthview-df-cap h2{font-size:22px;line-height:1.2;margin:2px 0 6px}",
-    ".nthview-df-expl{font-size:14px;color:var(--nv-muted);max-width:62ch}",
-    ".nthview-df-expl b{color:var(--nv-fg);font-weight:500}",
+    ".nthview-df-cap h2{font-size:21px;line-height:1.2;margin:2px 0 6px}",
+    ".nthview-df-expl{font-size:14px;color:var(--nv-fg);opacity:.85;max-width:68ch;text-wrap:pretty}",
+    ".nthview-df-expl b{font-weight:600}",
     ".nthview-df-stage{position:relative;min-height:300px;flex:1;display:flex;align-items:stretch;overflow:hidden;outline-offset:-3px;",
     "  background-image:radial-gradient(rgba(var(--df-rgb),.16) 1px,transparent 1.2px);background-size:20px 20px;background-position:10px 10px}",
     ".nthview-df-stage svg{width:100%;height:100%;display:block;min-height:300px}",
@@ -2115,7 +2229,8 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     ".nthview-df-tablewrap{overflow-x:auto}",
     ".nthview-df-table{width:100%;border-collapse:collapse;font-size:13px;min-width:560px}",
     ".nthview-df-table th{text-align:left;font-weight:500;color:var(--nv-muted);padding:6px 10px;border-bottom:1px solid var(--df-border);font-size:12px;white-space:nowrap}",
-    ".nthview-df-table td{padding:6px 10px;border-bottom:1px solid var(--df-soft);color:rgba(var(--df-rgb),.78);white-space:nowrap;max-width:320px;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}",
+    ".nthview-df-table td{padding:5px 10px;border-bottom:1px solid var(--df-soft);color:rgba(var(--df-rgb),.78);white-space:nowrap;max-width:340px;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}",
+    ".nthview-df-table thead th{position:sticky;top:0;background:var(--nv-bg);z-index:1}",
     ".nthview-df-table th:first-child,.nthview-df-table td:first-child{padding-left:20px;width:48px}",
     ".nthview-df-table tr{cursor:pointer}",
     ".nthview-df-table tr:hover td{background:var(--df-hover)}",
@@ -2135,7 +2250,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     ".nthview-df-dot.nthview-df-k-local{background:transparent;border-style:dotted;border-color:var(--nv-muted);color:var(--nv-muted)}",
     ".nthview-df-dot.nthview-df-k-transport{border-radius:4px;background:rgba(var(--df-rgb),.55);border-color:transparent;color:var(--nv-bg)}",
     /* right panel: article and message */
-    ".nthview-df-article{padding:22px 24px 18px;border-bottom:1px solid var(--df-border)}",
+    ".nthview-df-article{padding:22px 24px 18px;border-top:1px solid var(--df-border)}",
     ".nthview-df-article h3{font-size:30px;line-height:1.1}",
     ".nthview-df-article .nthview-df-sub{font-size:15px;color:var(--nv-muted);margin:4px 0 14px}",
     ".nthview-df-article p{font-size:14px;line-height:1.55;margin:0 0 12px}",
@@ -2156,7 +2271,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     ".nthview-df-absentbox{border:1px dashed var(--df-faint);border-radius:8px;padding:10px 12px;margin:0 0 14px;font-size:13px;color:var(--nv-muted)}",
     ".nthview-df-absentbox b{color:var(--nv-fg);font-weight:500}",
     ".nthview-df-footer{font-size:12px;color:var(--nv-muted);padding:14px 24px 20px;border-top:1px solid var(--df-border)}",
-    ".nthview-df-msg{padding:18px 24px 24px}",
+    ".nthview-df-msg{padding:18px 24px 22px}",
     ".nthview-df-msg h2{font-size:16px;margin-bottom:10px}",
     ".nthview-df-ih{display:flex;align-items:center;gap:8px}",
     ".nthview-df-ih .nthview-df-dot{width:10px;height:10px}",
@@ -2207,39 +2322,54 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     ".nthview-df-node{transition:opacity .25s}",
     ".nthview-df-dim .nthview-df-node:not(.nthview-df-on){opacity:.4}",
     ".nthview-df-node .nthview-df-shd{fill:rgba(var(--df-rgb),.07)}",
-    ".nthview-df-node .nthview-df-fl{fill:var(--df-face-l)}",
-    ".nthview-df-node .nthview-df-fr{fill:var(--df-face-r)}",
-    ".nthview-df-node .nthview-df-ft{fill:var(--df-face-t)}",
-    ".nthview-df-node polygon,.nthview-df-node path,.nthview-df-node circle,.nthview-df-node ellipse:not(.nthview-df-shd),.nthview-df-node rect,.nthview-df-node line{stroke:var(--nv-muted);stroke-width:1.2;stroke-linejoin:round;stroke-linecap:round}",
+    ".nthview-df-node .nthview-df-fl{fill:rgba(var(--df-rgb),.11)}",
+    ".nthview-df-node .nthview-df-fr{fill:rgba(var(--df-rgb),.2)}",
+    ".nthview-df-node .nthview-df-ft{fill:rgba(var(--df-rgb),.03)}",
+    ".nthview-df-node.nthview-df-on .nthview-df-shd{fill:rgba(var(--df-rgb),.13)}",
+    ".nthview-df-node polygon,.nthview-df-node path,.nthview-df-node circle,.nthview-df-node ellipse:not(.nthview-df-shd),.nthview-df-node rect,.nthview-df-node line{stroke:var(--nv-muted);stroke-width:.9;stroke-linejoin:round;stroke-linecap:round}",
     ".nthview-df-node path.nthview-df-ln,.nthview-df-node line.nthview-df-ln,.nthview-df-node circle.nthview-df-ln,.nthview-df-node rect.nthview-df-ln{fill:none}",
     ".nthview-df-node circle.nthview-df-led{fill:var(--nv-muted);stroke:none}",
-    ".nthview-df-node.nthview-df-on polygon,.nthview-df-node.nthview-df-on path,.nthview-df-node.nthview-df-on circle,.nthview-df-node.nthview-df-on ellipse:not(.nthview-df-shd),.nthview-df-node.nthview-df-on rect,.nthview-df-node.nthview-df-on line{stroke:var(--nv-fg);stroke-width:1.5}",
+    ".nthview-df-node.nthview-df-on polygon,.nthview-df-node.nthview-df-on path,.nthview-df-node.nthview-df-on circle,.nthview-df-node.nthview-df-on ellipse:not(.nthview-df-shd),.nthview-df-node.nthview-df-on rect,.nthview-df-node.nthview-df-on line{stroke:var(--nv-fg);stroke-width:1.3}",
     ".nthview-df-node.nthview-df-on circle.nthview-df-led{fill:var(--nv-accent);stroke:none}",
-    ".nthview-df-node .nthview-df-nl{font:500 13px var(--df-head);fill:var(--nv-fg);text-anchor:middle;paint-order:stroke;stroke:var(--nv-bg);stroke-width:4px;stroke-linejoin:round}",
-    ".nthview-df-node .nthview-df-ns{font:10px var(--df-mono);fill:var(--nv-muted);text-anchor:middle;paint-order:stroke;stroke:var(--nv-bg);stroke-width:4px;stroke-linejoin:round}",
-    ".nthview-df-pkt{fill:var(--nv-accent);stroke:var(--nv-bg);stroke-width:2}",
-    ".nthview-df-pulse{fill:none;stroke:var(--nv-accent);stroke-width:2}",
+    ".nthview-df-node .nthview-df-nl{font:400 18px var(--df-head);fill:var(--nv-fg);text-anchor:middle;paint-order:stroke;stroke:var(--nv-bg);stroke-width:5px;stroke-linejoin:round}",
+    ".nthview-df-node .nthview-df-ns{font:13px var(--df-mono);fill:var(--nv-muted);text-anchor:middle;paint-order:stroke;stroke:var(--nv-bg);stroke-width:5px;stroke-linejoin:round}",
+    ".nthview-df-dim .nthview-df-node:not(.nthview-df-on) .nthview-df-nl{fill:var(--nv-muted)}",
+    /* the travelling packet: a labelled pill with a trail; colours follow the message kind */
+    ".nthview-df-pkt .nthview-df-pb{fill:var(--nv-bg);stroke:var(--nv-fg);stroke-width:1.6}",
+    ".nthview-df-pkt .nthview-df-pd{fill:var(--nv-fg)}",
+    ".nthview-df-pkt .nthview-df-pt{font:13.5px var(--df-mono);fill:var(--nv-fg)}",
+    ".nthview-df-pkt .nthview-df-trail{stroke:var(--nv-fg);stroke-width:1.6}",
+    ".nthview-df-pkt .nthview-df-trailhead{fill:var(--nv-fg)}",
+    ".nthview-df-pkt.nthview-df-k-response .nthview-df-pb,.nthview-df-pkt.nthview-df-k-response .nthview-df-trail{stroke:var(--nv-muted)}",
+    ".nthview-df-pkt.nthview-df-k-response .nthview-df-pd,.nthview-df-pkt.nthview-df-k-response .nthview-df-trailhead{fill:var(--nv-muted)}",
+    ".nthview-df-pkt.nthview-df-k-error .nthview-df-pb,.nthview-df-pkt.nthview-df-k-error .nthview-df-trail{stroke:var(--nv-accent)}",
+    ".nthview-df-pkt.nthview-df-k-error .nthview-df-pd,.nthview-df-pkt.nthview-df-k-error .nthview-df-trailhead{fill:var(--nv-accent)}",
+    ".nthview-df-pkt.nthview-df-k-notification .nthview-df-pb,.nthview-df-pkt.nthview-df-k-notification .nthview-df-trail,.nthview-df-pkt.nthview-df-dep .nthview-df-pb{stroke-dasharray:5 3}",
+    ".nthview-df-pkt.nthview-df-k-local .nthview-df-trail,.nthview-df-pkt.nthview-df-k-transport .nthview-df-trail{stroke-dasharray:2 4}",
+    ".nthview-df-pkt .nthview-df-pdep{font:600 9.5px var(--df-mono);letter-spacing:.1em;fill:var(--nv-accent)}",
+    ".nthview-df-pkt.nthview-df-arrived{opacity:.92}",
     /* sequence */
     ".nthview-df-life{stroke:var(--df-faint);stroke-width:1;stroke-dasharray:3 4}",
     ".nthview-df-lifehead rect{fill:var(--nv-bg);stroke:var(--df-faint);stroke-width:1}",
-    ".nthview-df-lifehead text{font:500 13px var(--df-head);fill:var(--nv-fg);text-anchor:middle}",
+    ".nthview-df-lifehead text{font:400 15px var(--df-head);fill:var(--nv-fg);text-anchor:middle}",
     ".nthview-df-lifehead .nthview-df-zl{font:600 9px var(--df-mono);fill:var(--nv-muted);letter-spacing:.08em}",
     ".nthview-df-lifehead.nthview-df-on rect{stroke:var(--nv-fg);stroke-width:1.5}",
     ".nthview-df-sstep{font:11px var(--df-mono);fill:var(--nv-muted)}",
     ".nthview-df-ssep{stroke:var(--df-soft);stroke-width:1}",
-    ".nthview-df-sm line,.nthview-df-sm path{stroke:rgba(var(--df-rgb),.7);stroke-width:1.2;fill:none;transition:stroke .2s}",
+    ".nthview-df-sm{cursor:pointer}",
+    ".nthview-df-sm line,.nthview-df-sm path{stroke:var(--nv-fg);stroke-width:1.3;fill:none;transition:stroke .2s}",
     ".nthview-df-sm.nthview-df-k-response line,.nthview-df-sm.nthview-df-k-response path{stroke-dasharray:none;stroke:rgba(var(--df-rgb),.55)}",
     ".nthview-df-sm.nthview-df-k-notification line,.nthview-df-sm.nthview-df-k-notification path{stroke-dasharray:6 4}",
     ".nthview-df-sm.nthview-df-k-local path{stroke-dasharray:2 3}",
     ".nthview-df-sm.nthview-df-k-error line,.nthview-df-sm.nthview-df-k-error path{stroke:var(--nv-accent)}",
     ".nthview-df-sm.nthview-df-dep line,.nthview-df-sm.nthview-df-dep path{stroke-dasharray:6 3}",
-    ".nthview-df-sm text{font:11px var(--df-mono);fill:rgba(var(--df-rgb),.7);text-anchor:middle;paint-order:stroke;stroke:var(--nv-bg);stroke-width:3px}",
+    ".nthview-df-sm text{font:13px var(--df-mono);fill:rgba(var(--df-rgb),.7);text-anchor:middle;paint-order:stroke;stroke:var(--nv-bg);stroke-width:4px}",
     ".nthview-df-sm .nthview-df-sdep{fill:var(--nv-accent);font-weight:600}",
-    ".nthview-df-sm .nthview-df-ah{fill:rgba(var(--df-rgb),.7);stroke:none}",
+    ".nthview-df-sm .nthview-df-ah{fill:var(--nv-fg);stroke:none}",
     ".nthview-df-sm.nthview-df-k-response .nthview-df-ah{fill:var(--nv-bg);stroke:rgba(var(--df-rgb),.55);stroke-width:1.2}",
     ".nthview-df-sm.nthview-df-k-error .nthview-df-ah{fill:var(--nv-accent)}",
-    ".nthview-df-sm.nthview-df-fut line,.nthview-df-sm.nthview-df-fut path,.nthview-df-sm.nthview-df-fut text,.nthview-df-sm.nthview-df-fut .nthview-df-ah{opacity:.3}",
-    ".nthview-df-sm.nthview-df-cur line,.nthview-df-sm.nthview-df-cur path{stroke:var(--nv-fg);stroke-width:1.6}",
+    ".nthview-df-sm.nthview-df-fut{opacity:.18}",
+    ".nthview-df-sm.nthview-df-cur line,.nthview-df-sm.nthview-df-cur path{stroke:var(--nv-fg);stroke-width:2.2}",
     ".nthview-df-sm.nthview-df-cur text{fill:var(--nv-fg);font-weight:600}",
     ".nthview-df-sm.nthview-df-cur .nthview-df-ah{fill:var(--nv-fg)}",
     ".nthview-df-sm.nthview-df-k-response.nthview-df-cur .nthview-df-ah{fill:var(--nv-bg);stroke:var(--nv-fg)}",
@@ -2288,7 +2418,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     "  .nthview-df-facts dd{margin-bottom:8px}",
     "}",
     "@media (max-width:420px){.nthview-df-hero h2{font-size:28px}.nthview-df-top .nthview-df-introbtn{display:none}}",
-    "@media (prefers-reduced-motion:reduce){.nthview-dataflow *{transition:none!important}}"
+    "@media (prefers-reduced-motion:reduce){.nthview-dataflow *{transition:none!important;animation:none!important}}"
   ].join("\n");
 
   function injectStyles() {
@@ -2573,7 +2703,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
 
   // ---- layout of the network diagram ------------------------------------------
   function layoutNetwork(M, ids, narrow) {
-    var CW = 176, CH = 148, PAD = 16, HEAD = 30, GAP = narrow ? 28 : 44, perRow = narrow ? 2 : 3;
+    var CW = 236, CH = 212, PAD = 22, HEAD = 36, GAP = narrow ? 30 : 64, perRow = narrow ? 2 : 3;
     var groups = [], byZone = {};
     ids.forEach(function (id) {
       var e = M.E[id], z = e.zone && M.Z[e.zone] ? e.zone : null;
@@ -2587,15 +2717,19 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     var n = groups.length, cols = narrow ? (groups.every(function (g) { return g.ids.length === 1; }) ? 2 : 1) : (n <= 3 ? n : Math.ceil(Math.sqrt(n)));
     var rows = [];
     groups.forEach(function (g, i) { var r = Math.floor(i / cols); (rows[r] = rows[r] || []).push(g); });
-    var rowW = rows.map(function (row) { return row.reduce(function (s, g) { return s + g.w; }, 0) + GAP * (row.length - 1); });
+    var rowW = rows.map(function (row) { return row.reduce(function (sum, g) { return sum + g.w; }, 0) + GAP * (row.length - 1); });
     var W = Math.max.apply(null, rowW) + GAP * 2, y = GAP;
     rows.forEach(function (row, r) {
       var h = Math.max.apply(null, row.map(function (g) { return g.h; })), x = (W - rowW[r]) / 2;
       row.forEach(function (g) { g.x = x; g.y = y + (h - g.h) / 2; x += g.w + GAP; });
       y += h + GAP;
     });
+    var H = y;
+    /* a small diagram floats centred in a 1000x560 frame so two entities are not blown up to fill the stage */
+    var VW = Math.max(W, narrow ? 0 : 1000), VH = Math.max(H, narrow ? 0 : 560), dx = (VW - W) / 2, dy = (VH - H) / 2;
     var nodes = {}, zones = [];
     groups.forEach(function (g) {
+      g.x += dx; g.y += dy;
       if (g.zone) zones.push({ zone: g.zone, x: g.x, y: g.y, w: g.w, h: g.h });
       var ox = g.x + (g.zone ? PAD : 0), oy = g.y + (g.zone ? HEAD + PAD / 2 : 0);
       g.ids.forEach(function (id, k) {
@@ -2603,7 +2737,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         nodes[id] = { x: ox + off + cc * CW + CW / 2, y: oy + rr * CH + CH / 2 };
       });
     });
-    return { W: W, H: Math.max(y, 240), nodes: nodes, zones: zones };
+    return { W: VW, H: VH, nodes: nodes, zones: zones };
   }
 
   // ---- view-specific rendering: data is already valid here ---------------
@@ -2616,7 +2750,8 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     container.setAttribute("data-theme", theme);
 
     /* ---------- state and progress (§5.5) ---------- */
-    var state = { screen: "intro", topic: M.topics[0].id, pos: 0, version: M.defaultVersion, mode: "network", scheme: PALETTES[theme].side, checks: {}, panel: "article" };
+    var defaultMode = data.defaultMode || "network";
+    var state = { screen: "intro", topic: M.topics[0].id, pos: 0, version: M.defaultVersion, mode: defaultMode, scheme: PALETTES[theme].side, checks: {}, panel: "message" };
     var saved = loadState(key), resumed = false;
     if (saved) {
       if (saved.screen === "lesson" || saved.screen === "intro") state.screen = saved.screen;
@@ -2630,7 +2765,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       resumed = state.screen === "lesson";
     }
     function untouched() {
-      return state.screen === "intro" && !Object.keys(state.checks).length && state.version === M.defaultVersion && state.mode === "network" && state.scheme === PALETTES[theme].side;
+      return state.screen === "intro" && !Object.keys(state.checks).length && state.version === M.defaultVersion && state.mode === defaultMode && state.scheme === PALETTES[theme].side;
     }
     function persist() {
       if (untouched()) { clearState(key); return; }
@@ -2760,9 +2895,9 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       lay.zones.forEach(function (z) {
         var g = svgEl("g", { class: "nthview-df-zone" + (z.zone.remote ? " nthview-df-remote" : "") });
         g.appendChild(svgEl("rect", { x: f1(z.x), y: f1(z.y), width: f1(z.w), height: f1(z.h), rx: 14 }));
-        var lab = svgEl("text", { class: "nthview-df-zl", x: f1(z.x + 16), y: f1(z.y + 20), text: z.zone.name });
+        var lab = svgEl("text", { class: "nthview-df-zl", x: f1(z.x + 18), y: f1(z.y + 24), text: z.zone.name });
         g.appendChild(lab);
-        if (z.zone.subtitle) g.appendChild(svgEl("text", { class: "nthview-df-zs", x: f1(z.x + 16 + z.zone.name.length * 7.2 + 10), y: f1(z.y + 20), text: z.zone.subtitle }));
+        if (z.zone.subtitle) g.appendChild(svgEl("text", { class: "nthview-df-zs", x: f1(z.x + 18 + z.zone.name.length * 7.9 + 12), y: f1(z.y + 24), text: z.zone.subtitle }));
         svg.appendChild(g);
       });
       /* edges: declared links among shown entities, plus implicit ones for message pairs without a link */
@@ -2775,8 +2910,8 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         eg.appendChild(line);
         var pill = null;
         if (link && link.label) {
-          var mx = (pa.x + pb.x) / 2, my = (pa.y + pb.y) / 2, w = link.label.length * 6.4 + 14;
-          pill = svgEl("g", { class: "nthview-df-epill" }, [svgEl("rect", { x: f1(mx - w / 2), y: f1(my - 9), width: f1(w), height: 18, rx: 9 }), svgEl("text", { x: f1(mx), y: f1(my + 3.5), "text-anchor": "middle", text: link.label })]);
+          var mx = (pa.x + pb.x) / 2, my = (pa.y + pb.y) / 2, w = link.label.length * 7 + 16;
+          pill = svgEl("g", { class: "nthview-df-epill" }, [svgEl("rect", { x: f1(mx - w / 2), y: f1(my - 10), width: f1(w), height: 20, rx: 10 }), svgEl("text", { x: f1(mx), y: f1(my + 3.8), "text-anchor": "middle", text: link.label })]);
         }
         edges[k] = { line: line, pill: pill, a: a, b: b };
       }
@@ -2789,14 +2924,14 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       ids.forEach(function (id) {
         var e = M.E[id], p = lay.nodes[id];
         var g = svgEl("g", { class: "nthview-df-node", "data-id": id });
-        var gl = drawGlyph(e.kind || "generic", p.x, p.y - 24, 1);
-        if (gl.halfH > 34) gl = drawGlyph(e.kind || "generic", p.x, p.y - 24, 34 / gl.halfH);
+        var gl = drawGlyph(e.kind || "generic", p.x, p.y - 30, 1.4);
+        if (gl.halfH > 48) gl = drawGlyph(e.kind || "generic", p.x, p.y - 30, 1.4 * 48 / gl.halfH);
         g.appendChild(gl.g);
-        g.appendChild(svgEl("text", { class: "nthview-df-nl", x: f1(p.x), y: f1(p.y + 32), text: e.name }));
-        if (e.subtitle) g.appendChild(svgEl("text", { class: "nthview-df-ns", x: f1(p.x), y: f1(p.y + 48), text: e.subtitle }));
+        g.appendChild(svgEl("text", { class: "nthview-df-nl", x: f1(p.x), y: f1(p.y + 44), text: e.name }));
+        if (e.subtitle) g.appendChild(svgEl("text", { class: "nthview-df-ns", x: f1(p.x), y: f1(p.y + 64), text: e.subtitle }));
         var t = svgEl("title", { text: e.name + (e.subtitle ? " · " + e.subtitle : "") }); g.appendChild(t);
         ng.appendChild(g);
-        nodes[id] = { g: g, x: p.x, y: p.y - 20 };
+        nodes[id] = { g: g, x: p.x, y: p.y - 26 };
       });
       svg.appendChild(ng);
       var fx = svgEl("g"); svg.appendChild(fx);
@@ -2804,22 +2939,22 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     }
 
     /* ---------- sequence diagram ---------- */
-    function buildSequence(Rt, avail) {
-      var ids = Rt.entities, n = Math.max(ids.length, 1), LEFT = 44, ROW = 36, TOP = 112;
-      var COL = Math.max(124, Math.min(190, Math.floor((avail - LEFT - 24) / n))), BOX = Math.min(140, COL - 12), W = LEFT + n * COL + 20;
-      var H = TOP + Math.max(Rt.beats.length, 1) * ROW + 28;
-      var svg = svgEl("svg", { viewBox: "0 0 " + W + " " + H, preserveAspectRatio: "xMidYMin meet", role: "img", "aria-label": "Sequence diagram", style: "width:" + W + "px;height:" + H + "px;min-height:0;display:block;margin:0 auto" });
+    function buildSequence(Rt, avail, availH) {
+      var ids = Rt.entities, n = Math.max(ids.length, 1), LEFT = 36, ROW = 40, TOP = 116;
+      var W = Math.max(avail, n * 150 + LEFT + 20), COL = (W - LEFT - 20) / n, BOX = Math.min(170, COL - 16);
+      var H = Math.max(availH || 0, TOP + Math.max(Rt.beats.length, 1) * ROW + 30);
+      var svg = svgEl("svg", { viewBox: "0 0 " + f1(W) + " " + f1(H), preserveAspectRatio: "xMidYMin meet", role: "img", "aria-label": "Sequence diagram", style: "width:" + f1(W) + "px;height:" + f1(H) + "px;min-height:0;display:block;margin:0 auto" });
       var X = {}, heads = {};
       ids.forEach(function (id, i) {
         var x = LEFT + COL * (i + 0.5), e = M.E[id];
         X[id] = x;
-        svg.appendChild(svgEl("line", { class: "nthview-df-life", x1: f1(x), y1: 84, x2: f1(x), y2: f1(H - 12) }));
+        svg.appendChild(svgEl("line", { class: "nthview-df-life", x1: f1(x), y1: 90, x2: f1(x), y2: f1(H - 12) }));
         var g = svgEl("g", { class: "nthview-df-lifehead", "data-id": id }, [
-          svgEl("rect", { x: f1(x - BOX / 2), y: 14, width: f1(BOX), height: 40, rx: 7 }),
-          svgEl("text", { x: f1(x), y: 39, text: e.name })
+          svgEl("rect", { x: f1(x - BOX / 2), y: 16, width: f1(BOX), height: 42, rx: 8 }),
+          svgEl("text", { x: f1(x), y: 42, text: e.name })
         ]);
         var z = e.zone && M.Z[e.zone];
-        if (z) g.appendChild(svgEl("text", { class: "nthview-df-zl", x: f1(x), y: 70, "text-anchor": "middle", text: z.name }));
+        if (z) g.appendChild(svgEl("text", { class: "nthview-df-zl", x: f1(x), y: 76, "text-anchor": "middle", text: z.name }));
         svg.appendChild(g); heads[id] = g;
       });
       var arrows = [], lastStep = -1;
@@ -2827,7 +2962,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         var y = TOP + i * ROW;
         if (b.step !== lastStep) {
           lastStep = b.step;
-          svg.appendChild(svgEl("text", { class: "nthview-df-sstep", x: 10, y: f1(y + 4), text: String(b.step + 1) }));
+          svg.appendChild(svgEl("text", { class: "nthview-df-sstep", x: 8, y: f1(y + 4), text: String(b.step + 1) }));
           if (i) svg.appendChild(svgEl("line", { class: "nthview-df-ssep", x1: LEFT, y1: f1(y - ROW / 2 - 2), x2: f1(W - 10), y2: f1(y - ROW / 2 - 2) }));
         }
         if (!b.msg) {
@@ -2836,17 +2971,17 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         }
         var m = b.msg, k = kindOf(m), g = svgEl("g", { class: "nthview-df-sm nthview-df-k-" + k + (isDeprecated(m) ? " nthview-df-dep" : ""), "data-i": i });
         var x1 = X[m.from], x2 = X[m.to], label = m.name;
-        if (m.info && (label.length + m.info.length + 3) * 6.6 < Math.abs(x2 - x1) - 20) label += " · " + m.info;
+        if (m.info && (label.length + m.info.length + 3) * 7.4 < Math.abs(x2 - x1) - 24) label += " · " + m.info;
         if (m.from === m.to) {
-          g.appendChild(svgEl("path", { d: "M" + f1(x1 + 4) + " " + f1(y - 8) + "h34v16h-30" }));
-          g.appendChild(svgEl("polygon", { class: "nthview-df-ah", points: pts([[x1 + 4, y + 8], [x1 + 12, y + 4], [x1 + 12, y + 12]]) }));
-          g.appendChild(svgEl("text", { x: f1(x1 + 48), y: f1(y + 4), "text-anchor": "start", text: label }));
+          g.appendChild(svgEl("path", { d: "M" + f1(x1 + 4) + " " + f1(y - 9) + "h40v18h-36" }));
+          g.appendChild(svgEl("polygon", { class: "nthview-df-ah", points: pts([[x1 + 4, y + 9], [x1 + 13, y + 4.5], [x1 + 13, y + 13.5]]) }));
+          g.appendChild(svgEl("text", { x: f1(x1 + 54), y: f1(y + 4), "text-anchor": "start", text: label }));
           g.appendChild(svgEl("title", { text: m.name + " (" + M.E[m.from].name + ", local)" }));
         } else {
           var dir = x2 > x1 ? 1 : -1, ax1 = x1 + dir * 4, ax2 = x2 - dir * 4;
-          g.appendChild(svgEl("line", { x1: f1(ax1), y1: f1(y), x2: f1(ax2 - dir * 8), y2: f1(y) }));
-          g.appendChild(svgEl("polygon", { class: "nthview-df-ah", points: pts([[ax2, y], [ax2 - dir * 10, y - 4.5], [ax2 - dir * 10, y + 4.5]]) }));
-          var t = svgEl("text", { x: f1((x1 + x2) / 2), y: f1(y - 6) });
+          g.appendChild(svgEl("line", { x1: f1(ax1), y1: f1(y), x2: f1(ax2 - dir * 9), y2: f1(y) }));
+          g.appendChild(svgEl("polygon", { class: "nthview-df-ah", points: pts([[ax2, y], [ax2 - dir * 11, y - 5], [ax2 - dir * 11, y + 5]]) }));
+          var t = svgEl("text", { x: f1((x1 + x2) / 2), y: f1(y - 7) });
           if (isDeprecated(m)) t.appendChild(svgEl("tspan", { class: "nthview-df-sdep", text: "DEPRECATED " }));
           t.appendChild(doc.createTextNode(label));
           g.appendChild(t);
@@ -2919,8 +3054,9 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       ui.topicsBtn = tb;
       var sub = el("div", { class: "nthview-df-subbar" }, [tb]);
       if (M.hasTM && ui.tmSelect) { var sel2 = ui.tmSelect.firstChild.cloneNode(true); sel2.addEventListener("change", function () { setVersion(sel2.value); }); sub.appendChild(sel2); }
-      c.appendChild(sub);
-      if (resumed) { resumed = false; c.appendChild(resumeNotice("Welcome back, continuing from " + M.TI[state.topic].title + (R.beats.length ? " · step " + (R.beats[state.pos].step + 1) + " of " + R.steps.length : ""))); }
+      var stagewrap = el("div", { class: "nthview-df-stagewrap" });
+      stagewrap.appendChild(sub);
+      if (resumed) { resumed = false; stagewrap.appendChild(resumeNotice("Welcome back, continuing from " + M.TI[state.topic].title + (R.beats.length ? " · step " + (R.beats[state.pos].step + 1) + " of " + R.steps.length : ""))); }
       ui.status = el("div", { class: "nthview-df-sr", "aria-live": "polite" }); c.appendChild(ui.status);
       /* caption and mode toggle */
       ui.cap = el("div", { class: "nthview-df-cap" });
@@ -2930,9 +3066,10 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         b.addEventListener("click", function () { if (state.mode === m) return; state.mode = m; persist(); seg.querySelectorAll("button").forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); }); buildStage(); refresh(); });
         seg.appendChild(b);
       });
-      c.appendChild(el("div", { class: "nthview-df-stagebar" }, [ui.cap, seg]));
+      stagewrap.appendChild(el("div", { class: "nthview-df-stagebar" }, [ui.cap, seg]));
       ui.stage = el("div", { class: "nthview-df-stage", tabindex: "0", role: "group", "aria-label": "Diagram. Use the arrow keys to move between messages and space to play." });
-      c.appendChild(ui.stage);
+      stagewrap.appendChild(ui.stage);
+      c.appendChild(stagewrap);
       /* flow */
       var flow = el("div", { class: "nthview-df-flow" });
       var fh = el("div", { class: "nthview-df-fh" }, [el("h2", { text: "Message flow" }), el("span", { class: "nthview-df-count", text: R.msgCount + " message" + (R.msgCount === 1 ? "" : "s") + " · " + R.steps.length + " step" + (R.steps.length === 1 ? "" : "s") })]);
@@ -2965,7 +3102,8 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
           tbody.appendChild(tr); ui.rows.push(tr);
         });
         table.appendChild(tbody);
-        flow.appendChild(el("div", { class: "nthview-df-tablewrap" }, [table]));
+        ui.tablewrap = el("div", { class: "nthview-df-tablewrap" }, [table]);
+        flow.appendChild(ui.tablewrap);
       }
       ui.nextWrap = el("div", { class: "nthview-df-nexttopic" }); flow.appendChild(ui.nextWrap);
       c.appendChild(flow);
@@ -3010,14 +3148,14 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     function rightPanel() {
       var r = el("aside", { class: "nthview-df-right", "data-panel": state.panel, "aria-label": "Article and message" });
       var seg = el("div", { class: "nthview-df-seg", role: "group", "aria-label": "Panel" });
-      ["article", "message"].forEach(function (p) {
+      ["message", "article"].forEach(function (p) {
         var b = el("button", { type: "button", "aria-pressed": state.panel === p ? "true" : "false", text: p === "article" ? "Article" : "Message" });
         b.addEventListener("click", function () { state.panel = p; r.setAttribute("data-panel", p); persist(); seg.querySelectorAll("button").forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); }); });
         seg.appendChild(b);
       });
       r.appendChild(el("div", { class: "nthview-df-rtabs" }, [seg]));
-      r.appendChild(article(M.TI[state.topic]));
       ui.msg = el("div", { class: "nthview-df-msg" }); r.appendChild(ui.msg);
+      r.appendChild(article(M.TI[state.topic]));
       if (data.footer) r.appendChild(para("nthview-df-footer", data.footer));
       return r;
     }
@@ -3046,10 +3184,16 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         var all = buildNetwork(data.entities.map(function (e) { return e.id; }), narrowStage, null);
         ui.stage.appendChild(all.svg);
         ui.stage.appendChild(el("div", { class: "nthview-df-absentmsg", text: "Not in " + versionLabel(state.version) }));
+        ui.stage.style.cssText = "";
         return;
       }
       if (state.mode === "network") { ui.net = buildNetwork(R.entities, narrowStage, R); ui.net.svg.classList.add("nthview-df-dim"); ui.stage.appendChild(ui.net.svg); ui.stage.style.cssText = ""; }
-      else { ui.seq = buildSequence(R, ui.stage.clientWidth || 900); ui.stage.appendChild(ui.seq.svg); ui.stage.style.cssText = "overflow:auto;flex:0 0 auto;min-height:0;display:block"; }
+      else {
+        var w = ui.stage.clientWidth || 900, h = ui.stage.clientHeight || 0;
+        ui.seq = buildSequence(R, Math.max(320, w - 2), h > 200 ? h - 2 : 0);
+        ui.stage.appendChild(ui.seq.svg);
+        ui.stage.style.cssText = "overflow:auto;display:block";
+      }
     }
 
     /* ---------- refresh everything that depends on the position ---------- */
@@ -3058,6 +3202,10 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       var b = R.beats[state.pos], st = b ? R.steps[b.step] : null, gated = b ? isGated(state.pos) : false;
       /* caption */
       ui.cap.innerHTML = "";
+      if (!reduceMotion && ui.capShown) { ui.cap.classList.remove("nthview-df-fadein"); void ui.cap.offsetWidth; ui.cap.classList.add("nthview-df-fadein"); }
+      ui.capShown = true;
+      var fxLayer = ui.net ? ui.net.fx : ui.seq ? ui.seq.fx : null;
+      if (fxLayer) Array.prototype.slice.call(fxLayer.childNodes).forEach(function (nd) { if (nd.getAttribute("data-i") !== String(state.pos)) fxLayer.removeChild(nd); });
       if (!st) {
         ui.cap.appendChild(el("p", { class: "nthview-df-eyebrow", text: R.avail ? "No steps" : "Not in " + versionLabel(state.version) }));
         ui.cap.appendChild(el("h2", { text: M.TI[state.topic].title }));
@@ -3076,7 +3224,10 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         if (!tr) return;
         tr.classList.toggle("nthview-df-cur", i === state.pos && !gated);
         tr.classList.toggle("nthview-df-fut", i > state.pos || (i === state.pos && gated));
-        if (i === state.pos && !gated) tr.setAttribute("aria-current", "true"); else tr.removeAttribute("aria-current");
+        if (i === state.pos && !gated) {
+          tr.setAttribute("aria-current", "true");
+          if (ui.tablewrap) { var top = tr.offsetTop - ui.tablewrap.offsetTop, vh = ui.tablewrap.clientHeight; if (top < ui.tablewrap.scrollTop + 32 || top + tr.offsetHeight > ui.tablewrap.scrollTop + vh - 8) ui.tablewrap.scrollTop = Math.max(0, top - vh / 2 + 40); }
+        } else tr.removeAttribute("aria-current");
       });
       /* diagram highlight */
       var on = {}, onEdge = {};
@@ -3196,10 +3347,11 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     function play() {
       if (playing || !R.beats.length) return;
       playing = true; updatePlayBtn();
+      if (root.innerWidth >= 1024) container.classList.add("nthview-df-focus");
       if (state.pos >= R.beats.length - 1 && !isGated(state.pos)) { state.pos = 0; refresh(); }
       if (state.pos === 0 && !isGated(0) && R.beats[0].msg) animateBeat(0, function () { refresh(); schedule(); }); else schedule();
     }
-    function schedule() { if (!playing) return; timer = setTimeout(tick, reduceMotion ? 900 : 650); }
+    function schedule() { if (!playing) return; timer = setTimeout(tick, reduceMotion ? 1100 : 800); }
     function tick() {
       if (!playing) return;
       var next = state.pos + 1;
@@ -3208,35 +3360,50 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       if (reduceMotion || !R.beats[next].msg) { setPos(next); schedule(); return; }
       animateBeat(next, function () { setPos(next); schedule(); });
     }
-    function stop() { playing = false; if (timer) { clearTimeout(timer); timer = null; } cancelAnim(); if (ui.playBtn) updatePlayBtn(); }
-    function cancelAnim() { if (anim) { if (anim.raf) root.cancelAnimationFrame(anim.raf); if (anim.node && anim.node.parentNode) anim.node.parentNode.removeChild(anim.node); anim = null; } }
-    /* The travelling dot: along the link in the network view, along the arrow in the sequence view. */
+    function stop() {
+      playing = false; if (timer) { clearTimeout(timer); timer = null; }
+      cancelAnim(); container.classList.remove("nthview-df-focus");
+      if (ui.playBtn) updatePlayBtn();
+    }
+    function cancelAnim() { if (anim) { if (anim.raf) root.cancelAnimationFrame(anim.raf); if (anim.g && anim.g.parentNode) anim.g.parentNode.removeChild(anim.g); anim = null; } }
+    /* A labelled packet carries the message name along the link (network) or the arrow (sequence),
+       drawing a trail behind it; it stays at the receiver until the position changes. */
     function animateBeat(i, done) {
       cancelAnim();
       var m = R.beats[i].msg;
       if (!m || reduceMotion) { done(); return; }
-      var DUR = 520, start = null, node, from, to, fx;
+      var DUR = 820, start = null, from, to, fx, k = kindOf(m);
       if (ui.net && ui.net.nodes[m.from] && ui.net.nodes[m.to]) {
         var a = ui.net.nodes[m.from], c = ui.net.nodes[m.to]; fx = ui.net.fx;
-        if (m.from === m.to) {
-          node = svgEl("circle", { class: "nthview-df-pulse", cx: f1(a.x), cy: f1(a.y), r: 18 });
-          from = null;
-        } else { from = { x: a.x + (c.x - a.x) * 0.12, y: a.y + (c.y - a.y) * 0.12 }; to = { x: a.x + (c.x - a.x) * 0.88, y: a.y + (c.y - a.y) * 0.88 }; node = svgEl("circle", { class: "nthview-df-pkt", cx: f1(from.x), cy: f1(from.y), r: 6 }); }
-        var ek = pairKey(m.from, m.to); if (ui.net.edges[ek]) ui.net.edges[ek].line.classList.add("nthview-df-on");
+        from = { x: a.x, y: a.y }; to = m.from === m.to ? { x: a.x, y: a.y - 70 } : { x: c.x, y: c.y };
       } else if (ui.seq) {
-        var y = ui.seq.TOP + i * ui.seq.ROW, x1 = ui.seq.X[m.from], x2 = ui.seq.X[m.to]; fx = ui.seq.fx;
-        if (m.from === m.to) { node = svgEl("circle", { class: "nthview-df-pulse", cx: f1(x1 + 20), cy: f1(y), r: 6 }); from = null; }
-        else { from = { x: x1, y: y }; to = { x: x2, y: y }; node = svgEl("circle", { class: "nthview-df-pkt", cx: f1(x1), cy: f1(y), r: 5 }); }
+        var y = ui.seq.TOP + i * ui.seq.ROW; fx = ui.seq.fx;
+        from = { x: ui.seq.X[m.from], y: y }; to = m.from === m.to ? { x: ui.seq.X[m.from] + 44, y: y } : { x: ui.seq.X[m.to], y: y };
       } else { done(); return; }
-      fx.appendChild(node);
-      anim = { node: node, raf: 0 };
+      var label = m.name.length > 28 ? m.name.slice(0, 27) + "…" : m.name, w = Math.max(60, label.length * 8.2 + 32);
+      var g = svgEl("g", { class: "nthview-df-pkt nthview-df-k-" + k + (isDeprecated(m) ? " nthview-df-dep" : ""), "data-i": String(i) });
+      var trail = svgEl("line", { class: "nthview-df-trail", x1: f1(from.x), y1: f1(from.y), x2: f1(from.y === to.y && from.x === to.x ? from.x : from.x), y2: f1(from.y) });
+      var head = svgEl("polygon", { class: "nthview-df-trailhead", points: "0,0 0,0 0,0" });
+      var pill = svgEl("g", { transform: "translate(" + f1(from.x) + "," + f1(from.y) + ")" }, [
+        svgEl("rect", { class: "nthview-df-pb", x: f1(-w / 2), y: -15, width: f1(w), height: 30, rx: 15 }),
+        svgEl("circle", { class: "nthview-df-pd", cx: f1(-w / 2 + 15), cy: 0, r: 4.5 }),
+        svgEl("text", { class: "nthview-df-pt", x: f1(-w / 2 + 27), y: 4.5, text: label })
+      ]);
+      if (isDeprecated(m)) pill.appendChild(svgEl("text", { class: "nthview-df-pdep", x: 0, y: -22, "text-anchor": "middle", text: "DEPRECATED" }));
+      g.appendChild(trail); g.appendChild(head); g.appendChild(pill);
+      fx.appendChild(g);
+      anim = { g: g, raf: 0 };
+      var dxTot = to.x - from.x, dyTot = to.y - from.y, len = Math.sqrt(dxTot * dxTot + dyTot * dyTot) || 1, ux = dxTot / len, uy = dyTot / len;
       function frame(ts) {
         if (!start) start = ts;
         var t = Math.min(1, (ts - start) / DUR), e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-        if (from) { node.setAttribute("cx", f1(from.x + (to.x - from.x) * e)); node.setAttribute("cy", f1(from.y + (to.y - from.y) * e)); }
-        else { node.setAttribute("r", f1(18 + 26 * t)); node.style.opacity = String(1 - t); }
+        var x = from.x + dxTot * e, yy = from.y + dyTot * e;
+        pill.setAttribute("transform", "translate(" + f1(x) + "," + f1(yy) + ")");
+        trail.setAttribute("x2", f1(x)); trail.setAttribute("y2", f1(yy));
+        var hx = x - ux * (w / 2 + 2), hy = yy - uy * (w / 2 + 2);
+        head.setAttribute("points", pts([[hx, hy], [hx - ux * 10 - uy * 5, hy - uy * 10 + ux * 5], [hx - ux * 10 + uy * 5, hy - uy * 10 - ux * 5]]));
         if (t < 1) anim.raf = root.requestAnimationFrame(frame);
-        else { cancelAnim(); done(); }
+        else { g.classList.add("nthview-df-arrived"); anim = null; done(); }
       }
       anim.raf = root.requestAnimationFrame(frame);
     }
@@ -3283,7 +3450,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       if (resizeTimer) clearTimeout(resizeTimer);
       resizeTimer = setTimeout(function () {
         if (state.screen === "intro") { drawPreview(); return; }
-        if (!ui.stage) return;
+        if (!ui.stage || playing) return;
         var narrow = ui.stage.clientWidth > 0 && ui.stage.clientWidth < 560;
         if (narrow !== narrowStage || state.mode === "sequence") { buildStage(); refresh(); }
       }, 120);

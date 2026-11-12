@@ -53,7 +53,7 @@
     /* ---- view-specific styles below, every class prefixed nthview- ---- */
     themeCss(),
     ".nthview-dataflow{--df-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace;--df-border:rgba(var(--df-rgb),.14);--df-soft:rgba(var(--df-rgb),.07);--df-hover:rgba(var(--df-rgb),.04);--df-faint:rgba(var(--df-rgb),.3);--df-face-t:rgba(var(--df-rgb),.11);--df-face-l:rgba(var(--df-rgb),.045);--df-face-r:var(--nv-bg);",
-    "  max-width:none;padding:0;margin:0;min-height:100vh;display:flex;flex-direction:column;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}",
+    "  max-width:none;padding:0;margin:0;min-height:100vh;display:flex;flex-direction:column;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}",
     ":where(.nthview-dataflow) button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-align:left}",
     Z + "a{color:var(--nv-fg);text-decoration-color:var(--df-faint);text-underline-offset:2px}",
     Z + "a:hover{text-decoration-color:var(--nv-fg)}",
@@ -73,7 +73,7 @@
     ".nthview-df-btn-primary:hover{background:var(--nv-fg);opacity:.9}",
     ".nthview-df-btn svg{width:14px;height:14px;fill:currentColor}",
     ".nthview-df-seg{display:inline-flex;border:1px solid var(--df-border);border-radius:8px;padding:2px;background:var(--df-hover)}",
-    ".nthview-df-seg button{min-height:30px;padding:0 10px;border-radius:6px;font-size:13px;color:var(--nv-muted)}",
+    ".nthview-df-seg button{min-height:28px;padding:0 10px;border-radius:6px;font-size:12.5px;color:var(--nv-muted)}",
     ".nthview-df-seg button[aria-pressed=true]{background:var(--nv-bg);color:var(--nv-fg);box-shadow:0 1px 2px rgba(0,0,0,.15)}",
     ".nthview-restart{min-height:36px;padding:0 12px;border:1px solid var(--df-border);border-radius:8px;font-size:13px;color:var(--nv-muted);white-space:nowrap}",
     ".nthview-restart:hover{color:var(--nv-fg);background:var(--df-hover)}",
@@ -101,8 +101,8 @@
     ".nthview-df-tmselect{display:none}",
     /* hero */
     ".nthview-df-intro{flex:1;display:grid;grid-template-columns:minmax(380px,520px) minmax(0,1fr);min-height:0}",
-    ".nthview-df-hero{display:flex;align-items:center;border-right:1px solid var(--df-border);overflow:auto;padding:40px}",
-    ".nthview-df-hero-in{max-width:460px}",
+    ".nthview-df-hero{display:flex;flex-direction:column;border-right:1px solid var(--df-border);overflow:auto;padding:40px}",
+    ".nthview-df-hero-in{max-width:460px;margin:auto 0}",
     ".nthview-df-kicker{font-size:13px;color:var(--nv-muted);margin-bottom:14px}",
     ".nthview-df-hero h2{font-size:clamp(30px,4.6vw,46px);line-height:1.1;margin-bottom:18px}",
     ".nthview-df-lead{font-size:17px;line-height:1.55;color:var(--nv-fg);margin-bottom:26px}",
@@ -117,11 +117,17 @@
     ".nthview-df-preview .nthview-df-stage{flex:1}",
     ".nthview-df-preview-cap{padding:20px 24px 0;font-size:13px;color:var(--nv-muted)}",
     /* lesson grid */
-    ".nthview-df-lesson{flex:1;display:grid;grid-template-columns:300px minmax(0,1fr) 380px;min-height:0}",
+    ".nthview-df-lesson{flex:1;display:grid;grid-template-columns:316px minmax(0,1fr) 380px;min-height:0;transition:grid-template-columns .5s cubic-bezier(.2,.7,.2,1)}",
+    ".nthview-df-side,.nthview-df-right{transition:opacity .3s}",
+    ".nthview-df-focus .nthview-df-lesson{grid-template-columns:0 minmax(0,1fr) 0}",
+    ".nthview-df-focus .nthview-df-side,.nthview-df-focus .nthview-df-right{opacity:0;overflow:hidden;pointer-events:none}",
+    ".nthview-df-stagewrap{display:flex;flex-direction:column;min-height:0;min-width:0}",
     ".nthview-df-side,.nthview-df-right{border-right:1px solid var(--df-border);min-height:0}",
     ".nthview-df-right{border-right:0;border-left:1px solid var(--df-border)}",
     ".nthview-df-center{display:flex;flex-direction:column;min-width:0;min-height:0}",
-    "@media (min-width:1024px){.nthview-dataflow{height:100vh}.nthview-df-side,.nthview-df-right,.nthview-df-center{overflow:auto}.nthview-df-intro{overflow:hidden}}",
+    "@media (min-width:1024px){.nthview-dataflow{height:100vh}.nthview-df-side,.nthview-df-right{overflow:auto}.nthview-df-intro{overflow:hidden}",
+    "  .nthview-df-center{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) 300px;overflow:hidden}.nthview-df-stage,.nthview-df-flow{min-width:0}.nthview-df-stagewrap{overflow:hidden}.nthview-df-stage{min-height:0}.nthview-df-stage svg{min-height:0}",
+    "  .nthview-df-flow{display:flex;flex-direction:column;min-height:0}.nthview-df-tablewrap{flex:1;min-height:0;overflow:auto}.nthview-df-nexttopic{flex:0 0 auto}}",
     /* sidebar */
     ".nthview-df-sidehead{padding:16px 20px 10px;border-bottom:1px solid var(--df-border)}",
     ".nthview-df-sidehead h2{font-size:17px}",
@@ -132,11 +138,11 @@
     ".nthview-df-th{display:block;width:100%;padding:10px 20px;min-height:44px}",
     ".nthview-df-th:hover{background:var(--df-hover)}",
     ".nthview-df-topic-open>.nthview-df-th{background:var(--df-soft)}",
-    ".nthview-df-th b{font-weight:500;display:block;font-size:15px}",
+    ".nthview-df-th b{font-weight:500;display:block;font-size:14px}",
     ".nthview-df-th em{display:block;font-style:normal;font-size:12px;color:var(--nv-muted)}",
     ".nthview-df-topic-off .nthview-df-th b{color:var(--nv-muted)}",
     ".nthview-df-steps{list-style:none;margin:0;padding:6px 12px 12px 20px}",
-    ".nthview-df-steps li button{display:flex;align-items:center;gap:12px;width:100%;min-height:36px;padding:4px 8px;border-radius:6px;font-size:14px}",
+    ".nthview-df-steps li button{display:flex;align-items:center;gap:12px;width:100%;min-height:34px;padding:4px 8px;border-radius:6px;font-size:13.5px}",
     ".nthview-df-steps li button:hover{background:var(--df-hover)}",
     ".nthview-df-steps li button[aria-current=step]{background:var(--df-soft)}",
     ".nthview-df-num{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;border:1px solid var(--df-faint);font:11px var(--df-mono);color:var(--nv-muted);flex:0 0 auto}",
@@ -156,11 +162,13 @@
     ".nthview-df-drawerhead{display:none}",
     /* centre: caption, stage, flow */
     ".nthview-df-stagebar{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;padding:16px 20px 0}",
-    ".nthview-df-cap{min-height:96px;flex:1;min-width:0}",
+    ".nthview-df-cap{min-height:84px;flex:1;min-width:0;max-width:680px}",
+    "@keyframes nthview-df-fade{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}",
+    ".nthview-df-fadein{animation:nthview-df-fade .28s ease-out}",
     ".nthview-df-eyebrow{font-size:12px;color:var(--nv-muted)}",
-    ".nthview-df-cap h2{font-size:22px;line-height:1.2;margin:2px 0 6px}",
-    ".nthview-df-expl{font-size:14px;color:var(--nv-muted);max-width:62ch}",
-    ".nthview-df-expl b{color:var(--nv-fg);font-weight:500}",
+    ".nthview-df-cap h2{font-size:21px;line-height:1.2;margin:2px 0 6px}",
+    ".nthview-df-expl{font-size:14px;color:var(--nv-fg);opacity:.85;max-width:68ch;text-wrap:pretty}",
+    ".nthview-df-expl b{font-weight:600}",
     ".nthview-df-stage{position:relative;min-height:300px;flex:1;display:flex;align-items:stretch;overflow:hidden;outline-offset:-3px;",
     "  background-image:radial-gradient(rgba(var(--df-rgb),.16) 1px,transparent 1.2px);background-size:20px 20px;background-position:10px 10px}",
     ".nthview-df-stage svg{width:100%;height:100%;display:block;min-height:300px}",
@@ -174,7 +182,8 @@
     ".nthview-df-tablewrap{overflow-x:auto}",
     ".nthview-df-table{width:100%;border-collapse:collapse;font-size:13px;min-width:560px}",
     ".nthview-df-table th{text-align:left;font-weight:500;color:var(--nv-muted);padding:6px 10px;border-bottom:1px solid var(--df-border);font-size:12px;white-space:nowrap}",
-    ".nthview-df-table td{padding:6px 10px;border-bottom:1px solid var(--df-soft);color:rgba(var(--df-rgb),.78);white-space:nowrap;max-width:320px;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}",
+    ".nthview-df-table td{padding:5px 10px;border-bottom:1px solid var(--df-soft);color:rgba(var(--df-rgb),.78);white-space:nowrap;max-width:340px;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}",
+    ".nthview-df-table thead th{position:sticky;top:0;background:var(--nv-bg);z-index:1}",
     ".nthview-df-table th:first-child,.nthview-df-table td:first-child{padding-left:20px;width:48px}",
     ".nthview-df-table tr{cursor:pointer}",
     ".nthview-df-table tr:hover td{background:var(--df-hover)}",
@@ -194,7 +203,7 @@
     ".nthview-df-dot.nthview-df-k-local{background:transparent;border-style:dotted;border-color:var(--nv-muted);color:var(--nv-muted)}",
     ".nthview-df-dot.nthview-df-k-transport{border-radius:4px;background:rgba(var(--df-rgb),.55);border-color:transparent;color:var(--nv-bg)}",
     /* right panel: article and message */
-    ".nthview-df-article{padding:22px 24px 18px;border-bottom:1px solid var(--df-border)}",
+    ".nthview-df-article{padding:22px 24px 18px;border-top:1px solid var(--df-border)}",
     ".nthview-df-article h3{font-size:30px;line-height:1.1}",
     ".nthview-df-article .nthview-df-sub{font-size:15px;color:var(--nv-muted);margin:4px 0 14px}",
     ".nthview-df-article p{font-size:14px;line-height:1.55;margin:0 0 12px}",
@@ -215,7 +224,7 @@
     ".nthview-df-absentbox{border:1px dashed var(--df-faint);border-radius:8px;padding:10px 12px;margin:0 0 14px;font-size:13px;color:var(--nv-muted)}",
     ".nthview-df-absentbox b{color:var(--nv-fg);font-weight:500}",
     ".nthview-df-footer{font-size:12px;color:var(--nv-muted);padding:14px 24px 20px;border-top:1px solid var(--df-border)}",
-    ".nthview-df-msg{padding:18px 24px 24px}",
+    ".nthview-df-msg{padding:18px 24px 22px}",
     ".nthview-df-msg h2{font-size:16px;margin-bottom:10px}",
     ".nthview-df-ih{display:flex;align-items:center;gap:8px}",
     ".nthview-df-ih .nthview-df-dot{width:10px;height:10px}",
@@ -266,39 +275,54 @@
     ".nthview-df-node{transition:opacity .25s}",
     ".nthview-df-dim .nthview-df-node:not(.nthview-df-on){opacity:.4}",
     ".nthview-df-node .nthview-df-shd{fill:rgba(var(--df-rgb),.07)}",
-    ".nthview-df-node .nthview-df-fl{fill:var(--df-face-l)}",
-    ".nthview-df-node .nthview-df-fr{fill:var(--df-face-r)}",
-    ".nthview-df-node .nthview-df-ft{fill:var(--df-face-t)}",
-    ".nthview-df-node polygon,.nthview-df-node path,.nthview-df-node circle,.nthview-df-node ellipse:not(.nthview-df-shd),.nthview-df-node rect,.nthview-df-node line{stroke:var(--nv-muted);stroke-width:1.2;stroke-linejoin:round;stroke-linecap:round}",
+    ".nthview-df-node .nthview-df-fl{fill:rgba(var(--df-rgb),.11)}",
+    ".nthview-df-node .nthview-df-fr{fill:rgba(var(--df-rgb),.2)}",
+    ".nthview-df-node .nthview-df-ft{fill:rgba(var(--df-rgb),.03)}",
+    ".nthview-df-node.nthview-df-on .nthview-df-shd{fill:rgba(var(--df-rgb),.13)}",
+    ".nthview-df-node polygon,.nthview-df-node path,.nthview-df-node circle,.nthview-df-node ellipse:not(.nthview-df-shd),.nthview-df-node rect,.nthview-df-node line{stroke:var(--nv-muted);stroke-width:.9;stroke-linejoin:round;stroke-linecap:round}",
     ".nthview-df-node path.nthview-df-ln,.nthview-df-node line.nthview-df-ln,.nthview-df-node circle.nthview-df-ln,.nthview-df-node rect.nthview-df-ln{fill:none}",
     ".nthview-df-node circle.nthview-df-led{fill:var(--nv-muted);stroke:none}",
-    ".nthview-df-node.nthview-df-on polygon,.nthview-df-node.nthview-df-on path,.nthview-df-node.nthview-df-on circle,.nthview-df-node.nthview-df-on ellipse:not(.nthview-df-shd),.nthview-df-node.nthview-df-on rect,.nthview-df-node.nthview-df-on line{stroke:var(--nv-fg);stroke-width:1.5}",
+    ".nthview-df-node.nthview-df-on polygon,.nthview-df-node.nthview-df-on path,.nthview-df-node.nthview-df-on circle,.nthview-df-node.nthview-df-on ellipse:not(.nthview-df-shd),.nthview-df-node.nthview-df-on rect,.nthview-df-node.nthview-df-on line{stroke:var(--nv-fg);stroke-width:1.3}",
     ".nthview-df-node.nthview-df-on circle.nthview-df-led{fill:var(--nv-accent);stroke:none}",
-    ".nthview-df-node .nthview-df-nl{font:500 13px var(--df-head);fill:var(--nv-fg);text-anchor:middle;paint-order:stroke;stroke:var(--nv-bg);stroke-width:4px;stroke-linejoin:round}",
-    ".nthview-df-node .nthview-df-ns{font:10px var(--df-mono);fill:var(--nv-muted);text-anchor:middle;paint-order:stroke;stroke:var(--nv-bg);stroke-width:4px;stroke-linejoin:round}",
-    ".nthview-df-pkt{fill:var(--nv-accent);stroke:var(--nv-bg);stroke-width:2}",
-    ".nthview-df-pulse{fill:none;stroke:var(--nv-accent);stroke-width:2}",
+    ".nthview-df-node .nthview-df-nl{font:400 18px var(--df-head);fill:var(--nv-fg);text-anchor:middle;paint-order:stroke;stroke:var(--nv-bg);stroke-width:5px;stroke-linejoin:round}",
+    ".nthview-df-node .nthview-df-ns{font:13px var(--df-mono);fill:var(--nv-muted);text-anchor:middle;paint-order:stroke;stroke:var(--nv-bg);stroke-width:5px;stroke-linejoin:round}",
+    ".nthview-df-dim .nthview-df-node:not(.nthview-df-on) .nthview-df-nl{fill:var(--nv-muted)}",
+    /* the travelling packet: a labelled pill with a trail; colours follow the message kind */
+    ".nthview-df-pkt .nthview-df-pb{fill:var(--nv-bg);stroke:var(--nv-fg);stroke-width:1.6}",
+    ".nthview-df-pkt .nthview-df-pd{fill:var(--nv-fg)}",
+    ".nthview-df-pkt .nthview-df-pt{font:13.5px var(--df-mono);fill:var(--nv-fg)}",
+    ".nthview-df-pkt .nthview-df-trail{stroke:var(--nv-fg);stroke-width:1.6}",
+    ".nthview-df-pkt .nthview-df-trailhead{fill:var(--nv-fg)}",
+    ".nthview-df-pkt.nthview-df-k-response .nthview-df-pb,.nthview-df-pkt.nthview-df-k-response .nthview-df-trail{stroke:var(--nv-muted)}",
+    ".nthview-df-pkt.nthview-df-k-response .nthview-df-pd,.nthview-df-pkt.nthview-df-k-response .nthview-df-trailhead{fill:var(--nv-muted)}",
+    ".nthview-df-pkt.nthview-df-k-error .nthview-df-pb,.nthview-df-pkt.nthview-df-k-error .nthview-df-trail{stroke:var(--nv-accent)}",
+    ".nthview-df-pkt.nthview-df-k-error .nthview-df-pd,.nthview-df-pkt.nthview-df-k-error .nthview-df-trailhead{fill:var(--nv-accent)}",
+    ".nthview-df-pkt.nthview-df-k-notification .nthview-df-pb,.nthview-df-pkt.nthview-df-k-notification .nthview-df-trail,.nthview-df-pkt.nthview-df-dep .nthview-df-pb{stroke-dasharray:5 3}",
+    ".nthview-df-pkt.nthview-df-k-local .nthview-df-trail,.nthview-df-pkt.nthview-df-k-transport .nthview-df-trail{stroke-dasharray:2 4}",
+    ".nthview-df-pkt .nthview-df-pdep{font:600 9.5px var(--df-mono);letter-spacing:.1em;fill:var(--nv-accent)}",
+    ".nthview-df-pkt.nthview-df-arrived{opacity:.92}",
     /* sequence */
     ".nthview-df-life{stroke:var(--df-faint);stroke-width:1;stroke-dasharray:3 4}",
     ".nthview-df-lifehead rect{fill:var(--nv-bg);stroke:var(--df-faint);stroke-width:1}",
-    ".nthview-df-lifehead text{font:500 13px var(--df-head);fill:var(--nv-fg);text-anchor:middle}",
+    ".nthview-df-lifehead text{font:400 15px var(--df-head);fill:var(--nv-fg);text-anchor:middle}",
     ".nthview-df-lifehead .nthview-df-zl{font:600 9px var(--df-mono);fill:var(--nv-muted);letter-spacing:.08em}",
     ".nthview-df-lifehead.nthview-df-on rect{stroke:var(--nv-fg);stroke-width:1.5}",
     ".nthview-df-sstep{font:11px var(--df-mono);fill:var(--nv-muted)}",
     ".nthview-df-ssep{stroke:var(--df-soft);stroke-width:1}",
-    ".nthview-df-sm line,.nthview-df-sm path{stroke:rgba(var(--df-rgb),.7);stroke-width:1.2;fill:none;transition:stroke .2s}",
+    ".nthview-df-sm{cursor:pointer}",
+    ".nthview-df-sm line,.nthview-df-sm path{stroke:var(--nv-fg);stroke-width:1.3;fill:none;transition:stroke .2s}",
     ".nthview-df-sm.nthview-df-k-response line,.nthview-df-sm.nthview-df-k-response path{stroke-dasharray:none;stroke:rgba(var(--df-rgb),.55)}",
     ".nthview-df-sm.nthview-df-k-notification line,.nthview-df-sm.nthview-df-k-notification path{stroke-dasharray:6 4}",
     ".nthview-df-sm.nthview-df-k-local path{stroke-dasharray:2 3}",
     ".nthview-df-sm.nthview-df-k-error line,.nthview-df-sm.nthview-df-k-error path{stroke:var(--nv-accent)}",
     ".nthview-df-sm.nthview-df-dep line,.nthview-df-sm.nthview-df-dep path{stroke-dasharray:6 3}",
-    ".nthview-df-sm text{font:11px var(--df-mono);fill:rgba(var(--df-rgb),.7);text-anchor:middle;paint-order:stroke;stroke:var(--nv-bg);stroke-width:3px}",
+    ".nthview-df-sm text{font:13px var(--df-mono);fill:rgba(var(--df-rgb),.7);text-anchor:middle;paint-order:stroke;stroke:var(--nv-bg);stroke-width:4px}",
     ".nthview-df-sm .nthview-df-sdep{fill:var(--nv-accent);font-weight:600}",
-    ".nthview-df-sm .nthview-df-ah{fill:rgba(var(--df-rgb),.7);stroke:none}",
+    ".nthview-df-sm .nthview-df-ah{fill:var(--nv-fg);stroke:none}",
     ".nthview-df-sm.nthview-df-k-response .nthview-df-ah{fill:var(--nv-bg);stroke:rgba(var(--df-rgb),.55);stroke-width:1.2}",
     ".nthview-df-sm.nthview-df-k-error .nthview-df-ah{fill:var(--nv-accent)}",
-    ".nthview-df-sm.nthview-df-fut line,.nthview-df-sm.nthview-df-fut path,.nthview-df-sm.nthview-df-fut text,.nthview-df-sm.nthview-df-fut .nthview-df-ah{opacity:.3}",
-    ".nthview-df-sm.nthview-df-cur line,.nthview-df-sm.nthview-df-cur path{stroke:var(--nv-fg);stroke-width:1.6}",
+    ".nthview-df-sm.nthview-df-fut{opacity:.18}",
+    ".nthview-df-sm.nthview-df-cur line,.nthview-df-sm.nthview-df-cur path{stroke:var(--nv-fg);stroke-width:2.2}",
     ".nthview-df-sm.nthview-df-cur text{fill:var(--nv-fg);font-weight:600}",
     ".nthview-df-sm.nthview-df-cur .nthview-df-ah{fill:var(--nv-fg)}",
     ".nthview-df-sm.nthview-df-k-response.nthview-df-cur .nthview-df-ah{fill:var(--nv-bg);stroke:var(--nv-fg)}",
@@ -347,7 +371,7 @@
     "  .nthview-df-facts dd{margin-bottom:8px}",
     "}",
     "@media (max-width:420px){.nthview-df-hero h2{font-size:28px}.nthview-df-top .nthview-df-introbtn{display:none}}",
-    "@media (prefers-reduced-motion:reduce){.nthview-dataflow *{transition:none!important}}"
+    "@media (prefers-reduced-motion:reduce){.nthview-dataflow *{transition:none!important;animation:none!important}}"
   ].join("\n");
 
   function injectStyles() {
@@ -632,7 +656,7 @@
 
   // ---- layout of the network diagram ------------------------------------------
   function layoutNetwork(M, ids, narrow) {
-    var CW = 176, CH = 148, PAD = 16, HEAD = 30, GAP = narrow ? 28 : 44, perRow = narrow ? 2 : 3;
+    var CW = 236, CH = 212, PAD = 22, HEAD = 36, GAP = narrow ? 30 : 64, perRow = narrow ? 2 : 3;
     var groups = [], byZone = {};
     ids.forEach(function (id) {
       var e = M.E[id], z = e.zone && M.Z[e.zone] ? e.zone : null;
@@ -646,15 +670,19 @@
     var n = groups.length, cols = narrow ? (groups.every(function (g) { return g.ids.length === 1; }) ? 2 : 1) : (n <= 3 ? n : Math.ceil(Math.sqrt(n)));
     var rows = [];
     groups.forEach(function (g, i) { var r = Math.floor(i / cols); (rows[r] = rows[r] || []).push(g); });
-    var rowW = rows.map(function (row) { return row.reduce(function (s, g) { return s + g.w; }, 0) + GAP * (row.length - 1); });
+    var rowW = rows.map(function (row) { return row.reduce(function (sum, g) { return sum + g.w; }, 0) + GAP * (row.length - 1); });
     var W = Math.max.apply(null, rowW) + GAP * 2, y = GAP;
     rows.forEach(function (row, r) {
       var h = Math.max.apply(null, row.map(function (g) { return g.h; })), x = (W - rowW[r]) / 2;
       row.forEach(function (g) { g.x = x; g.y = y + (h - g.h) / 2; x += g.w + GAP; });
       y += h + GAP;
     });
+    var H = y;
+    /* a small diagram floats centred in a 1000x560 frame so two entities are not blown up to fill the stage */
+    var VW = Math.max(W, narrow ? 0 : 1000), VH = Math.max(H, narrow ? 0 : 560), dx = (VW - W) / 2, dy = (VH - H) / 2;
     var nodes = {}, zones = [];
     groups.forEach(function (g) {
+      g.x += dx; g.y += dy;
       if (g.zone) zones.push({ zone: g.zone, x: g.x, y: g.y, w: g.w, h: g.h });
       var ox = g.x + (g.zone ? PAD : 0), oy = g.y + (g.zone ? HEAD + PAD / 2 : 0);
       g.ids.forEach(function (id, k) {
@@ -662,7 +690,7 @@
         nodes[id] = { x: ox + off + cc * CW + CW / 2, y: oy + rr * CH + CH / 2 };
       });
     });
-    return { W: W, H: Math.max(y, 240), nodes: nodes, zones: zones };
+    return { W: VW, H: VH, nodes: nodes, zones: zones };
   }
 
   // ---- view-specific rendering: data is already valid here ---------------
@@ -675,7 +703,8 @@
     container.setAttribute("data-theme", theme);
 
     /* ---------- state and progress (§5.5) ---------- */
-    var state = { screen: "intro", topic: M.topics[0].id, pos: 0, version: M.defaultVersion, mode: "network", scheme: PALETTES[theme].side, checks: {}, panel: "article" };
+    var defaultMode = data.defaultMode || "network";
+    var state = { screen: "intro", topic: M.topics[0].id, pos: 0, version: M.defaultVersion, mode: defaultMode, scheme: PALETTES[theme].side, checks: {}, panel: "message" };
     var saved = loadState(key), resumed = false;
     if (saved) {
       if (saved.screen === "lesson" || saved.screen === "intro") state.screen = saved.screen;
@@ -689,7 +718,7 @@
       resumed = state.screen === "lesson";
     }
     function untouched() {
-      return state.screen === "intro" && !Object.keys(state.checks).length && state.version === M.defaultVersion && state.mode === "network" && state.scheme === PALETTES[theme].side;
+      return state.screen === "intro" && !Object.keys(state.checks).length && state.version === M.defaultVersion && state.mode === defaultMode && state.scheme === PALETTES[theme].side;
     }
     function persist() {
       if (untouched()) { clearState(key); return; }
@@ -819,9 +848,9 @@
       lay.zones.forEach(function (z) {
         var g = svgEl("g", { class: "nthview-df-zone" + (z.zone.remote ? " nthview-df-remote" : "") });
         g.appendChild(svgEl("rect", { x: f1(z.x), y: f1(z.y), width: f1(z.w), height: f1(z.h), rx: 14 }));
-        var lab = svgEl("text", { class: "nthview-df-zl", x: f1(z.x + 16), y: f1(z.y + 20), text: z.zone.name });
+        var lab = svgEl("text", { class: "nthview-df-zl", x: f1(z.x + 18), y: f1(z.y + 24), text: z.zone.name });
         g.appendChild(lab);
-        if (z.zone.subtitle) g.appendChild(svgEl("text", { class: "nthview-df-zs", x: f1(z.x + 16 + z.zone.name.length * 7.2 + 10), y: f1(z.y + 20), text: z.zone.subtitle }));
+        if (z.zone.subtitle) g.appendChild(svgEl("text", { class: "nthview-df-zs", x: f1(z.x + 18 + z.zone.name.length * 7.9 + 12), y: f1(z.y + 24), text: z.zone.subtitle }));
         svg.appendChild(g);
       });
       /* edges: declared links among shown entities, plus implicit ones for message pairs without a link */
@@ -834,8 +863,8 @@
         eg.appendChild(line);
         var pill = null;
         if (link && link.label) {
-          var mx = (pa.x + pb.x) / 2, my = (pa.y + pb.y) / 2, w = link.label.length * 6.4 + 14;
-          pill = svgEl("g", { class: "nthview-df-epill" }, [svgEl("rect", { x: f1(mx - w / 2), y: f1(my - 9), width: f1(w), height: 18, rx: 9 }), svgEl("text", { x: f1(mx), y: f1(my + 3.5), "text-anchor": "middle", text: link.label })]);
+          var mx = (pa.x + pb.x) / 2, my = (pa.y + pb.y) / 2, w = link.label.length * 7 + 16;
+          pill = svgEl("g", { class: "nthview-df-epill" }, [svgEl("rect", { x: f1(mx - w / 2), y: f1(my - 10), width: f1(w), height: 20, rx: 10 }), svgEl("text", { x: f1(mx), y: f1(my + 3.8), "text-anchor": "middle", text: link.label })]);
         }
         edges[k] = { line: line, pill: pill, a: a, b: b };
       }
@@ -848,14 +877,14 @@
       ids.forEach(function (id) {
         var e = M.E[id], p = lay.nodes[id];
         var g = svgEl("g", { class: "nthview-df-node", "data-id": id });
-        var gl = drawGlyph(e.kind || "generic", p.x, p.y - 24, 1);
-        if (gl.halfH > 34) gl = drawGlyph(e.kind || "generic", p.x, p.y - 24, 34 / gl.halfH);
+        var gl = drawGlyph(e.kind || "generic", p.x, p.y - 30, 1.4);
+        if (gl.halfH > 48) gl = drawGlyph(e.kind || "generic", p.x, p.y - 30, 1.4 * 48 / gl.halfH);
         g.appendChild(gl.g);
-        g.appendChild(svgEl("text", { class: "nthview-df-nl", x: f1(p.x), y: f1(p.y + 32), text: e.name }));
-        if (e.subtitle) g.appendChild(svgEl("text", { class: "nthview-df-ns", x: f1(p.x), y: f1(p.y + 48), text: e.subtitle }));
+        g.appendChild(svgEl("text", { class: "nthview-df-nl", x: f1(p.x), y: f1(p.y + 44), text: e.name }));
+        if (e.subtitle) g.appendChild(svgEl("text", { class: "nthview-df-ns", x: f1(p.x), y: f1(p.y + 64), text: e.subtitle }));
         var t = svgEl("title", { text: e.name + (e.subtitle ? " · " + e.subtitle : "") }); g.appendChild(t);
         ng.appendChild(g);
-        nodes[id] = { g: g, x: p.x, y: p.y - 20 };
+        nodes[id] = { g: g, x: p.x, y: p.y - 26 };
       });
       svg.appendChild(ng);
       var fx = svgEl("g"); svg.appendChild(fx);
@@ -863,22 +892,22 @@
     }
 
     /* ---------- sequence diagram ---------- */
-    function buildSequence(Rt, avail) {
-      var ids = Rt.entities, n = Math.max(ids.length, 1), LEFT = 44, ROW = 36, TOP = 112;
-      var COL = Math.max(124, Math.min(190, Math.floor((avail - LEFT - 24) / n))), BOX = Math.min(140, COL - 12), W = LEFT + n * COL + 20;
-      var H = TOP + Math.max(Rt.beats.length, 1) * ROW + 28;
-      var svg = svgEl("svg", { viewBox: "0 0 " + W + " " + H, preserveAspectRatio: "xMidYMin meet", role: "img", "aria-label": "Sequence diagram", style: "width:" + W + "px;height:" + H + "px;min-height:0;display:block;margin:0 auto" });
+    function buildSequence(Rt, avail, availH) {
+      var ids = Rt.entities, n = Math.max(ids.length, 1), LEFT = 36, ROW = 40, TOP = 116;
+      var W = Math.max(avail, n * 150 + LEFT + 20), COL = (W - LEFT - 20) / n, BOX = Math.min(170, COL - 16);
+      var H = Math.max(availH || 0, TOP + Math.max(Rt.beats.length, 1) * ROW + 30);
+      var svg = svgEl("svg", { viewBox: "0 0 " + f1(W) + " " + f1(H), preserveAspectRatio: "xMidYMin meet", role: "img", "aria-label": "Sequence diagram", style: "width:" + f1(W) + "px;height:" + f1(H) + "px;min-height:0;display:block;margin:0 auto" });
       var X = {}, heads = {};
       ids.forEach(function (id, i) {
         var x = LEFT + COL * (i + 0.5), e = M.E[id];
         X[id] = x;
-        svg.appendChild(svgEl("line", { class: "nthview-df-life", x1: f1(x), y1: 84, x2: f1(x), y2: f1(H - 12) }));
+        svg.appendChild(svgEl("line", { class: "nthview-df-life", x1: f1(x), y1: 90, x2: f1(x), y2: f1(H - 12) }));
         var g = svgEl("g", { class: "nthview-df-lifehead", "data-id": id }, [
-          svgEl("rect", { x: f1(x - BOX / 2), y: 14, width: f1(BOX), height: 40, rx: 7 }),
-          svgEl("text", { x: f1(x), y: 39, text: e.name })
+          svgEl("rect", { x: f1(x - BOX / 2), y: 16, width: f1(BOX), height: 42, rx: 8 }),
+          svgEl("text", { x: f1(x), y: 42, text: e.name })
         ]);
         var z = e.zone && M.Z[e.zone];
-        if (z) g.appendChild(svgEl("text", { class: "nthview-df-zl", x: f1(x), y: 70, "text-anchor": "middle", text: z.name }));
+        if (z) g.appendChild(svgEl("text", { class: "nthview-df-zl", x: f1(x), y: 76, "text-anchor": "middle", text: z.name }));
         svg.appendChild(g); heads[id] = g;
       });
       var arrows = [], lastStep = -1;
@@ -886,7 +915,7 @@
         var y = TOP + i * ROW;
         if (b.step !== lastStep) {
           lastStep = b.step;
-          svg.appendChild(svgEl("text", { class: "nthview-df-sstep", x: 10, y: f1(y + 4), text: String(b.step + 1) }));
+          svg.appendChild(svgEl("text", { class: "nthview-df-sstep", x: 8, y: f1(y + 4), text: String(b.step + 1) }));
           if (i) svg.appendChild(svgEl("line", { class: "nthview-df-ssep", x1: LEFT, y1: f1(y - ROW / 2 - 2), x2: f1(W - 10), y2: f1(y - ROW / 2 - 2) }));
         }
         if (!b.msg) {
@@ -895,17 +924,17 @@
         }
         var m = b.msg, k = kindOf(m), g = svgEl("g", { class: "nthview-df-sm nthview-df-k-" + k + (isDeprecated(m) ? " nthview-df-dep" : ""), "data-i": i });
         var x1 = X[m.from], x2 = X[m.to], label = m.name;
-        if (m.info && (label.length + m.info.length + 3) * 6.6 < Math.abs(x2 - x1) - 20) label += " · " + m.info;
+        if (m.info && (label.length + m.info.length + 3) * 7.4 < Math.abs(x2 - x1) - 24) label += " · " + m.info;
         if (m.from === m.to) {
-          g.appendChild(svgEl("path", { d: "M" + f1(x1 + 4) + " " + f1(y - 8) + "h34v16h-30" }));
-          g.appendChild(svgEl("polygon", { class: "nthview-df-ah", points: pts([[x1 + 4, y + 8], [x1 + 12, y + 4], [x1 + 12, y + 12]]) }));
-          g.appendChild(svgEl("text", { x: f1(x1 + 48), y: f1(y + 4), "text-anchor": "start", text: label }));
+          g.appendChild(svgEl("path", { d: "M" + f1(x1 + 4) + " " + f1(y - 9) + "h40v18h-36" }));
+          g.appendChild(svgEl("polygon", { class: "nthview-df-ah", points: pts([[x1 + 4, y + 9], [x1 + 13, y + 4.5], [x1 + 13, y + 13.5]]) }));
+          g.appendChild(svgEl("text", { x: f1(x1 + 54), y: f1(y + 4), "text-anchor": "start", text: label }));
           g.appendChild(svgEl("title", { text: m.name + " (" + M.E[m.from].name + ", local)" }));
         } else {
           var dir = x2 > x1 ? 1 : -1, ax1 = x1 + dir * 4, ax2 = x2 - dir * 4;
-          g.appendChild(svgEl("line", { x1: f1(ax1), y1: f1(y), x2: f1(ax2 - dir * 8), y2: f1(y) }));
-          g.appendChild(svgEl("polygon", { class: "nthview-df-ah", points: pts([[ax2, y], [ax2 - dir * 10, y - 4.5], [ax2 - dir * 10, y + 4.5]]) }));
-          var t = svgEl("text", { x: f1((x1 + x2) / 2), y: f1(y - 6) });
+          g.appendChild(svgEl("line", { x1: f1(ax1), y1: f1(y), x2: f1(ax2 - dir * 9), y2: f1(y) }));
+          g.appendChild(svgEl("polygon", { class: "nthview-df-ah", points: pts([[ax2, y], [ax2 - dir * 11, y - 5], [ax2 - dir * 11, y + 5]]) }));
+          var t = svgEl("text", { x: f1((x1 + x2) / 2), y: f1(y - 7) });
           if (isDeprecated(m)) t.appendChild(svgEl("tspan", { class: "nthview-df-sdep", text: "DEPRECATED " }));
           t.appendChild(doc.createTextNode(label));
           g.appendChild(t);
@@ -978,8 +1007,9 @@
       ui.topicsBtn = tb;
       var sub = el("div", { class: "nthview-df-subbar" }, [tb]);
       if (M.hasTM && ui.tmSelect) { var sel2 = ui.tmSelect.firstChild.cloneNode(true); sel2.addEventListener("change", function () { setVersion(sel2.value); }); sub.appendChild(sel2); }
-      c.appendChild(sub);
-      if (resumed) { resumed = false; c.appendChild(resumeNotice("Welcome back, continuing from " + M.TI[state.topic].title + (R.beats.length ? " · step " + (R.beats[state.pos].step + 1) + " of " + R.steps.length : ""))); }
+      var stagewrap = el("div", { class: "nthview-df-stagewrap" });
+      stagewrap.appendChild(sub);
+      if (resumed) { resumed = false; stagewrap.appendChild(resumeNotice("Welcome back, continuing from " + M.TI[state.topic].title + (R.beats.length ? " · step " + (R.beats[state.pos].step + 1) + " of " + R.steps.length : ""))); }
       ui.status = el("div", { class: "nthview-df-sr", "aria-live": "polite" }); c.appendChild(ui.status);
       /* caption and mode toggle */
       ui.cap = el("div", { class: "nthview-df-cap" });
@@ -989,9 +1019,10 @@
         b.addEventListener("click", function () { if (state.mode === m) return; state.mode = m; persist(); seg.querySelectorAll("button").forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); }); buildStage(); refresh(); });
         seg.appendChild(b);
       });
-      c.appendChild(el("div", { class: "nthview-df-stagebar" }, [ui.cap, seg]));
+      stagewrap.appendChild(el("div", { class: "nthview-df-stagebar" }, [ui.cap, seg]));
       ui.stage = el("div", { class: "nthview-df-stage", tabindex: "0", role: "group", "aria-label": "Diagram. Use the arrow keys to move between messages and space to play." });
-      c.appendChild(ui.stage);
+      stagewrap.appendChild(ui.stage);
+      c.appendChild(stagewrap);
       /* flow */
       var flow = el("div", { class: "nthview-df-flow" });
       var fh = el("div", { class: "nthview-df-fh" }, [el("h2", { text: "Message flow" }), el("span", { class: "nthview-df-count", text: R.msgCount + " message" + (R.msgCount === 1 ? "" : "s") + " · " + R.steps.length + " step" + (R.steps.length === 1 ? "" : "s") })]);
@@ -1024,7 +1055,8 @@
           tbody.appendChild(tr); ui.rows.push(tr);
         });
         table.appendChild(tbody);
-        flow.appendChild(el("div", { class: "nthview-df-tablewrap" }, [table]));
+        ui.tablewrap = el("div", { class: "nthview-df-tablewrap" }, [table]);
+        flow.appendChild(ui.tablewrap);
       }
       ui.nextWrap = el("div", { class: "nthview-df-nexttopic" }); flow.appendChild(ui.nextWrap);
       c.appendChild(flow);
@@ -1069,14 +1101,14 @@
     function rightPanel() {
       var r = el("aside", { class: "nthview-df-right", "data-panel": state.panel, "aria-label": "Article and message" });
       var seg = el("div", { class: "nthview-df-seg", role: "group", "aria-label": "Panel" });
-      ["article", "message"].forEach(function (p) {
+      ["message", "article"].forEach(function (p) {
         var b = el("button", { type: "button", "aria-pressed": state.panel === p ? "true" : "false", text: p === "article" ? "Article" : "Message" });
         b.addEventListener("click", function () { state.panel = p; r.setAttribute("data-panel", p); persist(); seg.querySelectorAll("button").forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); }); });
         seg.appendChild(b);
       });
       r.appendChild(el("div", { class: "nthview-df-rtabs" }, [seg]));
-      r.appendChild(article(M.TI[state.topic]));
       ui.msg = el("div", { class: "nthview-df-msg" }); r.appendChild(ui.msg);
+      r.appendChild(article(M.TI[state.topic]));
       if (data.footer) r.appendChild(para("nthview-df-footer", data.footer));
       return r;
     }
@@ -1105,10 +1137,16 @@
         var all = buildNetwork(data.entities.map(function (e) { return e.id; }), narrowStage, null);
         ui.stage.appendChild(all.svg);
         ui.stage.appendChild(el("div", { class: "nthview-df-absentmsg", text: "Not in " + versionLabel(state.version) }));
+        ui.stage.style.cssText = "";
         return;
       }
       if (state.mode === "network") { ui.net = buildNetwork(R.entities, narrowStage, R); ui.net.svg.classList.add("nthview-df-dim"); ui.stage.appendChild(ui.net.svg); ui.stage.style.cssText = ""; }
-      else { ui.seq = buildSequence(R, ui.stage.clientWidth || 900); ui.stage.appendChild(ui.seq.svg); ui.stage.style.cssText = "overflow:auto;flex:0 0 auto;min-height:0;display:block"; }
+      else {
+        var w = ui.stage.clientWidth || 900, h = ui.stage.clientHeight || 0;
+        ui.seq = buildSequence(R, Math.max(320, w - 2), h > 200 ? h - 2 : 0);
+        ui.stage.appendChild(ui.seq.svg);
+        ui.stage.style.cssText = "overflow:auto;display:block";
+      }
     }
 
     /* ---------- refresh everything that depends on the position ---------- */
@@ -1117,6 +1155,10 @@
       var b = R.beats[state.pos], st = b ? R.steps[b.step] : null, gated = b ? isGated(state.pos) : false;
       /* caption */
       ui.cap.innerHTML = "";
+      if (!reduceMotion && ui.capShown) { ui.cap.classList.remove("nthview-df-fadein"); void ui.cap.offsetWidth; ui.cap.classList.add("nthview-df-fadein"); }
+      ui.capShown = true;
+      var fxLayer = ui.net ? ui.net.fx : ui.seq ? ui.seq.fx : null;
+      if (fxLayer) Array.prototype.slice.call(fxLayer.childNodes).forEach(function (nd) { if (nd.getAttribute("data-i") !== String(state.pos)) fxLayer.removeChild(nd); });
       if (!st) {
         ui.cap.appendChild(el("p", { class: "nthview-df-eyebrow", text: R.avail ? "No steps" : "Not in " + versionLabel(state.version) }));
         ui.cap.appendChild(el("h2", { text: M.TI[state.topic].title }));
@@ -1135,7 +1177,10 @@
         if (!tr) return;
         tr.classList.toggle("nthview-df-cur", i === state.pos && !gated);
         tr.classList.toggle("nthview-df-fut", i > state.pos || (i === state.pos && gated));
-        if (i === state.pos && !gated) tr.setAttribute("aria-current", "true"); else tr.removeAttribute("aria-current");
+        if (i === state.pos && !gated) {
+          tr.setAttribute("aria-current", "true");
+          if (ui.tablewrap) { var top = tr.offsetTop - ui.tablewrap.offsetTop, vh = ui.tablewrap.clientHeight; if (top < ui.tablewrap.scrollTop + 32 || top + tr.offsetHeight > ui.tablewrap.scrollTop + vh - 8) ui.tablewrap.scrollTop = Math.max(0, top - vh / 2 + 40); }
+        } else tr.removeAttribute("aria-current");
       });
       /* diagram highlight */
       var on = {}, onEdge = {};
@@ -1255,10 +1300,11 @@
     function play() {
       if (playing || !R.beats.length) return;
       playing = true; updatePlayBtn();
+      if (root.innerWidth >= 1024) container.classList.add("nthview-df-focus");
       if (state.pos >= R.beats.length - 1 && !isGated(state.pos)) { state.pos = 0; refresh(); }
       if (state.pos === 0 && !isGated(0) && R.beats[0].msg) animateBeat(0, function () { refresh(); schedule(); }); else schedule();
     }
-    function schedule() { if (!playing) return; timer = setTimeout(tick, reduceMotion ? 900 : 650); }
+    function schedule() { if (!playing) return; timer = setTimeout(tick, reduceMotion ? 1100 : 800); }
     function tick() {
       if (!playing) return;
       var next = state.pos + 1;
@@ -1267,35 +1313,50 @@
       if (reduceMotion || !R.beats[next].msg) { setPos(next); schedule(); return; }
       animateBeat(next, function () { setPos(next); schedule(); });
     }
-    function stop() { playing = false; if (timer) { clearTimeout(timer); timer = null; } cancelAnim(); if (ui.playBtn) updatePlayBtn(); }
-    function cancelAnim() { if (anim) { if (anim.raf) root.cancelAnimationFrame(anim.raf); if (anim.node && anim.node.parentNode) anim.node.parentNode.removeChild(anim.node); anim = null; } }
-    /* The travelling dot: along the link in the network view, along the arrow in the sequence view. */
+    function stop() {
+      playing = false; if (timer) { clearTimeout(timer); timer = null; }
+      cancelAnim(); container.classList.remove("nthview-df-focus");
+      if (ui.playBtn) updatePlayBtn();
+    }
+    function cancelAnim() { if (anim) { if (anim.raf) root.cancelAnimationFrame(anim.raf); if (anim.g && anim.g.parentNode) anim.g.parentNode.removeChild(anim.g); anim = null; } }
+    /* A labelled packet carries the message name along the link (network) or the arrow (sequence),
+       drawing a trail behind it; it stays at the receiver until the position changes. */
     function animateBeat(i, done) {
       cancelAnim();
       var m = R.beats[i].msg;
       if (!m || reduceMotion) { done(); return; }
-      var DUR = 520, start = null, node, from, to, fx;
+      var DUR = 820, start = null, from, to, fx, k = kindOf(m);
       if (ui.net && ui.net.nodes[m.from] && ui.net.nodes[m.to]) {
         var a = ui.net.nodes[m.from], c = ui.net.nodes[m.to]; fx = ui.net.fx;
-        if (m.from === m.to) {
-          node = svgEl("circle", { class: "nthview-df-pulse", cx: f1(a.x), cy: f1(a.y), r: 18 });
-          from = null;
-        } else { from = { x: a.x + (c.x - a.x) * 0.12, y: a.y + (c.y - a.y) * 0.12 }; to = { x: a.x + (c.x - a.x) * 0.88, y: a.y + (c.y - a.y) * 0.88 }; node = svgEl("circle", { class: "nthview-df-pkt", cx: f1(from.x), cy: f1(from.y), r: 6 }); }
-        var ek = pairKey(m.from, m.to); if (ui.net.edges[ek]) ui.net.edges[ek].line.classList.add("nthview-df-on");
+        from = { x: a.x, y: a.y }; to = m.from === m.to ? { x: a.x, y: a.y - 70 } : { x: c.x, y: c.y };
       } else if (ui.seq) {
-        var y = ui.seq.TOP + i * ui.seq.ROW, x1 = ui.seq.X[m.from], x2 = ui.seq.X[m.to]; fx = ui.seq.fx;
-        if (m.from === m.to) { node = svgEl("circle", { class: "nthview-df-pulse", cx: f1(x1 + 20), cy: f1(y), r: 6 }); from = null; }
-        else { from = { x: x1, y: y }; to = { x: x2, y: y }; node = svgEl("circle", { class: "nthview-df-pkt", cx: f1(x1), cy: f1(y), r: 5 }); }
+        var y = ui.seq.TOP + i * ui.seq.ROW; fx = ui.seq.fx;
+        from = { x: ui.seq.X[m.from], y: y }; to = m.from === m.to ? { x: ui.seq.X[m.from] + 44, y: y } : { x: ui.seq.X[m.to], y: y };
       } else { done(); return; }
-      fx.appendChild(node);
-      anim = { node: node, raf: 0 };
+      var label = m.name.length > 28 ? m.name.slice(0, 27) + "…" : m.name, w = Math.max(60, label.length * 8.2 + 32);
+      var g = svgEl("g", { class: "nthview-df-pkt nthview-df-k-" + k + (isDeprecated(m) ? " nthview-df-dep" : ""), "data-i": String(i) });
+      var trail = svgEl("line", { class: "nthview-df-trail", x1: f1(from.x), y1: f1(from.y), x2: f1(from.y === to.y && from.x === to.x ? from.x : from.x), y2: f1(from.y) });
+      var head = svgEl("polygon", { class: "nthview-df-trailhead", points: "0,0 0,0 0,0" });
+      var pill = svgEl("g", { transform: "translate(" + f1(from.x) + "," + f1(from.y) + ")" }, [
+        svgEl("rect", { class: "nthview-df-pb", x: f1(-w / 2), y: -15, width: f1(w), height: 30, rx: 15 }),
+        svgEl("circle", { class: "nthview-df-pd", cx: f1(-w / 2 + 15), cy: 0, r: 4.5 }),
+        svgEl("text", { class: "nthview-df-pt", x: f1(-w / 2 + 27), y: 4.5, text: label })
+      ]);
+      if (isDeprecated(m)) pill.appendChild(svgEl("text", { class: "nthview-df-pdep", x: 0, y: -22, "text-anchor": "middle", text: "DEPRECATED" }));
+      g.appendChild(trail); g.appendChild(head); g.appendChild(pill);
+      fx.appendChild(g);
+      anim = { g: g, raf: 0 };
+      var dxTot = to.x - from.x, dyTot = to.y - from.y, len = Math.sqrt(dxTot * dxTot + dyTot * dyTot) || 1, ux = dxTot / len, uy = dyTot / len;
       function frame(ts) {
         if (!start) start = ts;
         var t = Math.min(1, (ts - start) / DUR), e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-        if (from) { node.setAttribute("cx", f1(from.x + (to.x - from.x) * e)); node.setAttribute("cy", f1(from.y + (to.y - from.y) * e)); }
-        else { node.setAttribute("r", f1(18 + 26 * t)); node.style.opacity = String(1 - t); }
+        var x = from.x + dxTot * e, yy = from.y + dyTot * e;
+        pill.setAttribute("transform", "translate(" + f1(x) + "," + f1(yy) + ")");
+        trail.setAttribute("x2", f1(x)); trail.setAttribute("y2", f1(yy));
+        var hx = x - ux * (w / 2 + 2), hy = yy - uy * (w / 2 + 2);
+        head.setAttribute("points", pts([[hx, hy], [hx - ux * 10 - uy * 5, hy - uy * 10 + ux * 5], [hx - ux * 10 + uy * 5, hy - uy * 10 - ux * 5]]));
         if (t < 1) anim.raf = root.requestAnimationFrame(frame);
-        else { cancelAnim(); done(); }
+        else { g.classList.add("nthview-df-arrived"); anim = null; done(); }
       }
       anim.raf = root.requestAnimationFrame(frame);
     }
@@ -1342,7 +1403,7 @@
       if (resizeTimer) clearTimeout(resizeTimer);
       resizeTimer = setTimeout(function () {
         if (state.screen === "intro") { drawPreview(); return; }
-        if (!ui.stage) return;
+        if (!ui.stage || playing) return;
         var narrow = ui.stage.clientWidth > 0 && ui.stage.clientWidth < 560;
         if (narrow !== narrowStage || state.mode === "sequence") { buildStage(); refresh(); }
       }, 120);

@@ -101,7 +101,8 @@ Follow `references/schema.md` exactly. Set `"schemaVersion": 1`.
   `why` on every option. Place them where the next message is a surprise.
 - `further` for external "What's next" links; `footer` for the edition note.
 - Pick a `theme` (table in `references/schema.md`); `graphite` is the default
-  and dark, `paper` and `amber` are light by default.
+  and dark, `paper` and `amber` are light by default. Set `defaultMode` to
+  `sequence` when the order of messages is the point (a handshake, a login).
 
 ### 3. Validate
 Write the JSON to a file and run:
