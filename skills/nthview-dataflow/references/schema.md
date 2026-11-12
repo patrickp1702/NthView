@@ -10,7 +10,11 @@ at that moment (who sends what to whom, with the payload and a note on each
 field), an optional **check** that asks the learner to predict before the
 step is shown, and optional per-**version** differences. An optional list of
 versions adds a time machine: topics, steps and messages can arrive, change or
-disappear from one version to the next.
+disappear from one version to the next. Three optional layers deepen a
+document: **holdings** (what each entity holds after every message, with new
+items marked), **channels** (a colour per link or message saying who can see
+it), and **fragments** (alt, opt and loop frames drawn on the sequence
+diagram).
 
 The view shows a hero introduction, then a three-column lesson: topics on the
 left, the step with a network or sequence diagram and the message flow table
@@ -41,6 +45,7 @@ string length. Ids are lowercase kebab-case (`card-network`), 1–40 characters.
 | `zones` | array | no | 0–10 Zone objects | Labelled groups the entities sit in |
 | `entities` | array | yes | 2–40 Entity objects | Every party that sends or receives something |
 | `links` | array | no | 0–80 Link objects | Declared connections, labelled by protocol or medium |
+| `channels` | array | no | 0–8 Channel objects | Kinds of exposure a link or message can have, each with a colour; drawn as a legend on the diagram |
 | `sections` | array | yes | 1–12 Section objects; 1–60 topics in all | The sidebar groups and their topics |
 | `further` | object | no | a Further object | A final sidebar group of external links ("What's next") |
 | `footer` | string | no | ≤300 chars, rich | A closing line under the article, e.g. the edition this document describes |
@@ -93,6 +98,7 @@ warnings, the current message).
 | `subtitle` | string | no | ≤40 chars | Monospace line under the name, e.g. "one per server" or "mcp.example.com" |
 | `kind` | string | no | one of `person`, `browser`, `app`, `client`, `server`, `service`, `database`, `gateway`, `network`, `bank`, `model`, `device`, `document`, `queue`, `cloud`, `generic`; default `generic` | Picks the isometric line-art glyph |
 | `zone` | string | no | a `zones[].id` | The zone the entity is drawn in; without one it stands alone |
+| `holds` | string[] | no | 0–12 items, each 1–60 chars, no duplicates | What the entity holds at the start of every topic (keys, tokens, documents), unless the topic overrides it |
 
 ## Link object
 
@@ -101,9 +107,22 @@ warnings, the current message).
 | `from` | string | yes | an entity id | One end |
 | `to` | string | yes | an entity id, not equal to `from`; the unordered pair is unique among links | The other end |
 | `label` | string | no | ≤24 chars | Protocol or medium pill on the line, e.g. "MCP", "ISO 8583", "HTTPS" |
+| `channel` | string | no | a `channels[].id` | Colours the line; messages on this link inherit it unless they name their own |
 
 Messages between two entities with no declared link are still drawn, on a
 dashed line without a label.
+
+## Channel object
+A kind of exposure, in the learner's terms: visible to an attacker, encrypted,
+local, out of band. Links and messages point at one; the diagram draws a
+legend of the channels the current topic uses.
+
+| Field | Type | Required | Constraints | Description |
+| :- | :- | :- | :- | :- |
+| `id` | string | yes | kebab-case, unique among channels | Referenced by `links[].channel` and `messages[].channel` |
+| `name` | string | yes | 1–40 chars | Legend text, e.g. "Front channel, through the browser" |
+| `color` | string | yes | one of `slate`, `amber`, `green`, `blue`, `red`, `teal`, `violet`, `pink` | Line, arrow, packet and table dot colour |
+| `description` | string | no | ≤200 chars | Tooltip on the legend entry: who can see this channel |
 
 ## Section object
 
@@ -123,7 +142,9 @@ dashed line without a label.
 | `availableFrom` | string | no | a version id | Before this version the topic shows "Arrives in <label>" and has no steps |
 | `removedIn` | string | no | a version id, later than `availableFrom` | From this version on the topic shows "Removed in <label>" and has no steps |
 | `article` | object | yes | an Article object | The right-hand reading panel |
+| `holds` | object | no | keys are entity ids, values are 0–12 strings each 1–60 chars, no duplicates | What those entities hold when this topic starts, replacing their `entities[].holds` for this topic |
 | `steps` | array | yes | 1–30 Step objects | The numbered steps, in order |
+| `fragments` | array | no | 0–12 Fragment objects | alt, opt and loop frames drawn around ranges of steps on the sequence diagram |
 
 ## Article object
 
@@ -193,6 +214,37 @@ replaced as a whole.
 | `size` | string | no | ≤12 chars | Shown right-aligned beside the name, e.g. "58 B" or "2 KB" |
 | `tags` | string[] | no | 0–4 items, each 1–20 chars | Tags after the name; `deprecated` is drawn with the accent and a strike-through, others muted |
 | `versions` | string[] | no | 1–8 version ids, no duplicates | Only show this message in these versions. Absent: all versions |
+| `channel` | string | no | a `channels[].id` | The exposure of this message; default: the channel of the link between `from` and `to`, if any |
+| `holds` | object | no | a Holdings change object | What entities gain or give up when this message is sent |
+
+## Holdings change object
+An object whose keys are entity ids. Each value is an object with `add`
+and/or `remove`, string arrays of 0–12 items each 1–60 chars; at least one of
+the two is present and an item is not in both. Holdings are computed, never
+re-typed: the strip under the diagram shows, after each message, the
+entity's starting items with every change up to that message applied,
+removes before adds, items added by the current message marked new and items
+removed by it shown struck through. The state is computed per version from
+the messages that version shows.
+
+## Fragment object
+A frame on the sequence diagram around consecutive steps, in UML style.
+Fragments never change the network diagram or the flow table.
+
+| Field | Type | Required | Constraints | Description |
+| :- | :- | :- | :- | :- |
+| `kind` | string | yes | `alt`, `opt` or `loop` | `alt`: one branch or another; `opt`: happens only sometimes; `loop`: repeats |
+| `label` | string | no | ≤40 chars | Shown in the frame's tab after the kind, e.g. "registration" |
+| `start` | integer | yes | step index, 0 to steps − 1 | First step inside the frame |
+| `end` | integer | yes | step index, ≥ `start` | Last step inside the frame |
+| `condition` | string | for `opt` and `loop` | 1–80 chars; not allowed on `alt` | The guard, shown as `[condition]` |
+| `branches` | array | for `alt` | 2–4 Branch objects; only on `alt` | The alternatives, in order |
+
+Branch object: `condition` (string, 1–80 chars, required, shown as
+`[condition]`), `start` and `end` (integer step indexes, required). Branches
+follow each other without gaps: the first starts at the fragment's `start`,
+each next one starts at the step after the previous one's `end`, and the last
+ends at the fragment's `end`.
 
 ## Annotation object
 
@@ -247,6 +299,18 @@ Further item object: `title` (string, 1–60 chars, required), `subtitle`
   4000 characters.
 - `references[].url`, box item `url` and further item `url` start with
   `https://` or `http://`.
+- `channels[].id` are unique; `links[].channel` and `messages[].channel`
+  must be channel ids.
+- `entities[].holds` and every `topics[].holds` list has no duplicate items;
+  `topics[].holds` keys are entity ids.
+- A message's `holds` keys are entity ids; each change has `add` or
+  `remove`, and no item is in both. A removed item must be held by that
+  entity at that point, in every version that shows the message.
+- `fragments[].start` and `end` are step indexes of the topic with
+  `start` ≤ `end`. An `alt` has `branches` and no `condition`; `opt` and
+  `loop` have a `condition` and no `branches`. Branches are contiguous as
+  described above. Two fragments are either separate or one lies entirely
+  inside the other; a fragment inside an `alt` lies inside one of its branches.
 
 ## Warnings (non-blocking)
 - Fewer than 2 topics in all.
@@ -260,6 +324,9 @@ Further item object: `title` (string, 1–60 chars, required), `subtitle`
 - `versions` declared but nothing references any version (the time machine changes nothing).
 - Ten or more steps in all and no check.
 - A step `check` whose `prompt` does not end with a question mark.
+- A channel no link or message uses.
+- A holdings change that adds an item the entity already holds.
+- An entity holding more than 12 items at some point.
 
 ## Complete example
 How a card payment is authorised: shopper, checkout page, payment gateway,
@@ -356,7 +423,11 @@ authentication step (3-D Secure 1 and 3-D Secure 2). Build the demo with:
       "name": "Shopper",
       "subtitle": "you",
       "kind": "person",
-      "zone": "device"
+      "zone": "device",
+      "holds": [
+        "card number",
+        "CVV"
+      ]
     },
     {
       "id": "checkout",
@@ -433,67 +504,80 @@ authentication step (3-D Secure 1 and 3-D Secure 2). Build the demo with:
     {
       "from": "shopper",
       "to": "checkout",
-      "label": "taps"
+      "label": "taps",
+      "channel": "browser"
     },
     {
       "from": "checkout",
       "to": "shop",
-      "label": "HTTPS"
+      "label": "HTTPS",
+      "channel": "browser"
     },
     {
       "from": "checkout",
       "to": "gateway",
-      "label": "HTTPS"
+      "label": "HTTPS",
+      "channel": "browser"
     },
     {
       "from": "shop",
       "to": "gateway",
-      "label": "REST API"
+      "label": "REST API",
+      "channel": "api"
     },
     {
       "from": "gateway",
       "to": "acquirer",
-      "label": "ISO 8583"
+      "label": "ISO 8583",
+      "channel": "rails"
     },
     {
       "from": "acquirer",
       "to": "network",
-      "label": "ISO 8583"
+      "label": "ISO 8583",
+      "channel": "rails"
     },
     {
       "from": "network",
       "to": "issuer",
-      "label": "ISO 8583"
+      "label": "ISO 8583",
+      "channel": "rails"
     },
     {
       "from": "issuer",
       "to": "fraud",
-      "label": "internal"
+      "label": "internal",
+      "channel": "internal"
     },
     {
       "from": "issuer",
       "to": "ledger",
-      "label": "internal"
+      "label": "internal",
+      "channel": "internal"
     },
     {
       "from": "gateway",
       "to": "directory",
-      "label": "3-D Secure"
+      "label": "3-D Secure",
+      "channel": "api"
     },
     {
       "from": "directory",
       "to": "acs",
-      "label": "3-D Secure"
+      "label": "3-D Secure",
+      "channel": "api"
     },
     {
       "from": "checkout",
       "to": "acs",
-      "label": "HTTPS"
+      "label": "HTTPS",
+      "channel": "browser"
     },
     {
       "from": "acs",
       "to": "fraud",
-      "label": "internal"
+      "label": "internal",
+      "channel": "internal"
     }
   ],
   "sections": [
@@ -527,7 +611,15 @@ authentication step (3-D Secure 1 and 3-D Secure 2). Build the demo with:
                   "to": "checkout",
                   "name": "type card details",
                   "info": "number, expiry, CVV, name",
-                  "kind": "transport"
+                  "kind": "transport",
+                  "holds": {
+                    "checkout": {
+                      "add": [
+                        "card number",
+                        "CVV"
+                      ]
+                    }
+                  }
                 }
               ]
             },
@@ -585,7 +677,15 @@ authentication step (3-D Secure 1 and 3-D Secure 2). Build the demo with:
                       "field": "billing.postalCode",
                       "text": "Used by the issuer for address verification; a mismatch lowers the risk score but rarely declines on its own."
                     }
-                  ]
+                  ],
+                  "holds": {
+                    "gateway": {
+                      "add": [
+                        "card number (vault)",
+                        "CVV (until authorisation)"
+                      ]
+                    }
+                  }
                 },
                 {
                   "from": "gateway",
@@ -610,7 +710,18 @@ authentication step (3-D Secure 1 and 3-D Secure 2). Build the demo with:
                       "field": "last4",
                       "text": "Enough for the shopper to recognise the card on a receipt; not enough to reconstruct the number."
                     }
-                  ]
+                  ],
+                  "holds": {
+                    "checkout": {
+                      "add": [
+                        "token"
+                      ],
+                      "remove": [
+                        "card number",
+                        "CVV"
+                      ]
+                    }
+                  }
                 }
               ]
             },
@@ -644,7 +755,15 @@ authentication step (3-D Secure 1 and 3-D Secure 2). Build the demo with:
                       "field": "paymentToken",
                       "text": "The only card-related value the shop ever stores."
                     }
-                  ]
+                  ],
+                  "holds": {
+                    "shop": {
+                      "add": [
+                        "order",
+                        "token"
+                      ]
+                    }
+                  }
                 },
                 {
                   "from": "shop",
@@ -681,6 +800,13 @@ authentication step (3-D Secure 1 and 3-D Secure 2). Build the demo with:
                     "id": "pay_01HZX8",
                     "status": "requires_authentication",
                     "next": "3ds"
+                  },
+                  "holds": {
+                    "shop": {
+                      "add": [
+                        "payment id"
+                      ]
+                    }
                   }
                 }
               ]
@@ -1369,7 +1495,14 @@ authentication step (3-D Secure 1 and 3-D Secure 2). Build the demo with:
                       "field": "expiresInDays",
                       "text": "A hold that is never captured falls off after a few days; that is why a cancelled order can show a pending amount for a while."
                     }
-                  ]
+                  ],
+                  "holds": {
+                    "ledger": {
+                      "add": [
+                        "hold 49.95"
+                      ]
+                    }
+                  }
                 }
               ]
             },
@@ -1400,7 +1533,14 @@ authentication step (3-D Secure 1 and 3-D Secure 2). Build the demo with:
                       "field": "authCode",
                       "text": "The issuer's reference for this approval; it appears on the receipt and in the later capture."
                     }
-                  ]
+                  ],
+                  "holds": {
+                    "gateway": {
+                      "remove": [
+                        "CVV (until authorisation)"
+                      ]
+                    }
+                  }
                 },
                 {
                   "from": "network",
@@ -1412,7 +1552,14 @@ authentication step (3-D Secure 1 and 3-D Secure 2). Build the demo with:
                   "from": "acquirer",
                   "to": "gateway",
                   "name": "0110 · 00",
-                  "kind": "response"
+                  "kind": "response",
+                  "holds": {
+                    "gateway": {
+                      "add": [
+                        "auth code 731204"
+                      ]
+                    }
+                  }
                 },
                 {
                   "from": "gateway",
@@ -1425,6 +1572,13 @@ authentication step (3-D Secure 1 and 3-D Secure 2). Build the demo with:
                     "id": "pay_01HZX8",
                     "amount": 4995,
                     "authCode": "731204"
+                  },
+                  "holds": {
+                    "shop": {
+                      "add": [
+                        "authorised"
+                      ]
+                    }
                   }
                 },
                 {
@@ -1436,7 +1590,18 @@ authentication step (3-D Secure 1 and 3-D Secure 2). Build the demo with:
                 }
               ]
             }
-          ]
+          ],
+          "holds": {
+            "gateway": [
+              "card number (vault)",
+              "CVV (until authorisation)",
+              "authentication value"
+            ],
+            "shop": [
+              "order",
+              "payment id"
+            ]
+          }
         },
         {
           "id": "declines",
@@ -1588,6 +1753,32 @@ authentication step (3-D Secure 1 and 3-D Secure 2). Build the demo with:
                 }
               ]
             }
+          ],
+          "fragments": [
+            {
+              "kind": "alt",
+              "label": "the issuer's answer",
+              "start": 0,
+              "end": 1,
+              "branches": [
+                {
+                  "condition": "hard decline",
+                  "start": 0,
+                  "end": 0
+                },
+                {
+                  "condition": "soft decline: authenticate first",
+                  "start": 1,
+                  "end": 1
+                }
+              ]
+            },
+            {
+              "kind": "opt",
+              "condition": "the gateway has a retry policy",
+              "start": 2,
+              "end": 2
+            }
           ]
         }
       ]
@@ -1617,6 +1808,13 @@ authentication step (3-D Secure 1 and 3-D Secure 2). Build the demo with:
                   "info": "amount 4995",
                   "payload": {
                     "amount": 4995
+                  },
+                  "holds": {
+                    "gateway": {
+                      "add": [
+                        "capture 49.95"
+                      ]
+                    }
                   }
                 },
                 {
@@ -1660,6 +1858,16 @@ authentication step (3-D Secure 1 and 3-D Secure 2). Build the demo with:
                     "currency": "EUR",
                     "description": "LAMP SHOP",
                     "releaseHold": "auth_a1b2c3"
+                  },
+                  "holds": {
+                    "ledger": {
+                      "remove": [
+                        "hold 49.95"
+                      ],
+                      "add": [
+                        "posted 49.95"
+                      ]
+                    }
                   }
                 }
               ]
@@ -1708,11 +1916,31 @@ authentication step (3-D Secure 1 and 3-D Secure 2). Build the demo with:
                     "fees": 149,
                     "net": 4846,
                     "currency": "EUR"
+                  },
+                  "holds": {
+                    "shop": {
+                      "add": [
+                        "payout 48.46"
+                      ]
+                    }
                   }
                 }
               ]
             }
-          ]
+          ],
+          "holds": {
+            "gateway": [
+              "auth code 731204"
+            ],
+            "shop": [
+              "order",
+              "payment id",
+              "authorised"
+            ],
+            "ledger": [
+              "hold 49.95"
+            ]
+          }
         }
       ]
     }
@@ -1732,6 +1960,32 @@ authentication step (3-D Secure 1 and 3-D Secure 2). Build the demo with:
       }
     ]
   },
-  "footer": "Amounts, identifiers and hostnames are illustrative. Response codes and message names follow common practice; details vary by network and acquirer."
+  "footer": "Amounts, identifiers and hostnames are illustrative. Response codes and message names follow common practice; details vary by network and acquirer.",
+  "channels": [
+    {
+      "id": "browser",
+      "name": "Browser · visible on the device",
+      "color": "amber",
+      "description": "Travels through the shopper's browser; anyone on the device could see it."
+    },
+    {
+      "id": "api",
+      "name": "API · TLS between servers",
+      "color": "blue",
+      "description": "Server-to-server HTTPS."
+    },
+    {
+      "id": "rails",
+      "name": "Card rails · private network",
+      "color": "green",
+      "description": "The acquirer, network and issuer talk over private, authenticated links."
+    },
+    {
+      "id": "internal",
+      "name": "Internal · inside one organisation",
+      "color": "slate",
+      "description": "Never leaves the organisation's own systems."
+    }
+  ]
 }
 ```

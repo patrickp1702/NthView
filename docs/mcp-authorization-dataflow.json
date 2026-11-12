@@ -5,48 +5,200 @@
   "heading": "How an agent gets access and refresh tokens",
   "lead": "An agent such as Claude Code wants to use a remote MCP server that holds your data. The server will not serve a stranger, and you should never type your password into the agent. OAuth solves this with four roles and one short dance: the agent discovers who issues tokens for the server, sends **you** to a browser to sign in and approve, receives a one-time code, and trades that code for two tokens. The **access token** goes on every request and dies within an hour. The **refresh token** lives longer and quietly buys new access tokens. Eight numbered topics follow every message in order and show exactly what each one carries.",
   "facts": [
-    { "term": "Resource owner", "text": "you: the person whose data it is and who says yes or no" },
-    { "term": "Client", "text": "the agent (here Claude Code); it asks for access and holds the tokens, never your password" },
-    { "term": "Resource server", "text": "the MCP server; it checks the access token on every request and serves tools and data" },
-    { "term": "Authorization server", "text": "signs you in, asks for your consent and mints the tokens; run by the server's owner or an identity provider" },
-    { "term": "Access token", "text": "a short-lived bearer credential sent as `Authorization: Bearer …` on every request to one server" },
-    { "term": "Refresh token", "text": "a long-lived secret the agent exchanges for a fresh access token when the old one expires, without bothering you" }
+    {
+      "term": "Resource owner",
+      "text": "you: the person whose data it is and who says yes or no"
+    },
+    {
+      "term": "Client",
+      "text": "the agent (here Claude Code); it asks for access and holds the tokens, never your password"
+    },
+    {
+      "term": "Resource server",
+      "text": "the MCP server; it checks the access token on every request and serves tools and data"
+    },
+    {
+      "term": "Authorization server",
+      "text": "signs you in, asks for your consent and mints the tokens; run by the server's owner or an identity provider"
+    },
+    {
+      "term": "Access token",
+      "text": "a short-lived bearer credential sent as `Authorization: Bearer …` on every request to one server"
+    },
+    {
+      "term": "Refresh token",
+      "text": "a long-lived secret the agent exchanges for a fresh access token when the old one expires, without bothering you"
+    }
   ],
   "startLabel": "Start the lessons",
-  "jumps": ["signin", "token", "refresh"],
+  "jumps": [
+    "signin",
+    "token",
+    "refresh"
+  ],
   "theme": "graphite",
   "versions": [
-    { "id": "2025-03-26", "label": "Mar '25", "date": "2025-03-26", "note": "Authorization enters the spec: OAuth 2.1 with PKCE, metadata discovery and dynamic client registration. The MCP server is both resource and authorization server." },
-    { "id": "2025-06-18", "label": "Jun '25", "date": "2025-06-18", "note": "The MCP server becomes a plain resource server: its metadata points at the authorization server, and tokens are bound to one server with the resource parameter." },
-    { "id": "2025-11-25", "label": "Nov '25", "date": "2025-11-25", "note": "Client ID metadata documents join dynamic registration, and a server can ask for more scope step by step.", "default": true }
+    {
+      "id": "2025-03-26",
+      "label": "Mar '25",
+      "date": "2025-03-26",
+      "note": "Authorization enters the spec: OAuth 2.1 with PKCE, metadata discovery and dynamic client registration. The MCP server is both resource and authorization server."
+    },
+    {
+      "id": "2025-06-18",
+      "label": "Jun '25",
+      "date": "2025-06-18",
+      "note": "The MCP server becomes a plain resource server: its metadata points at the authorization server, and tokens are bound to one server with the resource parameter."
+    },
+    {
+      "id": "2025-11-25",
+      "label": "Nov '25",
+      "date": "2025-11-25",
+      "note": "Client ID metadata documents join dynamic registration, and a server can ask for more scope step by step.",
+      "default": true
+    }
   ],
   "versionsLabel": "Spec",
   "zones": [
-    { "id": "local", "name": "YOUR MACHINE", "subtitle": "laptop" },
-    { "id": "server", "name": "MCP SERVER", "subtitle": "resource server", "remote": true },
-    { "id": "authz", "name": "AUTHORIZATION SERVER", "subtitle": "issues tokens", "remote": true },
-    { "id": "elsewhere", "name": "ELSEWHERE", "subtitle": "other services", "remote": true }
+    {
+      "id": "local",
+      "name": "YOUR MACHINE",
+      "subtitle": "laptop"
+    },
+    {
+      "id": "server",
+      "name": "MCP SERVER",
+      "subtitle": "resource server",
+      "remote": true
+    },
+    {
+      "id": "authz",
+      "name": "AUTHORIZATION SERVER",
+      "subtitle": "issues tokens",
+      "remote": true
+    },
+    {
+      "id": "elsewhere",
+      "name": "ELSEWHERE",
+      "subtitle": "other services",
+      "remote": true
+    }
   ],
   "entities": [
-    { "id": "user", "name": "You", "subtitle": "resource owner", "kind": "person", "zone": "local" },
-    { "id": "claude", "name": "Claude Code", "subtitle": "the client", "kind": "client", "zone": "local" },
-    { "id": "browser", "name": "Browser", "subtitle": "where you sign in", "kind": "browser", "zone": "local" },
-    { "id": "mcp", "name": "MCP server", "subtitle": "mcp.example.com", "kind": "server", "zone": "server" },
-    { "id": "auth", "name": "Authorization server", "subtitle": "auth.example.com", "kind": "service", "zone": "authz" },
-    { "id": "upstream", "name": "Upstream API", "subtitle": "api.example.net", "kind": "cloud", "zone": "elsewhere" },
-    { "id": "rogue", "name": "Rogue MCP server", "subtitle": "evil.example", "kind": "server", "zone": "elsewhere" }
+    {
+      "id": "user",
+      "name": "You",
+      "subtitle": "resource owner",
+      "kind": "person",
+      "zone": "local",
+      "holds": [
+        "your password"
+      ]
+    },
+    {
+      "id": "claude",
+      "name": "Claude Code",
+      "subtitle": "the client",
+      "kind": "client",
+      "zone": "local"
+    },
+    {
+      "id": "browser",
+      "name": "Browser",
+      "subtitle": "where you sign in",
+      "kind": "browser",
+      "zone": "local"
+    },
+    {
+      "id": "mcp",
+      "name": "MCP server",
+      "subtitle": "mcp.example.com",
+      "kind": "server",
+      "zone": "server"
+    },
+    {
+      "id": "auth",
+      "name": "Authorization server",
+      "subtitle": "auth.example.com",
+      "kind": "service",
+      "zone": "authz"
+    },
+    {
+      "id": "upstream",
+      "name": "Upstream API",
+      "subtitle": "api.example.net",
+      "kind": "cloud",
+      "zone": "elsewhere"
+    },
+    {
+      "id": "rogue",
+      "name": "Rogue MCP server",
+      "subtitle": "evil.example",
+      "kind": "server",
+      "zone": "elsewhere"
+    }
   ],
   "links": [
-    { "from": "user", "to": "claude", "label": "terminal" },
-    { "from": "user", "to": "browser", "label": "sign-in page" },
-    { "from": "claude", "to": "browser", "label": "localhost" },
-    { "from": "claude", "to": "mcp", "label": "HTTPS · MCP" },
-    { "from": "claude", "to": "auth", "label": "HTTPS" },
-    { "from": "browser", "to": "auth", "label": "HTTPS" },
-    { "from": "mcp", "to": "upstream", "label": "HTTPS" },
-    { "from": "mcp", "to": "auth", "label": "HTTPS" },
-    { "from": "claude", "to": "rogue", "label": "HTTPS · MCP" },
-    { "from": "rogue", "to": "mcp", "label": "HTTPS" }
+    {
+      "from": "user",
+      "to": "claude",
+      "label": "terminal",
+      "channel": "local"
+    },
+    {
+      "from": "user",
+      "to": "browser",
+      "label": "sign-in page",
+      "channel": "local"
+    },
+    {
+      "from": "claude",
+      "to": "browser",
+      "label": "localhost",
+      "channel": "front"
+    },
+    {
+      "from": "claude",
+      "to": "mcp",
+      "label": "HTTPS · MCP",
+      "channel": "mcp"
+    },
+    {
+      "from": "claude",
+      "to": "auth",
+      "label": "HTTPS",
+      "channel": "back"
+    },
+    {
+      "from": "browser",
+      "to": "auth",
+      "label": "HTTPS",
+      "channel": "front"
+    },
+    {
+      "from": "mcp",
+      "to": "upstream",
+      "label": "HTTPS",
+      "channel": "back"
+    },
+    {
+      "from": "mcp",
+      "to": "auth",
+      "label": "HTTPS",
+      "channel": "back"
+    },
+    {
+      "from": "claude",
+      "to": "rogue",
+      "label": "HTTPS · MCP",
+      "channel": "mcp"
+    },
+    {
+      "from": "rogue",
+      "to": "mcp",
+      "label": "HTTPS",
+      "channel": "mcp"
+    }
   ],
   "sections": [
     {
@@ -63,11 +215,23 @@
             ],
             "referencesLabel": "Spec",
             "references": [
-              { "label": "MCP authorization", "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization" },
-              { "label": "RFC 6750 · Bearer tokens", "url": "https://www.rfc-editor.org/rfc/rfc6750" }
+              {
+                "label": "MCP authorization",
+                "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization"
+              },
+              {
+                "label": "RFC 6750 · Bearer tokens",
+                "url": "https://www.rfc-editor.org/rfc/rfc6750"
+              }
             ],
             "versionNotes": [
-              { "version": "2025-06-18", "items": [ "The 401 carries `resource_metadata`, a URL to the protected resource metadata document (RFC 9728).", "Before this revision the 401 was bare and the client assumed the MCP server issued its own tokens." ] }
+              {
+                "version": "2025-06-18",
+                "items": [
+                  "The 401 carries `resource_metadata`, a URL to the protected resource metadata document (RFC 9728).",
+                  "Before this revision the 401 was bare and the client assumed the MCP server issued its own tokens."
+                ]
+              }
             ]
           },
           "steps": [
@@ -75,35 +239,120 @@
               "title": "You add the server",
               "explanation": "You tell Claude about a remote MCP server by its URL. Nothing else: no username, no password, no key. Claude will work out how to get in by asking the server itself.",
               "messages": [
-                { "from": "user", "to": "claude", "name": "add server https://mcp.example.com/mcp", "info": "carries: the server URL only", "kind": "transport" }
+                {
+                  "from": "user",
+                  "to": "claude",
+                  "name": "add server https://mcp.example.com/mcp",
+                  "info": "carries: the server URL only",
+                  "kind": "transport",
+                  "holds": {
+                    "claude": {
+                      "add": [
+                        "server URL"
+                      ]
+                    }
+                  }
+                }
               ]
             },
             {
               "title": "Claude knocks without a token",
               "explanation": "Claude sends the first MCP request, initialize, to the server's endpoint. It carries the protocol version Claude speaks and Claude's name and version. There is no Authorization header yet, on purpose: the server's answer will tell Claude what it needs.",
               "messages": [
-                { "from": "claude", "to": "mcp", "name": "POST /mcp · initialize", "info": "carries: protocolVersion, clientInfo; no Authorization header", "kind": "transport", "size": "230 B",
-                  "payload": { "request": "POST https://mcp.example.com/mcp", "headers": { "Accept": "application/json, text/event-stream", "Content-Type": "application/json" }, "body": { "jsonrpc": "2.0", "id": 1, "method": "initialize", "params": { "protocolVersion": "2025-11-25", "capabilities": {}, "clientInfo": { "name": "claude-code", "version": "2.x" } } } },
+                {
+                  "from": "claude",
+                  "to": "mcp",
+                  "name": "POST /mcp · initialize",
+                  "info": "carries: protocolVersion, clientInfo; no Authorization header",
+                  "kind": "transport",
+                  "size": "230 B",
+                  "payload": {
+                    "request": "POST https://mcp.example.com/mcp",
+                    "headers": {
+                      "Accept": "application/json, text/event-stream",
+                      "Content-Type": "application/json"
+                    },
+                    "body": {
+                      "jsonrpc": "2.0",
+                      "id": 1,
+                      "method": "initialize",
+                      "params": {
+                        "protocolVersion": "2025-11-25",
+                        "capabilities": {},
+                        "clientInfo": {
+                          "name": "claude-code",
+                          "version": "2.x"
+                        }
+                      }
+                    }
+                  },
                   "annotations": [
-                    { "field": "headers", "text": "No `Authorization` header. The client has nothing to send yet." },
-                    { "field": "body.method", "text": "`initialize` is always the first MCP request. The server never runs it here; it stops at the missing token." },
-                    { "field": "body.params.protocolVersion", "text": "The spec revision the client speaks. The server will answer with the one it accepts." }
-                  ] }
+                    {
+                      "field": "headers",
+                      "text": "No `Authorization` header. The client has nothing to send yet."
+                    },
+                    {
+                      "field": "body.method",
+                      "text": "`initialize` is always the first MCP request. The server never runs it here; it stops at the missing token."
+                    },
+                    {
+                      "field": "body.params.protocolVersion",
+                      "text": "The spec revision the client speaks. The server will answer with the one it accepts."
+                    }
+                  ]
+                }
               ]
             },
             {
               "title": "The server answers 401 and points to its metadata",
               "explanation": "The MCP server refuses. Its 401 carries a WWW-Authenticate header with the scheme Bearer, which means \"send me a bearer token\", and a resource_metadata URL, which is where Claude goes next to learn who issues tokens for this server.",
               "messages": [
-                { "from": "mcp", "to": "claude", "name": "401 Unauthorized", "info": "carries: WWW-Authenticate: Bearer resource_metadata=<URL>", "kind": "error", "versions": ["2025-06-18", "2025-11-25"],
+                {
+                  "from": "mcp",
+                  "to": "claude",
+                  "name": "401 Unauthorized",
+                  "info": "carries: WWW-Authenticate: Bearer resource_metadata=<URL>",
+                  "kind": "error",
+                  "versions": [
+                    "2025-06-18",
+                    "2025-11-25"
+                  ],
                   "payload": "HTTP/1.1 401 Unauthorized\nWWW-Authenticate: Bearer resource_metadata=\"https://mcp.example.com/.well-known/oauth-protected-resource\"\nContent-Length: 0",
                   "annotations": [
-                    { "field": "WWW-Authenticate", "text": "The scheme `Bearer` tells the client which kind of credential to present: a token in the Authorization header." },
-                    { "field": "resource_metadata", "text": "The URL of the protected resource metadata (RFC 9728). Claude fetches it in the next topic." }
-                  ] },
-                { "from": "mcp", "to": "claude", "name": "401 Unauthorized", "info": "carries: WWW-Authenticate: Bearer, nothing else", "kind": "error", "versions": ["2025-03-26"],
+                    {
+                      "field": "WWW-Authenticate",
+                      "text": "The scheme `Bearer` tells the client which kind of credential to present: a token in the Authorization header."
+                    },
+                    {
+                      "field": "resource_metadata",
+                      "text": "The URL of the protected resource metadata (RFC 9728). Claude fetches it in the next topic."
+                    }
+                  ],
+                  "holds": {
+                    "claude": {
+                      "add": [
+                        "resource_metadata URL"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "from": "mcp",
+                  "to": "claude",
+                  "name": "401 Unauthorized",
+                  "info": "carries: WWW-Authenticate: Bearer, nothing else",
+                  "kind": "error",
+                  "versions": [
+                    "2025-03-26"
+                  ],
                   "payload": "HTTP/1.1 401 Unauthorized\nWWW-Authenticate: Bearer\nContent-Length: 0",
-                  "annotations": [ { "field": "WWW-Authenticate", "text": "In the first revision there was no pointer. The client assumed the MCP server was also the authorization server." } ] }
+                  "annotations": [
+                    {
+                      "field": "WWW-Authenticate",
+                      "text": "In the first revision there was no pointer. The client assumed the MCP server was also the authorization server."
+                    }
+                  ]
+                }
               ]
             }
           ]
@@ -119,8 +368,14 @@
             ],
             "referencesLabel": "Spec",
             "references": [
-              { "label": "RFC 9728 · Protected resource metadata", "url": "https://www.rfc-editor.org/rfc/rfc9728" },
-              { "label": "RFC 8414 · Authorization server metadata", "url": "https://www.rfc-editor.org/rfc/rfc8414" }
+              {
+                "label": "RFC 9728 · Protected resource metadata",
+                "url": "https://www.rfc-editor.org/rfc/rfc9728"
+              },
+              {
+                "label": "RFC 8414 · Authorization server metadata",
+                "url": "https://www.rfc-editor.org/rfc/rfc8414"
+              }
             ]
           },
           "steps": [
@@ -128,21 +383,84 @@
               "title": "Read the protected resource metadata",
               "explanation": "Claude fetches the URL from the 401. The MCP server answers with its own identifier, the list of authorization servers that protect it and the scopes it understands. Claude now knows which authorization server to talk to.",
               "messages": [
-                { "from": "claude", "to": "mcp", "name": "GET /.well-known/oauth-protected-resource", "info": "carries: nothing; a plain GET", "size": "120 B" },
-                { "from": "mcp", "to": "claude", "name": "200 OK · resource metadata", "info": "carries: resource, authorization_servers, scopes_supported", "kind": "response", "size": "310 B",
-                  "payload": { "resource": "https://mcp.example.com/mcp", "authorization_servers": [ "https://auth.example.com" ], "scopes_supported": [ "mcp:tools", "mcp:resources" ], "bearer_methods_supported": [ "header" ] },
+                {
+                  "from": "claude",
+                  "to": "mcp",
+                  "name": "GET /.well-known/oauth-protected-resource",
+                  "info": "carries: nothing; a plain GET",
+                  "size": "120 B"
+                },
+                {
+                  "from": "mcp",
+                  "to": "claude",
+                  "name": "200 OK · resource metadata",
+                  "info": "carries: resource, authorization_servers, scopes_supported",
+                  "kind": "response",
+                  "size": "310 B",
+                  "payload": {
+                    "resource": "https://mcp.example.com/mcp",
+                    "authorization_servers": [
+                      "https://auth.example.com"
+                    ],
+                    "scopes_supported": [
+                      "mcp:tools",
+                      "mcp:resources"
+                    ],
+                    "bearer_methods_supported": [
+                      "header"
+                    ]
+                  },
                   "annotations": [
-                    { "field": "resource", "text": "The server's identifier. Claude will ask for tokens bound to exactly this value, so a token for this server works nowhere else." },
-                    { "field": "authorization_servers", "text": "Who issues tokens for this server. Claude picks one and fetches its metadata next." },
-                    { "field": "scopes_supported", "text": "The permissions the server understands; Claude requests a subset at sign-in." },
-                    { "field": "bearer_methods_supported", "text": "`header` only: the token goes in the Authorization header, never in a URL." }
-                  ] }
+                    {
+                      "field": "resource",
+                      "text": "The server's identifier. Claude will ask for tokens bound to exactly this value, so a token for this server works nowhere else."
+                    },
+                    {
+                      "field": "authorization_servers",
+                      "text": "Who issues tokens for this server. Claude picks one and fetches its metadata next."
+                    },
+                    {
+                      "field": "scopes_supported",
+                      "text": "The permissions the server understands; Claude requests a subset at sign-in."
+                    },
+                    {
+                      "field": "bearer_methods_supported",
+                      "text": "`header` only: the token goes in the Authorization header, never in a URL."
+                    }
+                  ],
+                  "holds": {
+                    "claude": {
+                      "add": [
+                        "authorization server URL",
+                        "scopes offered"
+                      ]
+                    }
+                  }
+                }
               ],
               "versions": {
                 "2025-03-26": {
                   "title": "Assume the server issues its own tokens",
                   "explanation": "The first revision had no protected resource metadata. Claude took the MCP server's own origin as the authorization server and looked for the authorization server metadata there.",
-                  "messages": [ { "from": "claude", "to": "claude", "name": "authorization server = https://mcp.example.com", "info": "derived from the MCP endpoint's origin", "kind": "local", "tags": ["deprecated"] } ]
+                  "messages": [
+                    {
+                      "from": "claude",
+                      "to": "claude",
+                      "name": "authorization server = https://mcp.example.com",
+                      "info": "derived from the MCP endpoint's origin",
+                      "kind": "local",
+                      "tags": [
+                        "deprecated"
+                      ],
+                      "holds": {
+                        "claude": {
+                          "add": [
+                            "authorization server URL"
+                          ]
+                        }
+                      }
+                    }
+                  ]
                 }
               }
             },
@@ -150,28 +468,101 @@
               "title": "Fetch the authorization server metadata",
               "explanation": "Claude asks the authorization server for its well-known metadata. The answer carries the issuer name and the three endpoints the flow needs: authorize, token and register, plus the PKCE methods and the grant types it supports.",
               "messages": [
-                { "from": "claude", "to": "auth", "name": "GET /.well-known/oauth-authorization-server", "info": "carries: nothing; a plain GET", "size": "110 B" },
-                { "from": "auth", "to": "claude", "name": "200 OK · server metadata", "info": "carries: issuer, authorization/token/registration endpoints, S256, grant types", "kind": "response", "size": "640 B",
-                  "payload": { "issuer": "https://auth.example.com", "authorization_endpoint": "https://auth.example.com/authorize", "token_endpoint": "https://auth.example.com/token", "registration_endpoint": "https://auth.example.com/register", "response_types_supported": [ "code" ], "grant_types_supported": [ "authorization_code", "refresh_token" ], "code_challenge_methods_supported": [ "S256" ], "token_endpoint_auth_methods_supported": [ "none", "client_secret_basic" ], "scopes_supported": [ "mcp:tools", "mcp:resources" ] },
+                {
+                  "from": "claude",
+                  "to": "auth",
+                  "name": "GET /.well-known/oauth-authorization-server",
+                  "info": "carries: nothing; a plain GET",
+                  "size": "110 B"
+                },
+                {
+                  "from": "auth",
+                  "to": "claude",
+                  "name": "200 OK · server metadata",
+                  "info": "carries: issuer, authorization/token/registration endpoints, S256, grant types",
+                  "kind": "response",
+                  "size": "640 B",
+                  "payload": {
+                    "issuer": "https://auth.example.com",
+                    "authorization_endpoint": "https://auth.example.com/authorize",
+                    "token_endpoint": "https://auth.example.com/token",
+                    "registration_endpoint": "https://auth.example.com/register",
+                    "response_types_supported": [
+                      "code"
+                    ],
+                    "grant_types_supported": [
+                      "authorization_code",
+                      "refresh_token"
+                    ],
+                    "code_challenge_methods_supported": [
+                      "S256"
+                    ],
+                    "token_endpoint_auth_methods_supported": [
+                      "none",
+                      "client_secret_basic"
+                    ],
+                    "scopes_supported": [
+                      "mcp:tools",
+                      "mcp:resources"
+                    ]
+                  },
                   "annotations": [
-                    { "field": "issuer", "text": "The server's identity. Claude stores tokens keyed by it, so two servers behind different issuers never mix." },
-                    { "field": "authorization_endpoint", "text": "Where the browser is sent in topic 4." },
-                    { "field": "token_endpoint", "text": "Where the code is exchanged for tokens in topic 5, and where refresh happens in topic 7." },
-                    { "field": "code_challenge_methods_supported", "text": "Must include `S256`. Claude refuses to continue without PKCE." },
-                    { "field": "grant_types_supported", "text": "`authorization_code` for the sign-in, `refresh_token` for silent renewal." },
-                    { "field": "token_endpoint_auth_methods_supported", "text": "`none` lets a public client like Claude, which cannot keep a secret, use PKCE alone." }
-                  ] }
+                    {
+                      "field": "issuer",
+                      "text": "The server's identity. Claude stores tokens keyed by it, so two servers behind different issuers never mix."
+                    },
+                    {
+                      "field": "authorization_endpoint",
+                      "text": "Where the browser is sent in topic 4."
+                    },
+                    {
+                      "field": "token_endpoint",
+                      "text": "Where the code is exchanged for tokens in topic 5, and where refresh happens in topic 7."
+                    },
+                    {
+                      "field": "code_challenge_methods_supported",
+                      "text": "Must include `S256`. Claude refuses to continue without PKCE."
+                    },
+                    {
+                      "field": "grant_types_supported",
+                      "text": "`authorization_code` for the sign-in, `refresh_token` for silent renewal."
+                    },
+                    {
+                      "field": "token_endpoint_auth_methods_supported",
+                      "text": "`none` lets a public client like Claude, which cannot keep a secret, use PKCE alone."
+                    }
+                  ],
+                  "holds": {
+                    "claude": {
+                      "add": [
+                        "AS endpoints"
+                      ]
+                    }
+                  }
+                }
               ]
             },
             {
               "title": "Check PKCE support",
               "explanation": "Before anything leaves the machine, Claude checks the metadata: the code grant must be supported and S256 must be listed. If either is missing, the server cannot be used safely and Claude stops here.",
               "messages": [
-                { "from": "claude", "to": "claude", "name": "verify metadata", "info": "code grant and S256 present; endpoints noted", "kind": "local",
-                  "payload": "response_types_supported     includes \"code\"        ok\ncode_challenge_methods       includes \"S256\"        ok\nauthorization_endpoint       https://auth.example.com/authorize\ntoken_endpoint               https://auth.example.com/token\nregistration_endpoint        https://auth.example.com/register   (optional)" }
+                {
+                  "from": "claude",
+                  "to": "claude",
+                  "name": "verify metadata",
+                  "info": "code grant and S256 present; endpoints noted",
+                  "kind": "local",
+                  "payload": "response_types_supported     includes \"code\"        ok\ncode_challenge_methods       includes \"S256\"        ok\nauthorization_endpoint       https://auth.example.com/authorize\ntoken_endpoint               https://auth.example.com/token\nregistration_endpoint        https://auth.example.com/register   (optional)"
+                }
               ]
             }
-          ]
+          ],
+          "holds": {
+            "claude": [
+              "server URL",
+              "resource_metadata URL"
+            ]
+          }
         },
         {
           "id": "registration",
@@ -184,11 +575,23 @@
             ],
             "referencesLabel": "Spec",
             "references": [
-              { "label": "RFC 7591 · Dynamic client registration", "url": "https://www.rfc-editor.org/rfc/rfc7591" },
-              { "label": "MCP authorization · client registration", "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization" }
+              {
+                "label": "RFC 7591 · Dynamic client registration",
+                "url": "https://www.rfc-editor.org/rfc/rfc7591"
+              },
+              {
+                "label": "MCP authorization · client registration",
+                "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization"
+              }
             ],
             "versionNotes": [
-              { "version": "2025-11-25", "items": [ "Client ID metadata documents: the `client_id` is an `https` URL the authorization server dereferences for the client's metadata.", "Dynamic registration remains available." ] }
+              {
+                "version": "2025-11-25",
+                "items": [
+                  "Client ID metadata documents: the `client_id` is an `https` URL the authorization server dereferences for the client's metadata.",
+                  "Dynamic registration remains available."
+                ]
+              }
             ]
           },
           "steps": [
@@ -196,34 +599,168 @@
               "title": "Register dynamically",
               "explanation": "Claude posts its description to the registration endpoint: a display name, the loopback redirect URI where the browser should come back, the grant types it will use, and token_endpoint_auth_method none. The server answers with the client_id Claude will use from now on.",
               "messages": [
-                { "from": "claude", "to": "auth", "name": "POST /register", "info": "carries: client_name, redirect_uris, grant_types, auth method none", "size": "280 B",
-                  "payload": { "client_name": "Claude Code", "redirect_uris": [ "http://localhost:52341/callback" ], "grant_types": [ "authorization_code", "refresh_token" ], "response_types": [ "code" ], "token_endpoint_auth_method": "none" },
+                {
+                  "from": "claude",
+                  "to": "auth",
+                  "name": "POST /register",
+                  "info": "carries: client_name, redirect_uris, grant_types, auth method none",
+                  "size": "280 B",
+                  "payload": {
+                    "client_name": "Claude Code",
+                    "redirect_uris": [
+                      "http://localhost:52341/callback"
+                    ],
+                    "grant_types": [
+                      "authorization_code",
+                      "refresh_token"
+                    ],
+                    "response_types": [
+                      "code"
+                    ],
+                    "token_endpoint_auth_method": "none"
+                  },
                   "annotations": [
-                    { "field": "redirect_uris", "text": "A loopback address on your machine. The browser will be sent back here with the code; only a program on this machine can receive it." },
-                    { "field": "grant_types", "text": "Claude declares both grants it will use: the code exchange now and refresh later." },
-                    { "field": "token_endpoint_auth_method", "text": "`none`: no client secret. PKCE will prove that the code exchange comes from the same program that started the sign-in." }
-                  ] },
-                { "from": "auth", "to": "claude", "name": "201 Created · client_id", "info": "carries: client_id, the registered redirect URIs", "kind": "response",
-                  "payload": { "client_id": "cid_8f2a…", "client_id_issued_at": 1764000000, "redirect_uris": [ "http://localhost:52341/callback" ], "token_endpoint_auth_method": "none" },
-                  "annotations": [ { "field": "client_id", "text": "Public, not secret. Meaningful only to this authorization server; Claude stores it next to the tokens." } ] }
+                    {
+                      "field": "redirect_uris",
+                      "text": "A loopback address on your machine. The browser will be sent back here with the code; only a program on this machine can receive it."
+                    },
+                    {
+                      "field": "grant_types",
+                      "text": "Claude declares both grants it will use: the code exchange now and refresh later."
+                    },
+                    {
+                      "field": "token_endpoint_auth_method",
+                      "text": "`none`: no client secret. PKCE will prove that the code exchange comes from the same program that started the sign-in."
+                    }
+                  ]
+                },
+                {
+                  "from": "auth",
+                  "to": "claude",
+                  "name": "201 Created · client_id",
+                  "info": "carries: client_id, the registered redirect URIs",
+                  "kind": "response",
+                  "payload": {
+                    "client_id": "cid_8f2a…",
+                    "client_id_issued_at": 1764000000,
+                    "redirect_uris": [
+                      "http://localhost:52341/callback"
+                    ],
+                    "token_endpoint_auth_method": "none"
+                  },
+                  "annotations": [
+                    {
+                      "field": "client_id",
+                      "text": "Public, not secret. Meaningful only to this authorization server; Claude stores it next to the tokens."
+                    }
+                  ],
+                  "holds": {
+                    "claude": {
+                      "add": [
+                        "client_id"
+                      ]
+                    },
+                    "auth": {
+                      "add": [
+                        "client record"
+                      ]
+                    }
+                  }
+                }
               ]
             },
             {
               "title": "Or present a client ID metadata document",
               "explanation": "Instead of registering, Claude can use an https URL as its client_id. The authorization server fetches the document behind that URL, reads the client's name and redirect URIs from it, and trusts the publisher of the domain to describe their own client.",
               "messages": [
-                { "from": "claude", "to": "claude", "name": "client_id = https://client.example/.well-known/oauth-client", "info": "an https URL under the publisher's control", "kind": "local", "tags": ["new"] },
-                { "from": "auth", "to": "auth", "name": "GET the client_id URL", "info": "carries back: client_name, redirect_uris, auth method", "kind": "local", "tags": ["new"],
-                  "payload": { "client_id": "https://client.example/.well-known/oauth-client", "client_name": "Claude Code", "redirect_uris": [ "http://localhost:52341/callback" ], "token_endpoint_auth_method": "none", "grant_types": [ "authorization_code", "refresh_token" ] },
+                {
+                  "from": "claude",
+                  "to": "claude",
+                  "name": "client_id = https://client.example/.well-known/oauth-client",
+                  "info": "an https URL under the publisher's control",
+                  "kind": "local",
+                  "tags": [
+                    "new"
+                  ],
+                  "holds": {
+                    "claude": {
+                      "add": [
+                        "client_id (an https URL)"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "from": "auth",
+                  "to": "auth",
+                  "name": "GET the client_id URL",
+                  "info": "carries back: client_name, redirect_uris, auth method",
+                  "kind": "local",
+                  "tags": [
+                    "new"
+                  ],
+                  "payload": {
+                    "client_id": "https://client.example/.well-known/oauth-client",
+                    "client_name": "Claude Code",
+                    "redirect_uris": [
+                      "http://localhost:52341/callback"
+                    ],
+                    "token_endpoint_auth_method": "none",
+                    "grant_types": [
+                      "authorization_code",
+                      "refresh_token"
+                    ]
+                  },
                   "annotations": [
-                    { "field": "client_id", "text": "Must equal the URL the document was fetched from." },
-                    { "field": "redirect_uris", "text": "The server redirects only to URIs listed here, so a document published by the real client publisher protects its users." }
-                  ] }
+                    {
+                      "field": "client_id",
+                      "text": "Must equal the URL the document was fetched from."
+                    },
+                    {
+                      "field": "redirect_uris",
+                      "text": "The server redirects only to URIs listed here, so a document published by the real client publisher protects its users."
+                    }
+                  ]
+                }
               ],
               "versions": {
-                "2025-03-26": { "title": "Not yet specified", "explanation": "Client ID metadata documents arrive in the 2025-11-25 revision. In this revision a client registers dynamically or has a pre-configured client_id.", "messages": [] },
-                "2025-06-18": { "title": "Not yet specified", "explanation": "Client ID metadata documents arrive in the 2025-11-25 revision. In this revision a client registers dynamically or has a pre-configured client_id.", "messages": [] }
+                "2025-03-26": {
+                  "title": "Not yet specified",
+                  "explanation": "Client ID metadata documents arrive in the 2025-11-25 revision. In this revision a client registers dynamically or has a pre-configured client_id.",
+                  "messages": []
+                },
+                "2025-06-18": {
+                  "title": "Not yet specified",
+                  "explanation": "Client ID metadata documents arrive in the 2025-11-25 revision. In this revision a client registers dynamically or has a pre-configured client_id.",
+                  "messages": []
+                }
               }
+            }
+          ],
+          "holds": {
+            "claude": [
+              "authorization server URL",
+              "AS endpoints"
+            ]
+          },
+          "fragments": [
+            {
+              "kind": "alt",
+              "label": "how the client is known",
+              "start": 0,
+              "end": 1,
+              "branches": [
+                {
+                  "condition": "the server offers dynamic registration",
+                  "start": 0,
+                  "end": 0
+                },
+                {
+                  "condition": "the client publishes a metadata document",
+                  "start": 1,
+                  "end": 1
+                }
+              ]
             }
           ]
         },
@@ -238,12 +775,26 @@
             ],
             "referencesLabel": "Spec",
             "references": [
-              { "label": "RFC 7636 · PKCE", "url": "https://www.rfc-editor.org/rfc/rfc7636" },
-              { "label": "RFC 8707 · Resource indicators", "url": "https://www.rfc-editor.org/rfc/rfc8707" },
-              { "label": "OAuth 2.1 draft", "url": "https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1" }
+              {
+                "label": "RFC 7636 · PKCE",
+                "url": "https://www.rfc-editor.org/rfc/rfc7636"
+              },
+              {
+                "label": "RFC 8707 · Resource indicators",
+                "url": "https://www.rfc-editor.org/rfc/rfc8707"
+              },
+              {
+                "label": "OAuth 2.1 draft",
+                "url": "https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1"
+              }
             ],
             "versionNotes": [
-              { "version": "2025-06-18", "items": [ "The authorization request carries `resource=` with the MCP server's identifier, so the token is bound to one server." ] }
+              {
+                "version": "2025-06-18",
+                "items": [
+                  "The authorization request carries `resource=` with the MCP server's identifier, so the token is bound to one server."
+                ]
+              }
             ]
           },
           "steps": [
@@ -251,56 +802,209 @@
               "title": "Generate the PKCE pair and a state value",
               "explanation": "Claude draws a long random string, the code verifier, and keeps it secret. It hashes it with SHA-256 into the code challenge, which is safe to show in a URL. It also draws a random state value to recognise the callback later.",
               "messages": [
-                { "from": "claude", "to": "claude", "name": "generate code_verifier, code_challenge, state", "info": "verifier stays on the machine; the challenge is its hash", "kind": "local",
-                  "payload": "code_verifier   = 43–128 random chars from [A-Z a-z 0-9 - . _ ~]   (secret, kept)\ncode_challenge  = BASE64URL( SHA-256( code_verifier ) )         (goes in the URL)\nstate           = random string                                 (matches the callback to this request)" }
+                {
+                  "from": "claude",
+                  "to": "claude",
+                  "name": "generate code_verifier, code_challenge, state",
+                  "info": "verifier stays on the machine; the challenge is its hash",
+                  "kind": "local",
+                  "payload": "code_verifier   = 43–128 random chars from [A-Z a-z 0-9 - . _ ~]   (secret, kept)\ncode_challenge  = BASE64URL( SHA-256( code_verifier ) )         (goes in the URL)\nstate           = random string                                 (matches the callback to this request)",
+                  "holds": {
+                    "claude": {
+                      "add": [
+                        "code_verifier",
+                        "state"
+                      ]
+                    }
+                  }
+                }
               ]
             },
             {
               "title": "Open the authorization URL",
               "explanation": "Claude starts a tiny web server on a loopback port to catch the callback, then opens the authorization endpoint in your browser. The URL carries: response_type code, Claude's client_id, the loopback redirect URI, the code challenge and its method, the resource (the MCP server), the scopes it wants, and the state.",
               "messages": [
-                { "from": "claude", "to": "browser", "name": "open /authorize?…", "info": "carries: client_id, redirect_uri, code_challenge, resource, scope, state", "kind": "transport", "versions": ["2025-06-18", "2025-11-25"],
+                {
+                  "from": "claude",
+                  "to": "browser",
+                  "name": "open /authorize?…",
+                  "info": "carries: client_id, redirect_uri, code_challenge, resource, scope, state",
+                  "kind": "transport",
+                  "versions": [
+                    "2025-06-18",
+                    "2025-11-25"
+                  ],
                   "payload": "https://auth.example.com/authorize\n  ?response_type=code\n  &client_id=cid_8f2a…\n  &redirect_uri=http://localhost:52341/callback\n  &code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM\n  &code_challenge_method=S256\n  &resource=https://mcp.example.com/mcp\n  &scope=mcp:tools mcp:resources\n  &state=af0ifjsldkj",
                   "annotations": [
-                    { "field": "response_type", "text": "`code`: Claude wants an authorization code, not a token, in the browser. The token comes later over the back channel." },
-                    { "field": "client_id", "text": "Who is asking, from topic 3." },
-                    { "field": "redirect_uri", "text": "Where the browser must be sent back with the code: a loopback address only a program on your machine can receive." },
-                    { "field": "code_challenge", "text": "The hash of the verifier. Seeing it in the browser history gives an attacker nothing." },
-                    { "field": "resource", "text": "The MCP server's identifier from topic 2. The token will be minted for that server only." },
-                    { "field": "scope", "text": "What Claude asks permission for; you see these on the consent page." },
-                    { "field": "state", "text": "Echoed back by the server so Claude can match the callback to this request." }
-                  ] },
-                { "from": "claude", "to": "browser", "name": "open /authorize?…", "info": "carries: client_id, redirect_uri, code_challenge, state", "kind": "transport", "versions": ["2025-03-26"],
+                    {
+                      "field": "response_type",
+                      "text": "`code`: Claude wants an authorization code, not a token, in the browser. The token comes later over the back channel."
+                    },
+                    {
+                      "field": "client_id",
+                      "text": "Who is asking, from topic 3."
+                    },
+                    {
+                      "field": "redirect_uri",
+                      "text": "Where the browser must be sent back with the code: a loopback address only a program on your machine can receive."
+                    },
+                    {
+                      "field": "code_challenge",
+                      "text": "The hash of the verifier. Seeing it in the browser history gives an attacker nothing."
+                    },
+                    {
+                      "field": "resource",
+                      "text": "The MCP server's identifier from topic 2. The token will be minted for that server only."
+                    },
+                    {
+                      "field": "scope",
+                      "text": "What Claude asks permission for; you see these on the consent page."
+                    },
+                    {
+                      "field": "state",
+                      "text": "Echoed back by the server so Claude can match the callback to this request."
+                    }
+                  ]
+                },
+                {
+                  "from": "claude",
+                  "to": "browser",
+                  "name": "open /authorize?…",
+                  "info": "carries: client_id, redirect_uri, code_challenge, state",
+                  "kind": "transport",
+                  "versions": [
+                    "2025-03-26"
+                  ],
                   "payload": "https://mcp.example.com/authorize\n  ?response_type=code\n  &client_id=cid_8f2a…\n  &redirect_uri=http://localhost:52341/callback\n  &code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM\n  &code_challenge_method=S256\n  &state=af0ifjsldkj",
-                  "annotations": [ { "field": "resource", "text": "Not present in this revision: tokens were not yet bound to one MCP server." } ] }
+                  "annotations": [
+                    {
+                      "field": "resource",
+                      "text": "Not present in this revision: tokens were not yet bound to one MCP server."
+                    }
+                  ]
+                }
               ]
             },
             {
               "title": "You sign in and consent",
               "explanation": "The browser loads the authorization server's page. You prove who you are to that server, never to Claude, and the page lists what Claude asked for: the scopes. You approve. The browser posts your consent back to the authorization server.",
               "messages": [
-                { "from": "browser", "to": "auth", "name": "GET /authorize?…", "info": "carries: the full URL Claude opened" },
-                { "from": "auth", "to": "browser", "name": "200 · sign-in and consent page", "info": "carries: the server's own login form and the requested scopes", "kind": "response" },
-                { "from": "user", "to": "browser", "name": "sign in, then approve", "info": "carries: your password or passkey, to the authorization server only", "kind": "transport" },
-                { "from": "browser", "to": "auth", "name": "POST /authorize · consent", "info": "carries: your approval of mcp:tools and mcp:resources" }
+                {
+                  "from": "browser",
+                  "to": "auth",
+                  "name": "GET /authorize?…",
+                  "info": "carries: the full URL Claude opened",
+                  "holds": {
+                    "auth": {
+                      "add": [
+                        "code_challenge",
+                        "redirect_uri",
+                        "state"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "from": "auth",
+                  "to": "browser",
+                  "name": "200 · sign-in and consent page",
+                  "info": "carries: the server's own login form and the requested scopes",
+                  "kind": "response"
+                },
+                {
+                  "from": "user",
+                  "to": "browser",
+                  "name": "sign in, then approve",
+                  "info": "carries: your password or passkey, to the authorization server only",
+                  "kind": "transport"
+                },
+                {
+                  "from": "browser",
+                  "to": "auth",
+                  "name": "POST /authorize · consent",
+                  "info": "carries: your approval of mcp:tools and mcp:resources",
+                  "holds": {
+                    "auth": {
+                      "add": [
+                        "your consent"
+                      ]
+                    }
+                  }
+                }
               ]
             },
             {
               "title": "The code comes back to Claude",
               "explanation": "The authorization server redirects the browser to the loopback address with two values: the one-time authorization code and the state. Claude's tiny server receives them, checks that the state matches, and tells the browser the tab can be closed. The code alone is worthless: redeeming it needs the verifier Claude kept.",
               "messages": [
-                { "from": "auth", "to": "browser", "name": "302 Found → localhost callback", "info": "carries: code, state in the Location URL", "kind": "response",
+                {
+                  "from": "auth",
+                  "to": "browser",
+                  "name": "302 Found → localhost callback",
+                  "info": "carries: code, state in the Location URL",
+                  "kind": "response",
                   "payload": "HTTP/1.1 302 Found\nLocation: http://localhost:52341/callback?code=SplxlOBeZQQYbYS6WxSbIA&state=af0ifjsldkj",
                   "annotations": [
-                    { "field": "code", "text": "The authorization code: single use, short-lived, typically under a minute. Useless without the code verifier." },
-                    { "field": "state", "text": "The same value Claude sent. A callback with a different state is ignored." }
-                  ] },
-                { "from": "browser", "to": "claude", "name": "GET /callback?code=…&state=…", "info": "carries: code, state to Claude's loopback server" },
-                { "from": "claude", "to": "claude", "name": "check state", "info": "must equal the state from step 1", "kind": "local" },
-                { "from": "claude", "to": "browser", "name": "200 OK · \"you can close this tab\"", "info": "carries: a short confirmation page", "kind": "response" }
+                    {
+                      "field": "code",
+                      "text": "The authorization code: single use, short-lived, typically under a minute. Useless without the code verifier."
+                    },
+                    {
+                      "field": "state",
+                      "text": "The same value Claude sent. A callback with a different state is ignored."
+                    }
+                  ],
+                  "holds": {
+                    "auth": {
+                      "add": [
+                        "authorization code (pending)"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "from": "browser",
+                  "to": "claude",
+                  "name": "GET /callback?code=…&state=…",
+                  "info": "carries: code, state to Claude's loopback server",
+                  "holds": {
+                    "claude": {
+                      "add": [
+                        "authorization code"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "from": "claude",
+                  "to": "claude",
+                  "name": "check state",
+                  "info": "must equal the state from step 1",
+                  "kind": "local",
+                  "holds": {
+                    "claude": {
+                      "remove": [
+                        "state"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "from": "claude",
+                  "to": "browser",
+                  "name": "200 OK · \"you can close this tab\"",
+                  "info": "carries: a short confirmation page",
+                  "kind": "response"
+                }
               ]
             }
-          ]
+          ],
+          "holds": {
+            "claude": [
+              "client_id",
+              "AS endpoints"
+            ]
+          }
         },
         {
           "id": "token",
@@ -313,8 +1017,14 @@
             ],
             "referencesLabel": "Spec",
             "references": [
-              { "label": "OAuth 2.1 draft · token endpoint", "url": "https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1" },
-              { "label": "RFC 8707 · Resource indicators", "url": "https://www.rfc-editor.org/rfc/rfc8707" }
+              {
+                "label": "OAuth 2.1 draft · token endpoint",
+                "url": "https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1"
+              },
+              {
+                "label": "RFC 8707 · Resource indicators",
+                "url": "https://www.rfc-editor.org/rfc/rfc8707"
+              }
             ]
           },
           "steps": [
@@ -322,44 +1032,176 @@
               "title": "Send the code and the verifier",
               "explanation": "Claude posts to the token endpoint: grant_type authorization_code, the code, the redirect URI used, its client_id, the code verifier and the resource. The verifier is the proof: only the program that generated the challenge can produce it.",
               "messages": [
-                { "from": "claude", "to": "auth", "name": "POST /token", "info": "carries: grant_type, code, redirect_uri, client_id, code_verifier, resource", "size": "320 B", "versions": ["2025-06-18", "2025-11-25"],
+                {
+                  "from": "claude",
+                  "to": "auth",
+                  "name": "POST /token",
+                  "info": "carries: grant_type, code, redirect_uri, client_id, code_verifier, resource",
+                  "size": "320 B",
+                  "versions": [
+                    "2025-06-18",
+                    "2025-11-25"
+                  ],
                   "payload": "POST /token HTTP/1.1\nHost: auth.example.com\nContent-Type: application/x-www-form-urlencoded\n\ngrant_type=authorization_code\n&code=SplxlOBeZQQYbYS6WxSbIA\n&redirect_uri=http://localhost:52341/callback\n&client_id=cid_8f2a…\n&code_verifier=dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk\n&resource=https://mcp.example.com/mcp",
                   "annotations": [
-                    { "field": "grant_type", "text": "`authorization_code`: exchange a code for tokens." },
-                    { "field": "code", "text": "The one-time code from topic 4." },
-                    { "field": "redirect_uri", "text": "Must match the one used in the authorization request; a mismatch is refused." },
-                    { "field": "code_verifier", "text": "The secret from topic 4, step 1. The server checks BASE64URL(SHA-256(verifier)) equals the stored code_challenge." },
-                    { "field": "resource", "text": "Repeated so the issued token is bound to this MCP server." },
-                    { "field": "client_id", "text": "No client secret: a public client authenticates with PKCE alone." }
-                  ] },
-                { "from": "claude", "to": "auth", "name": "POST /token", "info": "carries: grant_type, code, redirect_uri, client_id, code_verifier", "size": "270 B", "versions": ["2025-03-26"],
-                  "payload": "POST /token HTTP/1.1\nHost: mcp.example.com\nContent-Type: application/x-www-form-urlencoded\n\ngrant_type=authorization_code\n&code=SplxlOBeZQQYbYS6WxSbIA\n&redirect_uri=http://localhost:52341/callback\n&client_id=cid_8f2a…\n&code_verifier=dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk" }
+                    {
+                      "field": "grant_type",
+                      "text": "`authorization_code`: exchange a code for tokens."
+                    },
+                    {
+                      "field": "code",
+                      "text": "The one-time code from topic 4."
+                    },
+                    {
+                      "field": "redirect_uri",
+                      "text": "Must match the one used in the authorization request; a mismatch is refused."
+                    },
+                    {
+                      "field": "code_verifier",
+                      "text": "The secret from topic 4, step 1. The server checks BASE64URL(SHA-256(verifier)) equals the stored code_challenge."
+                    },
+                    {
+                      "field": "resource",
+                      "text": "Repeated so the issued token is bound to this MCP server."
+                    },
+                    {
+                      "field": "client_id",
+                      "text": "No client secret: a public client authenticates with PKCE alone."
+                    }
+                  ],
+                  "holds": {
+                    "auth": {
+                      "remove": [
+                        "code_challenge",
+                        "authorization code (pending)"
+                      ]
+                    },
+                    "claude": {
+                      "remove": [
+                        "authorization code",
+                        "code_verifier"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "from": "claude",
+                  "to": "auth",
+                  "name": "POST /token",
+                  "info": "carries: grant_type, code, redirect_uri, client_id, code_verifier",
+                  "size": "270 B",
+                  "versions": [
+                    "2025-03-26"
+                  ],
+                  "payload": "POST /token HTTP/1.1\nHost: mcp.example.com\nContent-Type: application/x-www-form-urlencoded\n\ngrant_type=authorization_code\n&code=SplxlOBeZQQYbYS6WxSbIA\n&redirect_uri=http://localhost:52341/callback\n&client_id=cid_8f2a…\n&code_verifier=dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk",
+                  "holds": {
+                    "auth": {
+                      "remove": [
+                        "code_challenge",
+                        "authorization code (pending)"
+                      ]
+                    },
+                    "claude": {
+                      "remove": [
+                        "authorization code",
+                        "code_verifier"
+                      ]
+                    }
+                  }
+                }
               ]
             },
             {
               "title": "Receive the access token and the refresh token",
               "explanation": "The authorization server answers with the two tokens. The access token, its type Bearer, its lifetime in seconds, the scope actually granted, and the refresh token. From here on Claude is authorized.",
               "messages": [
-                { "from": "auth", "to": "claude", "name": "200 OK · tokens", "info": "carries: access_token, token_type, expires_in, refresh_token, scope", "kind": "response", "size": "480 B",
-                  "payload": { "access_token": "at_2YotnFZFEjr1zCsicMWpAA…", "token_type": "Bearer", "expires_in": 3600, "refresh_token": "rt_tGzv3JOkF0XG5Qx2TlKWIA…", "scope": "mcp:tools mcp:resources" },
+                {
+                  "from": "auth",
+                  "to": "claude",
+                  "name": "200 OK · tokens",
+                  "info": "carries: access_token, token_type, expires_in, refresh_token, scope",
+                  "kind": "response",
+                  "size": "480 B",
+                  "payload": {
+                    "access_token": "at_2YotnFZFEjr1zCsicMWpAA…",
+                    "token_type": "Bearer",
+                    "expires_in": 3600,
+                    "refresh_token": "rt_tGzv3JOkF0XG5Qx2TlKWIA…",
+                    "scope": "mcp:tools mcp:resources"
+                  },
                   "annotations": [
-                    { "field": "access_token", "text": "What Claude sends on every request to the MCP server. Opaque to Claude; the server knows how to validate it. Its audience is the MCP server named in `resource`." },
-                    { "field": "token_type", "text": "`Bearer`: present it as `Authorization: Bearer <token>`." },
-                    { "field": "expires_in", "text": "Seconds until the access token dies, here one hour. Short lifetimes limit the damage of a leak." },
-                    { "field": "refresh_token", "text": "Lets Claude get a new access token without a browser. It is the more valuable secret and goes in the keychain." },
-                    { "field": "scope", "text": "What was actually granted; it may be less than what was asked." }
-                  ] }
+                    {
+                      "field": "access_token",
+                      "text": "What Claude sends on every request to the MCP server. Opaque to Claude; the server knows how to validate it. Its audience is the MCP server named in `resource`."
+                    },
+                    {
+                      "field": "token_type",
+                      "text": "`Bearer`: present it as `Authorization: Bearer <token>`."
+                    },
+                    {
+                      "field": "expires_in",
+                      "text": "Seconds until the access token dies, here one hour. Short lifetimes limit the damage of a leak."
+                    },
+                    {
+                      "field": "refresh_token",
+                      "text": "Lets Claude get a new access token without a browser. It is the more valuable secret and goes in the keychain."
+                    },
+                    {
+                      "field": "scope",
+                      "text": "What was actually granted; it may be less than what was asked."
+                    }
+                  ],
+                  "holds": {
+                    "claude": {
+                      "add": [
+                        "access token (1 h)",
+                        "refresh token"
+                      ]
+                    },
+                    "auth": {
+                      "add": [
+                        "refresh token record"
+                      ]
+                    }
+                  }
+                }
               ]
             },
             {
               "title": "Store both tokens safely",
               "explanation": "Claude saves the tokens in the operating system's credential store, keyed by the authorization server's issuer and the MCP server's resource identifier, together with the client_id. Nothing is written to a project file.",
               "messages": [
-                { "from": "claude", "to": "claude", "name": "store credentials", "info": "OS keychain, keyed by issuer and resource", "kind": "local",
-                  "payload": "keychain entry\n  issuer         https://auth.example.com\n  resource       https://mcp.example.com/mcp\n  client_id      cid_8f2a…\n  access_token   at_…        expires 2025-11-25T10:42Z\n  refresh_token  rt_…" }
+                {
+                  "from": "claude",
+                  "to": "claude",
+                  "name": "store credentials",
+                  "info": "OS keychain, keyed by issuer and resource",
+                  "kind": "local",
+                  "payload": "keychain entry\n  issuer         https://auth.example.com\n  resource       https://mcp.example.com/mcp\n  client_id      cid_8f2a…\n  access_token   at_…        expires 2025-11-25T10:42Z\n  refresh_token  rt_…",
+                  "holds": {
+                    "claude": {
+                      "add": [
+                        "keychain entry"
+                      ]
+                    }
+                  }
+                }
               ]
             }
-          ]
+          ],
+          "holds": {
+            "claude": [
+              "client_id",
+              "AS endpoints",
+              "code_verifier",
+              "authorization code"
+            ],
+            "auth": [
+              "code_challenge",
+              "authorization code (pending)",
+              "your consent"
+            ]
+          }
         },
         {
           "id": "use",
@@ -372,7 +1214,10 @@
             ],
             "referencesLabel": "Spec",
             "references": [
-              { "label": "RFC 6750 · Bearer token usage", "url": "https://www.rfc-editor.org/rfc/rfc6750" }
+              {
+                "label": "RFC 6750 · Bearer token usage",
+                "url": "https://www.rfc-editor.org/rfc/rfc6750"
+              }
             ]
           },
           "steps": [
@@ -380,28 +1225,102 @@
               "title": "Retry the first request with the bearer token",
               "explanation": "The same initialize request as in topic 1, now with the header Authorization: Bearer and the access token. Everything else is unchanged.",
               "messages": [
-                { "from": "claude", "to": "mcp", "name": "POST /mcp · initialize", "info": "carries: Authorization: Bearer <access token>, the initialize body", "kind": "transport",
+                {
+                  "from": "claude",
+                  "to": "mcp",
+                  "name": "POST /mcp · initialize",
+                  "info": "carries: Authorization: Bearer <access token>, the initialize body",
+                  "kind": "transport",
                   "payload": "POST /mcp HTTP/1.1\nHost: mcp.example.com\nAuthorization: Bearer at_2YotnFZFEjr1zCsicMWpAA…\nContent-Type: application/json\n\n{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"initialize\",\"params\":{\"protocolVersion\":\"2025-11-25\",\"capabilities\":{},\"clientInfo\":{\"name\":\"claude-code\",\"version\":\"2.x\"}}}",
-                  "annotations": [ { "field": "Authorization", "text": "The bearer token, in the header only. Never in the URL, never in the JSON body." } ] }
+                  "annotations": [
+                    {
+                      "field": "Authorization",
+                      "text": "The bearer token, in the header only. Never in the URL, never in the JSON body."
+                    }
+                  ]
+                }
               ]
             },
             {
               "title": "The server validates the token",
               "explanation": "The MCP server checks the token before running anything: the issuer's signature or an introspection call, the expiry time, the scope the request needs, and that the audience is this very server. A token minted for another server is rejected here.",
               "messages": [
-                { "from": "mcp", "to": "mcp", "name": "validate token", "info": "signature, expiry, scope, audience = this server", "kind": "local",
-                  "payload": "signature   issuer's key                  ok\nexpiry      not before now                ok\naudience    https://mcp.example.com/mcp   ok   (anything else: reject)\nscope       mcp:tools mcp:resources       ok" }
+                {
+                  "from": "mcp",
+                  "to": "mcp",
+                  "name": "validate token",
+                  "info": "signature, expiry, scope, audience = this server",
+                  "kind": "local",
+                  "payload": "signature   issuer's key                  ok\nexpiry      not before now                ok\naudience    https://mcp.example.com/mcp   ok   (anything else: reject)\nscope       mcp:tools mcp:resources       ok"
+                }
               ]
             },
             {
               "title": "The MCP session proceeds",
               "explanation": "The server answers initialize as any MCP server would, and Claude goes on to list and call tools. Every one of those requests carries the same Authorization header until the token expires.",
               "messages": [
-                { "from": "mcp", "to": "claude", "name": "200 OK · initialize result", "info": "carries: protocolVersion, server capabilities, serverInfo", "kind": "response",
-                  "payload": { "jsonrpc": "2.0", "id": 1, "result": { "protocolVersion": "2025-11-25", "capabilities": { "tools": { "listChanged": true }, "resources": {} }, "serverInfo": { "name": "tickets-mcp", "version": "1.4.0" } } } },
-                { "from": "claude", "to": "mcp", "name": "POST /mcp · tools/list", "info": "carries: Authorization: Bearer, the tools/list request", "kind": "transport" },
-                { "from": "mcp", "to": "claude", "name": "200 OK · tools", "info": "carries: the server's tools", "kind": "response" }
+                {
+                  "from": "mcp",
+                  "to": "claude",
+                  "name": "200 OK · initialize result",
+                  "info": "carries: protocolVersion, server capabilities, serverInfo",
+                  "kind": "response",
+                  "payload": {
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "result": {
+                      "protocolVersion": "2025-11-25",
+                      "capabilities": {
+                        "tools": {
+                          "listChanged": true
+                        },
+                        "resources": {}
+                      },
+                      "serverInfo": {
+                        "name": "tickets-mcp",
+                        "version": "1.4.0"
+                      }
+                    }
+                  },
+                  "holds": {
+                    "claude": {
+                      "add": [
+                        "MCP session"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "from": "claude",
+                  "to": "mcp",
+                  "name": "POST /mcp · tools/list",
+                  "info": "carries: Authorization: Bearer, the tools/list request",
+                  "kind": "transport"
+                },
+                {
+                  "from": "mcp",
+                  "to": "claude",
+                  "name": "200 OK · tools",
+                  "info": "carries: the server's tools",
+                  "kind": "response"
+                }
               ]
+            }
+          ],
+          "holds": {
+            "claude": [
+              "client_id",
+              "access token (1 h)",
+              "refresh token"
+            ]
+          },
+          "fragments": [
+            {
+              "kind": "loop",
+              "label": "the session",
+              "condition": "for every request while the access token is valid",
+              "start": 2,
+              "end": 2
             }
           ]
         },
@@ -416,7 +1335,10 @@
             ],
             "referencesLabel": "Spec",
             "references": [
-              { "label": "OAuth 2.1 draft · refreshing an access token", "url": "https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1" }
+              {
+                "label": "OAuth 2.1 draft · refreshing an access token",
+                "url": "https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1"
+              }
             ]
           },
           "steps": [
@@ -424,41 +1346,145 @@
               "title": "The access token has expired",
               "explanation": "An hour later a request fails. The server answers 401 with error invalid_token and a description. This is a different 401 from topic 1: Claude has credentials, they are just stale.",
               "messages": [
-                { "from": "claude", "to": "mcp", "name": "POST /mcp · tools/call", "info": "carries: Authorization: Bearer <expired access token>", "kind": "transport" },
-                { "from": "mcp", "to": "claude", "name": "401 Unauthorized", "info": "carries: WWW-Authenticate: Bearer error=\"invalid_token\"", "kind": "error",
+                {
+                  "from": "claude",
+                  "to": "mcp",
+                  "name": "POST /mcp · tools/call",
+                  "info": "carries: Authorization: Bearer <expired access token>",
+                  "kind": "transport"
+                },
+                {
+                  "from": "mcp",
+                  "to": "claude",
+                  "name": "401 Unauthorized",
+                  "info": "carries: WWW-Authenticate: Bearer error=\"invalid_token\"",
+                  "kind": "error",
                   "payload": "HTTP/1.1 401 Unauthorized\nWWW-Authenticate: Bearer error=\"invalid_token\", error_description=\"The access token expired\"",
-                  "annotations": [ { "field": "error", "text": "`invalid_token` means the credential is unusable; `error_description` says why. Claude tries the refresh token before anything else." } ] }
+                  "annotations": [
+                    {
+                      "field": "error",
+                      "text": "`invalid_token` means the credential is unusable; `error_description` says why. Claude tries the refresh token before anything else."
+                    }
+                  ],
+                  "holds": {
+                    "claude": {
+                      "remove": [
+                        "access token (1 h)"
+                      ]
+                    }
+                  }
+                }
               ]
             },
             {
               "title": "Send the refresh token",
               "explanation": "Claude posts to the token endpoint with grant_type refresh_token, the refresh token, its client_id and the resource. No browser, no user interaction.",
               "messages": [
-                { "from": "claude", "to": "auth", "name": "POST /token", "info": "carries: grant_type=refresh_token, refresh_token, client_id, resource",
+                {
+                  "from": "claude",
+                  "to": "auth",
+                  "name": "POST /token",
+                  "info": "carries: grant_type=refresh_token, refresh_token, client_id, resource",
                   "payload": "POST /token HTTP/1.1\nHost: auth.example.com\nContent-Type: application/x-www-form-urlencoded\n\ngrant_type=refresh_token\n&refresh_token=rt_tGzv3JOkF0XG5Qx2TlKWIA…\n&client_id=cid_8f2a…\n&resource=https://mcp.example.com/mcp",
                   "annotations": [
-                    { "field": "grant_type", "text": "`refresh_token`: trade a refresh token for a new access token." },
-                    { "field": "refresh_token", "text": "The long-lived secret from topic 5. It is sent only here, only to the token endpoint, only over HTTPS." },
-                    { "field": "resource", "text": "The new access token must be bound to the same MCP server." }
-                  ] }
+                    {
+                      "field": "grant_type",
+                      "text": "`refresh_token`: trade a refresh token for a new access token."
+                    },
+                    {
+                      "field": "refresh_token",
+                      "text": "The long-lived secret from topic 5. It is sent only here, only to the token endpoint, only over HTTPS."
+                    },
+                    {
+                      "field": "resource",
+                      "text": "The new access token must be bound to the same MCP server."
+                    }
+                  ]
+                }
               ]
             },
             {
               "title": "New tokens, then retry",
               "explanation": "The authorization server answers with a new access token and, when it rotates, a new refresh token. Claude replaces both in the keychain and retries the failed request with the new access token.",
               "messages": [
-                { "from": "auth", "to": "claude", "name": "200 OK · new tokens", "info": "carries: access_token, expires_in, and often a new refresh_token", "kind": "response",
-                  "payload": { "access_token": "at_9f1c…", "token_type": "Bearer", "expires_in": 3600, "refresh_token": "rt_7d3e…", "scope": "mcp:tools mcp:resources" },
+                {
+                  "from": "auth",
+                  "to": "claude",
+                  "name": "200 OK · new tokens",
+                  "info": "carries: access_token, expires_in, and often a new refresh_token",
+                  "kind": "response",
+                  "payload": {
+                    "access_token": "at_9f1c…",
+                    "token_type": "Bearer",
+                    "expires_in": 3600,
+                    "refresh_token": "rt_7d3e…",
+                    "scope": "mcp:tools mcp:resources"
+                  },
                   "annotations": [
-                    { "field": "access_token", "text": "A fresh token for another hour." },
-                    { "field": "refresh_token", "text": "A rotated refresh token. The old one stops working; Claude stores the new one." }
-                  ] },
-                { "from": "claude", "to": "claude", "name": "replace stored tokens", "info": "keychain updated", "kind": "local" },
-                { "from": "claude", "to": "mcp", "name": "POST /mcp · tools/call", "info": "carries: Authorization: Bearer <new access token>; the request that failed", "kind": "transport" },
-                { "from": "mcp", "to": "claude", "name": "200 OK · tool result", "info": "carries: the tool's result", "kind": "response" }
+                    {
+                      "field": "access_token",
+                      "text": "A fresh token for another hour."
+                    },
+                    {
+                      "field": "refresh_token",
+                      "text": "A rotated refresh token. The old one stops working; Claude stores the new one."
+                    }
+                  ],
+                  "holds": {
+                    "claude": {
+                      "add": [
+                        "access token (new, 1 h)",
+                        "refresh token (rotated)"
+                      ],
+                      "remove": [
+                        "refresh token"
+                      ]
+                    },
+                    "auth": {
+                      "add": [
+                        "refresh token record (rotated)"
+                      ],
+                      "remove": [
+                        "refresh token record"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "from": "claude",
+                  "to": "claude",
+                  "name": "replace stored tokens",
+                  "info": "keychain updated",
+                  "kind": "local"
+                },
+                {
+                  "from": "claude",
+                  "to": "mcp",
+                  "name": "POST /mcp · tools/call",
+                  "info": "carries: Authorization: Bearer <new access token>; the request that failed",
+                  "kind": "transport"
+                },
+                {
+                  "from": "mcp",
+                  "to": "claude",
+                  "name": "200 OK · tool result",
+                  "info": "carries: the tool's result",
+                  "kind": "response"
+                }
               ]
             }
-          ]
+          ],
+          "holds": {
+            "claude": [
+              "client_id",
+              "access token (1 h)",
+              "refresh token",
+              "MCP session"
+            ],
+            "auth": [
+              "refresh token record"
+            ]
+          }
         },
         {
           "id": "stepup",
@@ -471,10 +1497,18 @@
             ],
             "referencesLabel": "Spec",
             "references": [
-              { "label": "MCP authorization", "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization" }
+              {
+                "label": "MCP authorization",
+                "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization"
+              }
             ],
             "versionNotes": [
-              { "version": "2025-11-25", "items": [ "Scope challenges: a 403 with `insufficient_scope` names the scope a request needs, and the client asks for it incrementally." ] }
+              {
+                "version": "2025-11-25",
+                "items": [
+                  "Scope challenges: a 403 with `insufficient_scope` names the scope a request needs, and the client asks for it incrementally."
+                ]
+              }
             ]
           },
           "steps": [
@@ -482,23 +1516,83 @@
               "title": "The server asks for more",
               "explanation": "Claude calls a tool that writes. The token only has read scopes, so the server refuses with 403, names the scope it needs and repeats the metadata pointer.",
               "messages": [
-                { "from": "claude", "to": "mcp", "name": "POST /mcp · tools/call create_ticket", "info": "carries: Authorization: Bearer; token has mcp:tools, mcp:resources", "kind": "transport" },
-                { "from": "mcp", "to": "claude", "name": "403 Forbidden", "info": "carries: error=\"insufficient_scope\", scope=\"tickets:write\"", "kind": "error", "tags": ["new"],
+                {
+                  "from": "claude",
+                  "to": "mcp",
+                  "name": "POST /mcp · tools/call create_ticket",
+                  "info": "carries: Authorization: Bearer; token has mcp:tools, mcp:resources",
+                  "kind": "transport"
+                },
+                {
+                  "from": "mcp",
+                  "to": "claude",
+                  "name": "403 Forbidden",
+                  "info": "carries: error=\"insufficient_scope\", scope=\"tickets:write\"",
+                  "kind": "error",
+                  "tags": [
+                    "new"
+                  ],
                   "payload": "HTTP/1.1 403 Forbidden\nWWW-Authenticate: Bearer error=\"insufficient_scope\", scope=\"tickets:write\", resource_metadata=\"https://mcp.example.com/.well-known/oauth-protected-resource\"",
-                  "annotations": [ { "field": "scope", "text": "What this request needs. Claude asks for the union of what it has and what is missing." } ] }
+                  "annotations": [
+                    {
+                      "field": "scope",
+                      "text": "What this request needs. Claude asks for the union of what it has and what is missing."
+                    }
+                  ]
+                }
               ]
             },
             {
               "title": "Sign in again with the union of scopes",
               "explanation": "Claude repeats topic 4 with scope set to the old scopes plus tickets:write, exchanges the code as in topic 5, and retries the tool call with the upgraded token.",
               "messages": [
-                { "from": "claude", "to": "browser", "name": "open /authorize?…&scope=… tickets:write", "info": "carries: the same parameters as topic 4, with the enlarged scope", "kind": "transport" },
-                { "from": "claude", "to": "auth", "name": "POST /token", "info": "carries: the new code and its code_verifier" },
-                { "from": "auth", "to": "claude", "name": "200 OK · tokens", "info": "carries: an access token with all three scopes", "kind": "response" },
-                { "from": "claude", "to": "mcp", "name": "POST /mcp · tools/call create_ticket", "info": "carries: Authorization: Bearer <upgraded token>", "kind": "transport" }
+                {
+                  "from": "claude",
+                  "to": "browser",
+                  "name": "open /authorize?…&scope=… tickets:write",
+                  "info": "carries: the same parameters as topic 4, with the enlarged scope",
+                  "kind": "transport"
+                },
+                {
+                  "from": "claude",
+                  "to": "auth",
+                  "name": "POST /token",
+                  "info": "carries: the new code and its code_verifier"
+                },
+                {
+                  "from": "auth",
+                  "to": "claude",
+                  "name": "200 OK · tokens",
+                  "info": "carries: an access token with all three scopes",
+                  "kind": "response",
+                  "holds": {
+                    "claude": {
+                      "add": [
+                        "access token (3 scopes)"
+                      ],
+                      "remove": [
+                        "access token (1 h)"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "from": "claude",
+                  "to": "mcp",
+                  "name": "POST /mcp · tools/call create_ticket",
+                  "info": "carries: Authorization: Bearer <upgraded token>",
+                  "kind": "transport"
+                }
               ]
             }
-          ]
+          ],
+          "holds": {
+            "claude": [
+              "client_id",
+              "access token (1 h)",
+              "refresh token"
+            ]
+          }
         }
       ]
     },
@@ -516,8 +1610,14 @@
             ],
             "referencesLabel": "Spec",
             "references": [
-              { "label": "RFC 8707 · Resource indicators", "url": "https://www.rfc-editor.org/rfc/rfc8707" },
-              { "label": "MCP security best practices", "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/security_best_practices" }
+              {
+                "label": "RFC 8707 · Resource indicators",
+                "url": "https://www.rfc-editor.org/rfc/rfc8707"
+              },
+              {
+                "label": "MCP security best practices",
+                "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/security_best_practices"
+              }
             ]
           },
           "steps": [
@@ -525,21 +1625,84 @@
               "title": "A token minted for one server",
               "explanation": "Because Claude named the resource when it asked, the token carries that server as its audience.",
               "messages": [
-                { "from": "claude", "to": "auth", "name": "POST /token", "info": "carries: resource=https://mcp.example.com/mcp" },
-                { "from": "auth", "to": "claude", "name": "200 OK · token", "info": "carries: an access token with aud = mcp.example.com", "kind": "response", "payload": { "access_token": "at_… (aud: https://mcp.example.com/mcp)", "token_type": "Bearer", "expires_in": 3600 } }
+                {
+                  "from": "claude",
+                  "to": "auth",
+                  "name": "POST /token",
+                  "info": "carries: resource=https://mcp.example.com/mcp"
+                },
+                {
+                  "from": "auth",
+                  "to": "claude",
+                  "name": "200 OK · token",
+                  "info": "carries: an access token with aud = mcp.example.com",
+                  "kind": "response",
+                  "payload": {
+                    "access_token": "at_… (aud: https://mcp.example.com/mcp)",
+                    "token_type": "Bearer",
+                    "expires_in": 3600
+                  },
+                  "holds": {
+                    "claude": {
+                      "add": [
+                        "access token · aud mcp.example.com"
+                      ]
+                    }
+                  }
+                }
               ]
             },
             {
               "title": "Replayed at another server, and rejected",
               "explanation": "Suppose you were tricked into connecting Claude to a rogue server and it received a token minted for itself. It replays that token at the real server. The audience check in topic 6 stops it.",
               "messages": [
-                { "from": "claude", "to": "rogue", "name": "POST /mcp", "info": "carries: a token whose audience is evil.example", "kind": "transport" },
-                { "from": "rogue", "to": "mcp", "name": "POST /mcp", "info": "carries: that same token, replayed", "kind": "transport", "tags": ["attack"] },
-                { "from": "mcp", "to": "mcp", "name": "validate token", "info": "aud = evil.example, not this server", "kind": "local", "payload": "audience   https://evil.example/mcp\nexpected   https://mcp.example.com/mcp\nresult     REJECT" },
-                { "from": "mcp", "to": "rogue", "name": "401 Unauthorized", "info": "carries: error=\"invalid_token\"", "kind": "error" }
+                {
+                  "from": "claude",
+                  "to": "rogue",
+                  "name": "POST /mcp",
+                  "info": "carries: a token whose audience is evil.example",
+                  "kind": "transport",
+                  "holds": {
+                    "rogue": {
+                      "add": [
+                        "a token · aud evil.example"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "from": "rogue",
+                  "to": "mcp",
+                  "name": "POST /mcp",
+                  "info": "carries: that same token, replayed",
+                  "kind": "transport",
+                  "tags": [
+                    "attack"
+                  ]
+                },
+                {
+                  "from": "mcp",
+                  "to": "mcp",
+                  "name": "validate token",
+                  "info": "aud = evil.example, not this server",
+                  "kind": "local",
+                  "payload": "audience   https://evil.example/mcp\nexpected   https://mcp.example.com/mcp\nresult     REJECT"
+                },
+                {
+                  "from": "mcp",
+                  "to": "rogue",
+                  "name": "401 Unauthorized",
+                  "info": "carries: error=\"invalid_token\"",
+                  "kind": "error"
+                }
               ]
             }
-          ]
+          ],
+          "holds": {
+            "claude": [
+              "client_id"
+            ]
+          }
         },
         {
           "id": "passthrough",
@@ -552,11 +1715,25 @@
             ],
             "referencesLabel": "Spec",
             "references": [
-              { "label": "MCP security best practices", "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/security_best_practices" },
-              { "label": "RFC 8693 · Token exchange", "url": "https://www.rfc-editor.org/rfc/rfc8693" }
+              {
+                "label": "MCP security best practices",
+                "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/security_best_practices"
+              },
+              {
+                "label": "RFC 8693 · Token exchange",
+                "url": "https://www.rfc-editor.org/rfc/rfc8693"
+              }
             ],
             "boxes": [
-              { "title": "Rule of thumb", "tone": "attention", "items": [ { "text": "A token has one audience. If you did not mint or request it for the service you are calling, do not send it there." } ] }
+              {
+                "title": "Rule of thumb",
+                "tone": "attention",
+                "items": [
+                  {
+                    "text": "A token has one audience. If you did not mint or request it for the service you are calling, do not send it there."
+                  }
+                ]
+              }
             ]
           },
           "steps": [
@@ -564,24 +1741,96 @@
               "title": "The tempting shortcut",
               "explanation": "The MCP server receives a tool call with Claude's bearer token and simply forwards that token to the upstream API. An upstream that checks audiences rejects it; one that does not has just been fooled.",
               "messages": [
-                { "from": "claude", "to": "mcp", "name": "tools/call list_repos", "info": "carries: Authorization: Bearer at_… (audience: the MCP server)", "size": "210 B" },
-                { "from": "mcp", "to": "upstream", "name": "GET /repos", "info": "carries: Claude's token, forwarded; forbidden", "tags": ["forbidden"], "payload": "GET /repos HTTP/1.1\nHost: api.example.net\nAuthorization: Bearer at_2YotnFZFEjr1zCsicMWpAA…   <- minted for mcp.example.com, not for api.example.net" },
-                { "from": "upstream", "to": "mcp", "name": "401 Unauthorized", "info": "carries: error=\"invalid_token\", wrong audience", "kind": "error" }
+                {
+                  "from": "claude",
+                  "to": "mcp",
+                  "name": "tools/call list_repos",
+                  "info": "carries: Authorization: Bearer at_… (audience: the MCP server)",
+                  "size": "210 B"
+                },
+                {
+                  "from": "mcp",
+                  "to": "upstream",
+                  "name": "GET /repos",
+                  "info": "carries: Claude's token, forwarded; forbidden",
+                  "tags": [
+                    "forbidden"
+                  ],
+                  "payload": "GET /repos HTTP/1.1\nHost: api.example.net\nAuthorization: Bearer at_2YotnFZFEjr1zCsicMWpAA…   <- minted for mcp.example.com, not for api.example.net"
+                },
+                {
+                  "from": "upstream",
+                  "to": "mcp",
+                  "name": "401 Unauthorized",
+                  "info": "carries: error=\"invalid_token\", wrong audience",
+                  "kind": "error"
+                }
               ]
             },
             {
               "title": "The right way",
               "explanation": "The MCP server validates Claude's token for itself, then gets its own token for the upstream by exchanging the user's token at the authorization server, and calls the upstream with that.",
               "messages": [
-                { "from": "mcp", "to": "mcp", "name": "validate Claude's token", "info": "audience = mcp.example.com, scope ok", "kind": "local" },
-                { "from": "mcp", "to": "auth", "name": "POST /token · token exchange", "info": "carries: subject_token (Claude's), audience=api.example.net, the server's own client credentials", "payload": "grant_type=urn:ietf:params:oauth:grant-type:token-exchange\n&subject_token=at_2YotnFZFEjr1zCsicMWpAA…\n&subject_token_type=urn:ietf:params:oauth:token-type:access_token\n&audience=https://api.example.net\n&client_id=mcp-server\n&client_secret=…" },
-                { "from": "auth", "to": "mcp", "name": "200 OK · upstream token", "info": "carries: an access token for api.example.net", "kind": "response", "payload": { "access_token": "at_up_5c8d…", "token_type": "Bearer", "expires_in": 600 } },
-                { "from": "mcp", "to": "upstream", "name": "GET /repos", "info": "carries: Authorization: Bearer at_up_… (its own token)" },
-                { "from": "upstream", "to": "mcp", "name": "200 OK · repositories", "kind": "response" },
-                { "from": "mcp", "to": "claude", "name": "tool result", "info": "carries: the list of repositories", "kind": "response" }
+                {
+                  "from": "mcp",
+                  "to": "mcp",
+                  "name": "validate Claude's token",
+                  "info": "audience = mcp.example.com, scope ok",
+                  "kind": "local"
+                },
+                {
+                  "from": "mcp",
+                  "to": "auth",
+                  "name": "POST /token · token exchange",
+                  "info": "carries: subject_token (Claude's), audience=api.example.net, the server's own client credentials",
+                  "payload": "grant_type=urn:ietf:params:oauth:grant-type:token-exchange\n&subject_token=at_2YotnFZFEjr1zCsicMWpAA…\n&subject_token_type=urn:ietf:params:oauth:token-type:access_token\n&audience=https://api.example.net\n&client_id=mcp-server\n&client_secret=…"
+                },
+                {
+                  "from": "auth",
+                  "to": "mcp",
+                  "name": "200 OK · upstream token",
+                  "info": "carries: an access token for api.example.net",
+                  "kind": "response",
+                  "payload": {
+                    "access_token": "at_up_5c8d…",
+                    "token_type": "Bearer",
+                    "expires_in": 600
+                  },
+                  "holds": {
+                    "mcp": {
+                      "add": [
+                        "upstream token · aud api.example.net"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "from": "mcp",
+                  "to": "upstream",
+                  "name": "GET /repos",
+                  "info": "carries: Authorization: Bearer at_up_… (its own token)"
+                },
+                {
+                  "from": "upstream",
+                  "to": "mcp",
+                  "name": "200 OK · repositories",
+                  "kind": "response"
+                },
+                {
+                  "from": "mcp",
+                  "to": "claude",
+                  "name": "tool result",
+                  "info": "carries: the list of repositories",
+                  "kind": "response"
+                }
               ]
             }
-          ]
+          ],
+          "holds": {
+            "claude": [
+              "access token · aud mcp.example.com"
+            ]
+          }
         }
       ]
     }
@@ -589,10 +1838,48 @@
   "further": {
     "title": "What's next",
     "items": [
-      { "title": "MCP specification · Authorization", "subtitle": "the normative text, 2025-11-25", "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization" },
-      { "title": "MCP security best practices", "subtitle": "passthrough, confused deputies, session hijacking", "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/security_best_practices" },
-      { "title": "OAuth 2.1", "subtitle": "the consolidated draft the spec builds on", "url": "https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1" }
+      {
+        "title": "MCP specification · Authorization",
+        "subtitle": "the normative text, 2025-11-25",
+        "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization"
+      },
+      {
+        "title": "MCP security best practices",
+        "subtitle": "passthrough, confused deputies, session hijacking",
+        "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/security_best_practices"
+      },
+      {
+        "title": "OAuth 2.1",
+        "subtitle": "the consolidated draft the spec builds on",
+        "url": "https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1"
+      }
     ]
   },
-  "footer": "Written from the MCP specification revisions 2025-03-26, 2025-06-18 and 2025-11-25 and the OAuth RFCs they cite. Hostnames, ports, ids and tokens are illustrative. Claude Code is one MCP client; any compliant client follows the same path."
+  "footer": "Written from the MCP specification revisions 2025-03-26, 2025-06-18 and 2025-11-25 and the OAuth RFCs they cite. Hostnames, ports, ids and tokens are illustrative. Claude Code is one MCP client; any compliant client follows the same path.",
+  "channels": [
+    {
+      "id": "local",
+      "name": "Local · inside one machine",
+      "color": "slate",
+      "description": "Never leaves your laptop."
+    },
+    {
+      "id": "front",
+      "name": "Front channel · through the browser",
+      "color": "amber",
+      "description": "Travels through the browser, its history and any redirect; treat as visible."
+    },
+    {
+      "id": "back",
+      "name": "Back channel · HTTPS, program to program",
+      "color": "green",
+      "description": "Direct TLS between two programs; nobody in between sees it."
+    },
+    {
+      "id": "mcp",
+      "name": "MCP session · HTTPS",
+      "color": "blue",
+      "description": "The protected MCP endpoint; every request carries the bearer token."
+    }
+  ]
 }

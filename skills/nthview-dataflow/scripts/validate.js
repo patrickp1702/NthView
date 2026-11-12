@@ -19,6 +19,9 @@
   var KINDS = ["person", "browser", "app", "client", "server", "service", "database", "gateway", "network", "bank", "model", "device", "document", "queue", "cloud", "generic"];
   var MESSAGE_KINDS = ["request", "response", "error", "notification", "local", "transport"];
   var TONES = ["neutral", "attention"];
+  var COLORS = ["slate", "amber", "green", "blue", "red", "teal", "violet", "pink"];
+  var FRAGMENT_KINDS = ["alt", "opt", "loop"];
+  var MAX_HOLDS = 12;
   var URL_RE = /^https?:\/\//;
   var MAX_PAYLOAD = 4000, WARN_PAYLOAD = 1500;
   var MAX_TOPICS = 60;
@@ -102,6 +105,19 @@
       return true;
     }
 
+    function checkItems(obj, key, parent, min, max) {
+      if (!requireArray(obj, key, parent, min, max, error)) return false;
+      var seen = {}, ok = true;
+      obj[key].forEach(function (item, i) {
+        var ip = join(parent, key) + "[" + i + "]";
+        if (typeof item !== "string" || !item.trim()) { error(ip, "must be a non-empty string, got " + describe(item)); ok = false; }
+        else if (item.length > 60) { error(ip, "must be at most 60 characters, got " + item.length); ok = false; }
+        else if (seen[item]) { error(ip, "duplicate item " + JSON.stringify(item)); ok = false; }
+        seen[item] = true;
+      });
+      return ok;
+    }
+
     /* zones */
     var ZI = {}, zoneUsed = {};
     if (data.zones !== undefined && requireArray(data, "zones", "$", 0, 10, error)) {
@@ -129,6 +145,7 @@
         requireString(e, "name", p, 1, 32, error);
         optionalString(e, "subtitle", p, 40, error);
         optionalEnum(e, "kind", p, KINDS, error);
+        if (e.holds !== undefined) checkItems(e, "holds", p, 0, MAX_HOLDS);
         if (e.zone !== undefined) {
           if (typeof e.zone !== "string") error(p + ".zone", "must be a zone id string, got " + describe(e.zone));
           else if (!ZI[e.zone]) error(p + ".zone", "zone id " + JSON.stringify(e.zone) + " is not defined in zones");
@@ -164,6 +181,30 @@
       });
     }
 
+    /* channels */
+    var CI = {}, channelUsed = {};
+    if (data.channels !== undefined && requireArray(data, "channels", "$", 0, 8, error)) {
+      data.channels.forEach(function (c, i) {
+        var p = "channels[" + i + "]";
+        if (!isObject(c)) { error(p, "must be an object, got " + describe(c)); return; }
+        if (requireId(c, "id", p, error)) {
+          if (CI[c.id]) error(p + ".id", "duplicate channel id " + JSON.stringify(c.id)); else CI[c.id] = true;
+        }
+        requireString(c, "name", p, 1, 40, error);
+        if (c.color === undefined) error(p + ".color", "must be one of " + COLORS.join(", ") + ", got undefined (missing)");
+        else optionalEnum(c, "color", p, COLORS, error);
+        optionalString(c, "description", p, 200, error);
+      });
+    }
+    function checkChannelRef(obj, key, parent) {
+      var path = join(parent, key), v = obj[key];
+      if (typeof v !== "string") { error(path, "must be a channel id string, got " + describe(v)); return false; }
+      if (!CI[v]) { error(path, "channel id " + JSON.stringify(v) + " is not defined in channels"); return false; }
+      channelUsed[v] = true;
+      return true;
+    }
+    if (Array.isArray(data.links)) data.links.forEach(function (l, i) { if (isObject(l) && l.channel !== undefined) checkChannelRef(l, "channel", "links[" + i + "]"); });
+
     /* sections and topics */
     var TI = {}, topicCount = 0, stepCount = 0, checkCount = 0;
     if (requireArray(data, "sections", "$", 1, 12, error)) {
@@ -196,6 +237,14 @@
       if (!isObject(t.article)) error(p + ".article", "must be an object, got " + describe(t.article));
       else checkArticle(t.article, p + ".article");
 
+      if (t.holds !== undefined) {
+        if (!isObject(t.holds)) error(p + ".holds", "must be an object keyed by entity id, got " + describe(t.holds));
+        else Object.keys(t.holds).forEach(function (id) {
+          if (!EI[id]) error(p + ".holds." + id, "entity id " + JSON.stringify(id) + " is not defined in entities");
+          checkItems(t.holds, id, p + ".holds", 0, MAX_HOLDS);
+        });
+      }
+
       var touched = {};
       if (requireArray(t, "steps", p, 1, 30, error)) {
         var msgTotal = 0;
@@ -203,7 +252,110 @@
         if (t.steps.length > 12) warn(p + ".steps", "more than 12 steps (" + t.steps.length + "); consider splitting the topic");
         if (msgTotal > 60) warn(p + ".steps", "more than 60 messages in this topic (" + msgTotal + "); the flow table gets long");
         if (Object.keys(touched).length > 8) warn(p, "the steps touch " + Object.keys(touched).length + " entities; the network diagram will be crowded");
+        checkHoldings(t, p);
+        if (t.fragments !== undefined) checkFragments(t, p);
       }
+    }
+
+    /* Holdings are cumulative: walk the messages each version shows and make sure every removed item is held. */
+    function checkHoldings(t, p) {
+      var versionIds = hasVersions ? versions.map(function (v) { return v.id; }) : [null];
+      /* the same problem is reported once, naming the versions only when it does not occur in all of them */
+      var found = {}, order = [];
+      function report(kind, path, message, vid) {
+        var key = kind + " " + path;
+        if (!found[key]) { found[key] = { kind: kind, path: path, message: message, versions: [] }; order.push(key); }
+        if (vid) found[key].versions.push(vid);
+      }
+      versionIds.forEach(function (vid) {
+        var held = {};
+        Object.keys(EI).forEach(function (id) {
+          var e = null;
+          data.entities.forEach(function (x) { if (isObject(x) && x.id === id) e = x; });
+          var start = (t.holds && isObject(t.holds) && Array.isArray(t.holds[id])) ? t.holds[id] : (e && Array.isArray(e.holds) ? e.holds : []);
+          held[id] = start.slice();
+        });
+        t.steps.forEach(function (st, si) {
+          if (!isObject(st)) return;
+          var ov = (vid && isObject(st.versions) && isObject(st.versions[vid])) ? st.versions[vid] : null;
+          var msgs = ov && Array.isArray(ov.messages) ? ov.messages : (Array.isArray(st.messages) ? st.messages : []);
+          var base = ov && Array.isArray(ov.messages) ? p + ".steps[" + si + "].versions." + vid + ".messages" : p + ".steps[" + si + "].messages";
+          msgs.forEach(function (m, mi) {
+            if (!isObject(m) || !isObject(m.holds)) return;
+            if (vid && Array.isArray(m.versions) && m.versions.indexOf(vid) === -1) return;
+            Object.keys(m.holds).forEach(function (id) {
+              var ch = m.holds[id], hp = base + "[" + mi + "].holds." + id;
+              if (!isObject(ch) || !held[id]) return;
+              (Array.isArray(ch.remove) ? ch.remove : []).forEach(function (item, k) {
+                var at = held[id].indexOf(item);
+                if (at === -1) report("error", hp + ".remove[" + k + "]", JSON.stringify(item) + " is not held by " + JSON.stringify(id) + " at this point", vid);
+                else held[id].splice(at, 1);
+              });
+              (Array.isArray(ch.add) ? ch.add : []).forEach(function (item, k) {
+                if (held[id].indexOf(item) !== -1) report("warn", hp + ".add[" + k + "]", JSON.stringify(id) + " already holds " + JSON.stringify(item), vid);
+                else held[id].push(item);
+              });
+              if (held[id].length > MAX_HOLDS) report("warn", hp, JSON.stringify(id) + " holds " + held[id].length + " items here; more than " + MAX_HOLDS + " is hard to read", vid);
+            });
+          });
+        });
+      });
+      order.forEach(function (key) {
+        var f = found[key], suffix = f.versions.length && f.versions.length < versionIds.length ? " (in version " + f.versions.map(JSON.stringify).join(", ") + ")" : "";
+        (f.kind === "error" ? error : warn)(f.path, f.message + suffix);
+      });
+    }
+
+    function checkFragments(t, p) {
+      if (!requireArray(t, "fragments", p, 0, 12, error)) return;
+      var n = t.steps.length, spans = [];
+      function stepIndex(obj, key, parent) {
+        var path = join(parent, key), v = obj[key];
+        if (typeof v !== "number" || v % 1 !== 0) { error(path, "must be an integer step index, got " + describe(v)); return false; }
+        if (v < 0 || v >= n) { error(path, "step index " + v + " is out of range (" + n + " steps, valid indexes are 0–" + (n - 1) + ")"); return false; }
+        return true;
+      }
+      t.fragments.forEach(function (f, i) {
+        var fp = p + ".fragments[" + i + "]";
+        if (!isObject(f)) { error(fp, "must be an object, got " + describe(f)); return; }
+        if (FRAGMENT_KINDS.indexOf(f.kind) === -1) { error(fp + ".kind", "must be one of " + FRAGMENT_KINDS.join(", ") + ", got " + describe(f.kind)); return; }
+        optionalString(f, "label", fp, 40, error);
+        var ok = stepIndex(f, "start", fp) & stepIndex(f, "end", fp);
+        if (ok && f.end < f.start) { error(fp + ".end", "must not be before start (" + f.start + ")"); ok = false; }
+        if (f.kind === "alt") {
+          if (f.condition !== undefined) error(fp + ".condition", "not allowed on alt; put conditions on the branches");
+          if (requireArray(f, "branches", fp, 2, 4, error) && ok) {
+            var expect = f.start;
+            f.branches.forEach(function (b, k) {
+              var bp = fp + ".branches[" + k + "]";
+              if (!isObject(b)) { error(bp, "must be an object, got " + describe(b)); return; }
+              requireString(b, "condition", bp, 1, 80, error);
+              if (!(stepIndex(b, "start", bp) & stepIndex(b, "end", bp))) return;
+              if (b.end < b.start) error(bp + ".end", "must not be before start (" + b.start + ")");
+              if (b.start !== expect) error(bp + ".start", "branches must be contiguous: expected " + expect + ", got " + b.start);
+              expect = b.end + 1;
+              spans.push({ s: b.start, e: b.end, path: bp, branch: true, parent: i });
+            });
+            if (expect !== f.end + 1) error(fp + ".branches", "the last branch must end at the fragment's end (" + f.end + ")");
+          }
+        } else {
+          if (f.branches !== undefined) error(fp + ".branches", "only allowed on alt");
+          requireString(f, "condition", fp, 1, 80, error);
+        }
+        if (ok) spans.push({ s: f.start, e: f.end, path: fp, alt: f.kind === "alt", idx: i });
+      });
+      spans.forEach(function (a, i) {
+        spans.forEach(function (b, j) {
+          if (j <= i || a.branch || b.branch) return;
+          var sep = a.e < b.s || b.e < a.s, aInB = a.s >= b.s && a.e <= b.e, bInA = b.s >= a.s && b.e <= a.e;
+          if (!sep && !aInB && !bInA) error(b.path, "overlaps " + a.path + " partly; fragments are either separate or nested");
+          var outer = aInB && !(a.s === b.s && a.e === b.e) ? b : (bInA ? a : null), inner = outer === b ? a : outer === a ? b : null;
+          if (outer && inner && outer.alt) {
+            var inside = spans.some(function (br) { return br.branch && br.parent === outer.idx && inner.s >= br.s && inner.e <= br.e; });
+            if (!inside) error(inner.path, "lies inside alt " + outer.path + " but crosses its branches");
+          }
+        });
+      });
     }
 
     function checkArticle(a, p) {
@@ -337,6 +489,20 @@
           else if (t.length > 20) error(p + ".tags[" + i + "]", "must be at most 20 characters, got " + t.length);
         });
       }
+      if (m.channel !== undefined) checkChannelRef(m, "channel", p);
+      if (m.holds !== undefined) {
+        if (!isObject(m.holds)) error(p + ".holds", "must be an object keyed by entity id, got " + describe(m.holds));
+        else Object.keys(m.holds).forEach(function (id) {
+          var hp = p + ".holds." + id, ch = m.holds[id];
+          if (!EI[id]) { error(hp, "entity id " + JSON.stringify(id) + " is not defined in entities"); return; }
+          if (!isObject(ch)) { error(hp, "must be an object with add and/or remove, got " + describe(ch)); return; }
+          Object.keys(ch).forEach(function (k) { if (k !== "add" && k !== "remove") error(hp + "." + k, "unknown field; only add and remove are allowed"); });
+          if (ch.add === undefined && ch.remove === undefined) error(hp, "must have add or remove");
+          if (ch.add !== undefined) checkItems(ch, "add", hp, 0, MAX_HOLDS);
+          if (ch.remove !== undefined) checkItems(ch, "remove", hp, 0, MAX_HOLDS);
+          if (Array.isArray(ch.add) && Array.isArray(ch.remove)) ch.add.forEach(function (item, k) { if (ch.remove.indexOf(item) !== -1) error(hp + ".add[" + k + "]", JSON.stringify(item) + " is both added and removed"); });
+        });
+      }
       if (m.versions !== undefined && requireArray(m, "versions", p, 1, 8, error)) {
         var seen = {};
         m.versions.forEach(function (v, i) {
@@ -407,6 +573,9 @@
     });
     if (Array.isArray(data.links)) data.links.forEach(function (l, i) {
       if (isObject(l) && typeof l.from === "string" && typeof l.to === "string" && EI[l.from] && EI[l.to] && l.from !== l.to && !linkUsed[pairKey(l.from, l.to)]) warn("links[" + i + "]", "no message travels between " + JSON.stringify(l.from) + " and " + JSON.stringify(l.to));
+    });
+    if (Array.isArray(data.channels)) data.channels.forEach(function (c, i) {
+      if (isObject(c) && typeof c.id === "string" && CI[c.id] && !channelUsed[c.id]) warn("channels[" + i + "]", "channel " + JSON.stringify(c.id) + " is used by no link or message");
     });
     if (hasVersions && versionRefs === 0) warn("versions", "declared but nothing references a version; the time machine changes nothing");
     if (stepCount >= 10 && checkCount === 0) warn("sections", stepCount + " steps and no check; add a prediction question or two");

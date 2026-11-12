@@ -20,9 +20,15 @@ play. On the right, the topic's article with references and "What changes in
 …" lists, and the **Message** panel with the current message's name, size,
 direction, formatted payload and a note on every field.
 
-Steps may carry a prediction check ("what does the server answer?") that
-replaces the explanation until the learner answers or skips; a wrong answer
-explains and reveals, never blocks. An optional list of **versions** adds a
+Three optional layers deepen a document. **Holdings**: a strip under the
+diagram shows what every entity holds after each message (keys, codes,
+tokens), new items marked and given-up items struck through. **Channels**: a
+colour per link or message says who can see it (through the browser, machine
+to machine, local), with a legend on the diagram. **Fragments**: alt, opt and
+loop frames in UML style, drawn on the sequence diagram only. Steps may also
+carry a prediction check ("what does the server answer?") that replaces the
+explanation until the learner answers or skips; a wrong answer explains and
+reveals, never blocks. An optional list of **versions** adds a
 time machine to the top bar: topics can arrive or disappear, steps can change
 their text and messages, and messages can be tagged deprecated, so the learner
 sees how the flow evolved.
@@ -97,8 +103,21 @@ Follow `references/schema.md` exactly. Set `"schemaVersion": 1`.
   in one version; `messages[].versions` to show a message in some versions
   only; `tags: ["deprecated"]` for what is going away; `versionNotes` in the
   article for the "What changes in …" list.
+- Holdings: `entities[].holds` for what a party has from the start (a
+  password, a card), `topics[].holds` to set the starting state of a topic
+  that continues an earlier one, and `messages[].holds` with `add` and
+  `remove` per entity where something is gained or given up. Name items so
+  the learner can follow them across steps (`code_verifier`, `access token`).
+- Channels: declare `channels` by what they mean for the learner (through
+  the browser, machine to machine, inside one organisation) with a colour,
+  then set `channel` on each link; a message names its own only when it
+  differs from its link.
+- Fragments: `topics[].fragments` with `alt` (branches with conditions over
+  consecutive steps), `opt` or `loop` (a condition). They frame steps on the
+  sequence diagram and change nothing else.
 - Checks: `steps[].check` with a `prompt`, 2–4 options, one `correct`, and a
   `why` on every option. Place them where the next message is a surprise.
+  Skip them in a reference document that should read straight through.
 - `further` for external "What's next" links; `footer` for the edition note.
 - Pick a `theme` (table in `references/schema.md`); `graphite` is the default
   and dark, `paper` and `amber` are light by default. Set `defaultMode` to
@@ -196,6 +215,11 @@ asked.
 - Two options marked `correct`, or an option without `why` → one correct
   option, a reason on every option.
 - A step with twelve messages → split it; a step is one beat of the story.
+- Removing a holding the entity never gained in that topic → set the
+  topic's starting `holds`, or add it in an earlier message; the validator
+  names the version in which it fails.
+- An `alt` whose branches leave a gap or overlap another frame → branches
+  are contiguous and frames are either separate or nested.
 - One giant topic with thirty steps → split by idea into several topics
   under one section.
 - Hand-editing the HTML → change the JSON, re-validate, rebuild.
