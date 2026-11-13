@@ -745,8 +745,14 @@ Rules:
    chapter's output from this template, without the lesson bar, as a JSON
    string with every `<` escaped as `\u003c`, and shows one chapter at a time
    in an `iframe` through `srcdoc`. The views are not changed or linked; the
-   shell is prefixed `nthview-lesson-` and needs nothing beyond the CDN
-   entries of its chapters and the Google Fonts link.
+   shell is prefixed `nthview-lesson-`. So that the file works offline, each
+   `script` entry of its chapters' `NthView.libs` is downloaded at build time
+   from its pinned URL and embedded **once**, verbatim with its licence
+   header, then put in place of that chapter's CDN tag when the chapter
+   opens. A library that cannot be downloaded, or that contains `</script`
+   or `<!--`, keeps its CDN tag and the build warns. `style` entries (web
+   fonts) and the shell's Google Fonts link stay links: offline, the pages
+   fall back to system fonts and nothing else changes.
 
 The repo tool assembles this template exactly, including the library tags
 and the `\u003c` escaping, and is the recommended way to build any output:
