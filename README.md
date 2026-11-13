@@ -71,6 +71,12 @@ One concept, many dimensions, one view at a time.
   topics and numbered steps, a network and a sequence diagram, a message flow
   the learner plays with the exact payload annotated field by field, and an
   optional version time machine. Demo: `skills/nthview-dataflow/examples/example.html`.
+- **Mechanism** (`skills/nthview-mechanism`) — a scroll-driven story that runs a
+  mechanism on one shared clock: a live 3D stage shows every counter as a pillar
+  and every rule as an arc that pulses when it calculates, step cards and pinned
+  chapters move the clock as you scroll, and scenarios, parameters and a "what is
+  calculated now" view show how it behaves over time.
+  Demo: `skills/nthview-mechanism/examples/example.html`.
 
 Open `index.html` for the gallery of all views, or visit the hosted copy at
 https://patrickp1702.github.io/NthView/ (served by GitHub Pages straight from

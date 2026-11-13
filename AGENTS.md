@@ -68,13 +68,13 @@ import, read or depend on another view folder.
 
 ### What exists today
 
-Twelve views live under `skills/` and are listed in `registry.js` and the
+Thirteen views live under `skills/` and are listed in `registry.js` and the
 gallery: `nthview-island-quest`, `nthview-scenario-quiz`,
 `nthview-explorable`, `nthview-detective`, `nthview-concept-map`,
 `nthview-zoom-map`, `nthview-courier`, `nthview-temple-run`,
 `nthview-sequence`, `nthview-highlights`, `nthview-hunter`, `nthview-dataflow`,
-plus the parent skill `nthview` (§10). New views are added one at a time
-following §11.
+`nthview-mechanism`, plus the parent skill `nthview` (§10). New views are
+added one at a time following §11.
 
 ---
 
@@ -93,7 +93,7 @@ NthView/
 ├── scripts/
 │   ├── build-registry.js          # scans skills/, docs/, lessons/; checks §3; writes registry.js
 │   ├── build-html.js              # assembles a standalone output file exactly as §6
-│   └── build-lesson.js            # builds a lesson: chapters + lesson bar + contents page (§8)
+│   └── build-lesson.js            # builds a lesson: chapters + lesson bar + contents page + one-file lesson (§10)
 ├── docs/                          # single documents built WITH a view (outputs, not skills)
 ├── lessons/                       # multi-chapter lessons, one view per chapter (§8)
 ├── skills/
@@ -669,7 +669,10 @@ Rules:
    storage disabled plays normally without saving. `build()` on fresh data
    with no record behaves exactly as before this rule existed.
 7. **Lesson chapters** are separate documents with separate records; the
-   lesson bar needs nothing.
+   lesson bar needs nothing. The one-file lesson (§6 rule 9) runs each
+   chapter unchanged, so the chapter keeps the same record; the shell itself
+   remembers only which chapter was open, under `nthview:lesson:<hash>`
+   (FNV-1a of the serialised `lesson.json`).
 
 ---
 
@@ -735,6 +738,15 @@ Rules:
    the lesson bar that `scripts/build-lesson.js` appends (previous, contents,
    next). It is self-contained, prefixed `nthview-lesson-`, and never touches
    the view. No other additions are allowed.
+9. A lesson is also written as one shareable file,
+   `lessons/<lesson-slug>/<lesson-slug>-lesson.html`, next to its contents
+   page and chapter pages, which stay as they are. It is a lesson shell (an
+   overview, a chapter side nav, previous and next) that embeds every
+   chapter's output from this template, without the lesson bar, as a JSON
+   string with every `<` escaped as `\u003c`, and shows one chapter at a time
+   in an `iframe` through `srcdoc`. The views are not changed or linked; the
+   shell is prefixed `nthview-lesson-` and needs nothing beyond the CDN
+   entries of its chapters and the Google Fonts link.
 
 The repo tool assembles this template exactly, including the library tags
 and the `\u003c` escaping, and is the recommended way to build any output:
@@ -934,7 +946,8 @@ recap) so the sequence covers a concept from every angle.
 `node scripts/build-lesson.js lessons/<lesson-slug>` validates the manifest
 and every chapter with its view, assembles the chapter pages with the lesson
 bar, writes the lesson's `index.html` contents page (objectives, tags, dates,
-chapters, glossary, references), and regenerates the registry. The gallery
+chapters, glossary, references) and the one-file lesson
+`<lesson-slug>-lesson.html` (§6 rule 9), and regenerates the registry. The gallery
 lists docs and lessons behind one "N docs · M lessons available" button; the
 Lessons tab is a filterable library (search, level, domain, tags, created
 date range, sort) whose state lives in the URL hash `#lessons?…`. The format
@@ -1033,7 +1046,8 @@ against the allowed CDN hosts, and must print no errors.
 - Global: `NthView`, with public `validate` and `build`. Helpers stay in the
   closure. The only other permitted properties are `SUPPORTED_VERSIONS`,
   `libs` (§5.4) and `THEMES` (when the view has themes).
-- Storage: `localStorage` keys `nthview:<view>:<hash>` only (§5.5); no
+- Storage: `localStorage` keys `nthview:<view>:<hash>` only (§5.5), plus
+  `nthview:lesson:<hash>` for the one-file lesson shell; no
   cookies, no `sessionStorage`, no IndexedDB.
 - CSS: `.nthview` on the container, every other class `nthview-<element>`,
   colours via `--nv-*` custom properties, style element id `nthview-style`.

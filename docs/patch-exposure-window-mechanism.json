@@ -1,0 +1,935 @@
+{
+  "schemaVersion": 1,
+  "title": "The Exposure Window: Patching Against a Public Exploit",
+  "subtitle": "A fleet of servers, one vulnerability, and the race between the patch rollout and the attackers who start scanning the day an exploit is published.",
+  "kicker": "Mechanism · vulnerability management",
+  "theme": "terminal",
+  "seed": 3,
+  "lead": [
+    "A vulnerability is disclosed and a fix ships the same day. Nothing is exploited yet, so the fix waits for testing and then for the next ((maintenance window)). Somewhere along the way a working ((exploit)) is published, scanning starts, and every server that is still unpatched becomes a target.",
+    "This page runs that race day by day for a fleet of a thousand servers. The rules count how many servers are still unpatched, how many of those are exposed, and how many ((host-day))s of exposure pile up, then turn that into expected compromises. Values are ((expected value))s and the numbers are illustrative. Scroll: the cards and pinned chapters move the clock for you, and the dock lets you play it yourself."
+  ],
+  "clock": {
+    "unit": "day",
+    "horizon": 120,
+    "label": "since disclosure",
+    "speeds": [
+      2,
+      6,
+      20
+    ],
+    "speed": 1,
+    "windows": [
+      {
+        "label": "6 wk",
+        "ticks": 42
+      }
+    ],
+    "window": 1
+  },
+  "parameters": [
+    {
+      "id": "fleet",
+      "label": "Servers in the fleet",
+      "min": 100,
+      "max": 10000,
+      "default": 1000,
+      "step": 100,
+      "format": "int"
+    },
+    {
+      "id": "unmanaged",
+      "label": "Unmanaged long tail",
+      "min": 0,
+      "max": 0.2,
+      "default": 0.03,
+      "step": 0.01,
+      "format": "percent",
+      "description": "Servers no patch process reaches: forgotten test boxes, appliances, shadow IT."
+    },
+    {
+      "id": "exploitDay",
+      "label": "Exploit published on day",
+      "min": 1,
+      "max": 100,
+      "default": 14,
+      "step": 1,
+      "format": "int"
+    },
+    {
+      "id": "testDays",
+      "label": "Testing before rollout",
+      "min": 0,
+      "max": 30,
+      "default": 7,
+      "step": 1,
+      "format": "duration"
+    },
+    {
+      "id": "cycleDays",
+      "label": "Maintenance window every",
+      "min": 7,
+      "max": 60,
+      "default": 30,
+      "format": "duration",
+      "control": "choice",
+      "options": [
+        {
+          "label": "Weekly",
+          "value": 7
+        },
+        {
+          "label": "Fortnightly",
+          "value": 14
+        },
+        {
+          "label": "Monthly",
+          "value": 30
+        }
+      ]
+    },
+    {
+      "id": "windowShare",
+      "label": "Patched in each window",
+      "min": 0.1,
+      "max": 1,
+      "default": 0.9,
+      "step": 0.05,
+      "format": "percent"
+    },
+    {
+      "id": "fastTrack",
+      "label": "Fast track once exploited",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "step": 1,
+      "control": "toggle",
+      "description": "Out-of-cycle emergency patching as soon as an exploit is public."
+    },
+    {
+      "id": "fastShare",
+      "label": "Fast-track pace",
+      "min": 0.05,
+      "max": 0.5,
+      "default": 0.25,
+      "step": 0.05,
+      "format": "percent",
+      "unit": "/day"
+    },
+    {
+      "id": "mitigation",
+      "label": "Virtual patch",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "step": 1,
+      "control": "toggle",
+      "description": "A filtering rule in front of the servers that blocks most exploit attempts until they are patched."
+    },
+    {
+      "id": "mitigationDay",
+      "label": "Virtual patch on day",
+      "min": 0,
+      "max": 60,
+      "default": 2,
+      "step": 1,
+      "format": "int"
+    },
+    {
+      "id": "mitigationEffect",
+      "label": "Attempts it blocks",
+      "min": 0,
+      "max": 1,
+      "default": 0.9,
+      "step": 0.05,
+      "format": "percent"
+    },
+    {
+      "id": "rampDays",
+      "label": "Scanning reaches full speed in",
+      "min": 1,
+      "max": 30,
+      "default": 10,
+      "step": 1,
+      "format": "duration"
+    },
+    {
+      "id": "hitRate",
+      "label": "Daily chance an exposed server falls",
+      "min": 0.0005,
+      "max": 0.02,
+      "default": 0.003,
+      "step": 0.0005,
+      "format": "percent",
+      "description": "At full scanning intensity."
+    }
+  ],
+  "variables": [
+    {
+      "id": "exploitPublic",
+      "label": "Exploit public",
+      "initial": 0,
+      "min": 0,
+      "max": 1,
+      "format": "int",
+      "color": "red"
+    },
+    {
+      "id": "shielded",
+      "label": "Virtual patch active",
+      "initial": 0,
+      "min": 0,
+      "max": 1,
+      "format": "int",
+      "color": "violet"
+    },
+    {
+      "id": "intensity",
+      "label": "Scanning intensity",
+      "initial": 0,
+      "min": 0,
+      "max": 1,
+      "format": "percent",
+      "color": "orange"
+    },
+    {
+      "id": "ready",
+      "label": "Fix tested and ready",
+      "initial": 0,
+      "min": 0,
+      "max": 1,
+      "format": "int",
+      "color": "teal"
+    },
+    {
+      "id": "fastNow",
+      "label": "Fast track running",
+      "initial": 0,
+      "min": 0,
+      "max": 1,
+      "format": "int",
+      "color": "pink"
+    },
+    {
+      "id": "patchable",
+      "label": "Unpatched and reachable",
+      "initial": "fleet",
+      "min": 0,
+      "format": "int",
+      "color": "blue"
+    },
+    {
+      "id": "patchedToday",
+      "label": "Patched today",
+      "initial": 0,
+      "min": 0,
+      "format": "number",
+      "color": "teal"
+    },
+    {
+      "id": "unpatched",
+      "label": "Unpatched servers",
+      "initial": "fleet",
+      "min": 0,
+      "format": "int",
+      "color": "blue"
+    },
+    {
+      "id": "patched",
+      "label": "Patched servers",
+      "initial": 0,
+      "min": 0,
+      "format": "int",
+      "color": "green"
+    },
+    {
+      "id": "longTail",
+      "label": "Never reached",
+      "initial": "fleet * unmanaged",
+      "min": 0,
+      "format": "int",
+      "color": "grey"
+    },
+    {
+      "id": "waiting",
+      "label": "Unpatched, no exploit yet",
+      "initial": "fleet",
+      "min": 0,
+      "format": "number",
+      "color": "grey"
+    },
+    {
+      "id": "covered",
+      "label": "Covered by the virtual patch",
+      "initial": 0,
+      "min": 0,
+      "format": "number",
+      "color": "violet"
+    },
+    {
+      "id": "exposed",
+      "label": "Exposed servers",
+      "initial": 0,
+      "min": 0,
+      "format": "number",
+      "color": "red"
+    },
+    {
+      "id": "exposureDays",
+      "label": "Exposure so far",
+      "initial": 0,
+      "min": 0,
+      "format": "compact",
+      "unit": "host-days",
+      "color": "orange"
+    },
+    {
+      "id": "compromised",
+      "label": "Expected compromises",
+      "initial": 0,
+      "min": 0,
+      "format": "dp1",
+      "color": "red"
+    },
+    {
+      "id": "patchedShare",
+      "label": "Fleet patched",
+      "initial": 0,
+      "min": 0,
+      "max": 1,
+      "format": "percent",
+      "color": "green"
+    }
+  ],
+  "rules": [
+    {
+      "target": "longTail",
+      "expr": "fleet * unmanaged",
+      "label": "Servers no rollout reaches"
+    },
+    {
+      "target": "intensity",
+      "expr": "if(exploitPublic, min(1, intensity + 1 / rampDays), 0)",
+      "label": "Scanning picks up",
+      "note": "From the day the exploit is out, attackers add scanners until they reach full speed."
+    },
+    {
+      "target": "ready",
+      "expr": "if(t >= testDays, 1, 0)",
+      "label": "Has testing finished?",
+      "note": "The fix ships on day 0 and needs the testing time before any rollout."
+    },
+    {
+      "target": "fastNow",
+      "expr": "if(fastTrack && exploitPublic && ready, 1, 0)",
+      "label": "Is the fast track running?"
+    },
+    {
+      "target": "patchable",
+      "expr": "max(0, unpatched - longTail)",
+      "label": "Servers a rollout can reach"
+    },
+    {
+      "target": "patchedToday",
+      "expr": "patchable * max(if(maintenance && ready, windowShare, 0), if(fastNow, fastShare, 0))",
+      "label": "Patch in a window or on the fast track",
+      "note": "A window patches its share of the reachable servers at once; the fast track patches its pace every day."
+    },
+    {
+      "target": "unpatched",
+      "expr": "unpatched - patchedToday",
+      "label": "Fewer servers unpatched"
+    },
+    {
+      "target": "patched",
+      "expr": "fleet - unpatched",
+      "label": "Patched so far"
+    },
+    {
+      "target": "waiting",
+      "expr": "unpatched * (1 - exploitPublic)",
+      "label": "Unpatched, but nothing to fear yet"
+    },
+    {
+      "target": "covered",
+      "expr": "unpatched * exploitPublic * shielded * mitigationEffect",
+      "label": "Unpatched but shielded"
+    },
+    {
+      "target": "exposed",
+      "expr": "unpatched * exploitPublic - covered",
+      "label": "Unpatched and reachable by the exploit"
+    },
+    {
+      "target": "exposureDays",
+      "expr": "exposureDays + exposed",
+      "label": "Add today's exposure",
+      "note": "One exposed server for one day is one host-day."
+    },
+    {
+      "target": "compromised",
+      "expr": "compromised + exposed * hitRate * intensity",
+      "label": "Expected new compromises today"
+    },
+    {
+      "target": "patchedShare",
+      "expr": "patched / fleet",
+      "label": "Share of the fleet patched"
+    }
+  ],
+  "events": [
+    {
+      "id": "exploitOut",
+      "label": "Exploit published",
+      "when": "t >= exploitDay",
+      "once": true,
+      "set": {
+        "exploitPublic": 1
+      },
+      "color": "red",
+      "note": "A working exploit appears in public; scanning starts."
+    },
+    {
+      "id": "fixReady",
+      "label": "Fix tested",
+      "when": "t >= testDays",
+      "once": true,
+      "color": "teal"
+    },
+    {
+      "id": "maintenance",
+      "label": "Maintenance window",
+      "when": "t % cycleDays == 0",
+      "color": "blue",
+      "note": "The regular window in which changes are allowed."
+    },
+    {
+      "id": "shieldOn",
+      "label": "Virtual patch deployed",
+      "when": "mitigation && t >= mitigationDay",
+      "once": true,
+      "set": {
+        "shielded": 1
+      },
+      "color": "violet"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "monthly",
+      "label": "Monthly cycle",
+      "description": "Test for a week, then wait for the monthly window. The exploit appears on day 14."
+    },
+    {
+      "id": "fast-track",
+      "label": "Fast track",
+      "description": "The same cycle, but once the exploit is public, patch a quarter of what is left every day.",
+      "parameters": {
+        "fastTrack": 1
+      }
+    },
+    {
+      "id": "shield-first",
+      "label": "Shield first",
+      "description": "Monthly cycle with a virtual patch in front of the fleet from day 2.",
+      "parameters": {
+        "mitigation": 1
+      }
+    },
+    {
+      "id": "late-exploit",
+      "label": "Late exploit",
+      "description": "Monthly cycle, but the exploit only appears on day 45.",
+      "parameters": {
+        "exploitDay": 45
+      }
+    }
+  ],
+  "sections": [
+    {
+      "id": "race",
+      "kicker": "The race",
+      "title": "Two clocks start on disclosure day",
+      "body": [
+        "On day 0 the vulnerability is public and the fix is out. One clock is yours: testing, then the next maintenance window. The other belongs to attackers: the day a working exploit appears, after which scanning ramps up over {rampDays|duration}.",
+        "What matters is not when you patch, but how many servers are still unpatched while the exploit is public, and for how long. That product is the **exposure**, counted in ((host-day))s. Right now it stands at **{exposureDays}**, and the expected compromises at **{compromised}**."
+      ],
+      "figures": [
+        {
+          "kind": "tile",
+          "title": "Where the race stands",
+          "items": [
+            {
+              "var": "compromised",
+              "better": "down"
+            },
+            {
+              "var": "exposureDays",
+              "label": "Exposure",
+              "better": "down"
+            },
+            {
+              "var": "unpatched",
+              "better": "down"
+            },
+            {
+              "var": "patchedShare",
+              "better": "up"
+            }
+          ]
+        },
+        {
+          "kind": "events",
+          "title": "Both clocks",
+          "caption": "The red marker is the exploit; blue markers are maintenance windows."
+        }
+      ],
+      "focus": [
+        "compromised",
+        "exposureDays",
+        "unpatched",
+        "patchedShare"
+      ],
+      "steps": [
+        {
+          "title": "Monthly cycle",
+          "text": "Test for a week, wait for the window on day 30. The exploit lands on day 14, in the gap: **{compromised}** expected compromises after four months.",
+          "at": 120,
+          "scenario": "monthly"
+        },
+        {
+          "title": "Fast track",
+          "text": "Emergency patching starts the day the exploit is public: **{compromised}** expected compromises, mostly from the long tail.",
+          "at": 120,
+          "scenario": "fast-track"
+        },
+        {
+          "title": "Shield first",
+          "text": "A virtual patch from day 2 blocks most attempts until the window: **{compromised}**.",
+          "at": 120,
+          "scenario": "shield-first"
+        },
+        {
+          "title": "Late exploit",
+          "text": "The exploit only appears on day 45, after the first window: **{compromised}**.",
+          "at": 120,
+          "scenario": "late-exploit"
+        }
+      ]
+    },
+    {
+      "id": "pipeline",
+      "kicker": "Your clock",
+      "title": "The patch pipeline: test, wait, roll out",
+      "body": [
+        "The fix is ready after {testDays|duration} of testing. From then on, every maintenance window patches **{windowShare}** of the servers a rollout can reach. Servers in the ((long tail)) are never reached: {unmanaged} of the fleet that nobody remembers to patch.",
+        "The step line shows the unpatched count dropping in stairs, one stair per window. The table shows today's arithmetic, rule by rule."
+      ],
+      "controls": [
+        "testDays",
+        "cycleDays",
+        "windowShare",
+        "unmanaged"
+      ],
+      "figures": [
+        {
+          "kind": "flow",
+          "title": "How today is calculated",
+          "targets": [
+            "patchable",
+            "patchedToday",
+            "unpatched",
+            "exposed"
+          ]
+        },
+        {
+          "kind": "state",
+          "title": "The fleet right now",
+          "vars": [
+            "unpatched",
+            "patchedToday",
+            "longTail",
+            "exposed"
+          ]
+        },
+        {
+          "kind": "step",
+          "title": "Unpatched servers",
+          "series": [
+            {
+              "var": "unpatched"
+            },
+            {
+              "var": "longTail",
+              "dashed": true
+            }
+          ],
+          "yMin": 0
+        }
+      ],
+      "focus": [
+        "patchable",
+        "patchedToday",
+        "unpatched",
+        "longTail"
+      ],
+      "steps": [
+        {
+          "title": "Day 0: the fix ships",
+          "text": "Every server is still unpatched: **{unpatched}**. The fix is out, but it has to be tested first.",
+          "at": 0,
+          "scenario": "monthly",
+          "window": "6 wk"
+        },
+        {
+          "title": "Day 7: tested, and waiting",
+          "text": "Testing is done; nothing moves, because no maintenance window has come yet. Watch the flow: the rule that patches has nothing to do.",
+          "at": 7,
+          "scenario": "monthly",
+          "window": "6 wk"
+        },
+        {
+          "title": "Day 30: the window",
+          "text": "The window patches **{patchedToday}** servers in one day. The pulses run from what is reachable to what is patched.",
+          "at": 30,
+          "scenario": "monthly",
+          "window": "6 wk"
+        },
+        {
+          "title": "Day 60: the second window",
+          "text": "Another window, another stair. What is left now is mostly the long tail: **{longTail}** servers no rollout reaches.",
+          "at": 60,
+          "scenario": "monthly",
+          "window": "All"
+        }
+      ]
+    },
+    {
+      "id": "attackers",
+      "kicker": "Their clock",
+      "title": "Once the exploit is out, every unpatched server counts",
+      "body": [
+        "On day {exploitDay} the exploit is published. Scanning starts slowly and reaches full speed after {rampDays|duration}; at full speed an exposed server falls with a daily chance of {hitRate}. This chapter is pinned: keep scrolling and the clock runs through the first two months of the monthly cycle."
+      ],
+      "controls": [
+        "exploitDay",
+        "rampDays",
+        "hitRate"
+      ],
+      "figures": [
+        {
+          "kind": "area",
+          "title": "Exposed servers",
+          "series": [
+            {
+              "var": "exposed"
+            }
+          ],
+          "yMin": 0,
+          "caption": "The area is the exposure: servers times days."
+        },
+        {
+          "kind": "line",
+          "title": "Scanning intensity",
+          "series": [
+            {
+              "var": "intensity"
+            }
+          ],
+          "yMin": 0,
+          "yMax": 1
+        }
+      ],
+      "check": {
+        "prompt": "With the monthly cycle, how many servers are still exposed on day 29, the day before the first window?",
+        "options": [
+          {
+            "text": "None: the fix was ready on day 7",
+            "why": "Ready is not deployed. Without a window or a fast track, a tested fix changes nothing."
+          },
+          {
+            "text": "About half: some teams patch early",
+            "why": "Only if someone patches outside the window; in this model nobody does."
+          },
+          {
+            "text": "Practically all of them",
+            "correct": true,
+            "why": "Every server waits for the window on day 30, so all of them are exposed from day 14 to day 29."
+          }
+        ],
+        "reveal": "On day 29, **{exposed}** servers are exposed and the exposure has reached **{exposureDays}**.",
+        "expect": {
+          "scenario": "monthly",
+          "at": 29,
+          "test": "exposed > 990"
+        }
+      },
+      "focus": [
+        "intensity",
+        "exposed",
+        "exposureDays",
+        "compromised"
+      ],
+      "scrub": {
+        "from": 0,
+        "to": 60,
+        "scenario": "monthly",
+        "window": "All",
+        "screens": 5,
+        "marks": [
+          {
+            "at": 0,
+            "text": "Day 0. Disclosure and fix on the same day. No exploit yet, so nothing is exposed."
+          },
+          {
+            "at": 7,
+            "text": "Day 7. The fix is tested and ready, and it waits for the window."
+          },
+          {
+            "at": 14,
+            "text": "Day 14. The exploit is published. Every one of **{unpatched}** servers is exposed at once."
+          },
+          {
+            "at": 24,
+            "text": "Day 24. Scanning is at full speed. Exposure so far: **{exposureDays}**."
+          },
+          {
+            "at": 30,
+            "text": "Day 30. The window finally patches most of the fleet; **{exposed}** servers stay exposed."
+          },
+          {
+            "at": 45,
+            "text": "Day 45. The rest of the story is the long tail: **{compromised}** expected compromises and counting."
+          }
+        ]
+      }
+    },
+    {
+      "id": "strategies",
+      "kicker": "Strategies",
+      "title": "Patch faster, shield first, or hope the exploit is late",
+      "body": [
+        "Three ways out. The **fast track** starts emergency patching the moment the exploit is public. **Shield first** puts a ((virtual patch)) in front of the fleet on day {mitigationDay}, so most exploit attempts fail until the window. And sometimes the exploit is simply **late**, and the monthly cycle looks fine without trying.",
+        "The small multiples put the expected compromises of all four scenarios on one scale; the heat map shows exposed servers over time, darker for more."
+      ],
+      "controls": [
+        "fastTrack",
+        "fastShare",
+        "mitigation",
+        "mitigationEffect"
+      ],
+      "figures": [
+        {
+          "kind": "compare",
+          "title": "Expected compromises by strategy",
+          "var": "compromised"
+        },
+        {
+          "kind": "heatmap",
+          "title": "Exposed servers by strategy",
+          "var": "exposed",
+          "buckets": 40,
+          "agg": "mean"
+        }
+      ],
+      "check": {
+        "prompt": "Which strategy ends the four months with the fewest expected compromises?",
+        "options": [
+          {
+            "text": "Fast track",
+            "why": "It closes the gap within days, but the long tail stays exposed for the rest of the period, and that adds up."
+          },
+          {
+            "text": "Shield first",
+            "correct": true,
+            "why": "The shield blocks nine attempts in ten from day 2 for every server, including the long tail that no window ever reaches."
+          },
+          {
+            "text": "Late exploit",
+            "why": "The first window patches most of the fleet before the exploit exists, but the long tail is exposed from day 45 to the end."
+          }
+        ],
+        "reveal": "In this scenario the expected compromises are **{compromised}**. Switch scenarios to compare.",
+        "expect": {
+          "scenario": "shield-first",
+          "at": 120,
+          "test": "compromised < 6"
+        }
+      },
+      "focus": [
+        "compromised",
+        "exposed",
+        "covered"
+      ],
+      "steps": [
+        {
+          "title": "Fast track",
+          "text": "Once the exploit is public, a quarter of what is left is patched every day. The gap closes within a week.",
+          "at": 30,
+          "scenario": "fast-track"
+        },
+        {
+          "title": "Shield first",
+          "text": "The virtual patch covers **{covered}** servers today; only **{exposed}** are really exposed.",
+          "at": 30,
+          "scenario": "shield-first"
+        },
+        {
+          "title": "Late exploit",
+          "text": "On day 30 there is nothing to exploit yet. Day 45 is a different story.",
+          "at": 50,
+          "scenario": "late-exploit"
+        }
+      ]
+    },
+    {
+      "id": "long-tail",
+      "kicker": "The long tail",
+      "title": "The servers nobody patches decide the end of the story",
+      "body": [
+        "Whatever the patching strategy, the long tail stays unpatched long after the windows have done their work; only a shield covers it. After the first month it is most of the remaining exposure, as the weekly bars show.",
+        "This is the bench: every knob and the clock. Shrink the long tail, switch on the fast track or the shield, and press play."
+      ],
+      "controls": [
+        "unmanaged",
+        "fleet",
+        "fastTrack",
+        "fastShare",
+        "mitigation",
+        "mitigationEffect",
+        "cycleDays",
+        "exploitDay"
+      ],
+      "figures": [
+        {
+          "kind": "stacked",
+          "title": "Unpatched host-days per week",
+          "series": [
+            {
+              "var": "waiting"
+            },
+            {
+              "var": "covered"
+            },
+            {
+              "var": "exposed"
+            }
+          ],
+          "bucket": 7,
+          "agg": "sum",
+          "yLabel": "host-days"
+        },
+        {
+          "kind": "gauge",
+          "title": "Fleet patched",
+          "var": "patchedShare",
+          "min": 0,
+          "max": 1,
+          "zones": [
+            {
+              "to": 0.5,
+              "color": "red",
+              "label": "Mostly exposed"
+            },
+            {
+              "to": 0.95,
+              "color": "amber",
+              "label": "Catching up"
+            },
+            {
+              "to": 1,
+              "color": "green",
+              "label": "Long tail left"
+            }
+          ]
+        },
+        {
+          "kind": "bar",
+          "title": "The fleet today",
+          "bars": [
+            {
+              "var": "patched"
+            },
+            {
+              "var": "patchable",
+              "label": "Unpatched, reachable"
+            },
+            {
+              "var": "longTail"
+            }
+          ]
+        }
+      ],
+      "goto": {
+        "label": "Day 90, monthly cycle",
+        "tick": 90,
+        "scenario": "monthly",
+        "window": "All"
+      },
+      "focus": [
+        "longTail",
+        "exposed",
+        "patchedShare"
+      ],
+      "bench": true
+    }
+  ],
+  "glossary": [
+    {
+      "term": "exploit",
+      "definition": "Working code or instructions that use a vulnerability to break into a system. Once public, anyone can run it."
+    },
+    {
+      "term": "maintenance window",
+      "definition": "A recurring slot in which changes such as patches are allowed to production systems."
+    },
+    {
+      "term": "host-day",
+      "definition": "One server exposed for one day. A thousand servers for two weeks is fourteen thousand host-days."
+    },
+    {
+      "term": "long tail",
+      "definition": "The servers no regular process reaches: forgotten test machines, appliances, systems nobody owns."
+    },
+    {
+      "term": "virtual patch",
+      "definition": "A filtering rule in front of a system, for example in a web application firewall, that blocks attempts to exploit a vulnerability until the real fix is installed."
+    },
+    {
+      "term": "expected value",
+      "definition": "The average outcome over many runs; 2.5 expected compromises means two or three on a typical run."
+    }
+  ],
+  "closing": {
+    "heading": "What the two clocks showed",
+    "body": [
+      "Exposure is unpatched servers multiplied by the days an exploit is public. A regular cycle keeps the first factor high until its window; the exploit date, which you do not control, sets when the second starts.",
+      "Fast tracks and virtual patches shorten the gap after the exploit appears; finding the long tail shrinks what is left afterwards. Both count."
+    ],
+    "takeaways": [
+      "A tested fix that waits for a window protects nothing.",
+      "Exposure is counted in host-days: servers times days.",
+      "A fast track turns weeks of exposure into days.",
+      "A virtual patch cuts exposure at once but never to zero.",
+      "The long tail dominates exposure after the first month."
+    ]
+  },
+  "stage": {
+    "title": "The fleet",
+    "variables": [
+      "intensity",
+      "ready",
+      "patchable",
+      "patchedToday",
+      "unpatched",
+      "patched",
+      "longTail",
+      "waiting",
+      "covered",
+      "exposed",
+      "exposureDays",
+      "compromised"
+    ]
+  }
+}
