@@ -20,6 +20,10 @@ play. On the right, the topic's article with references and "What changes in
 …" lists, and the **Message** panel with the current message's name, size,
 direction, formatted payload and a note on every field.
 
+A **Full picture** button in the top bar opens a dialog with the whole flow:
+every entity and link as one network, or every message of every topic as one
+long sequence where clicking a message opens it in the lesson.
+
 Three optional layers deepen a document. **Holdings**: a strip under the
 diagram shows what every entity holds after each message (keys, codes,
 tokens), new items marked and given-up items struck through. **Channels**: a

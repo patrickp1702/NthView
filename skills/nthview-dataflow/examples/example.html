@@ -2451,6 +2451,19 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     ".nthview-df-tml button[aria-pressed=true] i{background:var(--nv-fg);border-color:var(--nv-fg);transform:scale(1.25)}",
     ".nthview-df-tml button:hover i{border-color:var(--nv-fg)}",
     ".nthview-df-tmselect{display:none}",
+    ".nthview-df-fullbtn{display:inline-flex;align-items:center;gap:6px}",
+    ".nthview-df-fullbtn svg{width:14px;height:14px}",
+    /* the full picture dialog */
+    ".nthview-df-dialog{border:1px solid var(--df-border);border-radius:12px;background:var(--nv-bg);color:var(--nv-fg);padding:0;width:min(96vw,1440px);height:min(92vh,1000px);max-width:none;max-height:none;display:flex;flex-direction:column;overflow:hidden;font:14px/1.5 system-ui,-apple-system,'Segoe UI',Roboto,Inter,sans-serif}",
+    ".nthview-df-dialog:not([open]){display:none}",
+    ".nthview-df-dialog::backdrop{background:rgba(0,0,0,.6)}",
+    ".nthview-df-dialog-head{display:flex;align-items:center;gap:16px;padding:14px 20px;border-bottom:1px solid var(--df-border);flex:0 0 auto}",
+    ".nthview-df-dialog-head>div:first-child{flex:1;min-width:0}",
+    ".nthview-df-dialog-head h2{font-size:18px}",
+    ".nthview-df-dialog-head p{font-size:12.5px}",
+    ".nthview-df-dialog-body{flex:1;min-height:0;position:relative;background-image:radial-gradient(rgba(var(--df-rgb),.16) 1px,transparent 1.2px);background-size:20px 20px;background-position:10px 10px}",
+    ".nthview-df-dialog-body>svg{width:100%;height:100%;display:block}",
+    ".nthview-df-seqtopic{font:500 14px var(--df-head);fill:var(--nv-fg)}",
     /* hero */
     ".nthview-df-intro{flex:1;display:grid;grid-template-columns:minmax(380px,520px) minmax(0,1fr);min-height:0}",
     ".nthview-df-hero{display:flex;flex-direction:column;border-right:1px solid var(--df-border);overflow:auto;padding:40px}",
@@ -2827,6 +2840,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     else if (name === "moon") s.appendChild(svgEl("path", { d: "M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" }));
     else if (name === "auto") { s.appendChild(svgEl("circle", { cx: 12, cy: 12, r: 8 })); s.appendChild(svgEl("path", { d: "M12 4a8 8 0 0 1 0 16z", fill: "currentColor" })); }
     else if (name === "menu") s.appendChild(svgEl("path", { d: "M4 7h16M4 12h16M4 17h16" }));
+    else if (name === "full") { s.appendChild(svgEl("path", { d: "M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4", fill: "none", stroke: "currentColor", "stroke-width": "1.8", "stroke-linecap": "round" })); }
     return s;
   }
 
@@ -3219,6 +3233,9 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         ib.addEventListener("click", function () { setScreen("intro"); });
         bar.appendChild(ib);
       }
+      var fb = el("button", { type: "button", class: "nthview-df-introbtn nthview-df-fullbtn", title: "The whole flow in one diagram" }, [icon("full"), doc.createTextNode("Full picture")]);
+      fb.addEventListener("click", function () { openFullPicture(); });
+      bar.appendChild(fb);
       if (M.hasTM && state.screen === "lesson") bar.appendChild(timeMachine());
       bar.appendChild(el("div", { class: "nthview-df-topright" }, [schemeButton(), restartButton(container, data, key)]));
       return bar;
@@ -3312,15 +3329,19 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       });
       svg.appendChild(ng);
       var fx = svgEl("g"); svg.appendChild(fx);
-      return { svg: svg, nodes: nodes, edges: edges, fx: fx, W: lay.W, H: lay.H };
+      return { svg: svg, nodes: nodes, edges: edges, fx: fx, W: lay.W, H: lay.H, addEdge: addEdge };
     }
 
     /* ---------- sequence diagram ---------- */
-    function buildSequence(Rt, avail, availH) {
-      var hasFrames = Rt.fragments.length > 0;
-      var ids = Rt.entities, n = Math.max(ids.length, 1), LEFT = 36, ROW = hasFrames ? 48 : 40, TOP = hasFrames ? 140 : 116;
+    /* blocks: [{ Rt, title, topicId }]. The lesson passes its one topic; the full picture passes every
+       topic, each under a title band, on lifelines shared by all of them. */
+    function buildSequence(blocks, ids, avail, availH, opts) {
+      opts = opts || {};
+      var hasFrames = blocks.some(function (b) { return b.Rt.fragments.length > 0; });
+      var n = Math.max(ids.length, 1), LEFT = 36, ROW = hasFrames ? 48 : 40, TOP = hasFrames ? 140 : 116, BAND = 44;
       var W = Math.max(avail, n * 150 + LEFT + 20), COL = (W - LEFT - 20) / n, BOX = Math.min(170, COL - 16);
-      var H = Math.max(availH || 0, TOP + Math.max(Rt.beats.length, 1) * ROW + 30);
+      var rowsTotal = blocks.reduce(function (sum, b) { return sum + Math.max(b.Rt.beats.length, 1) + (b.title ? BAND / ROW : 0); }, 0);
+      var H = Math.max(availH || 0, TOP + rowsTotal * ROW + 30);
       var svg = svgEl("svg", { viewBox: "0 0 " + f1(W) + " " + f1(H), preserveAspectRatio: "xMidYMin meet", role: "img", "aria-label": "Sequence diagram", style: "width:" + f1(W) + "px;height:" + f1(H) + "px;min-height:0;display:block;margin:0 auto" });
       var X = {}, heads = {};
       ids.forEach(function (id, i) {
@@ -3335,10 +3356,17 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         if (z) g.appendChild(svgEl("text", { class: "nthview-df-zl", x: f1(x), y: 76, "text-anchor": "middle", text: z.name }));
         svg.appendChild(g); heads[id] = g;
       });
-      if (hasFrames) drawFrames(svg, Rt, LEFT, W, TOP, ROW);
-      var arrows = [], lastStep = -1;
+      var arrows = [], base = TOP;
+      blocks.forEach(function (blk) {
+      var Rt = blk.Rt, lastStep = -1;
+      if (blk.title) {
+        svg.appendChild(svgEl("line", { class: "nthview-df-ssep", x1: LEFT, y1: f1(base - 30), x2: f1(W - 10), y2: f1(base - 30) }));
+        svg.appendChild(svgEl("text", { class: "nthview-df-seqtopic", x: LEFT + 4, y: f1(base - 8), text: blk.title }));
+        base += BAND;
+      }
+      if (Rt.fragments.length) drawFrames(svg, Rt, LEFT, W, base, ROW);
       Rt.beats.forEach(function (b, i) {
-        var y = TOP + i * ROW;
+        var y = base + i * ROW;
         if (b.step !== lastStep) {
           lastStep = b.step;
           svg.appendChild(svgEl("text", { class: "nthview-df-sstep", x: 8, y: f1(y + 4), text: String(b.step + 1) }));
@@ -3366,8 +3394,11 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
           g.appendChild(t);
           g.appendChild(svgEl("title", { text: m.name + ": " + M.E[m.from].name + " → " + M.E[m.to].name }));
         }
-        g.addEventListener("click", function () { stop(); setPos(i); });
+        if (opts.onPick) g.addEventListener("click", function () { opts.onPick(blk, i); });
+        else g.addEventListener("click", function () { stop(); setPos(i); });
         svg.appendChild(g); arrows.push(g);
+      });
+      base += Math.max(Rt.beats.length, 1) * ROW;
       });
       var fx = svgEl("g"); svg.appendChild(fx);
       return { svg: svg, arrows: arrows, heads: heads, X: X, TOP: TOP, ROW: ROW, fx: fx };
@@ -3375,7 +3406,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
 
     /* alt, opt and loop frames: a box around the rows of the steps they cover, a tab with the kind and label,
        the guard in brackets, and for alt a dashed separator before every further branch */
-    function drawFrames(svg, Rt, LEFT, W, TOP, ROW) {
+    function drawFrames(svg, Rt, LEFT, W, TOP, ROW) { /* TOP is the y of this block's first row */
       var frags = Rt.fragments.map(function (f, i) { return { f: f, i: i, first: Rt.stepBeats[f.start].first, last: Rt.stepBeats[f.end].last }; });
       frags.forEach(function (a) { a.depth = frags.filter(function (b) { return b !== a && b.first <= a.first && b.last >= a.last && (b.first < a.first || b.last > a.last || b.i < a.i); }).length; });
       var tabsAt = {};
@@ -3599,7 +3630,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       if (state.mode === "network") { ui.net = buildNetwork(R.entities, narrowStage, R); ui.net.svg.classList.add("nthview-df-dim"); ui.stage.appendChild(ui.net.svg); ui.stage.style.cssText = ""; }
       else {
         var w = ui.stage.clientWidth || 900, h = ui.stage.clientHeight || 0;
-        ui.seq = buildSequence(R, Math.max(320, w - 2), h > 200 ? h - 2 : 0);
+        ui.seq = buildSequence([{ Rt: R, title: null, topicId: state.topic }], R.entities, Math.max(320, w - 2), h > 200 ? h - 2 : 0);
         ui.stage.appendChild(ui.seq.svg);
         ui.stage.style.cssText = "overflow:auto;display:block";
       }
@@ -3852,6 +3883,51 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         else { g.classList.add("nthview-df-arrived"); anim = null; done(); }
       }
       anim.raf = root.requestAnimationFrame(frame);
+    }
+
+    /* ---------- the full picture: every entity, or every message of every topic, in one dialog ---------- */
+    var fullMode = "network";
+    function openFullPicture() {
+      stop();
+      if (ui.dialog) { if (ui.dialog.parentNode) ui.dialog.parentNode.removeChild(ui.dialog); ui.dialog = null; }
+      var all = M.topics.map(function (t) { return { Rt: resolveTopic(M, data, t, state.version), title: t.title, topicId: t.id }; }).filter(function (b) { return b.Rt.avail && b.Rt.beats.length; });
+      var msgs = all.reduce(function (sum, b) { return sum + b.Rt.msgCount; }, 0);
+      var dlg = el("dialog", { class: "nthview-df-dialog", "aria-label": "The full picture" });
+      var seg = el("div", { class: "nthview-df-seg", role: "group", "aria-label": "Diagram" });
+      var body = el("div", { class: "nthview-df-dialog-body" });
+      function draw() {
+        body.innerHTML = "";
+        seg.querySelectorAll("button").forEach(function (x) { x.setAttribute("aria-pressed", x.getAttribute("data-mode") === fullMode ? "true" : "false"); });
+        if (fullMode === "network") {
+          var net = buildNetwork(data.entities.map(function (e) { return e.id; }), body.clientWidth > 0 && body.clientWidth < 560, null);
+          all.forEach(function (b) { b.Rt.beats.forEach(function (bt) { if (bt.msg) net.addEdge(bt.msg.from, bt.msg.to, null); }); });
+          body.style.overflow = "hidden"; body.appendChild(net.svg);
+        } else {
+          var used = {};
+          all.forEach(function (b) { b.Rt.entities.forEach(function (id) { used[id] = true; }); });
+          var ids = data.entities.map(function (e) { return e.id; }).filter(function (id) { return used[id]; });
+          var seq = buildSequence(all, ids, Math.max(320, body.clientWidth - 2), 0, { onPick: function (blk, i) {
+            dlg.close(); if (blk.topicId !== state.topic) openTopic(blk.topicId, false); setPos(i);
+          } });
+          body.style.overflow = "auto"; body.appendChild(seq.svg);
+        }
+      }
+      [["network", "Network"], ["sequence", "Sequence"]].forEach(function (m) {
+        var b = el("button", { type: "button", "data-mode": m[0], text: m[1] });
+        b.addEventListener("click", function () { fullMode = m[0]; draw(); });
+        seg.appendChild(b);
+      });
+      var close = el("button", { type: "button", class: "nthview-df-btn", text: "Close", "aria-label": "Close the full picture" });
+      close.addEventListener("click", function () { dlg.close(); });
+      dlg.appendChild(el("div", { class: "nthview-df-dialog-head" }, [
+        el("div", {}, [el("h2", { text: "The full picture" }), el("p", { class: "nthview-df-muted", text: data.entities.length + " entities · " + all.length + " topics · " + msgs + " messages" + (M.hasTM ? " · " + versionLabel(state.version) : "") + ". In the sequence, click a message to open it in the lesson." })]),
+        seg, close
+      ]));
+      dlg.appendChild(body);
+      dlg.addEventListener("close", function () { if (dlg.parentNode) dlg.parentNode.removeChild(dlg); ui.dialog = null; });
+      container.appendChild(dlg); ui.dialog = dlg;
+      if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
+      draw();
     }
 
     /* ---------- navigation ---------- */
