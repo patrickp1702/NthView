@@ -150,7 +150,12 @@ output.
 
 `<lesson-slug>-lesson.html` is a second way to read the same lesson, written
 next to the contents page and chapter pages, which stay as they are. It needs
-no other file, so it can be shared on its own. It opens on an overview (the
+no other file, so it can be shared on its own, and it works offline: the
+builder downloads each script library the chapters use (today three.js for
+the 3D views) from its pinned URL and embeds one copy, so a lesson file is
+about 0.6 MB larger when any chapter is 3D. Web fonts stay links; offline the
+pages fall back to system fonts. If a library cannot be downloaded, the build
+warns and that chapter loads it from the CDN as before. It opens on an overview (the
 contents page's objectives, chapters, glossary and references) with a chapter
 list in a side nav (a drawer on phones), Previous and Next in the header, and
 one chapter at a time below them. Each chapter is its view's unchanged output
