@@ -125,8 +125,9 @@
   ],
   "references": [
     {
-      "title": "The ARTEX paper on arXiv",
-      "url": "https://arxiv.org/abs/2605.01566"
+      "title": "ARTEX Global on GitHub",
+      "url": "https://github.com/jiwoochris/artex-global",
+      "note": "The project this lesson explains: README, architecture and defence notes"
     }
   ],
   "created": "2026-10-26",
