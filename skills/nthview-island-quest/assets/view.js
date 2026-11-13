@@ -520,7 +520,7 @@
     [canvas, hud, guide, toastEl, joy, panel, intro, end].forEach(function (n) { container.appendChild(n); });
 
     /* ---------- state & score ---------- */
-    var state = { done: {}, doneCount: 0, coins: data.coins || 10, stars: {}, attempts: {}, panelOpen: false, started: false, finished: false, muted: false, answers: {} };
+    var state = { done: {}, doneCount: 0, coins: data.coins || 10, stars: {}, attempts: {}, panelOpen: false, started: false, finished: false, ended: false, muted: false, answers: {} };
     var totalStars = function () { return Object.keys(state.stars).reduce(function (a, k) { return a + state.stars[k]; }, 0); };
     var maxStars = 3 * (N + data.finale.questions.length);
     function renderScore() { coinCount.textContent = String(state.coins); starCount.textContent = String(totalStars()); }
@@ -1924,6 +1924,7 @@
     }
 
     function showReport() {
+      state.ended = true; /* §5.5 rule 8: the end is the final exam's report card; once shown, the record keeps done: true */
       var st = totalStars(), c = state.coins, r = data.report, tiers = r.tiers || {};
       endCard.textContent = "";
       endCard.appendChild(el("h1", { text: r.heading }));
@@ -2345,7 +2346,7 @@
       });
       return {
         started: state.started, finished: state.finished, muted: state.muted, coins: state.coins,
-        done: STATIONS.filter(function (s) { return state.done[s.id]; }).map(function (s) { return s.id; }),
+        islands: STATIONS.filter(function (s) { return state.done[s.id]; }).map(function (s) { return s.id; }), done: state.ended,
         stars: state.stars, attempts: state.attempts, picks: state.picks, answers: state.answers, tasks: tasks,
         coinsGot: coinPickups.map(function (c, i) { return c.got ? i : -1; }).filter(function (i) { return i >= 0; }),
         panel: state.panelOpen ? panelFor : null, report: !end.classList.contains("nthview-hidden"),
@@ -2396,13 +2397,16 @@
       state.started = true; intro.classList.add("nthview-hidden");
       if (typeof sv.muted === "boolean") { state.muted = sv.muted; soundBtn.textContent = state.muted ? "Sound off" : "Sound on"; soundBtn.setAttribute("aria-pressed", String(!state.muted)); }
       if (isInt(sv.coins) && sv.coins >= 0) state.coins = sv.coins;
-      var doneSet = {}; if (Array.isArray(sv.done)) sv.done.forEach(function (id) { if (typeof id === "string") doneSet[id] = true; });
+      /* finished islands; records saved before rule 8 kept this list under done */
+      var isles = Array.isArray(sv.islands) ? sv.islands : Array.isArray(sv.done) ? sv.done : [];
+      var doneSet = {}; isles.forEach(function (id) { if (typeof id === "string") doneSet[id] = true; });
       for (var i = 0; i < N && doneSet[STATIONS[i].id] === true; i++) { state.done[STATIONS[i].id] = true; state.doneCount++; }
       if (plainObj(sv.stars)) Object.keys(sv.stars).forEach(function (k) { var v = sv.stars[k]; if (scoreKey(k) && isInt(v) && v >= 1 && v <= 3) state.stars[k] = v; });
       if (plainObj(sv.attempts)) Object.keys(sv.attempts).forEach(function (k) { var v = sv.attempts[k]; if (scoreKey(k) && isInt(v) && v >= 0 && v <= 10000) state.attempts[k] = v; });
       if (plainObj(sv.picks)) Object.keys(sv.picks).forEach(function (k) { var s = ids[k], v = sv.picks[k]; if (s && s.data.activity && Array.isArray(s.data.activity.options) && isIdx(v, s.data.activity.options.length)) state.picks[k] = v; });
       if (plainObj(sv.answers)) Object.keys(sv.answers).forEach(function (k) { var ok = k.indexOf("q:") === 0 ? scoreKey(k.slice(2)) : Object.prototype.hasOwnProperty.call(ids, k); if (ok && plainObj(sv.answers[k])) state.answers[k] = sv.answers[k]; });
       state.finished = sv.finished === true && state.doneCount === N;
+      state.ended = sv.done === true && state.finished;
       if (Array.isArray(sv.coinsGot)) sv.coinsGot.forEach(function (ci) { if (isIdx(ci, coinPickups.length) && !coinPickups[ci].got) { coinPickups[ci].got = true; scene.remove(coinPickups[ci].mesh); } });
       var tasks = plainObj(sv.tasks) ? sv.tasks : {};
       STATIONS.forEach(function (s) { restoreTask(s, plainObj(tasks[s.id]) ? tasks[s.id] : {}, !!state.done[s.id]); restoreProp(s); });

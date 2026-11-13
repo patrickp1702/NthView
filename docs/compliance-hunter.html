@@ -2165,7 +2165,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     var S = {
       mode: "intro", k: 0, picks: START_PICKS, gems: 0, paused: false, deaths: 0, skips: 0, alarms: 0, runSeed: 0,
       inv: { sprint: 0, knife: 0, smoke: 0, vest: 0, grenade: 0, pot: 0 }, invStart: { sprint: 0, knife: 0, smoke: 0, vest: 0, grenade: 0, pot: 0 }, sel: null,
-      results: freshResults(), finale: { list: [], i: 0, mistakes: 0, done: false }, steps: [], stepI: 0, trialNotes: []
+      results: freshResults(), finale: { list: [], i: 0, mistakes: 0, done: false }, steps: [], stepI: 0, trialNotes: [], done: false
     };
     var saveTimer = 0;
     function snapshot() {
@@ -2175,7 +2175,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         inv: { sprint: S.invStart.sprint, knife: S.invStart.knife, smoke: S.invStart.smoke, vest: S.invStart.vest, grenade: S.invStart.grenade, pot: S.invStart.pot },
         results: S.results.map(function (r) { return { m: r.mistakes, d: r.done ? 1 : 0, s: r.stars, x: r.deaths, c: r.cleared ? 1 : 0, q: r.skipped ? 1 : 0 }; }),
         finale: { m: S.finale.mistakes, done: S.finale.done ? 1 : 0, i: S.finale.i },
-        settings: { reduced: settings.reduced, sound: settings.sound, lights: settings.lights } };
+        settings: { reduced: settings.reduced, sound: settings.sound, lights: settings.lights }, done: S.done };
     }
     function saveNow() { clearTimeout(saveTimer); saveTimer = 0; if (S.mode !== "intro" && canvas.isConnected) saveState(KEY, snapshot()); }
     function persist() { if (!saveTimer) saveTimer = setTimeout(saveNow, 250); }
@@ -2195,6 +2195,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       if (intIn(sv.skips, 0, 1e5)) S.skips = sv.skips;
       if (intIn(sv.alarms, 0, 1e5)) S.alarms = sv.alarms;
       if (intIn(sv.runSeed, 0, 1e6)) S.runSeed = sv.runSeed;
+      if (sv.done === true) S.done = true;   /* a finished run stays finished until Restart or play again (§5.5 rule 8) */
       if (sv.inv && typeof sv.inv === "object") REWARDS.forEach(function (p2) { if (intIn(sv.inv[p2], 0, 99)) { S.inv[p2] = sv.inv[p2]; S.invStart[p2] = sv.inv[p2]; } });
       if (sv.finale && typeof sv.finale === "object") { if (intIn(sv.finale.m, 0, 999)) S.finale.mistakes = sv.finale.m; if (intIn(sv.finale.i, 0, 50)) S.finale.i = sv.finale.i; }
       var k = intIn(sv.k, 0, N) ? sv.k : 0, phase = ["block", "finale", "report"].indexOf(sv.phase) !== -1 ? sv.phase : "block";
@@ -4144,6 +4145,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       host.appendChild(ul); host.appendChild(more); add();
     }
     function showReport() {
+      S.done = true;   /* the end is the final report after the vault; live and restored runs both pass here (§5.5 rule 8) */
       S.mode = "report"; panel.classList.remove("nthview-open"); hideCallout(); renderPowers(); openOverlay("report"); ocard.textContent = ""; saveNow();
       ocard.appendChild(el("div", { class: "nthview-actions" }, [restartButton(container, data, KEY)])); ocard.lastChild.style.cssText = "margin:0 0 8px;justify-content:flex-end";
       var r = data.report, tiers = r.tiers || {}, fin = starsFor(S.finale.mistakes), st = totalStars() + fin, max = 3 * (N + 1);
@@ -4226,7 +4228,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       }, 500);
     }
     function restartAll() {
-      clearState(KEY); closeOverlay(); S.runSeed++; S.gems = 0; S.gems0 = 0; S.picks = START_PICKS; S.deaths = 0; S.skips = 0; S.alarms = 0;
+      clearState(KEY); closeOverlay(); S.done = false; S.runSeed++; S.gems = 0; S.gems0 = 0; S.picks = START_PICKS; S.deaths = 0; S.skips = 0; S.alarms = 0;
       REWARDS.forEach(function (p2) { S.inv[p2] = 0; S.invStart[p2] = 0; });
       S.results = freshResults(); S.finale = { list: [], i: 0, mistakes: 0, done: false };
       renderScore(); nextBlock(0);

@@ -3375,7 +3375,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
 
     /* ---------- state and progress (§5.5) ---------- */
     var defaultMode = data.defaultMode || "network";
-    var state = { screen: "intro", topic: M.topics[0].id, pos: 0, version: M.defaultVersion, mode: defaultMode, scheme: PALETTES[theme].side, checks: {}, panel: "message" };
+    var state = { screen: "intro", topic: M.topics[0].id, pos: 0, version: M.defaultVersion, mode: defaultMode, scheme: PALETTES[theme].side, checks: {}, panel: "message", done: false };
     var saved = loadState(key), resumed = false;
     if (saved) {
       if (saved.screen === "lesson" || saved.screen === "intro") state.screen = saved.screen;
@@ -3386,14 +3386,15 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       if (saved.scheme === "light" || saved.scheme === "dark" || saved.scheme === "auto") state.scheme = saved.scheme;
       if (saved.checks && typeof saved.checks === "object" && !Array.isArray(saved.checks)) state.checks = saved.checks;
       if (saved.panel === "article" || saved.panel === "message") state.panel = saved.panel;
+      state.done = saved.done === true;
       resumed = state.screen === "lesson";
     }
     function untouched() {
-      return state.screen === "intro" && !Object.keys(state.checks).length && state.version === M.defaultVersion && state.mode === defaultMode && state.scheme === PALETTES[theme].side;
+      return !state.done && state.screen === "intro" && !Object.keys(state.checks).length && state.version === M.defaultVersion && state.mode === defaultMode && state.scheme === PALETTES[theme].side;
     }
     function persist() {
       if (untouched()) { clearState(key); return; }
-      saveState(key, { screen: state.screen, topic: state.topic, pos: state.pos, version: state.version, mode: state.mode, scheme: state.scheme, checks: state.checks, panel: state.panel });
+      saveState(key, { screen: state.screen, topic: state.topic, pos: state.pos, version: state.version, mode: state.mode, scheme: state.scheme, checks: state.checks, panel: state.panel, done: state.done });
     }
     function applyScheme() {
       if (state.scheme === "auto") container.removeAttribute("data-scheme"); else container.setAttribute("data-scheme", state.scheme);
@@ -3961,6 +3962,8 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       updatePlayBtn();
       ui.nextWrap.innerHTML = "";
       var ti = topicIndex(state.topic);
+      /* the end is the last step of the last topic, where the view offers no "Next topic" (§5.5 rule 8) */
+      if (last && R.avail && !gated && ti === M.topics.length - 1 && !state.done) { state.done = true; persist(); }
       if ((last || !R.avail) && !gated && ti < M.topics.length - 1) {
         var nt = M.topics[ti + 1], nb = el("button", { type: "button", class: "nthview-df-btn" }, [doc.createTextNode("Next topic: " + nt.title + " →")]);
         nb.addEventListener("click", function () { openTopic(nt.id, false); });

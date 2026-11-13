@@ -517,7 +517,7 @@
     container.addEventListener("pointerdown", onTouchSeen, true);
 
     /* ---------- state ---------- */
-    var state = { started: false, met: {}, talkIdx: {}, es: {}, newStamp: null, muted: false, guide: false, panel: null, closingShown: false, overlay: null, read: {} };
+    var state = { started: false, met: {}, talkIdx: {}, es: {}, newStamp: null, muted: false, guide: false, panel: null, closingShown: false, ended: false, overlay: null, read: {} };
     var ready = false, lastSaved = "";   /* ready: saving starts once the scene is built and restored */
     var dress = { hair: WARDROBE.hair.colors[0], top: WARDROBE.top.colors[0], bottom: WARDROBE.bottom.colors[0], shoes: WARDROBE.shoes.colors[0] };
     data.errands.forEach(function (e) {
@@ -532,6 +532,7 @@
       var count = function (v, max) { return typeof v === "number" && v >= 0 && v <= max && Math.floor(v) === v; };
       var STAGES = { letter: ["pickup", "carry", "done"], parcel: ["pickup", "carry", "done"], reply: ["ask", "carry", "done"], sort: ["office", "done"], telegram: ["office", "done"], weigh: ["office", "carry", "done"], chain: ["chain", "done"], notice: ["read", "done"] };
       ["started", "muted", "guide", "closingShown"].forEach(function (k) { if (typeof saved[k] === "boolean") state[k] = saved[k]; });
+      state.ended = saved.done === true || state.closingShown;
       if (obj(saved.met)) Object.keys(saved.met).forEach(function (id) { if (saved.met[id] === true && (RES[id] || id === "_postmaster")) state.met[id] = true; });
       if (obj(saved.talkIdx)) Object.keys(saved.talkIdx).forEach(function (id) { if (RES[id] && count(saved.talkIdx[id], 1e6)) state.talkIdx[id] = saved.talkIdx[id]; });
       if (obj(saved.dress)) Object.keys(dress).forEach(function (k) { if (typeof saved.dress[k] === "string" && /^#[0-9a-f]{6}$/i.test(saved.dress[k])) dress[k] = saved.dress[k]; });
@@ -1736,7 +1737,8 @@
       setTimeout(function () { toast(bagCount() ? "Your bag has mail. Open it to see the errands." : "Open your bag to see the errands."); }, 400);
     }
     function showClosing(quiet) {
-      state.closingShown = true; refreshAll(); if (quiet !== true) sfx("letter");
+      state.closingShown = true; state.ended = true; /* §5.5 rule 8: the end is the postmaster's closing letter; once shown, the record keeps done: true */
+      refreshAll(); if (quiet !== true) sfx("letter");
       var c = data.postmaster.closing, wrap = el("div", { class: "nthview-letterwrap" }), pap = paper({ heading: c.heading, paragraphs: c.paragraphs }, "DELIVERED");
       var ol = el("ol", { class: "nthview-recap" }); data.errands.forEach(function (e) { var li = el("li"); li.appendChild(rich(e.teaches)); ol.appendChild(li); }); pap.appendChild(ol);
       if (c.signoff) pap.appendChild(el("p", { class: "nthview-sign", text: c.signoff }));
@@ -2067,7 +2069,7 @@
       var ov = state.overlay && state.overlay.label;
       return {
         screen: !state.started ? "intro" : ov === "Review" ? "review" : ov === "Closing letter" ? "closing" : "world",
-        started: state.started, met: state.met, talkIdx: state.talkIdx, es: es, closingShown: state.closingShown,
+        started: state.started, met: state.met, talkIdx: state.talkIdx, es: es, closingShown: state.closingShown, done: state.ended,
         muted: state.muted, guide: state.guide, dress: dress,
         pos: vec(P), heading: vec(camF), facing: vec(faceF), pitch: r5(pitch)
       };
@@ -2124,6 +2126,7 @@
     restoreScene();
     if (state.started) resumeWorld(); else showIntro();
     lastSaved = JSON.stringify(snapshot()); ready = true;   /* opening the file writes nothing; the first real change does */
+    if (state.ended && saved && saved.done !== true) { lastSaved = ""; persist(); }   /* §5.5 rule 8: a record that reached the end without done gets it now */
     tick();
     if (doc.fonts && doc.fonts.ready) doc.fonts.ready.then(function () { if (!alive) return; labels.forEach(function (L) { L.draw(); }); data.districts.forEach(function (d) { d._signBoard.material.map = boardTexture(d.name, d._color); d._signBoard.material.needsUpdate = true; }); });
   }

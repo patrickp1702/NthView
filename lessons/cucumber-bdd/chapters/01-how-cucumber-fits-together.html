@@ -2105,7 +2105,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     var S = {
       phase: "intro", tour: 0, task: -1, done: {}, slips: [], skipped: [], collapsed: {},
       sel: null, src: null, picks: [], revealed: false, detailsFor: null, detailsKey: null, lastBox: null, lastMaxK: 1.25, ts: null,
-      manual: false
+      manual: false, finished: false
     };
     var cam = { x: 0, y: 0, k: 1 };
 
@@ -2116,7 +2116,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       nodes.forEach(function (n) { if (n.x !== n.hx || n.y !== n.hy) moved[n.id] = [n.x, n.y]; });
       return {
         phase: S.phase, tour: S.tour, task: S.task,
-        done: Object.keys(S.done),
+        done: S.finished, solved: Object.keys(S.done),
         slips: S.slips.map(function (s) { return { task: s.task.id, kind: s.kind, chose: s.chose, answer: s.answer, why: s.why }; }),
         skipped: S.skipped.map(function (s) { return { task: s.task.id }; }),
         collapsed: Object.keys(S.collapsed).filter(function (k) { return S.collapsed[k]; }),
@@ -2149,7 +2149,8 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       var det = sv.details && typeof sv.details === "object" ? sv.details : null;
       var camS = sv.cam && typeof sv.cam === "object" && num(sv.cam.x) && num(sv.cam.y) && num(sv.cam.k) && sv.cam.k >= .14 && sv.cam.k <= 2.6 ? { x: sv.cam.x, y: sv.cam.y, k: sv.cam.k } : null;
       function applySaved() {
-        if (Array.isArray(sv.done)) sv.done.forEach(function (id) { if (TID[id]) S.done[id] = true; });
+        var solvedIds = Array.isArray(sv.solved) ? sv.solved : Array.isArray(sv.done) ? sv.done : []; /* records saved before §5.5 rule 8 kept the solved tasks in done */
+        solvedIds.forEach(function (id) { if (TID[id]) S.done[id] = true; });
         if (Array.isArray(sv.slips)) sv.slips.forEach(function (s) { if (s && TID[s.task] && KIND[s.kind]) S.slips.push({ task: TID[s.task], kind: s.kind, chose: String(s.chose || ""), answer: String(s.answer || ""), why: String(s.why || "") }); });
         if (Array.isArray(sv.skipped)) sv.skipped.forEach(function (s) { if (s && TID[s.task]) S.skipped.push({ task: TID[s.task], index: tasks.indexOf(TID[s.task]) }); });
       }
@@ -2170,6 +2171,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         if (ts.hint === true && S.ts.hintBtn) S.ts.hintBtn.click();
       }
       return function () {
+        S.finished = sv.done === true;
         intro.hidden = true; intro.classList.add("nthview-gone");
         restoreAll(); redraw(); setupMini();
         if (ph === "rebuild") {
@@ -2944,6 +2946,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
 
     /* ---------- intro ---------- */
     function showIntro() {
+      S.finished = false; /* only reached fresh or after Start again, which cleared the record */
       setPhase("intro"); setStage(0);
       clearMarks(); setFocus(null); closeDetails(false);
       guide.hidden = true;
@@ -3504,6 +3507,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
 
     /* ---------- end screen ---------- */
     function showEnd() {
+      S.finished = true; /* §5.5 rule 8: the end is the review screen after the reflection, the view's last stage */
       setPhase("end"); setStage(3);
       restoreAll(); clearMarks(); setFocus(null); syncCollapse(); redraw();
       data.reflection.keyEdges.forEach(function (k) { ED[k.edge].g.classList.add("nthview-key"); ED[k.edge].lab.classList.add("nthview-key"); });
@@ -3621,10 +3625,10 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
   </script>
 
   <!-- NthView lesson bar: added by scripts/build-lesson.js; the view above is untouched -->
-  <nav class="nthview-lesson-bar" aria-label="Lesson navigation" data-chapter="2" data-of="6">
+  <nav class="nthview-lesson-bar" aria-label="Lesson navigation" data-chapter="2" data-of="6" data-key="nthview:concept-map:f7kvr2">
     <button type="button" class="nthview-lesson-toggle" aria-expanded="false" aria-controls="nthview-lesson-menu" title="Cucumber and BDD: Specs Everyone Can Read">2<small>/6</small></button>
     <div class="nthview-lesson-menu" id="nthview-lesson-menu">
-      <span class="nthview-lesson-title"><b>Cucumber and BDD: Specs Everyone Can Read</b> · Chapter 2 of 6: How Cucumber Fits Together</span>
+      <span class="nthview-lesson-title"><b>Cucumber and BDD: Specs Everyone Can Read</b> · Chapter 2 of 6: How Cucumber Fits Together<span class="nthview-lesson-complete" hidden> · ✓ Chapter complete</span></span>
       <span class="nthview-lesson-links">
         <a href="00-highlights.html">‹ Previous</a>
         <a href="../index.html">Contents</a>
@@ -3645,8 +3649,13 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     .nthview-lesson-links a:hover{border-color:#1d4ed8;text-decoration:underline}
     .nthview-lesson-links a.nthview-lesson-next{background:#1d4ed8;border-color:#1d4ed8;color:#fff}
     .nthview-lesson-bar :focus-visible{outline:3px solid #1d4ed8;outline-offset:2px}
+    .nthview-lesson-angles{display:flex;flex-direction:column;gap:.35rem;flex:1 1 100%}
+    .nthview-lesson-angles a{color:#6d28d9;text-decoration:none;font-weight:600;font-size:.88rem}.nthview-lesson-angles a:hover{text-decoration:underline}.nthview-lesson-angles small{font-weight:500;opacity:.75}
+    .nthview-lesson-complete{color:#047857;font-weight:700}
+    .nthview-lesson-done .nthview-lesson-toggle{border-color:#059669;box-shadow:0 0 0 3px rgba(5,150,105,.35),0 10px 30px -12px rgba(0,0,0,.5)}
     @media (pointer:coarse){.nthview-lesson-links a{min-height:44px;padding:.4rem .95rem}}
     @media (max-width:640px){.nthview-lesson-bar{right:max(10px,env(safe-area-inset-right,0px));bottom:max(10px,env(safe-area-inset-bottom,0px));flex-direction:column-reverse;align-items:flex-end}.nthview-lesson-toggle{width:40px;height:40px;font-size:14px;line-height:40px}.nthview-lesson-menu{flex-direction:column;align-items:stretch;gap:.7rem;width:min(24rem,calc(100vw - 20px));max-width:none;max-height:70vh;overflow:auto;padding:.85rem 1rem;border-radius:1rem}.nthview-lesson-title{flex:none}}
+    @media (prefers-color-scheme:dark){.nthview-lesson-angles a{color:#c4b5fd}.nthview-lesson-complete{color:#6ee7b7}}
     @media (prefers-color-scheme:dark){.nthview-lesson-toggle,.nthview-lesson-menu{background:rgba(24,26,36,.95);color:#f3f4f8;border-color:rgba(255,255,255,.22)}.nthview-lesson-links a{color:#a9bdff;border-color:rgba(169,189,255,.4)}.nthview-lesson-links a:hover{border-color:#a9bdff}.nthview-lesson-links a.nthview-lesson-next{background:#8aa6ff;border-color:#8aa6ff;color:#0b1020}.nthview-lesson-bar :focus-visible{outline-color:#a9bdff}}
     @media print{.nthview-lesson-bar{display:none}}
   </style>
@@ -3657,6 +3666,12 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       btn.addEventListener("click", function () { set(!bar.classList.contains("nthview-lesson-open")); });
       document.addEventListener("click", function (e) { if (bar.classList.contains("nthview-lesson-open") && !bar.contains(e.target)) set(false); }, true);
       document.addEventListener("keydown", function (e) { if (e.key === "Escape" && bar.classList.contains("nthview-lesson-open")) { set(false); btn.focus(); } });
+      /* §5.5 rule 8: when the view marks this chapter done, show it and point to what comes next */
+      var key = bar.getAttribute("data-key"), shown = false;
+      function done() { try { var r = JSON.parse(localStorage.getItem(key) || "null"); return !!(r && r.done === true); } catch (e) { return false; } }
+      function mark() { shown = true; bar.classList.add("nthview-lesson-done"); bar.querySelector(".nthview-lesson-complete").hidden = false; btn.setAttribute("title", "Chapter complete"); }
+      if (done()) mark();
+      else var timer = setInterval(function () { if (done()) { clearInterval(timer); mark(); set(true); } }, 2000);
     })();
   </script>
 </body>

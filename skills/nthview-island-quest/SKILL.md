@@ -53,6 +53,10 @@ a delivery) that makes the source's core tension concrete, and a world
 
 ### 2. Prepare the JSON
 Follow `references/schema.md` exactly. Set `"schemaVersion": 1`.
+Open `references/complete-example.md` only when a table leaves the shape of
+something unclear; it is long. Never open `assets/view.js` or
+`scripts/validate.js`: the tools run and copy them, and everything the JSON
+needs is in this file and `references/schema.md`.
 - One island per idea, in play order. Give each a vivid two-word `name`, a
   scenery `theme` and, when the default palette does not suit, a `color`.
 - Choose the activity type from the shape of the idea using the table in
@@ -76,8 +80,10 @@ Fix every error and re-run until it prints `valid`. Address warnings where
 reasonable (a wrong option without `why`, findings without `text`, too few
 activity types, an empty bucket).
 
-If `node` is not installed, try `bun` or `deno run -A` with the same
-script; both run it unchanged. If no JavaScript runtime exists, do the
+A JavaScript runtime is expected: with one, checking and building the file
+cost no tokens. If `node` is not installed, try `bun` or `deno run -A` with
+the same script; both run it unchanged. If no JavaScript runtime exists, tell
+the user that installing Node makes this much cheaper, then do the
 validator's job yourself: check the JSON against every table, cross-field
 rule and warning in `references/schema.md`, which is exactly what
 `scripts/validate.js` implements, and fix what you find. Say that the check
@@ -104,8 +110,10 @@ the two library tags from `NthView.libs`, then `scripts/validate.js` and
 `assets/view.js` inlined verbatim, then the three-line bootstrap that calls
 `NthView.build(document.getElementById("app"), data)`.
 
-The hand build is the fallback when no JavaScript runtime is available; the
-tool does nothing beyond that template, so the result is identical.
+Build by hand only when no JavaScript runtime is available: it means
+writing out the whole renderer (40–270 KB, up to about 70,000 tokens) and is
+easy to get wrong, so tell the user the cost first. The tool does nothing
+beyond that template, so the result is identical.
 
 ### 5. Deliver
 Hand the user the single file and say it needs internet access the first time
@@ -169,8 +177,9 @@ it opens (for three.js and the fonts). Build no other view unless asked.
 - Hand-editing the HTML → change the JSON, re-validate, rebuild.
 
 ## Files
-- `references/schema.md` — the JSON format (single source of truth), the world-theme table, the layout rule and the complete Exam Island example
+- `references/schema.md` — the JSON format (single source of truth), the world-theme table, the layout rule
+- `references/complete-example.md` — a complete valid example; open only when needed
 - `references/activities.md` — which of the 25 activity types fits which idea, with a snippet for each
-- `scripts/validate.js` — `NthView.validate(data)`, Node CLI and browser
-- `assets/view.js` — `NthView.build(container, data)`; declares the CDN libraries in `NthView.libs`
+- `scripts/validate.js` — `NthView.validate(data)`, Node CLI and browser; run it, never read it
+- `assets/view.js` — `NthView.build(container, data)`; declares the CDN libraries in `NthView.libs`; the build tool copies it, never read it
 - `examples/example.html` — Exam Island, a working standalone sample built from the schema example

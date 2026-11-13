@@ -74,6 +74,10 @@ sequences (see Content guidance). Mark runs that read as one sub-routine
 
 ### 2. Prepare the JSON
 Follow `references/schema.md` exactly. Set `"schemaVersion": 1`.
+Open `references/complete-example.md` only when a table leaves the shape of
+something unclear; it is long. Never open `assets/view.js` or
+`scripts/validate.js`: the tools run and copy them, and everything the JSON
+needs is in this file and `references/schema.md`.
 - Declare `channels` by what they mean for the learner (visible to an
   attacker, encrypted, direct, local computation, out of band) and give each
   a colour; the arrow colour then tells the story at a glance.
@@ -115,8 +119,10 @@ Fix every error and re-run until it prints `valid`. Address warnings where
 reasonable: a step without `wire` or a long payload usually means the step is
 vaguer than it should be.
 
-If `node` is not installed, try `bun` or `deno run -A` with the same
-script; both run it unchanged. If no JavaScript runtime exists, do the
+A JavaScript runtime is expected: with one, checking and building the file
+cost no tokens. If `node` is not installed, try `bun` or `deno run -A` with
+the same script; both run it unchanged. If no JavaScript runtime exists, tell
+the user that installing Node makes this much cheaper, then do the
 validator's job yourself: check the JSON against every table, cross-field
 rule and warning in `references/schema.md`, which is exactly what
 `scripts/validate.js` implements, and fix what you find. Say that the check
@@ -143,8 +149,10 @@ as a plugin, write to the current folder or where the user asks; do not create
 or reuse a `docs/` folder there, it may hold the project's own documentation.
 Never write inside `skills/`.
 
-The hand build is the fallback when no JavaScript runtime is available; the
-tool does nothing beyond that template, so the result is identical.
+Build by hand only when no JavaScript runtime is available: it means
+writing out the whole renderer (40–270 KB, up to about 70,000 tokens) and is
+easy to get wrong, so tell the user the cost first. The tool does nothing
+beyond that template, so the result is identical.
 
 ### 5. Deliver
 Hand the user the single file. It needs no internet access. Mention that the
@@ -225,7 +233,8 @@ asked.
 - Hand-editing the HTML → change the JSON, re-validate, rebuild.
 
 ## Files
-- `references/schema.md` — the JSON format (single source of truth), including inner sequences, groups and visibility, and the complete OAuth 2.1 example
-- `scripts/validate.js` — `NthView.validate(data)`, Node CLI and browser
-- `assets/view.js` — `NthView.build(container, data)`; step mode with inner sequences and groups, full diagram with ref frames and Expand all, the four themes in `PALETTES`, `NthView.THEMES`
+- `references/schema.md` — the JSON format (single source of truth), including inner sequences, groups and visibility
+- `references/complete-example.md` — a complete valid example; open only when needed
+- `scripts/validate.js` — `NthView.validate(data)`, Node CLI and browser; run it, never read it
+- `assets/view.js` — `NthView.build(container, data)`; step mode with inner sequences and groups, full diagram with ref frames and Expand all, the four themes in `PALETTES`, `NthView.THEMES`; the build tool copies it, never read it
 - `examples/example.html` — the OAuth 2.1 with PKCE sequence, a working standalone sample built from the schema example

@@ -3720,7 +3720,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     STEPS.forEach(function (s) { record[s.id] = { visited: false, vars: null, pick: -1, revealed: false, skipped: false, solved: false }; });
 
     /* ---------- progress (§5.5): restore field by field, ignoring anything that no longer fits the data ---------- */
-    var startAt = -1, resumed = false, saveTimer = 0;
+    var startAt = -1, resumed = false, saveTimer = 0, finished = false;
     if (SAVED) {
       var savedSteps = SAVED.steps && typeof SAVED.steps === "object" ? SAVED.steps : {};
       STEPS.forEach(function (st) {
@@ -3738,6 +3738,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       });
       if (Number.isInteger(SAVED.current) && SAVED.current >= -1 && SAVED.current <= N) startAt = SAVED.current;
       if (startAt !== -1) resumed = true;
+      finished = SAVED.done === true; /* §5.5 rule 8: a finished exploration stays finished */
     }
     function snapshot() {
       var steps = {};
@@ -3745,9 +3746,9 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         var r = record[st.id];
         steps[st.id] = { visited: r.visited, vars: i === current ? Object.assign({}, vars) : r.vars, pick: r.pick, revealed: r.revealed, skipped: r.skipped, solved: r.solved };
       });
-      return { current: current, scheme: scheme, steps: steps };
+      return { current: current, scheme: scheme, steps: steps, done: finished };
     }
-    function untouched() { return current === -1 && scheme === 0 && !STEPS.some(function (st) { return record[st.id].visited; }); }
+    function untouched() { return current === -1 && scheme === 0 && !finished && !STEPS.some(function (st) { return record[st.id].visited; }); }
     function saveNow() { clearTimeout(saveTimer); saveTimer = 0; if (!untouched()) saveState(KEY, snapshot()); }
     function queueSave() { if (saveTimer) return; saveTimer = setTimeout(function () { saveTimer = 0; if (wrap.isConnected) saveNow(); }, 300); }
     function flushSave() {
@@ -4028,6 +4029,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     /* ---------- wrap-up ---------- */
     function wrapScreen() {
       var w = data.wrapUp, s = el("section", { "aria-label": "Wrap-up" });
+      finished = true; /* §5.5 rule 8: reaching the wrap-up is the end; go() saves it */
       s.appendChild(rise(el("p", { class: "nthview-eyebrow", text: "Lab notes" }), 0));
       var h1 = el("h1", { text: w.heading || "What you discovered", tabindex: "-1" }); s.appendChild(rise(h1, 1));
       var made = 0, right = 0, visited = 0, solved = 0, chals = 0;
@@ -4056,7 +4058,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       }
       s.appendChild(el("div", { class: "nthview-nav" }, [
         btn("Back to the last step", "nthview-ghost", function () { go(N - 1); }, "prev"),
-        btn("Explore again from scratch", "nthview-primary", function () { clearState(KEY); STEPS.forEach(function (st) { record[st.id] = { visited: false, vars: null, pick: -1, revealed: false, skipped: false, solved: false }; }); go(0); }, "restart")
+        btn("Explore again from scratch", "nthview-primary", function () { clearState(KEY); finished = false; STEPS.forEach(function (st) { record[st.id] = { visited: false, vars: null, pick: -1, revealed: false, skipped: false, solved: false }; }); go(0); }, "restart")
       ]));
       watch(function (env) { takeLive.forEach(function (f) { f(env); }); });
       setTimeout(function () {

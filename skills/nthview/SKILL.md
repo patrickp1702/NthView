@@ -137,6 +137,10 @@ on only when the user says quiz, test, exam, evaluate or grade.
   and `updated` dates, `minutes` per chapter.
 - Reuse the same cast, setting or example across chapters when the views
   allow it; the lesson reads as one story.
+- Where one idea benefits from a second view, give the chapter `angles`
+  pointing to it ("Prefer to see how the parts connect?"). A second angle
+  not every learner needs becomes an `extra` chapter off the main path,
+  placed right after the chapter that points to it.
 - Chapter files are numbered `00-`, `01-`, `02-`, … so the order is visible on disk.
 
 ## Common mistakes

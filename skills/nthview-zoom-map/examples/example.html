@@ -2087,7 +2087,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     var uid = "nthview-" + gen + "-";
     function secId(n) { return uid + "n-" + n.id; }
 
-    var S = { mode: "map", F: null, A: null, showLinks: true, pipe: null, hot: null };
+    var S = { mode: "map", F: null, A: null, showLinks: true, pipe: null, hot: null, done: false };
 
     /* ---------- progress (§5.5): one record per document, saved on every change ---------- */
     var key = storageKey(data), started = false, saveTimer = null;
@@ -2099,7 +2099,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         cam: { x: c.x, y: c.y, k: c.k }, vp: { w: v.w, h: v.h },
         showLinks: S.showLinks, pipe: S.pipe, scheme: schemes[scheme], about: !about.hidden,
         drawer: openDrawer ? (openDrawer.d === outline ? "outline" : "glossary") : (toc.classList.contains("nthview-open") ? "toc" : null),
-        docScroll: docPane.scrollTop, openDeeper: open
+        docScroll: docPane.scrollTop, openDeeper: open, done: S.done
       };
     }
     /* discrete changes save at once; pan, zoom and scroll are debounced */
@@ -3502,6 +3502,11 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
 
     /* scroll spy */
     var spyTick = false;
+    /* §5.5 rule 8: the map has no end, the doc does; reading it to its closing lines (footer or last section on screen) finishes the document */
+    function checkEnd() {
+      if (S.done || S.mode !== "doc" || !docPane.clientHeight) return;
+      if (docPane.scrollHeight - docPane.clientHeight - docPane.scrollTop <= 48) { S.done = true; persist(); }
+    }
     docPane.addEventListener("scroll", function () {
       persistSoon();
       if (spyTick) return; spyTick = true;
@@ -3511,6 +3516,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         tocLinks.forEach(function (t) { var r = t.target.getBoundingClientRect(); if (r.top <= line) cur = t; });
         if (!cur) cur = tocLinks[0];
         tocLinks.forEach(function (t) { if (t === cur || (cur && cur.parent === t.a)) t.a.setAttribute("aria-current", "true"); else t.a.removeAttribute("aria-current"); });
+        checkEnd();
       });
     }, { passive: true });
 
@@ -3555,6 +3561,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       if (toMap && !opts.silent) { relayout(); zoomTo(S.F, { instant: true, quiet: true }); }
       if (!opts.silent) announce(toMap ? "Map mode." : "Doc mode.");
       persist();
+      if (!toMap) raf(function () { if (alive()) checkEnd(); });
     }
     mapBtn.addEventListener("click", function () { setMode("map"); });
     docBtn.addEventListener("click", function () { setMode("doc"); docPane.focus({ preventScroll: true }); });
@@ -3599,6 +3606,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     var F0 = saved && typeof saved.focus === "string" && M.byId[saved.focus] ? M.byId[saved.focus] : M.root;
     var A0 = saved && typeof saved.active === "string" && M.byId[saved.active] && M.byId[saved.active].parent === F0 ? M.byId[saved.active] : (F0.children.length ? F0.children[0] : null);
     if (saved) {
+      if (saved.done === true) S.done = true; /* §5.5 rule 8: a finished document stays finished */
       if (typeof saved.showLinks === "boolean") { S.showLinks = saved.showLinks; linksChip.setAttribute("aria-pressed", String(S.showLinks)); }
       if (typeof saved.pipe === "string" && pipelines.some(function (p) { return p.id === saved.pipe; })) { S.pipe = saved.pipe; paintPipeChips(); }
       if (schemes.indexOf(saved.scheme) !== -1) { scheme = schemes.indexOf(saved.scheme); paintScheme(); }

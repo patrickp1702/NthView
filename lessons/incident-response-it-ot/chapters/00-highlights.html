@@ -542,7 +542,8 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     var state = {
       i: typeof saved.i === "number" && saved.i >= 0 && saved.i < n && saved.i % 1 === 0 ? saved.i : 0,
       mode: saved.mode === "grid" ? "grid" : "story",
-      read: {}
+      read: {},
+      done: saved.done === true
     };
     if (saved.read && typeof saved.read === "object" && !Array.isArray(saved.read)) {
       Object.keys(saved.read).forEach(function (id) { if (cards.some(function (c) { return c.id === id; })) state.read[id] = true; });
@@ -558,7 +559,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
 
     function accentOf(c, i) { return theme.accents[c.accent || ACCENT_ORDER[i % ACCENT_ORDER.length]]; }
     function kindOf(c) { return c.kind || "topic"; }
-    function persist() { saveState(key, { i: state.i, mode: state.mode, read: state.read }); }
+    function persist() { saveState(key, { i: state.i, mode: state.mode, read: state.read, done: state.done }); }
 
     var post = el("div", { class: "nthview-hl-post" });
     shell.appendChild(post);
@@ -636,6 +637,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       stage.innerHTML = "";
       var c = cards[state.i], acc = accentOf(c, state.i);
       state.read[c.id] = true;
+      if (state.i === n - 1) state.done = true; /* §5.5 rule 8: the end is the last card of the deck shown in story mode */
       var frame = el("div", { class: "nthview-hl-frame", role: "group", "aria-roledescription": "card", "aria-label": "Card " + (state.i + 1) + " of " + n, tabindex: "-1", "data-hl-f": "frame" });
       setAccent(frame, acc);
       frame.appendChild(el("div", { class: "nthview-hl-deco", "aria-hidden": "true" }, shapes(state.i)));
@@ -788,10 +790,10 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
   </script>
 
   <!-- NthView lesson bar: added by scripts/build-lesson.js; the view above is untouched -->
-  <nav class="nthview-lesson-bar" aria-label="Lesson navigation" data-chapter="1" data-of="6">
+  <nav class="nthview-lesson-bar" aria-label="Lesson navigation" data-chapter="1" data-of="6" data-key="nthview:highlights:j5dggv">
     <button type="button" class="nthview-lesson-toggle" aria-expanded="false" aria-controls="nthview-lesson-menu" title="Incident Response in IT and OT">1<small>/6</small></button>
     <div class="nthview-lesson-menu" id="nthview-lesson-menu">
-      <span class="nthview-lesson-title"><b>Incident Response in IT and OT</b> · Chapter 1 of 6: Highlights</span>
+      <span class="nthview-lesson-title"><b>Incident Response in IT and OT</b> · Chapter 1 of 6: Highlights<span class="nthview-lesson-complete" hidden> · ✓ Chapter complete</span></span>
       <span class="nthview-lesson-links">
         <a href="../index.html">‹ Contents</a>
         <a href="../index.html">Contents</a>
@@ -812,8 +814,13 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     .nthview-lesson-links a:hover{border-color:#1d4ed8;text-decoration:underline}
     .nthview-lesson-links a.nthview-lesson-next{background:#1d4ed8;border-color:#1d4ed8;color:#fff}
     .nthview-lesson-bar :focus-visible{outline:3px solid #1d4ed8;outline-offset:2px}
+    .nthview-lesson-angles{display:flex;flex-direction:column;gap:.35rem;flex:1 1 100%}
+    .nthview-lesson-angles a{color:#6d28d9;text-decoration:none;font-weight:600;font-size:.88rem}.nthview-lesson-angles a:hover{text-decoration:underline}.nthview-lesson-angles small{font-weight:500;opacity:.75}
+    .nthview-lesson-complete{color:#047857;font-weight:700}
+    .nthview-lesson-done .nthview-lesson-toggle{border-color:#059669;box-shadow:0 0 0 3px rgba(5,150,105,.35),0 10px 30px -12px rgba(0,0,0,.5)}
     @media (pointer:coarse){.nthview-lesson-links a{min-height:44px;padding:.4rem .95rem}}
     @media (max-width:640px){.nthview-lesson-bar{right:max(10px,env(safe-area-inset-right,0px));bottom:max(10px,env(safe-area-inset-bottom,0px));flex-direction:column-reverse;align-items:flex-end}.nthview-lesson-toggle{width:40px;height:40px;font-size:14px;line-height:40px}.nthview-lesson-menu{flex-direction:column;align-items:stretch;gap:.7rem;width:min(24rem,calc(100vw - 20px));max-width:none;max-height:70vh;overflow:auto;padding:.85rem 1rem;border-radius:1rem}.nthview-lesson-title{flex:none}}
+    @media (prefers-color-scheme:dark){.nthview-lesson-angles a{color:#c4b5fd}.nthview-lesson-complete{color:#6ee7b7}}
     @media (prefers-color-scheme:dark){.nthview-lesson-toggle,.nthview-lesson-menu{background:rgba(24,26,36,.95);color:#f3f4f8;border-color:rgba(255,255,255,.22)}.nthview-lesson-links a{color:#a9bdff;border-color:rgba(169,189,255,.4)}.nthview-lesson-links a:hover{border-color:#a9bdff}.nthview-lesson-links a.nthview-lesson-next{background:#8aa6ff;border-color:#8aa6ff;color:#0b1020}.nthview-lesson-bar :focus-visible{outline-color:#a9bdff}}
     @media print{.nthview-lesson-bar{display:none}}
   </style>
@@ -824,6 +831,12 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       btn.addEventListener("click", function () { set(!bar.classList.contains("nthview-lesson-open")); });
       document.addEventListener("click", function (e) { if (bar.classList.contains("nthview-lesson-open") && !bar.contains(e.target)) set(false); }, true);
       document.addEventListener("keydown", function (e) { if (e.key === "Escape" && bar.classList.contains("nthview-lesson-open")) { set(false); btn.focus(); } });
+      /* §5.5 rule 8: when the view marks this chapter done, show it and point to what comes next */
+      var key = bar.getAttribute("data-key"), shown = false;
+      function done() { try { var r = JSON.parse(localStorage.getItem(key) || "null"); return !!(r && r.done === true); } catch (e) { return false; } }
+      function mark() { shown = true; bar.classList.add("nthview-lesson-done"); bar.querySelector(".nthview-lesson-complete").hidden = false; btn.setAttribute("title", "Chapter complete"); }
+      if (done()) mark();
+      else var timer = setInterval(function () { if (done()) { clearInterval(timer); mark(); set(true); } }, 2000);
     })();
   </script>
 </body>

@@ -802,7 +802,7 @@
     var S;
     function fresh() {
       S = { route: "briefing", locId: null, found: [], foundSet: {}, pinned: {}, links: [], linkSet: {}, eliminated: {}, visited: {}, ls: {},
-        herringSeen: {}, heard: {}, accusation: null, closed: false, selected: null, verdict: null, queue: [], overlayOpen: false, freshLinks: {} };
+        herringSeen: {}, heard: {}, accusation: null, closed: false, done: false, selected: null, verdict: null, queue: [], overlayOpen: false, freshLinks: {} };
     }
     fresh();
     var key = storageKey(data);
@@ -812,7 +812,7 @@
       if (S.route === "briefing" && !S.found.length && !Object.keys(S.visited).length) return; /* untouched briefing: no record, as before */
       var vd = S.verdict && (S.verdict.v || S.verdict.theory) ? S.verdict : null;
       saveState(key, { route: S.route, locId: S.locId, found: S.found, pinned: S.pinned, links: S.links, eliminated: S.eliminated, visited: S.visited,
-        ls: S.ls, herringSeen: S.herringSeen, heard: S.heard, accusation: S.accusation, closed: S.closed, verdict: vd });
+        ls: S.ls, herringSeen: S.herringSeen, heard: S.heard, accusation: S.accusation, closed: S.closed, verdict: vd, done: !!S.done });
     }
     function isObj(o) { return !!o && typeof o === "object" && !Array.isArray(o); }
     function sanitizeLoc(l, st) {
@@ -865,6 +865,7 @@
       var a = sv0.accusation;
       S.accusation = isObj(a) && M.hyp[a.pick] && Number.isInteger(a.conf) && a.conf >= 0 && a.conf < CONF.length ? { pick: a.pick, conf: a.conf } : null;
       S.closed = !!(S.accusation && sv0.closed);
+      S.done = !!sv0.done || S.closed; /* §5.5 rule 8: a finished case stays finished */
       S.verdict = null;
       var vd = sv0.verdict;
       if (isObj(vd)) {
@@ -1925,6 +1926,7 @@
     function debriefScreen() {
       var s = el("section", { "aria-label": "Debrief" });
       var a = S.accusation, right = a && a.pick === M.correct.id, conf = a ? CONF[a.conf][1] : 0;
+      S.done = true; /* §5.5 rule 8: the debrief is the end of the case; go() persists it */
       var top = el("div", { class: "nthview-closed" }, [el("span", { class: "nthview-stamp nthview-stamp-anim", text: "Case closed" })]);
       s.appendChild(top);
       if (!reduce && !S.flashed) { S.flashed = true; var fl = el("div", { class: "nthview-flashbulb", "aria-hidden": "true" }); container.appendChild(fl); setTimeout(function () { fl.remove(); }, 1000); }

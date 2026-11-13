@@ -3,7 +3,7 @@
 This guide helps pick one of the 31 activity types for each block and gives
 a minimal JSON snippet for each. The field tables and limits live in
 `schema.md`; this file is about *which* type fits *which* question. The
-complete showcase, one block per type, is the example in `schema.md`
+complete showcase, one block per type, is the example in `complete-example.md`
 (built as `examples/example.html`).
 
 Every type works in both modes. In learning mode (`strictMode` false, the

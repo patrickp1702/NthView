@@ -9,7 +9,7 @@
  *
  * Usage:
  *   node scripts/build-html.js <view-dir> <data.json> <out.html>
- *   node scripts/build-html.js <view-dir> --example <out.html>   # data from references/schema.md
+ *   node scripts/build-html.js <view-dir> --example <out.html>   # data from references/complete-example.md
  *
  * As a module: require("./build-html.js").assemble(viewDir, data, { extraBody })
  * returns { html, errors, warnings, libs }.
@@ -34,11 +34,12 @@ function loadView(viewDir) {
   return { dir: viewDir, name: path.basename(viewDir), files: files };
 }
 
+/* The complete example lives in references/complete-example.md (AGENTS.md §5.1). */
 function exampleJson(view) {
-  var md = fs.readFileSync(view.files.schema, "utf8");
-  var idx = md.indexOf("## Complete example");
-  var m = idx !== -1 && md.slice(idx).match(/```json\r?\n([\s\S]*?)\r?\n```/);
-  if (!m) throw new Error("no ```json block under '## Complete example' in " + path.relative(process.cwd(), view.files.schema));
+  var file = path.join(view.dir, "references", "complete-example.md");
+  if (!fs.existsSync(file)) throw new Error("missing " + path.relative(process.cwd(), file));
+  var m = fs.readFileSync(file, "utf8").match(/```json\r?\n([\s\S]*?)\r?\n```/);
+  if (!m) throw new Error("no ```json block in " + path.relative(process.cwd(), file));
   return m[1];
 }
 

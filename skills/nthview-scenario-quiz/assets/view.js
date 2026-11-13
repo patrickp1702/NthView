@@ -326,7 +326,7 @@
     var doc = root.document;
     var reduceMotion = root.matchMedia && root.matchMedia("(prefers-reduced-motion: reduce)").matches;
     var Q = data.questions, N = Q.length;
-    var state = { index: -1, answers: {}, screen: null, answered: false };
+    var state = { index: -1, answers: {}, screen: null, answered: false, done: false };
     var key = storageKey(data);
     container.setAttribute("data-theme", pickTheme(data));
 
@@ -340,7 +340,7 @@
     /* ---------- progress (§5.5): saved on every change, restored below ---------- */
     function persist() {
       if (state.index < 0 && !Object.keys(state.answers).length) return; /* untouched intro: no record, as before */
-      saveState(key, { index: state.index, answers: state.answers });
+      saveState(key, { index: state.index, answers: state.answers, done: state.done });
     }
     function resumeNotice(text) {
       var n = el("div", { class: "nthview-resume", role: "status" }, [el("span", { text: text })]);
@@ -578,7 +578,7 @@
         review.appendChild(card);
       });
       s.appendChild(review);
-      s.appendChild(el("div", { class: "nthview-actions" }, [btn("Start again", "nthview-primary", function () { clearState(key); state.answers = {}; go(-1); }), btn("Back to top", "nthview-ghost", function () { root.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" }); h1.focus(); })]));
+      s.appendChild(el("div", { class: "nthview-actions" }, [btn("Start again", "nthview-primary", function () { clearState(key); state.answers = {}; state.done = false; go(-1); }), btn("Back to top", "nthview-ghost", function () { root.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" }); h1.focus(); })]));
       setTimeout(function () { counters.forEach(function (c) { countUp(c[0], c[1]); }); confetti(); }, reduceMotion ? 0 : 350);
       return { node: s, focus: h1 };
     }
@@ -586,6 +586,7 @@
     /* ---------- navigation + keyboard ---------- */
     function go(i) {
       state.index = i; state.nextBtn = null; state.choose = null;
+      if (i >= N) state.done = true; /* §5.5 rule 8: the end is the summary and review screen after the last decision */
       var scr = i < 0 ? introScreen() : i >= N ? summaryScreen() : questionScreen(i);
       show(scr.node, scr.focus);
       persist();
@@ -617,6 +618,7 @@
         restored[q.id] = r;
       });
       state.answers = restored;
+      state.done = saved.done === true;
       if (Number.isInteger(saved.index) && saved.index >= 0 && saved.index <= N) startAt = saved.index;
     }
     go(startAt);

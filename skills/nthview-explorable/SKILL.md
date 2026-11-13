@@ -60,6 +60,10 @@ illustrative.
 
 ### 2. Prepare the JSON
 Follow `references/schema.md` exactly. Set `"schemaVersion": 1`.
+Open `references/complete-example.md` only when a table leaves the shape of
+something unclear; it is long. Never open `assets/view.js` or
+`scripts/validate.js`: the tools run and copy them, and everything the JSON
+needs is in this file and `references/schema.md`.
 - **Model first.** Declare every variable once with an honest range, a
   `step` that makes the slider usable and a `format`; derive everything
   else as `formulas` in dependency order. Steps share the model; use a
@@ -97,8 +101,10 @@ Address warnings: a step without a prediction or without anything to
 tinker with, a challenge that is already solved, or a value that is not a
 finite number.
 
-If `node` is not installed, try `bun` or `deno run -A` with the same
-script; both run it unchanged. If no JavaScript runtime exists, do the
+A JavaScript runtime is expected: with one, checking and building the file
+cost no tokens. If `node` is not installed, try `bun` or `deno run -A` with
+the same script; both run it unchanged. If no JavaScript runtime exists, tell
+the user that installing Node makes this much cheaper, then do the
 validator's job yourself: check the JSON against every table, cross-field
 rule and warning in `references/schema.md`, which is exactly what
 `scripts/validate.js` implements, and fix what you find. Say that the check
@@ -125,8 +131,10 @@ as a plugin, write to the current folder or where the user asks; do not create
 or reuse a `docs/` folder there, it may hold the project's own documentation.
 Never write inside `skills/`.
 
-The hand build is the fallback when no JavaScript runtime is available; the
-tool does nothing beyond that template, so the result is identical.
+Build by hand only when no JavaScript runtime is available: it means
+writing out the whole renderer (40–270 KB, up to about 70,000 tokens) and is
+easy to get wrong, so tell the user the cost first. The tool does nothing
+beyond that template, so the result is identical.
 
 ### 5. Deliver
 Hand the user the single file. It needs internet access once to load the
@@ -174,8 +182,9 @@ other view unless asked.
 - Hand-editing the HTML → change the JSON, re-validate, rebuild.
 
 ## Files
-- `references/schema.md` — the JSON format (single source of truth), themes, colours, expression language and the complete herd-immunity example
+- `references/schema.md` — the JSON format (single source of truth), themes, colours, expression language
+- `references/complete-example.md` — a complete valid example; open only when needed
 - `references/visuals.md` — which visualisation and control fits which idea, with a snippet for each
-- `scripts/validate.js` — `NthView.validate(data)`, Node CLI and browser
-- `assets/view.js` — `NthView.build(container, data)`; the six themes live in its `PALETTES` table; fonts declared in `NthView.libs`
+- `scripts/validate.js` — `NthView.validate(data)`, Node CLI and browser; run it, never read it
+- `assets/view.js` — `NthView.build(container, data)`; the six themes live in its `PALETTES` table; fonts declared in `NthView.libs`; the build tool copies it, never read it
 - `examples/example.html` — "How Herd Immunity Works", a working standalone sample built from the schema example

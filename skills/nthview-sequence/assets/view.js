@@ -810,7 +810,7 @@
     var anyCompare = levelKeys.some(function (k) { return LEVELS[k].S.some(function (s) { return !!s.compare; }); });
     var anyFold = innerCount > 0 || levelKeys.some(function (k) { return (LEVELS[k].seq.fragments || []).some(function (f) { return f.kind === "group"; }); });
     var key = storageKey(data);
-    var state = { path: [], step: 0, mode: "step", zoom: "fit", expand: false, compare: false, details: false, checks: {}, groups: {}, summarySeen: false, recapSeen: {}, seen: {}, holdsChanged: false };
+    var state = { path: [], step: 0, mode: "step", zoom: "fit", expand: false, compare: false, details: false, checks: {}, groups: {}, summarySeen: false, recapSeen: {}, seen: {}, holdsChanged: false, done: false };
     /* the level being shown, and shortcuts into it */
     var L, S, N, C, FRAG, HOLDS, holders;
     function useLevel() {
@@ -886,10 +886,10 @@
     }
 
     /* ---------- progress (§5.5) ---------- */
-    function untouched() { return !state.path.length && state.step === 0 && state.mode === "step" && !Object.keys(state.checks).length && !Object.keys(state.groups).length && !state.compare && !state.details && !state.expand && !state.holdsChanged && state.zoom === "fit" && Object.keys(state.seen).every(function (k) { return k === "0"; }); }
+    function untouched() { return !state.done && !state.path.length && state.step === 0 && state.mode === "step" && !Object.keys(state.checks).length && !Object.keys(state.groups).length && !state.compare && !state.details && !state.expand && !state.holdsChanged && state.zoom === "fit" && Object.keys(state.seen).every(function (k) { return k === "0"; }); }
     function persist() {
       if (untouched()) { clearState(key); return; }
-      saveState(key, { path: state.path.slice(), step: state.step, mode: state.mode, zoom: state.zoom, expand: state.expand, compare: state.compare, details: state.details, checks: state.checks, groups: state.groups, summarySeen: state.summarySeen, recapSeen: state.recapSeen, seen: state.seen, holdsChanged: state.holdsChanged });
+      saveState(key, { path: state.path.slice(), step: state.step, mode: state.mode, zoom: state.zoom, expand: state.expand, compare: state.compare, details: state.details, checks: state.checks, groups: state.groups, summarySeen: state.summarySeen, recapSeen: state.recapSeen, seen: state.seen, holdsChanged: state.holdsChanged, done: state.done });
     }
     function resumeNotice(text) {
       var n = el("div", { class: "nthview-resume", role: "status" }, [el("span", { text: text })]);
@@ -1599,7 +1599,7 @@
         var again = el("button", { type: "button", class: "nthview-nav", text: "Start again" });
         again.addEventListener("click", function () {
           clearState(key);
-          state.checks = {}; state.groups = {}; state.summarySeen = false; state.recapSeen = {}; state.seen = {}; state.holdsChanged = false; state.compare = false; state.details = false; state.zoom = "fit"; state.expand = false;
+          state.done = false; state.checks = {}; state.groups = {}; state.summarySeen = false; state.recapSeen = {}; state.seen = {}; state.holdsChanged = false; state.compare = false; state.details = false; state.zoom = "fit"; state.expand = false;
           if (cmpBox) cmpBox.checked = false;
           D = null;
           gotoLevel([], 0);
@@ -1669,7 +1669,8 @@
       return focusEl;
     }
 
-    function markSeen() { if (state.step >= N) { if (L.depth) state.recapSeen[L.key] = true; else state.summarySeen = true; } }
+    /* the end is the closing summary after the last message of the top-level exchange (§5.5 rule 8) */
+    function markSeen() { if (state.step >= N) { if (L.depth) state.recapSeen[L.key] = true; else { state.summarySeen = true; state.done = true; } } }
     function go(i, opts) {
       opts = opts || {};
       i = Math.max(0, Math.min(N, i));
@@ -2388,6 +2389,7 @@
       if (saved.zoom === "fit" || (typeof saved.zoom === "number" && saved.zoom >= 0.4 && saved.zoom <= 2.5)) state.zoom = saved.zoom;
       state.compare = saved.compare === true; state.details = saved.details === true; state.summarySeen = saved.summarySeen === true; state.expand = saved.expand === true;
       state.holdsChanged = saved.holdsChanged === true;
+      state.done = saved.done === true || state.summarySeen;   /* summarySeen: the closing summary was reached in an earlier visit */
       if (saved.seen && typeof saved.seen === "object") Object.keys(saved.seen).forEach(function (k) {
         var parts = k.split("."), last = parts.pop(), lvl = LEVELS[parts.join(".")], i = parseInt(last, 10);
         if (lvl && String(i) === last && i >= 0 && i < lvl.N && saved.seen[k] === true) state.seen[k] = true;
@@ -2416,6 +2418,8 @@
     setupLevel();
     measureBar();
     if (state.mode === "diagram") setMode("diagram"); else { renderStep(false); }
+    markSeen();
+    if (saved && state.done && saved.done !== true) persist();
     if (saved && !untouched()) {
       var whereTxt = L.depth
         ? (state.step >= N ? "the recap of the inner sequence of step " + numLabel(L.parent, L.parentIdx) : "step " + numLabel(L, state.step) + ", inside step " + numLabel(L.parent, L.parentIdx))

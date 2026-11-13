@@ -54,15 +54,28 @@ Chapter: `file` (string, `NN-kebab-case`, must match `chapters/<file>.json`),
 `title` (1–80), `view` (an installed view skill name), `summary` (1–300),
 and optionally `role` (one of `preview`, `structure`, `demonstrate`, `apply`,
 `confront`, `consolidate`, `assess`, `recap`), `minutes` (1–120),
-`objectives` (indexes into the lesson objectives this chapter serves) and
-`terms` (glossary terms first introduced here).
+`objectives` (indexes into the lesson objectives this chapter serves),
+`terms` (glossary terms first introduced here), `angles` and `extra`.
 
-Rules the builder enforces: the first chapter is `nthview-highlights`; a
-`preview` role is first and a `recap` role is last, at most one each;
+`angles` (1–3 of `{chapter, prompt}`) names other chapters of this lesson
+that explain the same idea in another view, each with a one-line prompt of
+10–140 characters: `{"chapter": "03-how-it-fits", "prompt": "Prefer to see
+how the parts connect?"}`. `extra: true` puts a chapter off the main path:
+Previous and Next skip it, it is reached from an angle, the contents or the
+side nav, and from it Previous returns to the chapter that pointed to it and
+Next continues after that chapter. Use an extra chapter for a second angle
+that not every learner needs; put it right after the chapter that points to
+it so the order on disk stays readable.
+
+Rules the builder enforces: the first chapter is `nthview-highlights` and
+cannot be extra; a `preview` role is first and a `recap` role is the last
+chapter on the main path, at most one each; every angle names another
+existing chapter;
 glossary `chapter` values and chapter `terms` must exist; `updated` is not
 before `created`. It warns when no glossary, when an objective has no
-chapter, when no chapter has the role `apply` or `assess`, and when the
-duration cannot be computed.
+chapter, when no chapter has the role `apply` or `assess`, when the
+duration cannot be computed, and when an extra chapter is in nobody's
+angles.
 
 ```json
 {
@@ -142,9 +155,11 @@ skip it and say so, or reproduce `oneFileLesson()` exactly.
 Every chapter page gets a small fixed button in the bottom-right corner
 showing `3/7`. Hovering, focusing or tapping it opens the bar: lesson title,
 chapter title, Previous, Contents and Next chapter (or Next lesson / Finish on
-the last chapter). It is injected after the view's bootstrap script and never
-touches the view's code, so the chapter is still a valid standalone view
-output.
+the last chapter), plus the chapter's angles as links. When the view marks
+its record done (AGENTS.md §5.5 rule 8), the button gets a green ring, the
+bar says "Chapter complete" and opens once to offer the next step. It is
+injected after the view's bootstrap script and never touches the view's
+code, so the chapter is still a valid standalone view output.
 
 ## The one-file lesson
 
@@ -162,5 +177,8 @@ one chapter at a time below them. Each chapter is its view's unchanged output
 without the lesson bar, so it saves progress under its own key and shares it
 with the chapter page when both are opened from the same place. The shell
 itself remembers only the open chapter, so a reopened file resumes there,
-marks started chapters with a tick, and offers Continue and Restart lesson on
-the overview. The contents page links to it as "All chapters in one page".
+marks chapters started (•) or done (✓), and offers Continue and Restart
+lesson on the overview. A chapter with angles shows an "Another angle" menu
+in the header, and the overview lists the angles under each chapter. When the
+open chapter turns done, a "Chapter complete" bar offers its angles and the
+next chapter. The contents page links to it as "All chapters in one page".

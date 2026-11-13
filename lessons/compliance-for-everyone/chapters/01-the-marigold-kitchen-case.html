@@ -2486,7 +2486,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     var S;
     function fresh() {
       S = { route: "briefing", locId: null, found: [], foundSet: {}, pinned: {}, links: [], linkSet: {}, eliminated: {}, visited: {}, ls: {},
-        herringSeen: {}, heard: {}, accusation: null, closed: false, selected: null, verdict: null, queue: [], overlayOpen: false, freshLinks: {} };
+        herringSeen: {}, heard: {}, accusation: null, closed: false, done: false, selected: null, verdict: null, queue: [], overlayOpen: false, freshLinks: {} };
     }
     fresh();
     var key = storageKey(data);
@@ -2496,7 +2496,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       if (S.route === "briefing" && !S.found.length && !Object.keys(S.visited).length) return; /* untouched briefing: no record, as before */
       var vd = S.verdict && (S.verdict.v || S.verdict.theory) ? S.verdict : null;
       saveState(key, { route: S.route, locId: S.locId, found: S.found, pinned: S.pinned, links: S.links, eliminated: S.eliminated, visited: S.visited,
-        ls: S.ls, herringSeen: S.herringSeen, heard: S.heard, accusation: S.accusation, closed: S.closed, verdict: vd });
+        ls: S.ls, herringSeen: S.herringSeen, heard: S.heard, accusation: S.accusation, closed: S.closed, verdict: vd, done: !!S.done });
     }
     function isObj(o) { return !!o && typeof o === "object" && !Array.isArray(o); }
     function sanitizeLoc(l, st) {
@@ -2549,6 +2549,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       var a = sv0.accusation;
       S.accusation = isObj(a) && M.hyp[a.pick] && Number.isInteger(a.conf) && a.conf >= 0 && a.conf < CONF.length ? { pick: a.pick, conf: a.conf } : null;
       S.closed = !!(S.accusation && sv0.closed);
+      S.done = !!sv0.done || S.closed; /* §5.5 rule 8: a finished case stays finished */
       S.verdict = null;
       var vd = sv0.verdict;
       if (isObj(vd)) {
@@ -3609,6 +3610,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     function debriefScreen() {
       var s = el("section", { "aria-label": "Debrief" });
       var a = S.accusation, right = a && a.pick === M.correct.id, conf = a ? CONF[a.conf][1] : 0;
+      S.done = true; /* §5.5 rule 8: the debrief is the end of the case; go() persists it */
       var top = el("div", { class: "nthview-closed" }, [el("span", { class: "nthview-stamp nthview-stamp-anim", text: "Case closed" })]);
       s.appendChild(top);
       if (!reduce && !S.flashed) { S.flashed = true; var fl = el("div", { class: "nthview-flashbulb", "aria-hidden": "true" }); container.appendChild(fl); setTimeout(function () { fl.remove(); }, 1000); }
@@ -3768,10 +3770,10 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
   </script>
 
   <!-- NthView lesson bar: added by scripts/build-lesson.js; the view above is untouched -->
-  <nav class="nthview-lesson-bar" aria-label="Lesson navigation" data-chapter="2" data-of="4">
+  <nav class="nthview-lesson-bar" aria-label="Lesson navigation" data-chapter="2" data-of="4" data-key="nthview:detective:u2jay4">
     <button type="button" class="nthview-lesson-toggle" aria-expanded="false" aria-controls="nthview-lesson-menu" title="Compliance for Everyone">2<small>/4</small></button>
     <div class="nthview-lesson-menu" id="nthview-lesson-menu">
-      <span class="nthview-lesson-title"><b>Compliance for Everyone</b> · Chapter 2 of 4: The Marigold Kitchen Case</span>
+      <span class="nthview-lesson-title"><b>Compliance for Everyone</b> · Chapter 2 of 4: The Marigold Kitchen Case<span class="nthview-lesson-complete" hidden> · ✓ Chapter complete</span></span>
       <span class="nthview-lesson-links">
         <a href="00-highlights.html">‹ Previous</a>
         <a href="../index.html">Contents</a>
@@ -3792,8 +3794,13 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     .nthview-lesson-links a:hover{border-color:#1d4ed8;text-decoration:underline}
     .nthview-lesson-links a.nthview-lesson-next{background:#1d4ed8;border-color:#1d4ed8;color:#fff}
     .nthview-lesson-bar :focus-visible{outline:3px solid #1d4ed8;outline-offset:2px}
+    .nthview-lesson-angles{display:flex;flex-direction:column;gap:.35rem;flex:1 1 100%}
+    .nthview-lesson-angles a{color:#6d28d9;text-decoration:none;font-weight:600;font-size:.88rem}.nthview-lesson-angles a:hover{text-decoration:underline}.nthview-lesson-angles small{font-weight:500;opacity:.75}
+    .nthview-lesson-complete{color:#047857;font-weight:700}
+    .nthview-lesson-done .nthview-lesson-toggle{border-color:#059669;box-shadow:0 0 0 3px rgba(5,150,105,.35),0 10px 30px -12px rgba(0,0,0,.5)}
     @media (pointer:coarse){.nthview-lesson-links a{min-height:44px;padding:.4rem .95rem}}
     @media (max-width:640px){.nthview-lesson-bar{right:max(10px,env(safe-area-inset-right,0px));bottom:max(10px,env(safe-area-inset-bottom,0px));flex-direction:column-reverse;align-items:flex-end}.nthview-lesson-toggle{width:40px;height:40px;font-size:14px;line-height:40px}.nthview-lesson-menu{flex-direction:column;align-items:stretch;gap:.7rem;width:min(24rem,calc(100vw - 20px));max-width:none;max-height:70vh;overflow:auto;padding:.85rem 1rem;border-radius:1rem}.nthview-lesson-title{flex:none}}
+    @media (prefers-color-scheme:dark){.nthview-lesson-angles a{color:#c4b5fd}.nthview-lesson-complete{color:#6ee7b7}}
     @media (prefers-color-scheme:dark){.nthview-lesson-toggle,.nthview-lesson-menu{background:rgba(24,26,36,.95);color:#f3f4f8;border-color:rgba(255,255,255,.22)}.nthview-lesson-links a{color:#a9bdff;border-color:rgba(169,189,255,.4)}.nthview-lesson-links a:hover{border-color:#a9bdff}.nthview-lesson-links a.nthview-lesson-next{background:#8aa6ff;border-color:#8aa6ff;color:#0b1020}.nthview-lesson-bar :focus-visible{outline-color:#a9bdff}}
     @media print{.nthview-lesson-bar{display:none}}
   </style>
@@ -3804,6 +3811,12 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       btn.addEventListener("click", function () { set(!bar.classList.contains("nthview-lesson-open")); });
       document.addEventListener("click", function (e) { if (bar.classList.contains("nthview-lesson-open") && !bar.contains(e.target)) set(false); }, true);
       document.addEventListener("keydown", function (e) { if (e.key === "Escape" && bar.classList.contains("nthview-lesson-open")) { set(false); btn.focus(); } });
+      /* §5.5 rule 8: when the view marks this chapter done, show it and point to what comes next */
+      var key = bar.getAttribute("data-key"), shown = false;
+      function done() { try { var r = JSON.parse(localStorage.getItem(key) || "null"); return !!(r && r.done === true); } catch (e) { return false; } }
+      function mark() { shown = true; bar.classList.add("nthview-lesson-done"); bar.querySelector(".nthview-lesson-complete").hidden = false; btn.setAttribute("title", "Chapter complete"); }
+      if (done()) mark();
+      else var timer = setInterval(function () { if (done()) { clearInterval(timer); mark(); set(true); } }, 2000);
     })();
   </script>
 </body>

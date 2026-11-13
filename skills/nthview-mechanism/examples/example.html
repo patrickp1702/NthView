@@ -3160,7 +3160,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     var SECTIONS = data.sections;
 
     /* ---- state ---- */
-    var S = { scen: 0, tick: clock.start || 0, speed: typeof clock.speed === "number" ? clock.speed : Math.min(1, SPEEDS.length - 1), win: typeof clock.window === "number" ? clock.window : WINDOWS.length - 1, tweaks: {}, checks: {}, section: "", scheme: "auto" };
+    var S = { scen: 0, tick: clock.start || 0, speed: typeof clock.speed === "number" ? clock.speed : Math.min(1, SPEEDS.length - 1), win: typeof clock.window === "number" ? clock.window : WINDOWS.length - 1, tweaks: {}, checks: {}, section: "", scheme: "auto", done: false };
     var saved = loadState(KEY), resumed = false;
     if (saved) {
       M.scen.forEach(function (s, i) { if (s.id === saved.scen) S.scen = i; });
@@ -3178,6 +3178,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       });
       SECTIONS.forEach(function (s) { if (s.id === saved.section) S.section = s.id; });
       if (saved.scheme === "light" || saved.scheme === "dark") S.scheme = saved.scheme;
+      S.done = saved.done === true;
       resumed = true;
     }
     var playing = false, pos = S.tick, raf = 0, lastFrame = 0;
@@ -3192,7 +3193,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     function saveNow() {
       if (!alive()) return;
       clearTimeout(saveTimer); saveTimer = 0;
-      saveState(KEY, { scen: curScen().id, tick: S.tick, speed: S.speed, win: S.win, tweaks: S.tweaks, checks: S.checks, section: S.section, scheme: S.scheme });
+      saveState(KEY, { scen: curScen().id, tick: S.tick, speed: S.speed, win: S.win, tweaks: S.tweaks, checks: S.checks, section: S.section, scheme: S.scheme, done: S.done });
     }
     function queueSave() { if (!saveTimer) saveTimer = setTimeout(saveNow, playing || tweening ? 1000 : 150); }
 
@@ -4581,6 +4582,8 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
           if (S.section !== x.s.id) { S.section = x.s.id; queueSave(); }
         }
       }
+      /* the end is the closing wrap-up after the last chapter: its top crosses the chapter line or the page bottoms out (§5.5 rule 8) */
+      if (!S.done && (cl.getBoundingClientRect().top <= vh * 0.45 || (max > 0 && sy >= max - 2))) { S.done = true; saveNow(); }
       var x2 = chEls[curCh], pinNow = null;
       pins.forEach(function (p) {
         var r = p.x.el.getBoundingClientRect(), topH = top.offsetHeight, hh = p.head.offsetHeight + parseFloat(root.getComputedStyle(p.x.el).paddingTop);

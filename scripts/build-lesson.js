@@ -112,7 +112,7 @@ function validateManifest(m, lessonDir) {
     });
   }
   if (!Array.isArray(m.chapters) || m.chapters.length < 2 || m.chapters.length > 30) { e("chapters", "must be an array of 2–30 chapters, the first one a nthview-highlights overview"); return done(); }
-  var files = [], roles = {}, minutes = 0, allMinutes = true, covered = {};
+  var files = [], roles = {}, minutes = 0, allMinutes = true, covered = {}, angleRefs = [];
   m.chapters.forEach(function (c, i) {
     var p = "chapters[" + i + "]";
     if (!c || typeof c !== "object") { e(p, "must be an object"); return; }
@@ -129,7 +129,20 @@ function validateManifest(m, lessonDir) {
     if (!str(c.summary, 1, 300)) e(p + ".summary", "must be a string of 1–300 characters");
     if (c.role !== undefined) {
       if (ROLES.indexOf(c.role) === -1) e(p + ".role", "must be one of " + ROLES.join(", ") + ", got " + JSON.stringify(c.role));
-      else { roles[c.role] = (roles[c.role] || 0) + 1; if (c.role === "preview" && i !== 0) e(p + ".role", "the preview chapter must be first"); if (c.role === "recap" && i !== m.chapters.length - 1) e(p + ".role", "the recap chapter must be last"); }
+      else { roles[c.role] = (roles[c.role] || 0) + 1; if (c.role === "preview" && i !== 0) e(p + ".role", "the preview chapter must be first"); if (c.role === "recap" && m.chapters.slice(i + 1).some(function (d) { return d && d.extra !== true; })) e(p + ".role", "the recap chapter must be the last chapter on the main path (only extra chapters may follow it)"); }
+    }
+    if (c.extra !== undefined && typeof c.extra !== "boolean") e(p + ".extra", "must be true or false");
+    else if (c.extra === true && i === 0) e(p + ".extra", "the highlights chapter is the start of the main path and cannot be extra");
+    if (c.angles !== undefined) {
+      if (!Array.isArray(c.angles) || c.angles.length < 1 || c.angles.length > 3) e(p + ".angles", "must be an array of 1–3 angles");
+      else c.angles.forEach(function (a, j) {
+        var q = p + ".angles[" + j + "]";
+        if (!a || typeof a !== "object" || Array.isArray(a)) { e(q, "must be an object with chapter and prompt"); return; }
+        if (typeof a.chapter !== "string") e(q + ".chapter", "must be the file name of another chapter, such as 03-how-it-fits");
+        else if (a.chapter === c.file) e(q + ".chapter", "must name another chapter, not this one");
+        else angleRefs.push({ path: q + ".chapter", file: a.chapter });
+        if (!str(a.prompt, 10, 140)) e(q + ".prompt", "must be a string of 10–140 characters, such as \"Prefer to see how the parts connect?\"");
+      });
     }
     if (c.minutes !== undefined) {
       if (typeof c.minutes !== "number" || c.minutes % 1 !== 0 || c.minutes < 1 || c.minutes > 120) e(p + ".minutes", "must be an integer of 1–120");
@@ -146,6 +159,10 @@ function validateManifest(m, lessonDir) {
       if (!Array.isArray(c.terms)) e(p + ".terms", "must be an array of glossary terms");
       else c.terms.forEach(function (t, j) { if (typeof t !== "string" || !glossaryTerms[String(t).trim().toLowerCase()]) e(p + ".terms[" + j + "]", "term " + JSON.stringify(t) + " is not in the lesson glossary"); });
     }
+  });
+  angleRefs.forEach(function (r) { if (files.indexOf(r.file) === -1) e(r.path, "chapter file " + JSON.stringify(r.file) + " is not in chapters"); });
+  m.chapters.forEach(function (c, i) {
+    if (c && c.extra === true && typeof c.file === "string" && !angleRefs.some(function (r) { return r.file === c.file; })) w("chapters[" + i + "].extra", "no chapter lists " + c.file + " in its angles; learners reach it only from the contents");
   });
   if (roles.preview > 1) e("chapters", "more than one preview chapter");
   if (roles.recap > 1) e("chapters", "more than one recap chapter");
@@ -165,21 +182,46 @@ function lessonMinutes(m) {
   return all ? sum : null;
 }
 
+/* ---------- the main path and the other angles ----------
+   Extra chapters sit off the main path: Previous and Next skip them. From an extra chapter, Previous
+   returns to the chapter whose angles point to it and Next continues after that chapter.
+   prev -1 means the contents page, next n means the end of the lesson. */
+function lessonNav(m) {
+  var n = m.chapters.length, main = [], idx = {}, from = {};
+  m.chapters.forEach(function (c, i) { idx[c.file] = i; if (c.extra !== true) main.push(i); });
+  m.chapters.forEach(function (c, i) { (c.angles || []).forEach(function (a) { var j = idx[a.chapter]; if (j !== undefined && from[j] === undefined) from[j] = i; }); });
+  var after = function (i) { for (var k = 0; k < main.length; k++) if (main[k] > i) return main[k]; return n; };
+  var before = function (i) { for (var k = main.length - 1; k >= 0; k--) if (main[k] < i) return main[k]; return -1; };
+  return m.chapters.map(function (c, i) {
+    var angles = (c.angles || []).map(function (a) { return { i: idx[a.chapter], prompt: a.prompt }; });
+    if (c.extra !== true) return { prev: before(i), next: after(i), angles: angles };
+    var r = from[i] !== undefined ? from[i] : before(i);
+    return { prev: r, next: after(r), angles: angles, extra: true };
+  });
+}
+function viewTitle(v) { return v.replace(/^nthview-/, "").split("-").map(function (w) { return w[0].toUpperCase() + w.slice(1); }).join(" "); }
+
 /* ---------- the lesson bar injected into every chapter page ---------- */
-function lessonBar(m, i, slug) {
-  var n = m.chapters.length, prev = i > 0 ? m.chapters[i - 1].file + ".html" : null, next = i < n - 1 ? m.chapters[i + 1].file + ".html" : null;
+function lessonBar(m, i, slug, key) {
+  var n = m.chapters.length, nav = lessonNav(m)[i];
+  var prev = nav.prev >= 0 ? m.chapters[nav.prev].file + ".html" : null, next = nav.next < n ? m.chapters[nav.next].file + ".html" : null;
   var esc = function (s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;"); };
   var nextHref = next ? next : (m.next ? "../../" + m.next + "/index.html" : "../index.html");
   var nextLabel = next ? "Next chapter" : (m.next ? "Next lesson" : "Finish");
+  var angles = nav.angles.map(function (a) {
+    var c = m.chapters[a.i];
+    return '        <a class="nthview-lesson-angle" href="' + c.file + '.html" title="' + esc(c.title) + '">↻ ' + esc(a.prompt) + " <small>" + esc(viewTitle(c.view)) + "</small></a>";
+  });
   return [
     "",
     "  <!-- NthView lesson bar: added by scripts/build-lesson.js; the view above is untouched -->",
-    '  <nav class="nthview-lesson-bar" aria-label="Lesson navigation" data-chapter="' + (i + 1) + '" data-of="' + n + '">',
+    '  <nav class="nthview-lesson-bar" aria-label="Lesson navigation" data-chapter="' + (i + 1) + '" data-of="' + n + '" data-key="' + esc(key) + '">',
     '    <button type="button" class="nthview-lesson-toggle" aria-expanded="false" aria-controls="nthview-lesson-menu" title="' + esc(m.title) + '">' + (i + 1) + "<small>/" + n + "</small></button>",
     '    <div class="nthview-lesson-menu" id="nthview-lesson-menu">',
-    '      <span class="nthview-lesson-title"><b>' + esc(m.title) + "</b> · Chapter " + (i + 1) + " of " + n + ": " + esc(m.chapters[i].title) + "</span>",
+    '      <span class="nthview-lesson-title"><b>' + esc(m.title) + "</b> · " + (nav.extra ? "Another angle" : "Chapter " + (i + 1) + " of " + n) + ": " + esc(m.chapters[i].title) + '<span class="nthview-lesson-complete" hidden> · ✓ Chapter complete</span></span>',
+    angles.length ? '      <span class="nthview-lesson-angles" aria-label="Other angles">\n' + angles.join("\n") + "\n      </span>" : null,
     '      <span class="nthview-lesson-links">',
-    prev ? '        <a href="' + prev + '">‹ Previous</a>' : '        <a href="../index.html">‹ Contents</a>',
+    prev ? '        <a href="' + prev + '">‹ ' + (nav.extra ? "Back" : "Previous") + "</a>" : '        <a href="../index.html">‹ Contents</a>',
     '        <a href="../index.html">Contents</a>',
     '        <a class="nthview-lesson-next" href="' + nextHref + '">' + nextLabel + " ›</a>",
     "      </span>",
@@ -200,9 +242,14 @@ function lessonBar(m, i, slug) {
     "    .nthview-lesson-links a:hover{border-color:#1d4ed8;text-decoration:underline}",
     "    .nthview-lesson-links a.nthview-lesson-next{background:#1d4ed8;border-color:#1d4ed8;color:#fff}",
     "    .nthview-lesson-bar :focus-visible{outline:3px solid #1d4ed8;outline-offset:2px}",
+    "    .nthview-lesson-angles{display:flex;flex-direction:column;gap:.35rem;flex:1 1 100%}",
+    "    .nthview-lesson-angles a{color:#6d28d9;text-decoration:none;font-weight:600;font-size:.88rem}.nthview-lesson-angles a:hover{text-decoration:underline}.nthview-lesson-angles small{font-weight:500;opacity:.75}",
+    "    .nthview-lesson-complete{color:#047857;font-weight:700}",
+    "    .nthview-lesson-done .nthview-lesson-toggle{border-color:#059669;box-shadow:0 0 0 3px rgba(5,150,105,.35),0 10px 30px -12px rgba(0,0,0,.5)}",
     "    @media (pointer:coarse){.nthview-lesson-links a{min-height:44px;padding:.4rem .95rem}}",
     /* phones: a smaller toggle tucked into the corner (about 50px from each edge); the menu becomes a card above it */
     "    @media (max-width:640px){.nthview-lesson-bar{right:max(10px,env(safe-area-inset-right,0px));bottom:max(10px,env(safe-area-inset-bottom,0px));flex-direction:column-reverse;align-items:flex-end}.nthview-lesson-toggle{width:40px;height:40px;font-size:14px;line-height:40px}.nthview-lesson-menu{flex-direction:column;align-items:stretch;gap:.7rem;width:min(24rem,calc(100vw - 20px));max-width:none;max-height:70vh;overflow:auto;padding:.85rem 1rem;border-radius:1rem}.nthview-lesson-title{flex:none}}",
+    "    @media (prefers-color-scheme:dark){.nthview-lesson-angles a{color:#c4b5fd}.nthview-lesson-complete{color:#6ee7b7}}",
     "    @media (prefers-color-scheme:dark){.nthview-lesson-toggle,.nthview-lesson-menu{background:rgba(24,26,36,.95);color:#f3f4f8;border-color:rgba(255,255,255,.22)}.nthview-lesson-links a{color:#a9bdff;border-color:rgba(169,189,255,.4)}.nthview-lesson-links a:hover{border-color:#a9bdff}.nthview-lesson-links a.nthview-lesson-next{background:#8aa6ff;border-color:#8aa6ff;color:#0b1020}.nthview-lesson-bar :focus-visible{outline-color:#a9bdff}}",
     "    @media print{.nthview-lesson-bar{display:none}}",
     "  </style>",
@@ -213,9 +260,15 @@ function lessonBar(m, i, slug) {
     '      btn.addEventListener("click", function () { set(!bar.classList.contains("nthview-lesson-open")); });',
     '      document.addEventListener("click", function (e) { if (bar.classList.contains("nthview-lesson-open") && !bar.contains(e.target)) set(false); }, true);',
     '      document.addEventListener("keydown", function (e) { if (e.key === "Escape" && bar.classList.contains("nthview-lesson-open")) { set(false); btn.focus(); } });',
+    "      /* §5.5 rule 8: when the view marks this chapter done, show it and point to what comes next */",
+    '      var key = bar.getAttribute("data-key"), shown = false;',
+    '      function done() { try { var r = JSON.parse(localStorage.getItem(key) || "null"); return !!(r && r.done === true); } catch (e) { return false; } }',
+    '      function mark() { shown = true; bar.classList.add("nthview-lesson-done"); bar.querySelector(".nthview-lesson-complete").hidden = false; btn.setAttribute("title", "Chapter complete"); }',
+    "      if (done()) mark();",
+    "      else var timer = setInterval(function () { if (done()) { clearInterval(timer); mark(); set(true); } }, 2000);",
     "    })();",
     "  </script>"
-  ].join("\n");
+  ].filter(function (l) { return l !== null; }).join("\n");
 }
 
 /* ---------- the contents page of a lesson ---------- */
@@ -229,11 +282,14 @@ function contentsPage(m, slug) {
   var viewName = function (v) { return v.replace(/^nthview-/, "").split("-").map(function (w) { return w[0].toUpperCase() + w.slice(1); }).join(" "); };
   var mins = lessonMinutes(m);
   var n = m.chapters.length;
+  var nav = lessonNav(m), hasAngles = nav.some(function (x) { return x.extra || x.angles.length; });
   var cards = m.chapters.map(function (c, i) {
     var meta = [esc(viewName(c.view))];
+    if (c.extra === true) meta.unshift("Another angle");
     if (c.role) meta.push(esc(cap(c.role)));
     if (typeof c.minutes === "number") meta.push(c.minutes + " min");
-    return '      <li class="ch" data-view="' + esc(c.view) + '"><a href="chapters/' + c.file + '.html"><span class="num">' + String(i + 1).padStart(2, "0") + '</span><span class="body"><span class="view">' + meta.join(" · ") + '</span><b>' + esc(c.title) + "</b><p>" + esc(c.summary) + '</p></span><span class="go" aria-hidden="true">›</span></a></li>';
+    var angles = nav[i].angles.map(function (a) { var t = m.chapters[a.i]; return '<li><a href="chapters/' + t.file + '.html">↻ ' + esc(a.prompt) + " <b>" + esc(t.title) + "</b> · " + esc(viewName(t.view)) + "</a></li>"; }).join("");
+    return '      <li class="ch' + (c.extra === true ? " extra" : "") + '" data-view="' + esc(c.view) + '"><a href="chapters/' + c.file + '.html"><span class="num">' + String(i + 1).padStart(2, "0") + '</span><span class="body"><span class="view">' + meta.join(" · ") + '</span><b>' + esc(c.title) + "</b><p>" + esc(c.summary) + '</p></span><span class="go" aria-hidden="true">›</span></a>' + (angles ? '<ul class="angles" aria-label="Other angles">' + angles + "</ul>" : "") + "</li>";
   }).join("\n");
   var tags = (m.tags || []).map(function (t) { return '<a class="tag" href="../../index.html#lessons?tag=' + encodeURIComponent(t) + '">#' + esc(t) + "</a>"; }).join("");
   var facts = [cap(esc(m.domain)), cap(esc(m.level)), mins ? "about " + mins + " min" : null, n + " chapters"].filter(Boolean).join(" · ");
@@ -250,7 +306,7 @@ function contentsPage(m, slug) {
   }).join("");
   var dates = "Created " + fmtDate(m.created) + (m.updated && m.updated !== m.created ? " · Updated " + fmtDate(m.updated) : "");
   var nextLink = m.next ? '<a class="btn" href="../' + m.next + '/index.html">Next lesson ›</a>' : "";
-  var firstReal = m.chapters.length > 1 ? m.chapters[1] : m.chapters[0];
+  var firstReal = nav[0].next < n ? m.chapters[nav[0].next] : m.chapters[0];
   return [
     "<!doctype html>", '<html lang="' + esc(m.language || "en") + '">', "<head>", '  <meta charset="utf-8">', '  <meta name="viewport" content="width=device-width, initial-scale=1">', '  <meta name="color-scheme" content="light dark">',
     "  <title>" + esc(m.title) + " — NthView lesson</title>",
@@ -287,6 +343,7 @@ function contentsPage(m, slug) {
     "    @media (pointer:coarse){.tag{display:inline-flex;align-items:center;min-height:2.25rem;padding:.3rem .8rem}.where{padding:.3rem 0}}",
     "    @media (max-width:560px){.hero{gap:1.2rem;margin:.8rem 0 1.6rem}.lede{font-size:1.05rem}.cta .btn,.foot .btn{flex:1 1 auto}.panel{padding:1rem 1.1rem}.ch a{gap:.75rem;padding:.9rem 1rem;align-items:flex-start}.num{font-size:1.45rem;width:2.1rem;padding-top:.15rem}.body b{font-size:1.15rem}.go{display:none}h2.sec{font-size:1.4rem;margin-top:1.8rem}}",
     "    @media (prefers-reduced-motion:reduce){.ch a,.btn{transition:none}.ch a:hover,.btn:hover{transform:none}}",
+    hasAngles ? "    .ch.extra{margin-left:clamp(1rem,5vw,3rem)}.ch.extra a{border-style:dashed}.angles{list-style:none;margin:.45rem 0 0 clamp(1rem,5vw,4.2rem);padding:0;display:grid;gap:.3rem}.angles a{display:inline-block;padding:.2rem 0;font-size:.9rem;font-weight:600;text-decoration:none;color:var(--accent)}.angles a:hover{text-decoration:underline}.angles b{font-weight:700}" : "",
     "  </style>", "</head>", "<body>", "  <main>",
     '    <a class="back" href="../../index.html">‹ All views and lessons</a>',
     '    <div class="hero">',
@@ -356,13 +413,15 @@ function oneFileLesson(m, chapters) {
   var pad = function (i) { return String(i + 1).padStart(2, "0"); };
   var n = m.chapters.length, mins = lessonMinutes(m);
   var facts = [cap(esc(m.domain)), cap(esc(m.level)), mins ? "about " + mins + " min" : null, n + " chapters"].filter(Boolean).join(" · ");
-  var meta = function (c) { return [esc(viewName(c.view)), c.role ? esc(cap(c.role)) : null, typeof c.minutes === "number" ? c.minutes + " min" : null].filter(Boolean).join(" · "); };
+  var nav = lessonNav(m);
+  var meta = function (c) { return [c.extra === true ? "Another angle" : null, esc(viewName(c.view)), c.role ? esc(cap(c.role)) : null, typeof c.minutes === "number" ? c.minutes + " min" : null].filter(Boolean).join(" · "); };
   var navItems = ['        <li><button type="button" class="nthview-lesson-item" data-go="-1"><span class="nthview-lesson-num" aria-hidden="true">◎</span><span class="nthview-lesson-itxt"><b>Overview</b><small>Objectives, chapters, glossary</small></span></button></li>']
     .concat(m.chapters.map(function (c, i) {
-      return '        <li><button type="button" class="nthview-lesson-item" data-go="' + i + '"><span class="nthview-lesson-num">' + pad(i) + '</span><span class="nthview-lesson-itxt"><b>' + esc(c.title) + "</b><small>" + meta(c) + '</small></span><span class="nthview-lesson-mark" aria-hidden="true"></span><span class="nthview-lesson-sr nthview-lesson-srmark"></span></button></li>';
+      return '        <li><button type="button" class="nthview-lesson-item' + (c.extra === true ? " nthview-lesson-extra" : "") + '" data-go="' + i + '"><span class="nthview-lesson-num">' + pad(i) + '</span><span class="nthview-lesson-itxt"><b>' + esc(c.title) + "</b><small>" + meta(c) + '</small></span><span class="nthview-lesson-mark" aria-hidden="true"></span><span class="nthview-lesson-sr nthview-lesson-srmark"></span></button></li>';
     })).join("\n");
   var cards = m.chapters.map(function (c, i) {
-    return '          <li><button type="button" class="nthview-lesson-card" data-go="' + i + '"><span class="nthview-lesson-cnum">' + pad(i) + '</span><span class="nthview-lesson-cbody"><span class="nthview-lesson-cview">' + meta(c) + "</span><b>" + esc(c.title) + "</b><span class=\"nthview-lesson-csum\">" + esc(c.summary) + '</span></span><span class="nthview-lesson-cgo" aria-hidden="true">›</span></button></li>';
+    var angles = nav[i].angles.map(function (a) { var t = m.chapters[a.i]; return '<li><button type="button" data-go="' + a.i + '">↻ ' + esc(a.prompt) + " <b>" + esc(t.title) + "</b> · " + esc(viewName(t.view)) + "</button></li>"; }).join("");
+    return '          <li' + (c.extra === true ? ' class="nthview-lesson-cextra"' : "") + '><button type="button" class="nthview-lesson-card" data-go="' + i + '"><span class="nthview-lesson-cnum">' + pad(i) + '</span><span class="nthview-lesson-cbody"><span class="nthview-lesson-cview">' + meta(c) + "</span><b>" + esc(c.title) + "</b><span class=\"nthview-lesson-csum\">" + esc(c.summary) + '</span></span><span class="nthview-lesson-cgo" aria-hidden="true">›</span></button>' + (angles ? '<ul class="nthview-lesson-cangles" aria-label="Other angles">' + angles + "</ul>" : "") + "</li>";
   }).join("\n");
   var files = m.chapters.map(function (c) { return c.file; });
   var tags = (m.tags || []).map(function (t) { return '<span class="nthview-lesson-tag">#' + esc(t) + "</span>"; }).join("");
@@ -386,7 +445,7 @@ function oneFileLesson(m, chapters) {
       if (code !== null) libs.push({ src: l.src, code: code });
     });
   });
-  var data = { title: m.title, key: "nthview:lesson:" + fnv(JSON.stringify(m)), chapters: chapters.map(function (x) { return { file: x.c.file, title: x.c.title, view: x.c.view, key: x.key }; }),
+  var data = { title: m.title, key: "nthview:lesson:" + fnv(JSON.stringify(m)), chapters: chapters.map(function (x, i) { return { file: x.c.file, title: x.c.title, view: viewName(x.c.view), key: x.key, prev: nav[i].prev, next: nav[i].next, extra: nav[i].extra === true, angles: nav[i].angles }; }),
     libs: libs.map(function (l) { return l.src; }) };
 
   return [
@@ -417,7 +476,8 @@ function oneFileLesson(m, chapters) {
     "    .nthview-lesson-num{flex:none;width:1.9rem;font-family:Fraunces,Georgia,serif;font-weight:800;font-size:1.05rem;color:var(--accent)}",
     "    .nthview-lesson-itxt{flex:1;min-width:0}.nthview-lesson-itxt b{display:block;font-weight:600;font-size:.92rem;line-height:1.25}.nthview-lesson-itxt small{display:block;color:var(--muted);font-size:.75rem;margin-top:.1rem}",
     "    .nthview-lesson-mark{flex:none;display:grid;place-items:center;width:1.25rem;height:1.25rem;border-radius:50%;border:1.5px solid var(--line);font-size:.7rem;font-weight:800;color:#fff}",
-    "    .nthview-lesson-started .nthview-lesson-mark{background:var(--accent-3);border-color:var(--accent-3)}",
+    "    .nthview-lesson-started .nthview-lesson-mark{border-color:var(--accent-3);color:var(--accent-3)}.nthview-lesson-isdone .nthview-lesson-mark{background:var(--accent-3);border-color:var(--accent-3);color:#fff}",
+    "    .nthview-lesson-extra{padding-left:1.4rem}.nthview-lesson-extra .nthview-lesson-num{opacity:.6}",
     "    .nthview-lesson-main{grid-row:2;grid-column:2;min-width:0;min-height:0;position:relative}.nthview-lesson-navclosed .nthview-lesson-main{grid-column:1}",
     "    .nthview-lesson-frame{height:100%}.nthview-lesson-frame iframe{display:block;width:100%;height:100%;border:0;background:transparent}",
     "    .nthview-lesson-scrim{display:none}",
@@ -445,6 +505,16 @@ function oneFileLesson(m, chapters) {
     "    .nthview-lesson-refs{margin:0;padding-left:1.1rem;display:grid;gap:.4rem}.nthview-lesson-note{color:var(--muted);font-size:.9rem}",
     "    .nthview-lesson-notice{position:fixed;left:50%;bottom:max(1rem,env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:30;max-width:calc(100vw - 2rem);padding:.6rem 1.1rem;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);box-shadow:0 14px 40px -16px rgba(0,0,0,.55);font-size:.9rem;font-weight:600}",
     "    .nthview-lesson-notice[hidden]{display:none}",
+    "    .nthview-lesson-anglewrap{position:relative;flex:none}",
+    "    .nthview-lesson-anglemenu{position:absolute;right:0;top:calc(100% + .45rem);z-index:25;display:grid;gap:.2rem;width:min(23rem,calc(100vw - 1.5rem));padding:.45rem;border-radius:1rem;background:var(--surface-2);border:1px solid var(--line);box-shadow:0 18px 50px -18px rgba(0,0,0,.55)}.nthview-lesson-anglemenu[hidden]{display:none}",
+    "    .nthview-lesson-anglemenu button{display:block;width:100%;text-align:left;padding:.55rem .7rem;border-radius:.7rem;border:1px solid transparent;background:none;cursor:pointer;font-size:.9rem}.nthview-lesson-anglemenu button:hover{background:var(--surface);border-color:var(--line)}",
+    "    .nthview-lesson-anglemenu b{display:block}.nthview-lesson-anglemenu small{color:var(--muted)}",
+    "    @media (max-width:560px){.nthview-lesson-anglemenu{position:fixed;left:.75rem;right:.75rem;top:calc(var(--nthview-lesson-head,3.6rem) + .4rem);width:auto}}",
+    "    .nthview-lesson-cangles{list-style:none;margin:.45rem 0 0 clamp(1rem,5vw,4.2rem);padding:0;display:grid;gap:.3rem}.nthview-lesson-cangles button{border:0;background:none;padding:.2rem 0;font-size:.9rem;font-weight:600;color:var(--accent);cursor:pointer;text-align:left}.nthview-lesson-cangles button:hover{text-decoration:underline}",
+    "    .nthview-lesson-cextra{margin-left:clamp(1rem,5vw,3rem)}.nthview-lesson-cextra .nthview-lesson-card{border-style:dashed}",
+    "    .nthview-lesson-donebar{position:fixed;left:50%;bottom:max(1rem,env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:30;display:flex;flex-wrap:wrap;align-items:center;gap:.5rem .6rem;width:max-content;max-width:calc(100vw - 1.5rem);padding:.55rem .6rem .55rem 1rem;border-radius:1.2rem;background:var(--surface-2);border:1.5px solid var(--accent-3);box-shadow:0 18px 50px -18px rgba(0,0,0,.6)}",
+    "    .nthview-lesson-donebar[hidden]{display:none}.nthview-lesson-donebar>b{color:var(--accent-3)}.nthview-lesson-donebar .nthview-lesson-btn{min-height:2.4rem;font-size:.88rem}",
+    "    .nthview-lesson-x{border:0;background:none;font-size:1.3rem;line-height:1;padding:.3rem .5rem;cursor:pointer;color:var(--muted)}",
     "    @media (max-width:899px){",
     "      .nthview-lesson-shell,.nthview-lesson-navclosed{grid-template-columns:minmax(0,1fr)}.nthview-lesson-main{grid-column:1}",
     "      .nthview-lesson-nav{display:none;position:fixed;z-index:21;left:0;bottom:0;top:var(--nthview-lesson-head,3.6rem);width:min(21rem,88vw);background:var(--surface-2);box-shadow:0 0 60px -10px rgba(0,0,0,.5)}",
@@ -459,6 +529,7 @@ function oneFileLesson(m, chapters) {
     '    <header class="nthview-lesson-head">',
     '      <button type="button" class="nthview-lesson-btn nthview-lesson-navbtn" aria-controls="nthview-lesson-nav" aria-expanded="true"><span class="nthview-lesson-icon" aria-hidden="true">☰</span><span class="nthview-lesson-lbl">Chapters</span></button>',
     '      <div class="nthview-lesson-at"><b>' + esc(m.title) + '</b><span id="nthview-lesson-at" aria-live="polite">Overview</span></div>',
+    '      <div class="nthview-lesson-anglewrap"><button type="button" class="nthview-lesson-btn nthview-lesson-anglebtn" aria-expanded="false" aria-controls="nthview-lesson-anglemenu" hidden><span class="nthview-lesson-icon" aria-hidden="true">↻</span><span class="nthview-lesson-lbl">Another angle</span></button><div class="nthview-lesson-anglemenu" id="nthview-lesson-anglemenu" hidden></div></div>',
     '      <button type="button" class="nthview-lesson-btn nthview-lesson-prev"><span class="nthview-lesson-icon" aria-hidden="true">‹</span><span class="nthview-lesson-lbl">Previous</span></button>',
     '      <button type="button" class="nthview-lesson-btn nthview-lesson-primary nthview-lesson-next"><span class="nthview-lesson-lbl">Start</span><span class="nthview-lesson-icon" aria-hidden="true">›</span></button>',
     "    </header>",
@@ -493,6 +564,7 @@ function oneFileLesson(m, chapters) {
     '      <div class="nthview-lesson-frame" id="nthview-lesson-frame" hidden></div>',
     "    </main>",
     '    <div class="nthview-lesson-notice" role="status" hidden></div>',
+    '    <div class="nthview-lesson-donebar" role="status" hidden></div>',
     "  </div>",
     "",
     '  <script type="application/json" id="nthview-lesson-data">' + scriptJson(data) + "</script>",
@@ -514,6 +586,7 @@ var SHELL_SCRIPT = [
   '      var at = document.getElementById("nthview-lesson-at"), notice = document.querySelector(".nthview-lesson-notice");',
   '      var prevBtn = document.querySelector(".nthview-lesson-prev"), nextBtn = document.querySelector(".nthview-lesson-next"), navBtn = document.querySelector(".nthview-lesson-navbtn");',
   '      var contBtn = document.querySelector(".nthview-lesson-continue"), items = [].slice.call(document.querySelectorAll(".nthview-lesson-item"));',
+  '      var angleBtn = document.querySelector(".nthview-lesson-anglebtn"), angleMenu = document.getElementById("nthview-lesson-anglemenu"), doneBar = document.querySelector(".nthview-lesson-donebar"), openedDone = true;',
   '      var narrow = window.matchMedia("(max-width: 899px)"), cur = null, noticeTimer = null;',
   "      function load() { try { var r = localStorage.getItem(D.key), s = r && JSON.parse(r); return s && s.v === 1 ? s : null; } catch (e) { return null; } }",
   "      function save() { try { st.v = 1; st.savedAt = Date.now(); localStorage.setItem(D.key, JSON.stringify(st)); } catch (e) { /* storage unavailable: keep going without saving */ } }",
@@ -532,14 +605,17 @@ var SHELL_SCRIPT = [
   "        return html;",
   "      }",
   "      function started(i) { if (st.visited.indexOf(CH[i].file) !== -1) return true; try { return !!localStorage.getItem(CH[i].key); } catch (e) { return false; } }",
+  "      /* a chapter is done when its view has marked its own record done (AGENTS.md §5.5 rule 8) */",
+  '      function isDone(i) { try { var r = JSON.parse(localStorage.getItem(CH[i].key) || "null"); return !!(r && r.done === true); } catch (e) { return false; } }',
   "      function say(text) { notice.textContent = text; notice.hidden = false; clearTimeout(noticeTimer); noticeTimer = setTimeout(function () { notice.hidden = true; }, 5000); }",
   "      function marks() {",
   "        items.forEach(function (b) {",
   '          var i = +b.getAttribute("data-go"); if (i < 0) return;',
-  "          var on = started(i);",
-  '          b.classList.toggle("nthview-lesson-started", on);',
-  '          b.querySelector(".nthview-lesson-mark").textContent = on ? "✓" : "";',
-  '          b.querySelector(".nthview-lesson-srmark").textContent = on ? " (started)" : "";',
+  "          var fin = isDone(i), on = fin || started(i);",
+  '          b.classList.toggle("nthview-lesson-started", on && !fin);',
+  '          b.classList.toggle("nthview-lesson-isdone", fin);',
+  '          b.querySelector(".nthview-lesson-mark").textContent = fin ? "✓" : on ? "•" : "";',
+  '          b.querySelector(".nthview-lesson-srmark").textContent = fin ? " (done)" : on ? " (started)" : "";',
   "        });",
   "        var last = indexOf(st.last);",
   "        contBtn.hidden = last < 0;",
@@ -556,9 +632,32 @@ var SHELL_SCRIPT = [
   '        if (narrow.matches) shell.classList.remove("nthview-lesson-navclosed"); else { shell.classList.remove("nthview-lesson-navopen"); shell.classList.toggle("nthview-lesson-navclosed", !!st.navHidden); }',
   '        navBtn.setAttribute("aria-expanded", String(navOpen()));',
   "      }",
+  "      function closeAngles() { angleMenu.hidden = true; angleBtn.setAttribute(\"aria-expanded\", \"false\"); }",
+  "      function angleButton(a) {",
+  '        var b = document.createElement("button"), t = document.createElement("b"), s = document.createElement("small");',
+  '        b.type = "button"; b.setAttribute("data-go", a.i);',
+  '        t.textContent = "↻ " + a.prompt; s.textContent = CH[a.i].title + " · " + CH[a.i].view;',
+  "        b.appendChild(t); b.appendChild(s); return b;",
+  "      }",
+  "      function showDone(i) {",
+  '        doneBar.textContent = "";',
+  '        var t = document.createElement("b"); t.textContent = "✓ Chapter complete"; doneBar.appendChild(t);',
+  "        CH[i].angles.forEach(function (a) {",
+  '          var b = document.createElement("button"); b.type = "button"; b.className = "nthview-lesson-btn"; b.setAttribute("data-go", a.i);',
+  '          b.textContent = "↻ " + CH[a.i].view; b.title = a.prompt; doneBar.appendChild(b);',
+  "        });",
+  '        var nx = document.createElement("button"); nx.type = "button"; nx.className = "nthview-lesson-btn nthview-lesson-primary";',
+  '        if (CH[i].next < n) { nx.setAttribute("data-go", CH[i].next); nx.textContent = "Next chapter ›"; nx.title = CH[CH[i].next].title; }',
+  '        else { nx.setAttribute("data-go", "-1"); nx.textContent = "Finish ›"; }',
+  "        doneBar.appendChild(nx);",
+  '        var x = document.createElement("button"); x.type = "button"; x.className = "nthview-lesson-x"; x.setAttribute("aria-label", "Close"); x.textContent = "×";',
+  '        x.addEventListener("click", function () { doneBar.hidden = true; });',
+  "        doneBar.appendChild(x); doneBar.hidden = false;",
+  "      }",
   "      function show(i, how, focus) {",
   "        if (i === cur) return;",
   "        cur = i;",
+  "        closeAngles(); doneBar.hidden = true;",
   '        frame.textContent = "";',
   "        var ov = i < 0;",
   "        overview.hidden = ov ? false : true; frame.hidden = !ov ? false : true;",
@@ -572,12 +671,16 @@ var SHELL_SCRIPT = [
   "          frame.appendChild(f);",
   "          if (st.visited.indexOf(CH[i].file) === -1) st.visited.push(CH[i].file);",
   "          st.last = CH[i].file;",
+  "          openedDone = isDone(i);",
   "        } else if (focus) overview.focus();",
   "        st.at = ov ? null : CH[i].file; save();",
-  '        at.textContent = ov ? "Overview" : "Chapter " + (i + 1) + " of " + n + " · " + CH[i].title;',
+  '        at.textContent = ov ? "Overview" : (CH[i].extra ? "Another angle · " : "Chapter " + (i + 1) + " of " + n + " · ") + CH[i].title;',
+  '        angleMenu.textContent = "";',
+  "        angleBtn.hidden = ov || !CH[i].angles.length;",
+  "        if (!ov) CH[i].angles.forEach(function (a) { angleMenu.appendChild(angleButton(a)); });",
   '        document.title = (ov ? "" : CH[i].title + " · ") + D.title + " — NthView lesson";',
   "        prevBtn.disabled = ov;",
-  '        nextBtn.querySelector(".nthview-lesson-lbl").textContent = ov ? "Start" : i === n - 1 ? "Finish" : "Next";',
+  '        nextBtn.querySelector(".nthview-lesson-lbl").textContent = ov ? "Start" : CH[i].next >= n ? "Finish" : "Next";',
   '        items.forEach(function (b) { if (+b.getAttribute("data-go") === i) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current"); });',
   '        var h = "#" + (ov ? "overview" : CH[i].file);',
   '        try { if (how === "push" && location.hash !== h) history.pushState(null, "", h); else if (how === "replace") history.replaceState(null, "", h); } catch (e) {}',
@@ -586,15 +689,16 @@ var SHELL_SCRIPT = [
   "      }",
   "      function fromHash() { var h = decodeURIComponent(location.hash.slice(1)); if (h === \"overview\") { show(-1, \"none\"); return true; } var i = indexOf(h); if (i >= 0) { show(i, \"none\"); return true; } return false; }",
   '      document.addEventListener("click", function (e) {',
+  '        if (!angleMenu.hidden && !(e.target.closest && e.target.closest(".nthview-lesson-anglewrap"))) closeAngles();',
   '        var t = e.target.closest ? e.target.closest("[data-go]") : null;',
   '        if (t) { show(+t.getAttribute("data-go"), "push", true); return; }',
   '        if (narrow.matches && e.target.classList.contains("nthview-lesson-scrim")) setNav(false);',
   "        if (!notice.hidden) notice.hidden = true;",
   "      });",
-  '      prevBtn.addEventListener("click", function () { if (cur > 0) show(cur - 1, "push", true); else if (cur === 0) show(-1, "push", true); });',
+  '      prevBtn.addEventListener("click", function () { if (cur >= 0) show(CH[cur].prev, "push", true); });',
   '      nextBtn.addEventListener("click", function () {',
   '        if (cur < 0) show(0, "push", true);',
-  '        else if (cur < n - 1) show(cur + 1, "push", true);',
+  '        else if (CH[cur].next < n) show(CH[cur].next, "push", true);',
   '        else { show(-1, "push", true); say("You reached the end of the lesson. Revisit any chapter from the list."); }',
   "      });",
   '      contBtn.addEventListener("click", function () { var i = indexOf(st.last); if (i >= 0) show(i, "push", true); });',
@@ -605,7 +709,14 @@ var SHELL_SCRIPT = [
   '        cur = null; show(-1, "replace", false); say("Progress erased. The lesson starts again from the overview.");',
   "      });",
   '      navBtn.addEventListener("click", function () { setNav(!navOpen()); });',
-  '      document.addEventListener("keydown", function (e) { if (e.key === "Escape" && narrow.matches && navOpen()) { setNav(false); navBtn.focus(); } });',
+  '      angleBtn.addEventListener("click", function () { var open = angleMenu.hidden; angleMenu.hidden = !open; angleBtn.setAttribute("aria-expanded", String(open)); if (open && angleMenu.firstChild) angleMenu.firstChild.focus(); });',
+  '      document.addEventListener("keydown", function (e) {',
+  '        if (e.key !== "Escape") return;',
+  "        if (!angleMenu.hidden) { closeAngles(); angleBtn.focus(); }",
+  "        else if (narrow.matches && navOpen()) { setNav(false); navBtn.focus(); }",
+  "      });",
+  "      /* the chapter runs in its own frame; check its record now and then to notice when it is done */",
+  "      setInterval(function () { if (cur !== null && cur >= 0 && !openedDone && isDone(cur)) { openedDone = true; marks(); showDone(cur); } }, 1500);",
   '      window.addEventListener("popstate", fromHash);',
   '      window.addEventListener("hashchange", fromHash);',
   '      window.addEventListener("resize", syncNav);',
@@ -635,15 +746,17 @@ function buildLesson(lessonDir) {
     var dataPath = path.join(lessonDir, "chapters", c.file + ".json");
     var data;
     try { data = JSON.parse(fs.readFileSync(dataPath, "utf8")); } catch (e) { fail(c.file + ".json could not be parsed (" + e.message + ")"); ok = false; return; }
-    var out = buildHtml.assemble(path.join(ROOT, "skills", c.view), data, { extraBody: lessonBar(m, i, slug) });
+    /* the view's own §5.5 storage key, so the lesson bar and the one-file lesson can read its progress */
+    var key = "nthview:" + c.view.replace(/^nthview-/, "") + ":" + fnv(JSON.stringify(data));
+    var out = buildHtml.assemble(path.join(ROOT, "skills", c.view), data, { extraBody: lessonBar(m, i, slug, key) });
     out.errors.forEach(function (er) { fail(c.file + ".json " + er.path + ": " + er.message); });
     out.warnings.forEach(function (w) { console.error("warning  " + c.file + ".json " + w.path + ": " + w.message); });
     if (!out.html) { ok = false; return; }
     fs.writeFileSync(path.join(lessonDir, "chapters", c.file + ".html"), out.html);
     console.log("wrote lessons/" + slug + "/chapters/" + c.file + ".html (" + c.view + ")");
-    /* the same chapter without the lesson bar, for the one-file lesson; the key is the view's own §5.5 storage key */
+    /* the same chapter without the lesson bar, for the one-file lesson */
     var plain = buildHtml.assemble(path.join(ROOT, "skills", c.view), data);
-    bare.push({ c: c, html: plain.html, libs: plain.libs, key: "nthview:" + c.view.replace(/^nthview-/, "") + ":" + fnv(JSON.stringify(data)) });
+    bare.push({ c: c, html: plain.html, libs: plain.libs, key: key });
   });
   if (!ok) return false;
   fs.writeFileSync(path.join(lessonDir, "index.html"), contentsPage(m, slug));

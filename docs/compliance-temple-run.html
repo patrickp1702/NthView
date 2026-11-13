@@ -2004,7 +2004,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
 
     /* ---------- state & score ---------- */
     var S = {
-      mode: "intro", k: 0, torches: START_TORCHES, coins: 0, stumbles: 0, paused: false, caughtCount: 0, runSeed: 0,
+      mode: "intro", k: 0, torches: START_TORCHES, coins: 0, stumbles: 0, paused: false, caughtCount: 0, runSeed: 0, ended: false,
       results: STRETCHES.map(function () { return { mistakes: 0, done: false, stars: 0, notes: [] }; }),
       finale: { list: [], i: 0, mistakes: 0, done: false }
     };
@@ -2014,7 +2014,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       return { phase: phase, k: Math.min(S.k, N), torches: S.torches, coins: S.coins, caught: S.caughtCount, runSeed: S.runSeed,
         results: S.results.map(function (r) { return { m: r.mistakes, d: r.done ? 1 : 0, s: r.stars }; }),
         finale: { m: S.finale.mistakes, done: S.finale.done ? 1 : 0, i: S.finale.i },
-        settings: { reduced: settings.reduced, buttons: settings.buttons, sound: settings.sound } };
+        settings: { reduced: settings.reduced, buttons: settings.buttons, sound: settings.sound }, done: S.ended };
     }
     function saveNow() { clearTimeout(saveTimer); saveTimer = 0; if (S.mode !== "intro" && canvas.isConnected) saveState(KEY, snapshot()); }
     function persist() { if (!saveTimer) saveTimer = setTimeout(saveNow, 250); }
@@ -2028,6 +2028,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       if (intIn(sv.coins, 0, 1e7)) S.coins = sv.coins;
       if (intIn(sv.caught, 0, 1e5)) S.caughtCount = sv.caught;
       if (intIn(sv.runSeed, 0, 1e6)) S.runSeed = sv.runSeed;
+      S.ended = sv.done === true;
       if (sv.finale && typeof sv.finale === "object") { if (intIn(sv.finale.m, 0, 999)) S.finale.mistakes = sv.finale.m; if (intIn(sv.finale.i, 0, 50)) S.finale.i = sv.finale.i; }
       var k = intIn(sv.k, 0, N) ? sv.k : 0, phase = ["stretch", "finale", "report"].indexOf(sv.phase) !== -1 ? sv.phase : "stretch";
       while (phase === "stretch" && k < N && S.results[k].done) k++;
@@ -3950,6 +3951,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       host.appendChild(ul); host.appendChild(more); add();
     }
     function showReport() {
+      S.ended = true; /* §5.5 rule 8: the end is the final report after the finale's sprint; once shown, the record keeps done: true */
       S.mode = "report"; closePanel(); hideCallout(); updatePad(); openOverlay("report"); ocard.textContent = ""; saveNow();
       ocard.appendChild(el("div", { class: "nthview-actions" }, [restartButton(container, data, KEY)])); ocard.lastChild.style.cssText = "margin:0 0 8px;justify-content:flex-end";
       var r = data.report, tiers = r.tiers || {}, fin = starsFor(S.finale.mistakes), st = totalStars() + fin, max = 3 * (N + 1);
@@ -4030,7 +4032,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       }, 380);
     }
     function restartAll() {
-      clearState(KEY); closeOverlay(); S.runSeed++; S.coins = 0; S.torches = START_TORCHES; S.caughtCount = 0;
+      clearState(KEY); closeOverlay(); S.ended = false; S.runSeed++; S.coins = 0; S.torches = START_TORCHES; S.caughtCount = 0;
       S.results = STRETCHES.map(function () { return { mistakes: 0, done: false, stars: 0, notes: [] }; }); S.finale = { list: [], i: 0, mistakes: 0, done: false };
       renderScore(); hFill2.style.width = "0%"; restartStretch(0);
     }

@@ -31,6 +31,7 @@ var REQUIRED_VIEW_FILES = [
   "assets/view.js",
   "scripts/validate.js",
   "references/schema.md",
+  "references/complete-example.md",
   "examples/example.html"
 ];
 var FORBIDDEN_CALLS = /fetch\(|XMLHttpRequest|\bimport\b/;
@@ -135,6 +136,9 @@ if (fs.existsSync(skillsDir)) {
     var skillMd = fs.readFileSync(skillFile, "utf8").replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, "");
     var schemaPath = path.join(full, "references/schema.md");
     var schemaMd = isView && fs.existsSync(schemaPath) ? fs.readFileSync(schemaPath, "utf8") : null;
+    /* the complete example sits in its own file so agents can skip it (AGENTS.md §5.1); the gallery still shows it */
+    var examplePath = path.join(full, "references/complete-example.md");
+    if (schemaMd !== null && fs.existsSync(examplePath)) schemaMd = schemaMd.replace(/\s*$/, "\n\n") + fs.readFileSync(examplePath, "utf8").replace(/^# /, "## ");
     skills.push({
       name: dir,
       title: titleFromName(dir),

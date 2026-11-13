@@ -819,7 +819,7 @@
     var S = {
       phase: "intro", tour: 0, task: -1, done: {}, slips: [], skipped: [], collapsed: {},
       sel: null, src: null, picks: [], revealed: false, detailsFor: null, detailsKey: null, lastBox: null, lastMaxK: 1.25, ts: null,
-      manual: false
+      manual: false, finished: false
     };
     var cam = { x: 0, y: 0, k: 1 };
 
@@ -830,7 +830,7 @@
       nodes.forEach(function (n) { if (n.x !== n.hx || n.y !== n.hy) moved[n.id] = [n.x, n.y]; });
       return {
         phase: S.phase, tour: S.tour, task: S.task,
-        done: Object.keys(S.done),
+        done: S.finished, solved: Object.keys(S.done),
         slips: S.slips.map(function (s) { return { task: s.task.id, kind: s.kind, chose: s.chose, answer: s.answer, why: s.why }; }),
         skipped: S.skipped.map(function (s) { return { task: s.task.id }; }),
         collapsed: Object.keys(S.collapsed).filter(function (k) { return S.collapsed[k]; }),
@@ -863,7 +863,8 @@
       var det = sv.details && typeof sv.details === "object" ? sv.details : null;
       var camS = sv.cam && typeof sv.cam === "object" && num(sv.cam.x) && num(sv.cam.y) && num(sv.cam.k) && sv.cam.k >= .14 && sv.cam.k <= 2.6 ? { x: sv.cam.x, y: sv.cam.y, k: sv.cam.k } : null;
       function applySaved() {
-        if (Array.isArray(sv.done)) sv.done.forEach(function (id) { if (TID[id]) S.done[id] = true; });
+        var solvedIds = Array.isArray(sv.solved) ? sv.solved : Array.isArray(sv.done) ? sv.done : []; /* records saved before §5.5 rule 8 kept the solved tasks in done */
+        solvedIds.forEach(function (id) { if (TID[id]) S.done[id] = true; });
         if (Array.isArray(sv.slips)) sv.slips.forEach(function (s) { if (s && TID[s.task] && KIND[s.kind]) S.slips.push({ task: TID[s.task], kind: s.kind, chose: String(s.chose || ""), answer: String(s.answer || ""), why: String(s.why || "") }); });
         if (Array.isArray(sv.skipped)) sv.skipped.forEach(function (s) { if (s && TID[s.task]) S.skipped.push({ task: TID[s.task], index: tasks.indexOf(TID[s.task]) }); });
       }
@@ -884,6 +885,7 @@
         if (ts.hint === true && S.ts.hintBtn) S.ts.hintBtn.click();
       }
       return function () {
+        S.finished = sv.done === true;
         intro.hidden = true; intro.classList.add("nthview-gone");
         restoreAll(); redraw(); setupMini();
         if (ph === "rebuild") {
@@ -1658,6 +1660,7 @@
 
     /* ---------- intro ---------- */
     function showIntro() {
+      S.finished = false; /* only reached fresh or after Start again, which cleared the record */
       setPhase("intro"); setStage(0);
       clearMarks(); setFocus(null); closeDetails(false);
       guide.hidden = true;
@@ -2218,6 +2221,7 @@
 
     /* ---------- end screen ---------- */
     function showEnd() {
+      S.finished = true; /* §5.5 rule 8: the end is the review screen after the reflection, the view's last stage */
       setPhase("end"); setStage(3);
       restoreAll(); clearMarks(); setFocus(null); syncCollapse(); redraw();
       data.reflection.keyEdges.forEach(function (k) { ED[k.edge].g.classList.add("nthview-key"); ED[k.edge].lab.classList.add("nthview-key"); });
