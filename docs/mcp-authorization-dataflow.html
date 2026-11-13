@@ -2839,10 +2839,23 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     ".nthview-df-notes dd{margin:0;color:var(--nv-muted)}",
     ".nthview-df-msg .nthview-df-empty{padding:4px 0 0}",
     ".nthview-df-rtabs{display:none}",
-    /* checks */
-    ".nthview-df-check{border:1px solid var(--nv-accent);border-radius:10px;padding:12px 14px;margin-top:6px;max-width:62ch;font-size:14px}",
-    ".nthview-df-check .nthview-df-eyebrow{color:var(--nv-accent)}",
-    ".nthview-df-check p{margin:2px 0 10px}",
+    /* checks: the side panel */
+    ".nthview-df-lesson{position:relative}",
+    ".nthview-df-quiz{position:absolute;left:0;top:0;bottom:0;width:316px;max-width:100%;z-index:25;background:var(--nv-bg);border-right:1px solid var(--df-border);box-shadow:10px 0 30px rgba(0,0,0,.22);transform:translateX(-103%);transition:transform .3s cubic-bezier(.2,.7,.2,1);overflow:auto;display:flex;flex-direction:column;visibility:hidden}",
+    ".nthview-df-quiz.nthview-df-open{transform:none;visibility:visible}",
+    ".nthview-df-quiz-head{display:flex;justify-content:space-between;align-items:center;padding:14px 16px 0;gap:8px}",
+    ".nthview-df-quiz-kicker{color:var(--nv-accent)}",
+    ".nthview-df-quiz-close{width:36px;height:36px;border:1px solid var(--df-border);border-radius:8px;display:inline-grid;place-items:center;font-size:18px;color:var(--nv-muted)}",
+    ".nthview-df-quiz-close:hover{color:var(--nv-fg);background:var(--df-hover)}",
+    ".nthview-df-quiz-step{padding:6px 16px 0;font-size:12.5px;color:var(--nv-muted)}",
+    ".nthview-df-review{font-size:12px;color:var(--nv-accent);text-decoration:underline;text-decoration-color:var(--df-faint);text-underline-offset:2px}",
+    ".nthview-df-review:hover{text-decoration-color:var(--nv-accent)}",
+    ".nthview-df-waiting{color:var(--nv-muted)}",
+    ".nthview-df-check{padding:10px 16px 20px;font-size:14px}",
+    ".nthview-df-check p{margin:2px 0 12px}",
+    ".nthview-df-verdict{font-weight:600;color:var(--nv-accent)}",
+    ".nthview-df-verdict-right{color:var(--df-good)}",
+    ".nthview-df-continue{margin-top:14px;min-height:40px}",
     ".nthview-df-opts{display:grid;gap:6px;margin:0;padding:0;list-style:none}",
     ".nthview-df-opts button{display:flex;gap:10px;align-items:flex-start;width:100%;min-height:44px;padding:8px 10px;border:1px solid var(--df-border);border-radius:8px;font-size:14px;line-height:1.4}",
     ".nthview-df-opts button:hover{background:var(--df-hover)}",
@@ -2949,6 +2962,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     "  .nthview-df-backdrop{position:fixed;inset:0;z-index:29;background:rgba(0,0,0,.45)}",
     "  .nthview-df-backdrop.nthview-df-open{display:block}",
     "  .nthview-df-drawerhead{display:flex;justify-content:space-between;align-items:center;padding:12px 16px 0}",
+    "  .nthview-df-quiz{position:fixed;inset:0 auto 0 0;width:min(86vw,340px);z-index:32}",
     "  .nthview-df-drawerhead button{min-height:44px;min-width:44px;display:inline-grid;place-items:center;border:1px solid var(--df-border);border-radius:8px;font-size:18px}",
     "  .nthview-df-stagebar{flex-direction:column;gap:10px;padding:14px 16px 0}",
     "  .nthview-df-stagebar .nthview-df-seg{align-self:flex-start}",
@@ -3839,7 +3853,8 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       ui.side = sidebar(); ui.side.id = "nthview-df-side";
       ui.backdrop = el("div", { class: "nthview-df-backdrop" });
       ui.backdrop.addEventListener("click", function () { toggleDrawer(false); });
-      return el("div", { class: "nthview-df-lesson" }, [ui.side, ui.backdrop, center(), rightPanel()]);
+      ui.lesson = el("div", { class: "nthview-df-lesson" }, [ui.side, ui.backdrop, center(), rightPanel()]);
+      return ui.lesson;
     }
     function toggleDrawer(open) {
       if (!ui.side) return;
@@ -3918,12 +3933,24 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         ui.cap.appendChild(el("h2", { text: M.TI[state.topic].title }));
         ui.cap.appendChild(para("nthview-df-expl", R.avail ? "" : (R.reason.kind === "arrives" ? "This topic arrives in " + versionLabel(R.reason.version) + ". Switch the version to see it." : "This topic was removed in " + versionLabel(R.reason.version) + ". Switch to an earlier version to see it.")));
       } else {
-        ui.cap.appendChild(el("p", { class: "nthview-df-eyebrow", text: "Step " + (st.idx + 1) + " of " + R.steps.length }));
+        var eyebrow = el("p", { class: "nthview-df-eyebrow", text: "Step " + (st.idx + 1) + " of " + R.steps.length });
+        if (st.check && !gated) {
+          var a = state.checks[checkKey(st.idx)], verdict = a === -1 ? "Prediction skipped" : st.check.options[a].correct ? "Predicted right" : "Predicted wrong";
+          var review = el("button", { type: "button", class: "nthview-df-review", text: verdict + " · review" });
+          review.addEventListener("click", function () { openQuiz(st); });
+          eyebrow.appendChild(doc.createTextNode(" · ")); eyebrow.appendChild(review);
+        }
+        ui.cap.appendChild(eyebrow);
         var h2 = el("h2", { text: st.title }); if (st.tag) h2.appendChild(el("i", { class: "nthview-df-tag", text: st.tag })); ui.cap.appendChild(h2);
-        if (gated) ui.cap.appendChild(checkCard(st));
-        else {
+        if (gated) {
+          var waiting = el("p", { class: "nthview-df-expl nthview-df-waiting" }, [doc.createTextNode("Predict first: answer the question in the side panel, or skip it, to reveal this step. ")]);
+          var reopen = el("button", { type: "button", class: "nthview-df-review", text: "Open the question" });
+          reopen.addEventListener("click", function () { openQuiz(st); });
+          waiting.appendChild(reopen); ui.cap.appendChild(waiting);
+          openQuiz(st);
+        } else {
           ui.cap.appendChild(para("nthview-df-expl", st.explanation));
-          if (st.check && state.checks[checkKey(st.idx)] !== undefined) ui.cap.appendChild(checkCard(st));
+          if (ui.quiz && ui.quiz.classList.contains("nthview-df-open") && ui.quizStep !== st.idx) closeQuiz();
         }
       }
       /* table rows */
@@ -4008,10 +4035,33 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       }
     }
 
-    /* ---------- checks ---------- */
+    /* ---------- checks: a side panel that slides in over the navigation, so the stage never moves ---------- */
+    function openQuiz(st) {
+      if (!ui.lesson) return;
+      if (!ui.quiz) {
+        ui.quiz = el("aside", { class: "nthview-df-quiz", role: "dialog", "aria-label": "Prediction check", "aria-modal": "false" });
+        ui.lesson.appendChild(ui.quiz);
+      }
+      ui.quizStep = st.idx;
+      ui.quiz.innerHTML = "";
+      var answered = state.checks[checkKey(st.idx)] !== undefined;
+      var head = el("div", { class: "nthview-df-quiz-head" }, [el("span", { class: "nthview-df-eyebrow nthview-df-quiz-kicker", text: answered ? "Your prediction" : "Predict before you look" })]);
+      if (answered) { var x = el("button", { type: "button", class: "nthview-df-quiz-close", "aria-label": "Close", text: "×" }); x.addEventListener("click", closeQuiz); head.appendChild(x); }
+      ui.quiz.appendChild(head);
+      ui.quiz.appendChild(el("p", { class: "nthview-df-quiz-step", text: "Step " + (st.idx + 1) + " · " + st.title }));
+      ui.quiz.appendChild(checkCard(st));
+      var wasOpen = ui.quiz.classList.contains("nthview-df-open");
+      ui.quiz.classList.add("nthview-df-open");
+      if (!wasOpen) { var first = ui.quiz.querySelector("button:not(.nthview-df-quiz-close)"); if (first) setTimeout(function () { try { first.focus({ preventScroll: true }); } catch (e) { first.focus(); } }, reduceMotion ? 0 : 320); }
+    }
+    function closeQuiz() {
+      if (!ui.quiz || !ui.quiz.classList.contains("nthview-df-open")) return;
+      ui.quiz.classList.remove("nthview-df-open");
+      if (ui.stage) { try { ui.stage.focus({ preventScroll: true }); } catch (e) { ui.stage.focus(); } }
+    }
     function checkCard(st) {
       var c = st.check, ck = checkKey(st.idx), answered = state.checks[ck], card = el("div", { class: "nthview-df-check", role: "group", "aria-label": "Prediction check" });
-      card.appendChild(el("p", { class: "nthview-df-eyebrow", text: answered === undefined ? "Predict before you look" : (answered === -1 ? "Skipped" : (c.options[answered].correct ? "Correct" : "Not quite")) }));
+      if (answered !== undefined) card.appendChild(el("p", { class: "nthview-df-verdict" + (answered !== -1 && c.options[answered].correct ? " nthview-df-verdict-right" : ""), text: answered === -1 ? "Skipped" : (c.options[answered].correct ? "Correct" : "Not quite") }));
       card.appendChild(para(null, c.prompt));
       var ol = el("ul", { class: "nthview-df-opts" });
       c.options.forEach(function (o, i) {
@@ -4037,13 +4087,22 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         skip.addEventListener("click", function () { answer(st, -1); });
         card.appendChild(skip);
       }
+      if (answered !== undefined) {
+        var go = el("button", { type: "button", class: "nthview-df-btn nthview-df-btn-primary nthview-df-continue", text: "Continue" });
+        go.addEventListener("click", closeQuiz);
+        card.appendChild(go);
+      }
       return card;
     }
+    /* The step is revealed behind the panel as soon as the learner answers; Continue closes the panel. */
     function answer(st, i) {
       state.checks[checkKey(st.idx)] = i; persist();
       if (ui.stepList) { var nums = ui.stepList.querySelectorAll(".nthview-df-num"); if (nums[st.idx]) nums[st.idx].classList.add("nthview-df-num-done"); }
+      refresh();
       var b = R.beats[state.pos];
-      if (b && b.msg && !reduceMotion) animateBeat(state.pos, function () { refresh(); }); else refresh();
+      if (b && b.msg && !reduceMotion) animateBeat(state.pos, function () {});
+      openQuiz(st);
+      var go = ui.quiz && ui.quiz.querySelector(".nthview-df-continue"); if (go) go.focus();
     }
 
     /* ---------- position, play, animation ---------- */
@@ -4199,6 +4258,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       var tag = (e.target.tagName || "").toLowerCase();
       if (tag === "input" || tag === "select" || tag === "textarea") return;
       if (e.key === "Escape" && ui.side && ui.side.classList.contains("nthview-df-open")) { toggleDrawer(false); return; }
+      if (e.key === "Escape" && ui.quiz && ui.quiz.classList.contains("nthview-df-open") && ui.quizStep !== undefined && state.checks[checkKey(ui.quizStep)] !== undefined) { closeQuiz(); return; }
       if (state.screen !== "lesson") return;
       if (e.key === " " && tag !== "button" && tag !== "a" && tag !== "tr") { e.preventDefault(); if (playing) stop(); else play(); }
       else if (e.key === "ArrowRight") { e.preventDefault(); stop(); stepForward(); }
