@@ -1098,6 +1098,21 @@ be a credential.
   company address. Before the first commit in a fresh clone, set it:
   `git config user.email <noreply address>`. A commit that carries any other
   address is rewritten before it is pushed.
+- **Check identity before every push.** The machine's global git email may
+  be a work address, so a fresh clone or another tool can commit with it
+  silently. Before each push, list the commits about to go out and their
+  author and committer addresses; the command prints nothing when all is
+  well (GitHub's own `noreply@github.com` committer, used for web merges,
+  is allowed):
+
+  ```bash
+  git log origin/main..HEAD --format='%h %ae %ce' | grep -vE '^[0-9a-f]+ [0-9]+\+[A-Za-z0-9-]+@users\.noreply\.github\.com ([0-9]+\+[A-Za-z0-9-]+@users\.noreply\.github\.com|noreply@github\.com)$'
+  ```
+
+  Any line it prints is a commit that must not be pushed: fix it first
+  (`git commit --amend --reset-author` for the last commit, a rebase for
+  older ones) and never push it to any branch, since a pull request keeps
+  its commits public even after the branch is deleted.
 - **Commit messages, code, comments, docs, lessons, examples, notes.** No
   employer or company names, team names, internal product or project names,
   internal hostnames or URLs, ticket ids, office locations, phone numbers,
