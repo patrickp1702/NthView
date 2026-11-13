@@ -151,6 +151,9 @@ Only these, and nothing else:
   linked from `SKILL.md`.
 - Extra samples in `examples/` named `example-<topic>.html`, each built with
   the §6 template.
+- `references/complete-example.md`, which every view has: the schema's
+  complete example (§5.1), kept out of `schema.md` so an agent reads the
+  type definitions without the long example. Linked from `SKILL.md`.
 
 ### 3.3 Forbidden
 
@@ -208,6 +211,10 @@ Do not use when:
 
 ### 2. Prepare the JSON
 Follow `references/schema.md` exactly. Set `"schemaVersion": <n>`.
+Open `references/complete-example.md` only when a table leaves the shape of
+something unclear; it is long. Never open `assets/view.js` or
+`scripts/validate.js`: the tools run and copy them, and everything the JSON
+needs is in this file and `references/schema.md`.
 <View-specific guidance on choosing and shaping content.>
 
 ### 3. Validate
@@ -218,8 +225,10 @@ Write the JSON to a file and run:
 Fix every error and re-run until it prints `valid`. Address warnings where
 reasonable.
 
-If `node` is not installed, try `bun` or `deno run -A` with the same
-script; both run it unchanged. If no JavaScript runtime exists, do the
+A JavaScript runtime is expected: with one, checking and building the file
+cost no tokens. If `node` is not installed, try `bun` or `deno run -A` with
+the same script; both run it unchanged. If no JavaScript runtime exists, tell
+the user that installing Node makes this much cheaper, then do the
 validator's job yourself: check the JSON against every table, cross-field
 rule and warning in `references/schema.md`, which is exactly what
 `scripts/validate.js` implements, and fix what you find. Say that the check
@@ -241,8 +250,10 @@ as a plugin, write to the current folder or where the user asks; do not create
 or reuse a `docs/` folder there, it may hold the project's own documentation.
 Never write inside `skills/`.
 
-The hand build is the fallback when no JavaScript runtime is available; the
-tool does nothing beyond that template, so the result is identical.
+Build by hand only when no JavaScript runtime is available: it means
+writing out the whole renderer (40–270 KB, up to about 70,000 tokens) and is
+easy to get wrong, so tell the user the cost first. The tool does nothing
+beyond that template, so the result is identical.
 
 ### 5. Deliver
 Hand the user the single file. Build no other view unless asked.
@@ -257,8 +268,9 @@ difficulty mix, ordering, what to avoid.>
 
 ## Files
 - `references/schema.md` — the JSON format (single source of truth)
-- `scripts/validate.js` — `NthView.validate(data)`, Node CLI and browser
-- `assets/view.js` — `NthView.build(container, data)`
+- `references/complete-example.md` — a complete valid example; open only when needed
+- `scripts/validate.js` — `NthView.validate(data)`, Node CLI and browser; run it, never read it
+- `assets/view.js` — `NthView.build(container, data)`; the build tool copies it, never read it
 - `examples/example.html` — a working standalone sample
 ```
 
@@ -317,9 +329,8 @@ Rules for the frontmatter `description`:
 - <e.g. a label longer than 80 characters>
 
 ## Complete example
-```json
-{ ...a complete, valid object that exercises every field... }
-```
+In `references/complete-example.md`. Read it only when a table above leaves
+the shape of something unclear.
 ```
 
 Rules:
@@ -328,9 +339,14 @@ Rules:
 - `schemaVersion` is always first, always a required integer, starting at `1`.
 - `title` (string, required) is always present at the root so every view has
   a page heading.
-- The example must pass the validator with zero errors and is the exact data
-  used in `examples/example.html`. A long example is fine: `scripts/build-html.js
-  --example` reads it from this file, so it stays the single copy.
+- The complete example lives in `references/complete-example.md`: a
+  `# <View> complete example` heading, one sentence, and one ```json block
+  with a complete, valid object that exercises every field. It must pass the
+  validator with zero errors and is the exact data used in
+  `examples/example.html`; `scripts/build-html.js --example` reads it from
+  that file, so it stays the single copy. Keeping it out of `schema.md` lets
+  an agent read the type definitions (usually 7–35 KB) without the example
+  (often 30–65 KB).
 - The validator implements the rules written here and nothing more. If the
   validator needs a rule, add it to this file first.
 
@@ -673,6 +689,14 @@ Rules:
    chapter unchanged, so the chapter keeps the same record; the shell itself
    remembers only which chapter was open, under `nthview:lesson:<hash>`
    (FNV-1a of the serialised `lesson.json`).
+8. **Completion.** When the learner reaches the view's end, the point the
+   view itself treats as finished (the final report, debrief, wrap-up,
+   recap card or exam result), the record gets `done: true` and keeps it:
+   restoring a finished view keeps `done`, and only Restart or play again,
+   which clear the record, remove it. Set it where the end is shown, so the
+   live path and the restore path both set it. `done` is the one field every
+   view shares, so a lesson or the gallery can tell a finished chapter from a
+   started one without knowing the view.
 
 ---
 
@@ -752,7 +776,10 @@ Rules:
    opens. A library that cannot be downloaded, or that contains `</script`
    or `<!--`, keeps its CDN tag and the build warns. `style` entries (web
    fonts) and the shell's Google Fonts link stay links: offline, the pages
-   fall back to system fonts and nothing else changes.
+   fall back to system fonts and nothing else changes. The shell reads each
+   chapter's §5.5 record to mark chapters started or done, and when the open
+   chapter turns `done` it offers the next chapter and any other angles
+   (§10).
 
 The repo tool assembles this template exactly, including the library tags
 and the `\u003c` escaping, and is the recommended way to build any output:
@@ -949,6 +976,13 @@ are two chapters). Chapter `00-highlights` is always first: a
 `nthview-highlights` deck that previews the whole lesson. Chapters may carry a
 `role` (preview, structure, demonstrate, apply, confront, consolidate, assess,
 recap) so the sequence covers a concept from every angle.
+A chapter may list up to three `angles`: other chapters of the lesson that
+explain the same idea in another view, each with a one-line prompt ("Prefer
+to see how the parts connect?"). A chapter marked `extra` sits outside the
+main path: Previous and Next skip it, and it is reached through an angle,
+the contents or the side nav. The contents page, the lesson bar and the
+one-file lesson show the angles; the bar and the one-file lesson also notice
+when a chapter is done (§5.5 rule 8) and point to what comes next.
 `node scripts/build-lesson.js lessons/<lesson-slug>` validates the manifest
 and every chapter with its view, assembles the chapter pages with the lesson
 bar, writes the lesson's `index.html` contents page (objectives, tags, dates,
@@ -981,7 +1015,8 @@ Copy into the task; every box must be ticked.
 - [ ] `schemaVersion` (integer, required) and `title` (string, required) at
       the root.
 - [ ] Cross-field rules and warnings listed.
-- [ ] Complete example passes the validator with zero errors.
+- [ ] Complete example, in `references/complete-example.md`, passes the
+      validator with zero errors.
 
 **validate.js (§5.2)**
 - [ ] Built from the skeleton; wrapper, CLI, exit codes and result shape
@@ -1004,7 +1039,8 @@ Copy into the task; every box must be ticked.
 - [ ] Re-running `build()` replaces the render.
 - [ ] §5.5 storage block copied unchanged; progress saved on every change,
       restored on reload (tested with a persistent headless profile or by
-      reloading in a browser); Restart erases it; storage disabled still plays.
+      reloading in a browser); Restart erases it; storage disabled still plays;
+      the record gets `done: true` when the learner reaches the end (§5.5 rule 8).
 
 **example.html (§6)**
 - [ ] Byte-for-byte follows the §6 template with the schema example.
