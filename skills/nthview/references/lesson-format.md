@@ -12,6 +12,7 @@ lessons/
 └── <lesson-slug>/
     ├── lesson.json                 # the manifest (below)
     ├── index.html                  # GENERATED contents page
+    ├── <lesson-slug>-lesson.html   # GENERATED one-file lesson: every chapter in one page
     └── chapters/
         ├── 00-highlights.json      # the preview deck (nthview-highlights), always first
         ├── 00-highlights.html      # GENERATED
@@ -125,14 +126,16 @@ node ${CLAUDE_SKILL_DIR}/../../scripts/build-lesson.js lessons/<lesson-slug>
 
 The tool validates `lesson.json`, validates every chapter's JSON with its
 view's validator, assembles each chapter page exactly as `build-html.js`
-does, appends the lesson bar, writes `index.html`, and regenerates the
+does, appends the lesson bar, writes `index.html` and the one-file lesson
+`<lesson-slug>-lesson.html`, and regenerates the
 gallery registry so the lesson appears in the gallery's "docs and lessons"
 dialog. `--all` rebuilds every lesson. `bun` and `deno run -A` run it
 unchanged. With no JavaScript runtime, reproduce what the script writes by
 hand: validate every chapter against its view's `references/schema.md`, build
 each chapter page as `build-html.js` specifies, append the lesson bar exactly
 as `lessonBar()` emits it, and write the contents page in the same shape as
-an existing lesson's `index.html`.
+an existing lesson's `index.html`. The one-file lesson is optional by hand:
+skip it and say so, or reproduce `oneFileLesson()` exactly.
 
 ## The lesson bar
 
@@ -142,3 +145,17 @@ chapter title, Previous, Contents and Next chapter (or Next lesson / Finish on
 the last chapter). It is injected after the view's bootstrap script and never
 touches the view's code, so the chapter is still a valid standalone view
 output.
+
+## The one-file lesson
+
+`<lesson-slug>-lesson.html` is a second way to read the same lesson, written
+next to the contents page and chapter pages, which stay as they are. It needs
+no other file, so it can be shared on its own. It opens on an overview (the
+contents page's objectives, chapters, glossary and references) with a chapter
+list in a side nav (a drawer on phones), Previous and Next in the header, and
+one chapter at a time below them. Each chapter is its view's unchanged output
+without the lesson bar, so it saves progress under its own key and shares it
+with the chapter page when both are opened from the same place. The shell
+itself remembers only the open chapter, so a reopened file resumes there,
+marks started chapters with a tick, and offers Continue and Restart lesson on
+the overview. The contents page links to it as "All chapters in one page".

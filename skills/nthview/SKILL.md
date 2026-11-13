@@ -69,7 +69,8 @@ all, each view's `SKILL.md` says how to check the JSON by hand against its
 - **Lesson:** create `lessons/<lesson-slug>/lesson.json` (inside the NthView
   repository; elsewhere `<lesson-slug>/lesson.json` in the current folder) and one
   `chapters/NN-<slug>.json` per chapter, then build everything, including the
-  contents page and the previous/next bar on every chapter:
+  contents page, the previous/next bar on every chapter, and the one-file
+  lesson `<lesson-slug>-lesson.html` that holds every chapter in one page:
 
       node ${CLAUDE_SKILL_DIR}/../../scripts/build-lesson.js <path-to-lesson-folder>
 
@@ -89,7 +90,8 @@ the user it was built by hand; a script run is faster and surer.
 
 ### 5. Deliver
 Hand over the file (or the lesson's `index.html`) and say which views were
-used. Build only what was asked for.
+used. For a lesson, also name `<lesson-slug>-lesson.html`: the same lesson as
+one file to share or open on its own. Build only what was asked for.
 
 ## Content guidance
 

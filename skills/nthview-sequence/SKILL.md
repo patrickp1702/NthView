@@ -6,12 +6,14 @@ description: Explains a protocol, handshake or any exchange between parties as a
 # NthView — Sequence
 
 ## Overview
-The learner sees the participants as lanes across the top and one transition
-at a time: an arrow flies from sender to receiver carrying a short payload,
-and a card below shows the exact message on the wire, why it is sent, an
-optional comparison with an older or alternative design, details, a warning
-when the step matters for security, and a strip of what each party holds now,
-with newly acquired items marked. Light checks ("who sends the next
+The learner sees the participants as lanes across the top, each with an
+avatar in its own colour that it keeps everywhere in the view, and one
+transition at a time: an arrow flies from sender to receiver carrying a short
+payload, and a card below shows the exact message on the wire, why it is sent,
+an optional comparison with an older or alternative design, details, a warning
+when the step matters for security, and a card per party of what it holds now,
+with newly acquired and given-up items marked (and a filter for only what
+changed). Light checks ("who sends the next
 message?") make the learner predict before a step is revealed; a wrong guess
 explains and reveals, never blocks. A "Full diagram" button shows the whole
 exchange as one UML-style sequence diagram (lifelines, activation bars,
@@ -31,7 +33,7 @@ diagram draws everything in place.
 The output is one self-contained HTML file with no libraries and no fonts to
 fetch: it works offline. Four themes (`paper`, `slate`, `blueprint`, `mint`),
 light and dark. Progress (the path into the tree, step, mode, zoom, Expand
-all, expanded groups, toggles, answered checks at every level) is saved
+all, expanded groups, toggles, visited steps, answered checks at every level) is saved
 in the browser (localStorage) at every change, so reopening the file resumes
 where the learner left off; the Restart button in the header clears it.
 

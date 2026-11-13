@@ -6,7 +6,8 @@
  * JSON sits next to the HTML it produces. This tool validates lesson.json,
  * validates and assembles every chapter with its view, injects the lesson
  * bar (previous / contents / next) into each chapter page, writes the
- * lesson's contents page, and regenerates the gallery registry.
+ * lesson's contents page and the one-file lesson <slug>-lesson.html (every
+ * chapter in one shareable page), and regenerates the gallery registry.
  *
  * lesson.json is schemaVersion 2: title, description, audience, level, domain,
  * tags, objectives, created and the chapters (the first a nthview-highlights
@@ -22,6 +23,7 @@
 var fs = require("fs");
 var path = require("path");
 var cp = require("child_process");
+var os = require("os");
 var buildHtml = require("./build-html.js");
 
 var ROOT = path.resolve(__dirname, "..");
@@ -295,7 +297,7 @@ function contentsPage(m, slug) {
     '        <p class="aud"><b>For:</b> ' + esc(m.audience) + "</p>",
     tags ? '        <div class="tags" aria-label="Tags">' + tags + "</div>" : "",
     '        <p class="dates">' + dates + (m.license ? " · " + esc(m.license) : "") + "</p>",
-    '        <div class="cta"><a class="btn primary" href="chapters/' + m.chapters[0].file + '.html">Start with the highlights ›</a><a class="btn" href="chapters/' + firstReal.file + '.html">Skip to chapter 2</a></div>',
+    '        <div class="cta"><a class="btn primary" href="chapters/' + m.chapters[0].file + '.html">Start with the highlights ›</a><a class="btn" href="chapters/' + firstReal.file + '.html">Skip to chapter 2</a><a class="btn" href="' + oneFileName(slug) + '" title="Every chapter in one shareable file">All chapters in one page</a></div>',
     "      </div>",
     '      <div class="side">',
     objectives ? '        <section class="panel" aria-labelledby="obj"><h2 id="obj">You will be able to</h2><ul>' + objectives + "</ul></section>" : "",
@@ -311,6 +313,311 @@ function contentsPage(m, slug) {
   ].filter(function (l) { return l !== ""; }).join("\n");
 }
 
+/* ---------- the one-file lesson: every chapter in one shareable page (AGENTS.md §6 rule 9) ----------
+   The shell shows an overview and one chapter at a time in an iframe; each chapter is its unchanged
+   §6 output (no lesson bar) stored as a JSON string. Nothing here touches the views. */
+function fnv(s) {
+  var h = 2166136261;
+  for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return (h >>> 0).toString(36);
+}
+var LT_ESCAPE = "\\" + "u003c"; /* the JSON escape for "<", as in build-html.js */
+function scriptJson(v) { return JSON.stringify(v).replace(/</g, LT_ESCAPE); }
+function oneFileName(slug) { return slug + "-lesson.html"; }
+
+/* Script libraries are embedded so the one-file lesson works offline (AGENTS.md §6 rule 9).
+   Each pinned URL is downloaded once into the system temp folder and reused from there;
+   nothing is stored in the repository. Returns the code, or null with a warning. */
+var LIB_HOSTS = ["cdnjs.cloudflare.com", "cdn.jsdelivr.net", "unpkg.com"];
+var libCache = {};
+function embeddedLib(src) {
+  if (Object.prototype.hasOwnProperty.call(libCache, src)) return libCache[src];
+  var warn = function (msg) { console.error("warning  " + src + " " + msg + "; the one-file lesson keeps its CDN tag for it"); libCache[src] = null; return null; };
+  var u;
+  try { u = new URL(src); } catch (e) { return warn("is not a URL"); }
+  if (u.protocol !== "https:" || LIB_HOSTS.indexOf(u.hostname) === -1) return warn("is not on an allowed CDN host");
+  var file = path.join(os.tmpdir(), "nthview-cdn", src.replace(/^https:\/\//, "").replace(/[^A-Za-z0-9._-]+/g, "_"));
+  if (!fs.existsSync(file)) {
+    var dl = "fetch(process.argv[1]).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })" +
+      ".then(function (t) { var fs = require('fs'), p = require('path'); fs.mkdirSync(p.dirname(process.argv[2]), { recursive: true }); fs.writeFileSync(process.argv[2] + '.part', t); fs.renameSync(process.argv[2] + '.part', process.argv[2]); })" +
+      ".catch(function (e) { console.error(e.message); process.exit(1); });";
+    try { cp.execFileSync(process.execPath, ["-e", dl, src, file], { stdio: ["ignore", "ignore", "pipe"], timeout: 60000 }); }
+    catch (e) { return warn("could not be downloaded (" + String(e.stderr || e.message).trim() + ")"); }
+  }
+  var code = fs.readFileSync(file, "utf8");
+  if (/<\/script|<!--/i.test(code)) return warn("contains </script or <!-- and cannot be inlined safely");
+  libCache[src] = code;
+  return code;
+}
+
+function oneFileLesson(m, chapters) {
+  var esc = function (s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;"); };
+  var viewName = function (v) { return v.replace(/^nthview-/, "").split("-").map(function (w) { return w[0].toUpperCase() + w.slice(1); }).join(" "); };
+  var pad = function (i) { return String(i + 1).padStart(2, "0"); };
+  var n = m.chapters.length, mins = lessonMinutes(m);
+  var facts = [cap(esc(m.domain)), cap(esc(m.level)), mins ? "about " + mins + " min" : null, n + " chapters"].filter(Boolean).join(" · ");
+  var meta = function (c) { return [esc(viewName(c.view)), c.role ? esc(cap(c.role)) : null, typeof c.minutes === "number" ? c.minutes + " min" : null].filter(Boolean).join(" · "); };
+  var navItems = ['        <li><button type="button" class="nthview-lesson-item" data-go="-1"><span class="nthview-lesson-num" aria-hidden="true">◎</span><span class="nthview-lesson-itxt"><b>Overview</b><small>Objectives, chapters, glossary</small></span></button></li>']
+    .concat(m.chapters.map(function (c, i) {
+      return '        <li><button type="button" class="nthview-lesson-item" data-go="' + i + '"><span class="nthview-lesson-num">' + pad(i) + '</span><span class="nthview-lesson-itxt"><b>' + esc(c.title) + "</b><small>" + meta(c) + '</small></span><span class="nthview-lesson-mark" aria-hidden="true"></span><span class="nthview-lesson-sr nthview-lesson-srmark"></span></button></li>';
+    })).join("\n");
+  var cards = m.chapters.map(function (c, i) {
+    return '          <li><button type="button" class="nthview-lesson-card" data-go="' + i + '"><span class="nthview-lesson-cnum">' + pad(i) + '</span><span class="nthview-lesson-cbody"><span class="nthview-lesson-cview">' + meta(c) + "</span><b>" + esc(c.title) + "</b><span class=\"nthview-lesson-csum\">" + esc(c.summary) + '</span></span><span class="nthview-lesson-cgo" aria-hidden="true">›</span></button></li>';
+  }).join("\n");
+  var files = m.chapters.map(function (c) { return c.file; });
+  var tags = (m.tags || []).map(function (t) { return '<span class="nthview-lesson-tag">#' + esc(t) + "</span>"; }).join("");
+  var objectives = (m.objectives || []).map(function (o) { return "<li>" + esc(o) + "</li>"; }).join("");
+  var prereq = (m.prerequisites || []).map(function (o) { return "<li>" + esc(o) + "</li>"; }).join("");
+  var glossary = (m.glossary || []).slice().sort(function (a, b) { return a.term.toLowerCase() < b.term.toLowerCase() ? -1 : 1; }).map(function (g) {
+    var idx = g.chapter ? files.indexOf(g.chapter) : -1;
+    var where = idx !== -1 ? ' <button type="button" class="nthview-lesson-where" data-go="' + idx + '">ch. ' + (idx + 1) + "</button>" : "";
+    return '<div class="nthview-lesson-term"><dt>' + esc(g.term) + where + "</dt><dd>" + esc(g.definition) + "</dd></div>";
+  }).join("");
+  var refs = (m.references || []).map(function (r) {
+    var t = r.url ? '<a href="' + esc(r.url) + '" rel="noopener" target="_blank">' + esc(r.title) + "</a>" : esc(r.title);
+    return "<li>" + t + (r.note ? ' <span class="nthview-lesson-note">' + esc(r.note) + "</span>" : "") + "</li>";
+  }).join("");
+  var dates = "Created " + fmtDate(m.created) + (m.updated && m.updated !== m.created ? " · Updated " + fmtDate(m.updated) : "");
+  var libs = [];
+  chapters.forEach(function (x) {
+    x.libs.forEach(function (l) {
+      if (l.kind !== "script" || libs.some(function (k) { return k.src === l.src; })) return;
+      var code = embeddedLib(l.src);
+      if (code !== null) libs.push({ src: l.src, code: code });
+    });
+  });
+  var data = { title: m.title, key: "nthview:lesson:" + fnv(JSON.stringify(m)), chapters: chapters.map(function (x) { return { file: x.c.file, title: x.c.title, view: x.c.view, key: x.key }; }),
+    libs: libs.map(function (l) { return l.src; }) };
+
+  return [
+    "<!doctype html>", '<html lang="' + esc(m.language || "en") + '">', "<head>", '  <meta charset="utf-8">', '  <meta name="viewport" content="width=device-width, initial-scale=1">', '  <meta name="color-scheme" content="light dark">',
+    "  <title>" + esc(m.title) + " — NthView lesson</title>",
+    '  <meta name="description" content="' + esc(m.description) + '">',
+    '  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Inter:wght@400;500;700&display=swap">',
+    "  <style>",
+    "    :root{--bg1:#f7f3ec;--bg2:#ece6f6;--ink:#111318;--muted:#5b5a66;--line:rgba(20,20,40,.12);--surface:rgba(255,255,255,.84);--surface-2:rgba(255,255,255,.97);--accent:#6d4aff;--accent-2:#ff6a8a;--accent-3:#19b3b0;--grad:linear-gradient(135deg,#6d4aff,#c8326a);--on-accent:#fff;color-scheme:light dark}",
+    "    @media (prefers-color-scheme:dark){:root{--bg1:#0d0f1a;--bg2:#1a1530;--ink:#fafbff;--muted:#b3b6cc;--line:rgba(255,255,255,.14);--surface:rgba(22,24,44,.7);--surface-2:rgba(28,30,54,.97);--accent:#9d8bff;--accent-2:#ff8fa8;--accent-3:#4fd6d2;--grad:linear-gradient(135deg,#a594ff,#ff9ab0);--on-accent:#140f2a}}",
+    "    *{box-sizing:border-box}html{-webkit-text-size-adjust:100%}html,body{height:100%;margin:0}",
+    "    body{overflow:hidden;background:var(--bg1) linear-gradient(160deg,var(--bg1),var(--bg2)) fixed;color:var(--ink);font:16px/1.55 Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;overflow-wrap:break-word}",
+    "    :focus-visible{outline:3px solid var(--accent);outline-offset:2px}a{color:var(--accent)}button{font:inherit;color:inherit}",
+    "    .nthview-lesson-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}",
+    "    .nthview-lesson-shell{display:grid;grid-template-columns:17.5rem minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);height:100vh;height:100dvh}",
+    "    .nthview-lesson-navclosed{grid-template-columns:minmax(0,1fr)}.nthview-lesson-navclosed .nthview-lesson-nav{display:none}",
+    "    .nthview-lesson-head{grid-column:1/-1;display:flex;align-items:center;gap:.6rem;min-width:0;padding:.5rem max(.75rem,env(safe-area-inset-right,0px)) .5rem max(.75rem,env(safe-area-inset-left,0px));background:var(--surface-2);border-bottom:1px solid var(--line);z-index:3}",
+    "    .nthview-lesson-at{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25}",
+    "    .nthview-lesson-at b,.nthview-lesson-at span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.nthview-lesson-at b{font-family:Fraunces,Georgia,serif;font-size:1.02rem}.nthview-lesson-at span{font-size:.82rem;color:var(--muted)}",
+    "    .nthview-lesson-btn{flex:none;display:inline-flex;align-items:center;justify-content:center;gap:.35rem;min-height:2.5rem;padding:.4rem .95rem;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);font-weight:600;font-size:.9rem;cursor:pointer;white-space:nowrap}",
+    "    .nthview-lesson-btn[hidden]{display:none}.nthview-lesson-btn:hover{border-color:var(--accent)}.nthview-lesson-btn[disabled]{opacity:.4;cursor:default;border-color:var(--line)}",
+    "    .nthview-lesson-primary{background:var(--grad);color:var(--on-accent);border-color:transparent}.nthview-lesson-primary:hover{border-color:transparent;filter:brightness(1.06)}",
+    "    .nthview-lesson-icon{font-size:1.15rem;line-height:1}",
+    "    .nthview-lesson-nav{grid-row:2;grid-column:1;overflow:auto;padding:.6rem;background:var(--surface);border-right:1px solid var(--line)}",
+    "    .nthview-lesson-nav ol{list-style:none;margin:0;padding:0;display:grid;gap:.2rem}",
+    "    .nthview-lesson-item{width:100%;display:flex;align-items:center;gap:.6rem;padding:.55rem .6rem;border-radius:.8rem;border:1px solid transparent;background:none;text-align:left;cursor:pointer}",
+    "    .nthview-lesson-item:hover{background:var(--surface-2);border-color:var(--line)}.nthview-lesson-item[aria-current]{background:var(--surface-2);border-color:var(--accent)}",
+    "    .nthview-lesson-num{flex:none;width:1.9rem;font-family:Fraunces,Georgia,serif;font-weight:800;font-size:1.05rem;color:var(--accent)}",
+    "    .nthview-lesson-itxt{flex:1;min-width:0}.nthview-lesson-itxt b{display:block;font-weight:600;font-size:.92rem;line-height:1.25}.nthview-lesson-itxt small{display:block;color:var(--muted);font-size:.75rem;margin-top:.1rem}",
+    "    .nthview-lesson-mark{flex:none;display:grid;place-items:center;width:1.25rem;height:1.25rem;border-radius:50%;border:1.5px solid var(--line);font-size:.7rem;font-weight:800;color:#fff}",
+    "    .nthview-lesson-started .nthview-lesson-mark{background:var(--accent-3);border-color:var(--accent-3)}",
+    "    .nthview-lesson-main{grid-row:2;grid-column:2;min-width:0;min-height:0;position:relative}.nthview-lesson-navclosed .nthview-lesson-main{grid-column:1}",
+    "    .nthview-lesson-frame{height:100%}.nthview-lesson-frame iframe{display:block;width:100%;height:100%;border:0;background:transparent}",
+    "    .nthview-lesson-scrim{display:none}",
+    "    .nthview-lesson-overview{height:100%;overflow:auto}",
+    "    .nthview-lesson-ov{max-width:56rem;margin:0 auto;padding:clamp(1rem,4vw,2.5rem) 1rem 4rem}",
+    "    .nthview-lesson-hero{display:grid;grid-template-columns:1.4fr 1fr;gap:1.6rem;align-items:start;margin:0 0 2rem}@media (max-width:760px){.nthview-lesson-hero{grid-template-columns:1fr}}",
+    "    .nthview-lesson-eyebrow{font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:var(--accent);margin:0 0 .5rem}",
+    "    .nthview-lesson-ov h1{font-family:Fraunces,Georgia,serif;font-weight:800;font-size:clamp(2.1rem,6vw,3.4rem);line-height:1;letter-spacing:-.03em;margin:0 0 .8rem;background:linear-gradient(120deg,var(--ink) 55%,var(--accent) 85%,var(--accent-2));-webkit-background-clip:text;background-clip:text;color:transparent}",
+    "    .nthview-lesson-lede{font-size:1.1rem;color:var(--muted);margin:0 0 .8rem}.nthview-lesson-aud{font-size:.95rem;color:var(--muted);margin:0 0 .9rem}.nthview-lesson-aud b{color:var(--ink)}",
+    "    .nthview-lesson-tags{display:flex;flex-wrap:wrap;gap:.4rem;margin:0 0 1rem}.nthview-lesson-tag{font-size:.8rem;font-weight:700;color:var(--accent);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:.25rem .7rem}",
+    "    .nthview-lesson-dates{font-size:.82rem;color:var(--muted);margin:0}",
+    "    .nthview-lesson-cta{display:flex;gap:.7rem;flex-wrap:wrap;margin:1.2rem 0 0}.nthview-lesson-cta .nthview-lesson-btn{min-height:2.75rem;padding:.6rem 1.25rem;font-size:1rem}",
+    "    .nthview-lesson-panel{background:var(--surface);border:1px solid var(--line);border-radius:1.3rem;padding:1.1rem 1.3rem;box-shadow:0 24px 60px -32px rgba(0,0,0,.45)}.nthview-lesson-panel+.nthview-lesson-panel{margin-top:1rem}",
+    "    .nthview-lesson-panel h2{font-family:Fraunces,Georgia,serif;font-size:1.15rem;margin:0 0 .6rem}.nthview-lesson-panel ul{margin:0;padding-left:1.1rem;display:grid;gap:.35rem;font-size:.95rem}",
+    "    .nthview-lesson-sec{font-family:Fraunces,Georgia,serif;font-weight:800;font-size:1.6rem;letter-spacing:-.02em;margin:2.2rem 0 .9rem}",
+    "    .nthview-lesson-cards{list-style:none;padding:0;margin:0;display:grid;gap:.8rem}",
+    "    .nthview-lesson-card{width:100%;display:flex;gap:1rem;align-items:center;text-align:left;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:1.2rem;padding:1rem 1.2rem;box-shadow:0 24px 60px -32px rgba(0,0,0,.45);transition:transform .2s,box-shadow .2s}",
+    "    .nthview-lesson-card:hover{transform:translateY(-3px);box-shadow:0 34px 70px -30px rgba(0,0,0,.55)}",
+    "    .nthview-lesson-cnum{font-family:Fraunces,Georgia,serif;font-weight:800;font-size:2rem;line-height:1;flex:none;width:3rem;background:linear-gradient(135deg,var(--accent),var(--accent-2));-webkit-background-clip:text;background-clip:text;color:transparent}",
+    "    .nthview-lesson-cbody{flex:1;min-width:0}.nthview-lesson-cview{display:block;font-size:.7rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:.2rem}",
+    "    .nthview-lesson-cbody b{display:block;font-family:Fraunces,Georgia,serif;font-size:1.25rem;line-height:1.2}.nthview-lesson-csum{display:block;margin-top:.3rem;color:var(--muted);font-size:.95rem}.nthview-lesson-cgo{font-size:1.8rem;color:var(--muted)}",
+    "    .nthview-lesson-ov dl{margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(16rem,100%),1fr));gap:.7rem}.nthview-lesson-term{background:var(--surface);border:1px solid var(--line);border-radius:1rem;padding:.8rem 1rem}",
+    "    .nthview-lesson-ov dt{font-weight:700;display:flex;justify-content:space-between;gap:.5rem;align-items:baseline}.nthview-lesson-ov dd{margin:.25rem 0 0;color:var(--muted);font-size:.92rem}",
+    "    .nthview-lesson-where{border:0;background:none;padding:0;font-size:.72rem;font-weight:700;color:var(--accent);cursor:pointer;white-space:nowrap}.nthview-lesson-where:hover{text-decoration:underline}",
+    "    .nthview-lesson-refs{margin:0;padding-left:1.1rem;display:grid;gap:.4rem}.nthview-lesson-note{color:var(--muted);font-size:.9rem}",
+    "    .nthview-lesson-notice{position:fixed;left:50%;bottom:max(1rem,env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:30;max-width:calc(100vw - 2rem);padding:.6rem 1.1rem;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);box-shadow:0 14px 40px -16px rgba(0,0,0,.55);font-size:.9rem;font-weight:600}",
+    "    .nthview-lesson-notice[hidden]{display:none}",
+    "    @media (max-width:899px){",
+    "      .nthview-lesson-shell,.nthview-lesson-navclosed{grid-template-columns:minmax(0,1fr)}.nthview-lesson-main{grid-column:1}",
+    "      .nthview-lesson-nav{display:none;position:fixed;z-index:21;left:0;bottom:0;top:var(--nthview-lesson-head,3.6rem);width:min(21rem,88vw);background:var(--surface-2);box-shadow:0 0 60px -10px rgba(0,0,0,.5)}",
+    "      .nthview-lesson-navopen .nthview-lesson-nav{display:block}.nthview-lesson-navopen .nthview-lesson-scrim{display:block;position:fixed;z-index:20;inset:0;top:var(--nthview-lesson-head,3.6rem);background:rgba(0,0,0,.35)}",
+    "    }",
+    "    @media (max-width:560px){.nthview-lesson-head{gap:.4rem}.nthview-lesson-lbl{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}.nthview-lesson-btn{padding:.4rem .7rem;min-width:2.75rem}.nthview-lesson-at b{font-size:.92rem}.nthview-lesson-at span{font-size:.76rem}",
+    "      .nthview-lesson-cta .nthview-lesson-btn{flex:1 1 auto}.nthview-lesson-card{gap:.75rem;padding:.9rem 1rem;align-items:flex-start}.nthview-lesson-cnum{font-size:1.45rem;width:2.1rem;padding-top:.15rem}.nthview-lesson-cbody b{font-size:1.15rem}.nthview-lesson-cgo{display:none}.nthview-lesson-sec{font-size:1.4rem;margin-top:1.8rem}}",
+    "    @media (pointer:coarse){.nthview-lesson-btn{min-height:2.75rem}.nthview-lesson-item{padding:.7rem .6rem}}",
+    "    @media (prefers-reduced-motion:reduce){.nthview-lesson-card{transition:none}.nthview-lesson-card:hover{transform:none}}",
+    "  </style>", "</head>", "<body>",
+    '  <div class="nthview-lesson-shell">',
+    '    <header class="nthview-lesson-head">',
+    '      <button type="button" class="nthview-lesson-btn nthview-lesson-navbtn" aria-controls="nthview-lesson-nav" aria-expanded="true"><span class="nthview-lesson-icon" aria-hidden="true">☰</span><span class="nthview-lesson-lbl">Chapters</span></button>',
+    '      <div class="nthview-lesson-at"><b>' + esc(m.title) + '</b><span id="nthview-lesson-at" aria-live="polite">Overview</span></div>',
+    '      <button type="button" class="nthview-lesson-btn nthview-lesson-prev"><span class="nthview-lesson-icon" aria-hidden="true">‹</span><span class="nthview-lesson-lbl">Previous</span></button>',
+    '      <button type="button" class="nthview-lesson-btn nthview-lesson-primary nthview-lesson-next"><span class="nthview-lesson-lbl">Start</span><span class="nthview-lesson-icon" aria-hidden="true">›</span></button>',
+    "    </header>",
+    '    <nav class="nthview-lesson-nav" id="nthview-lesson-nav" aria-label="Chapters">',
+    "      <ol>", navItems, "      </ol>",
+    "    </nav>",
+    '    <div class="nthview-lesson-scrim"></div>',
+    '    <main class="nthview-lesson-main">',
+    '      <section class="nthview-lesson-overview" id="nthview-lesson-overview" aria-label="Overview" tabindex="-1">',
+    '        <div class="nthview-lesson-ov">',
+    '          <div class="nthview-lesson-hero">',
+    "            <div>",
+    '              <p class="nthview-lesson-eyebrow">Lesson · ' + facts + "</p>",
+    "              <h1>" + esc(m.title) + "</h1>",
+    '              <p class="nthview-lesson-lede">' + esc(m.description) + "</p>",
+    '              <p class="nthview-lesson-aud"><b>For:</b> ' + esc(m.audience) + "</p>",
+    tags ? '              <div class="nthview-lesson-tags" aria-label="Tags">' + tags + "</div>" : "",
+    '              <p class="nthview-lesson-dates">' + dates + (m.license ? " · " + esc(m.license) : "") + "</p>",
+    '              <div class="nthview-lesson-cta"><button type="button" class="nthview-lesson-btn nthview-lesson-primary" data-go="0">Start with the highlights ›</button><button type="button" class="nthview-lesson-btn nthview-lesson-continue" hidden></button><button type="button" class="nthview-lesson-btn nthview-lesson-restart" title="Erase your progress in every chapter of this lesson">Restart lesson</button></div>',
+    "            </div>",
+    '            <div class="nthview-lesson-side">',
+    objectives ? '              <section class="nthview-lesson-panel" aria-labelledby="nthview-lesson-obj"><h2 id="nthview-lesson-obj">You will be able to</h2><ul>' + objectives + "</ul></section>" : "",
+    prereq ? '              <section class="nthview-lesson-panel" aria-labelledby="nthview-lesson-pre"><h2 id="nthview-lesson-pre">Before you start</h2><ul>' + prereq + "</ul></section>" : "",
+    "            </div>",
+    "          </div>",
+    '          <h2 class="nthview-lesson-sec" id="nthview-lesson-chapters">Chapters</h2>',
+    '          <ol class="nthview-lesson-cards" aria-labelledby="nthview-lesson-chapters">', cards, "          </ol>",
+    glossary ? '          <h2 class="nthview-lesson-sec" id="nthview-lesson-glossary">Glossary</h2>\n          <dl aria-labelledby="nthview-lesson-glossary">' + glossary + "</dl>" : "",
+    refs ? '          <h2 class="nthview-lesson-sec" id="nthview-lesson-refs">Further reading</h2>\n          <ul class="nthview-lesson-refs" aria-labelledby="nthview-lesson-refs">' + refs + "</ul>" : "",
+    "        </div>",
+    "      </section>",
+    '      <div class="nthview-lesson-frame" id="nthview-lesson-frame" hidden></div>',
+    "    </main>",
+    '    <div class="nthview-lesson-notice" role="status" hidden></div>',
+    "  </div>",
+    "",
+    '  <script type="application/json" id="nthview-lesson-data">' + scriptJson(data) + "</script>",
+    chapters.map(function (x, i) { return '  <script type="application/json" id="nthview-lesson-ch-' + i + '">' + scriptJson(x.html) + "</script>"; }).join("\n"),
+    libs.map(function (l, i) { return '  <script type="application/json" id="nthview-lesson-lib-' + i + '">' + scriptJson(l.code) + "</script>"; }).join("\n"),
+    "  <script>",
+    SHELL_SCRIPT,
+    "  </script>",
+    "</body>", "</html>", ""
+  ].filter(function (l) { return l !== ""; }).join("\n");
+}
+
+/* the shell's behaviour; plain ES5, no network, storage wrapped in try/catch like every view (AGENTS.md §5.5) */
+var SHELL_SCRIPT = [
+  "    (function () {",
+  '      var D = JSON.parse(document.getElementById("nthview-lesson-data").textContent), CH = D.chapters, n = CH.length;',
+  '      var shell = document.querySelector(".nthview-lesson-shell"), head = document.querySelector(".nthview-lesson-head");',
+  '      var overview = document.getElementById("nthview-lesson-overview"), frame = document.getElementById("nthview-lesson-frame");',
+  '      var at = document.getElementById("nthview-lesson-at"), notice = document.querySelector(".nthview-lesson-notice");',
+  '      var prevBtn = document.querySelector(".nthview-lesson-prev"), nextBtn = document.querySelector(".nthview-lesson-next"), navBtn = document.querySelector(".nthview-lesson-navbtn");',
+  '      var contBtn = document.querySelector(".nthview-lesson-continue"), items = [].slice.call(document.querySelectorAll(".nthview-lesson-item"));',
+  '      var narrow = window.matchMedia("(max-width: 899px)"), cur = null, noticeTimer = null;',
+  "      function load() { try { var r = localStorage.getItem(D.key), s = r && JSON.parse(r); return s && s.v === 1 ? s : null; } catch (e) { return null; } }",
+  "      function save() { try { st.v = 1; st.savedAt = Date.now(); localStorage.setItem(D.key, JSON.stringify(st)); } catch (e) { /* storage unavailable: keep going without saving */ } }",
+  "      var st = load() || {}; if (!Array.isArray(st.visited)) st.visited = [];",
+  "      function indexOf(file) { for (var i = 0; i < n; i++) if (CH[i].file === file) return i; return -1; }",
+  "      /* the chapter's own page, with each embedded library put in place of its CDN tag so it runs offline */",
+  "      var libCode = {};",
+  "      function chapterHtml(i) {",
+  '        var html = JSON.parse(document.getElementById("nthview-lesson-ch-" + i).textContent);',
+  "        D.libs.forEach(function (src, k) {",
+  "          var tag = '<script src=\"' + src + '\"></' + 'script>';",
+  "          if (html.indexOf(tag) === -1) return;",
+  '          if (!(k in libCode)) libCode[k] = JSON.parse(document.getElementById("nthview-lesson-lib-" + k).textContent);',
+  "          html = html.split(tag).join('<script>' + libCode[k] + '</' + 'script>');",
+  "        });",
+  "        return html;",
+  "      }",
+  "      function started(i) { if (st.visited.indexOf(CH[i].file) !== -1) return true; try { return !!localStorage.getItem(CH[i].key); } catch (e) { return false; } }",
+  "      function say(text) { notice.textContent = text; notice.hidden = false; clearTimeout(noticeTimer); noticeTimer = setTimeout(function () { notice.hidden = true; }, 5000); }",
+  "      function marks() {",
+  "        items.forEach(function (b) {",
+  '          var i = +b.getAttribute("data-go"); if (i < 0) return;',
+  "          var on = started(i);",
+  '          b.classList.toggle("nthview-lesson-started", on);',
+  '          b.querySelector(".nthview-lesson-mark").textContent = on ? "✓" : "";',
+  '          b.querySelector(".nthview-lesson-srmark").textContent = on ? " (started)" : "";',
+  "        });",
+  "        var last = indexOf(st.last);",
+  "        contBtn.hidden = last < 0;",
+  '        if (last >= 0) contBtn.textContent = "Continue: chapter " + (last + 1) + " ›";',
+  "      }",
+  "      function navOpen() { return narrow.matches ? shell.classList.contains(\"nthview-lesson-navopen\") : !shell.classList.contains(\"nthview-lesson-navclosed\"); }",
+  "      function setNav(open) {",
+  '        if (narrow.matches) shell.classList.toggle("nthview-lesson-navopen", open);',
+  '        else { shell.classList.toggle("nthview-lesson-navclosed", !open); st.navHidden = !open; save(); }',
+  '        navBtn.setAttribute("aria-expanded", String(open));',
+  "      }",
+  "      function syncNav() {",
+  '        shell.style.setProperty("--nthview-lesson-head", head.offsetHeight + "px");',
+  '        if (narrow.matches) shell.classList.remove("nthview-lesson-navclosed"); else { shell.classList.remove("nthview-lesson-navopen"); shell.classList.toggle("nthview-lesson-navclosed", !!st.navHidden); }',
+  '        navBtn.setAttribute("aria-expanded", String(navOpen()));',
+  "      }",
+  "      function show(i, how, focus) {",
+  "        if (i === cur) return;",
+  "        cur = i;",
+  '        frame.textContent = "";',
+  "        var ov = i < 0;",
+  "        overview.hidden = ov ? false : true; frame.hidden = !ov ? false : true;",
+  "        if (!ov) {",
+  '          var f = document.createElement("iframe");',
+  '          f.title = "Chapter " + (i + 1) + ": " + CH[i].title;',
+  '          f.setAttribute("allow", "fullscreen; autoplay; clipboard-write");',
+  '          f.setAttribute("allowfullscreen", "");',
+  '          if (focus) f.addEventListener("load", function () { try { f.contentWindow.focus(); } catch (e) {} });',
+  '          f.srcdoc = chapterHtml(i);',
+  "          frame.appendChild(f);",
+  "          if (st.visited.indexOf(CH[i].file) === -1) st.visited.push(CH[i].file);",
+  "          st.last = CH[i].file;",
+  "        } else if (focus) overview.focus();",
+  "        st.at = ov ? null : CH[i].file; save();",
+  '        at.textContent = ov ? "Overview" : "Chapter " + (i + 1) + " of " + n + " · " + CH[i].title;',
+  '        document.title = (ov ? "" : CH[i].title + " · ") + D.title + " — NthView lesson";',
+  "        prevBtn.disabled = ov;",
+  '        nextBtn.querySelector(".nthview-lesson-lbl").textContent = ov ? "Start" : i === n - 1 ? "Finish" : "Next";',
+  '        items.forEach(function (b) { if (+b.getAttribute("data-go") === i) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current"); });',
+  '        var h = "#" + (ov ? "overview" : CH[i].file);',
+  '        try { if (how === "push" && location.hash !== h) history.pushState(null, "", h); else if (how === "replace") history.replaceState(null, "", h); } catch (e) {}',
+  "        if (narrow.matches) setNav(false);",
+  "        marks();",
+  "      }",
+  "      function fromHash() { var h = decodeURIComponent(location.hash.slice(1)); if (h === \"overview\") { show(-1, \"none\"); return true; } var i = indexOf(h); if (i >= 0) { show(i, \"none\"); return true; } return false; }",
+  '      document.addEventListener("click", function (e) {',
+  '        var t = e.target.closest ? e.target.closest("[data-go]") : null;',
+  '        if (t) { show(+t.getAttribute("data-go"), "push", true); return; }',
+  '        if (narrow.matches && e.target.classList.contains("nthview-lesson-scrim")) setNav(false);',
+  "        if (!notice.hidden) notice.hidden = true;",
+  "      });",
+  '      prevBtn.addEventListener("click", function () { if (cur > 0) show(cur - 1, "push", true); else if (cur === 0) show(-1, "push", true); });',
+  '      nextBtn.addEventListener("click", function () {',
+  '        if (cur < 0) show(0, "push", true);',
+  '        else if (cur < n - 1) show(cur + 1, "push", true);',
+  '        else { show(-1, "push", true); say("You reached the end of the lesson. Revisit any chapter from the list."); }',
+  "      });",
+  '      contBtn.addEventListener("click", function () { var i = indexOf(st.last); if (i >= 0) show(i, "push", true); });',
+  '      document.querySelector(".nthview-lesson-restart").addEventListener("click", function () {',
+  '        if (!window.confirm("Start the whole lesson again? Your progress in every chapter here will be erased.")) return;',
+  "        try { CH.forEach(function (c) { localStorage.removeItem(c.key); }); localStorage.removeItem(D.key); } catch (e) {}",
+  "        var hidden = st.navHidden; st = { visited: [], navHidden: hidden }; save();",
+  '        cur = null; show(-1, "replace", false); say("Progress erased. The lesson starts again from the overview.");',
+  "      });",
+  '      navBtn.addEventListener("click", function () { setNav(!navOpen()); });',
+  '      document.addEventListener("keydown", function (e) { if (e.key === "Escape" && narrow.matches && navOpen()) { setNav(false); navBtn.focus(); } });',
+  '      window.addEventListener("popstate", fromHash);',
+  '      window.addEventListener("hashchange", fromHash);',
+  '      window.addEventListener("resize", syncNav);',
+  "      syncNav();",
+  "      if (!fromHash()) {",
+  "        var resume = indexOf(st.at);",
+  '        if (resume >= 0) { show(resume, "replace", false); say("Welcome back, continuing at chapter " + (resume + 1) + ": " + CH[resume].title); }',
+  '        else show(-1, "replace", false);',
+  "      } else { try { history.replaceState(null, \"\", location.hash); } catch (e) {} }",
+  "    })();"
+].join("\n");
+
 /* ---------- build one lesson ---------- */
 function buildLesson(lessonDir) {
   lessonDir = path.resolve(lessonDir);
@@ -323,7 +630,7 @@ function buildLesson(lessonDir) {
   check.warnings.forEach(function (w) { console.error("warning  lesson.json " + w); });
   if (check.errors.length) { check.errors.forEach(function (x) { fail("lesson.json " + x); }); return false; }
 
-  var ok = true;
+  var ok = true, bare = [];
   m.chapters.forEach(function (c, i) {
     var dataPath = path.join(lessonDir, "chapters", c.file + ".json");
     var data;
@@ -334,10 +641,16 @@ function buildLesson(lessonDir) {
     if (!out.html) { ok = false; return; }
     fs.writeFileSync(path.join(lessonDir, "chapters", c.file + ".html"), out.html);
     console.log("wrote lessons/" + slug + "/chapters/" + c.file + ".html (" + c.view + ")");
+    /* the same chapter without the lesson bar, for the one-file lesson; the key is the view's own §5.5 storage key */
+    var plain = buildHtml.assemble(path.join(ROOT, "skills", c.view), data);
+    bare.push({ c: c, html: plain.html, libs: plain.libs, key: "nthview:" + c.view.replace(/^nthview-/, "") + ":" + fnv(JSON.stringify(data)) });
   });
   if (!ok) return false;
   fs.writeFileSync(path.join(lessonDir, "index.html"), contentsPage(m, slug));
   console.log("wrote lessons/" + slug + "/index.html (" + m.chapters.length + " chapters)");
+  var single = oneFileLesson(m, bare);
+  fs.writeFileSync(path.join(lessonDir, oneFileName(slug)), single);
+  console.log("wrote lessons/" + slug + "/" + oneFileName(slug) + " (all " + m.chapters.length + " chapters in one file, " + Math.round(single.length / 1024) + " KB)");
   return true;
 }
 

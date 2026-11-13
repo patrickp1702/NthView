@@ -1407,35 +1407,45 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
 
   var THEMES = ["paper", "slate", "blueprint", "mint"];
 
-  /* Surfaces per theme, light then dark. Flat colours only. */
+  /* Surfaces per theme, by role: page, panel, soft fill, highlight, borders, text, accent, the wire
+     pane (a dark terminal in every theme) and the display face. Light and dark are designed
+     separately, not inverted. Flat colours only. */
   var PALETTES = {
     paper: {
-      light: "--nv-bg:#f4efe6;--nv-fg:#1d1a16;--nv-muted:#5f574c;--nv-accent:#8a3b12;--nv-border:#dcd2c2;--nv-error:#b91c1c;--sq-panel:#fffdf8;--sq-soft:#f7f2e9;--sq-hi:#f3e1cf;--sq-on-accent:#fff;--sq-zone-a:#efe7da;--sq-zone-b:#f1ece2;--sq-head:Georgia,'Iowan Old Style','Times New Roman',serif",
-      dark: "--nv-bg:#1a1814;--nv-fg:#f1ebe0;--nv-muted:#b9ae9d;--nv-accent:#f2a474;--nv-border:#3b362e;--nv-error:#f87171;--sq-panel:#23201b;--sq-soft:#2b2822;--sq-hi:#3d2e22;--sq-on-accent:#1a1814;--sq-zone-a:#2b2721;--sq-zone-b:#312c25"
+      light: "--nv-bg:#f6f1e7;--nv-fg:#1f1a14;--nv-muted:#5e5447;--nv-accent:#9a3f12;--nv-border:#ddd2bf;--nv-error:#b91c1c;--sq-panel:#fffdf8;--sq-soft:#f4ede1;--sq-hi:#f7e4d4;--sq-line:#ebe3d4;--sq-on-accent:#fff;--sq-zone-a:#efe6d6;--sq-zone-b:#f3ece0;--sq-bar:rgba(246,241,231,.9);--sq-term:#2b241c;--sq-term-head:#372e24;--sq-term-fg:#f4ebdb;--sq-term-muted:#bfb09a;--sq-term-key:#f5b98f;--sq-term-note:#9fd3b8;--sq-head:Georgia,'Iowan Old Style','Times New Roman',serif;--sq-head-ls:-.005em",
+      dark: "--nv-bg:#16130f;--nv-fg:#f3ece0;--nv-muted:#bdb09c;--nv-accent:#f2a474;--nv-border:#3c352c;--nv-error:#f87171;--sq-panel:#201c16;--sq-soft:#29241d;--sq-hi:#3b2b1f;--sq-line:#2f2a22;--sq-on-accent:#1a1510;--sq-zone-a:#29231b;--sq-zone-b:#2e281f;--sq-bar:rgba(22,19,15,.88);--sq-term:#100d0a;--sq-term-head:#1b1712;--sq-term-fg:#efe6d6;--sq-term-muted:#ac9e88;--sq-term-key:#f5b98f;--sq-term-note:#9fd3b8"
     },
     slate: {
-      light: "--nv-bg:#e9ecef;--nv-fg:#11161c;--nv-muted:#56606d;--nv-accent:#2f3583;--nv-border:#d0d6dc;--nv-error:#b91c1c;--sq-panel:#ffffff;--sq-soft:#f4f6f8;--sq-hi:#e6e8f6;--sq-on-accent:#fff;--sq-zone-a:#e2e6ea;--sq-zone-b:#eceff2;--sq-head:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",
-      dark: "--nv-bg:#121519;--nv-fg:#e9edf2;--nv-muted:#a3adba;--nv-accent:#a4abff;--nv-border:#313844;--nv-error:#f87171;--sq-panel:#1b1f25;--sq-soft:#21262d;--sq-hi:#272b48;--sq-on-accent:#121519;--sq-zone-a:#20252c;--sq-zone-b:#262b33"
+      light: "--nv-bg:#eef1f5;--nv-fg:#0f141a;--nv-muted:#525c69;--nv-accent:#4338ca;--nv-border:#d6dce4;--nv-error:#b91c1c;--sq-panel:#ffffff;--sq-soft:#f4f6f9;--sq-hi:#e8e9fb;--sq-line:#e5e9ef;--sq-on-accent:#fff;--sq-zone-a:#e8ecf1;--sq-zone-b:#f0f3f7;--sq-bar:rgba(238,241,245,.88);--sq-term:#101623;--sq-term-head:#192233;--sq-term-fg:#e6edf6;--sq-term-muted:#9aa8bb;--sq-term-key:#a9b6fd;--sq-term-note:#86e0b4;--sq-head:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;--sq-head-ls:-.02em",
+      dark: "--nv-bg:#0d1117;--nv-fg:#e8edf3;--nv-muted:#a3aebc;--nv-accent:#a9b6fd;--nv-border:#2c3440;--nv-error:#f87171;--sq-panel:#161b22;--sq-soft:#1c222b;--sq-hi:#252a4d;--sq-line:#222933;--sq-on-accent:#0d1117;--sq-zone-a:#1b222c;--sq-zone-b:#202833;--sq-bar:rgba(13,17,23,.86);--sq-term:#080b10;--sq-term-head:#10151c;--sq-term-fg:#e6edf3;--sq-term-muted:#8f9cad;--sq-term-key:#a9b6fd;--sq-term-note:#86e0b4"
     },
     blueprint: {
-      light: "--nv-bg:#e6eef9;--nv-fg:#0c1d33;--nv-muted:#41587a;--nv-accent:#1557b0;--nv-border:#c1d2e8;--nv-error:#b91c1c;--sq-panel:#fbfdff;--sq-soft:#eef4fb;--sq-hi:#d8e6f8;--sq-on-accent:#fff;--sq-zone-a:#dde8f6;--sq-zone-b:#e6eef9;--sq-head:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace",
-      dark: "--nv-bg:#0c2240;--nv-fg:#e6f0ff;--nv-muted:#a2b9d8;--nv-accent:#7cc4ff;--nv-border:#2b4b75;--nv-error:#fca5a5;--sq-panel:#10294b;--sq-soft:#0e2645;--sq-hi:#1b3d68;--sq-on-accent:#0c2240;--sq-zone-a:#143258;--sq-zone-b:#183862"
+      light: "--nv-bg:#e8eff9;--nv-fg:#0b1c33;--nv-muted:#3d5474;--nv-accent:#1456ad;--nv-border:#c6d6ec;--nv-error:#b91c1c;--sq-panel:#fbfdff;--sq-soft:#edf3fb;--sq-hi:#d9e6f9;--sq-line:#dbe5f3;--sq-on-accent:#fff;--sq-zone-a:#e0eaf7;--sq-zone-b:#e9f0fa;--sq-bar:rgba(232,239,249,.88);--sq-term:#0b1f3a;--sq-term-head:#122b4e;--sq-term-fg:#e3eeff;--sq-term-muted:#9ab0d2;--sq-term-key:#8fd0ff;--sq-term-note:#9be3c0;--sq-head:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;--sq-head-ls:-.01em;--sq-grid:rgba(20,86,173,.07)",
+      dark: "--nv-bg:#0a1a31;--nv-fg:#e6f0ff;--nv-muted:#a7bedc;--nv-accent:#7cc4ff;--nv-border:#29496f;--nv-error:#fca5a5;--sq-panel:#0f2444;--sq-soft:#13294b;--sq-hi:#1b3b66;--sq-line:#1b3557;--sq-on-accent:#0a1a31;--sq-zone-a:#143057;--sq-zone-b:#183560;--sq-bar:rgba(10,26,49,.86);--sq-term:#06132a;--sq-term-head:#0c1d39;--sq-term-fg:#e3eeff;--sq-term-muted:#90a8cb;--sq-term-key:#8fd0ff;--sq-term-note:#9be3c0;--sq-grid:rgba(124,196,255,.06)"
     },
     mint: {
-      light: "--nv-bg:#e8f4ee;--nv-fg:#0f2a22;--nv-muted:#486659;--nv-accent:#0a7456;--nv-border:#cbe1d6;--nv-error:#b91c1c;--sq-panel:#fbfefc;--sq-soft:#f0f8f4;--sq-hi:#d4eee3;--sq-on-accent:#fff;--sq-zone-a:#deeee6;--sq-zone-b:#e7f3ed;--sq-head:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",
-      dark: "--nv-bg:#0e1b17;--nv-fg:#e3f3ec;--nv-muted:#9dbfb2;--nv-accent:#62d6b0;--nv-border:#2a3f37;--nv-error:#f87171;--sq-panel:#142520;--sq-soft:#182b25;--sq-hi:#1d3a30;--sq-on-accent:#0e1b17;--sq-zone-a:#1a2d27;--sq-zone-b:#1f342d"
+      light: "--nv-bg:#eaf5ef;--nv-fg:#0d2a21;--nv-muted:#42625a;--nv-accent:#0a7154;--nv-border:#cbe0d5;--nv-error:#b91c1c;--sq-panel:#fbfefc;--sq-soft:#eff8f3;--sq-hi:#d6efe4;--sq-line:#dcece3;--sq-on-accent:#fff;--sq-zone-a:#dfefe7;--sq-zone-b:#e8f4ee;--sq-bar:rgba(234,245,239,.88);--sq-term:#0e251e;--sq-term-head:#15332a;--sq-term-fg:#e1f5ec;--sq-term-muted:#97beaf;--sq-term-key:#83e4c3;--sq-term-note:#f3cf86;--sq-head:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;--sq-head-ls:-.02em",
+      dark: "--nv-bg:#0b1713;--nv-fg:#e2f3eb;--nv-muted:#9fc0b2;--nv-accent:#62d6b0;--nv-border:#284039;--nv-error:#f87171;--sq-panel:#12221c;--sq-soft:#172a23;--sq-hi:#1c3a2f;--sq-line:#1d322a;--sq-on-accent:#0b1713;--sq-zone-a:#182d25;--sq-zone-b:#1c332a;--sq-bar:rgba(11,23,19,.86);--sq-term:#07110d;--sq-term-head:#0d1b16;--sq-term-fg:#e1f5ec;--sq-term-muted:#8fb5a6;--sq-term-key:#83e4c3;--sq-term-note:#f3cf86"
     }
   };
   /* Channel and severity hues, shared by every theme: strong ink and a tint behind it. */
-  var HUES_LIGHT = "--h-slate:#4a5563;--t-slate:#e4e8ec;--h-amber:#975008;--t-amber:#fbecd7;--h-green:#146a41;--t-green:#dcefe4;--h-blue:#1d4fb8;--t-blue:#e1e9fb;--h-red:#b42323;--t-red:#fbe2e2;--h-teal:#0e676c;--t-teal:#d9efef;--h-violet:#6140b5;--t-violet:#ebe5fa;--h-pink:#a42f6b;--t-pink:#f8e1ec";
-  var HUES_DARK = "--h-slate:#aab4c0;--t-slate:#2a3038;--h-amber:#f0b061;--t-amber:#3a2a14;--h-green:#72d09d;--t-green:#163326;--h-blue:#93b4ff;--t-blue:#1c2a4a;--h-red:#ff9393;--t-red:#3f1d1d;--h-teal:#72d4d7;--t-teal:#133536;--h-violet:#bda7ff;--t-violet:#2a2347;--h-pink:#f6a0cb;--t-pink:#3b1d2d";
+  var HUES_LIGHT = "--h-slate:#4a5563;--t-slate:#e6e9ee;--h-amber:#8f4c06;--t-amber:#fbecd6;--h-green:#136840;--t-green:#dcf0e4;--h-blue:#1d4fb8;--t-blue:#e2e9fb;--h-red:#b42323;--t-red:#fbe3e3;--h-teal:#0d6469;--t-teal:#d8eeee;--h-violet:#6140b5;--t-violet:#ece6fa;--h-pink:#a12e69;--t-pink:#f8e2ed";
+  var HUES_DARK = "--h-slate:#aeb8c4;--t-slate:#272d35;--h-amber:#f0b061;--t-amber:#38291a;--h-green:#72d09d;--t-green:#15301f;--h-blue:#97b7ff;--t-blue:#1b2846;--h-red:#ff9b9b;--t-red:#3b1c1d;--h-teal:#72d4d7;--t-teal:#12302f;--h-violet:#c0abff;--t-violet:#281f45;--h-pink:#f6a3cd;--t-pink:#38192b";
+  /* Party identity: an ink (avatar glyph, lifeline, ring) and a tint (avatar disc, holds card) per hue.
+     Inks are at least 3:1 against the panel and against their own tint (WCAG 1.4.11). */
+  var IDENT_LIGHT = "--p0:#2459d6;--q0:#dfe8fd;--p1:#c2410c;--q1:#fde6d6;--p2:#0f766e;--q2:#d3f0eb;--p3:#be185d;--q3:#fbdeeb;--p4:#4d7c0f;--q4:#e4f0d0;--p5:#7c3aed;--q5:#ece3fd;--p6:#0369a1;--q6:#d7ecf8;--p7:#a16207;--q7:#f6ebc8";
+  var IDENT_DARK = "--p0:#86adff;--q0:#1c2a4b;--p1:#ff9e6b;--q1:#3a2316;--p2:#4fd1c0;--q2:#11332f;--p3:#f483b5;--q3:#3a1828;--p4:#a8d862;--q4:#22310f;--p5:#b9a0ff;--q5:#2a2148;--p6:#5fc4f5;--q6:#112d3e;--p7:#f0c24a;--q7:#352a0e";
+  /* One shadow system: raised controls, cards, overlays */
+  var SHADOW_LIGHT = "--sq-sh1:0 1px 2px rgba(16,24,40,.06),0 1px 1px rgba(16,24,40,.04);--sq-sh2:0 1px 2px rgba(16,24,40,.05),0 8px 24px -12px rgba(16,24,40,.18);--sq-sh3:0 18px 40px -12px rgba(16,24,40,.32),0 2px 6px rgba(16,24,40,.08)";
+  var SHADOW_DARK = "--sq-sh1:0 1px 2px rgba(0,0,0,.4);--sq-sh2:0 1px 2px rgba(0,0,0,.35),0 10px 28px -14px rgba(0,0,0,.7);--sq-sh3:0 20px 44px -12px rgba(0,0,0,.75),0 2px 6px rgba(0,0,0,.4)";
+  var NIDENT = 8;
 
   function themeCss() {
     var out = [];
     THEMES.forEach(function (t) {
       var p = PALETTES[t];
-      out.push(".nthview-sequence[data-theme=" + t + "]{" + p.light + ";" + HUES_LIGHT + "}");
-      out.push("@media (prefers-color-scheme:dark){.nthview-sequence[data-theme=" + t + "]{" + p.dark + ";" + HUES_DARK + "}}");
+      out.push(".nthview-sequence[data-theme=" + t + "]{" + p.light + ";" + HUES_LIGHT + ";" + IDENT_LIGHT + ";" + SHADOW_LIGHT + "}");
+      out.push("@media (prefers-color-scheme:dark){.nthview-sequence[data-theme=" + t + "]{" + p.dark + ";" + HUES_DARK + ";" + IDENT_DARK + ";" + SHADOW_DARK + "}}");
     });
     return out.join("\n");
   }
@@ -1453,312 +1463,468 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     /* ---- view-specific styles below, every class prefixed nthview- ---- */
     themeCss(),
     "body:has(> .nthview-sequence){margin:0}",
-    ".nthview-sequence{--sq-mono:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;--sq-lane-min:6.5rem;position:relative;max-width:none;min-height:100vh;padding:1.25rem 1rem 5.5rem;font-size:15px;line-height:1.55}",
-    ".nthview-sequence>*:not(.nthview-scrim):not(.nthview-drawer):not(.nthview-pop){max-width:66rem;margin-left:auto;margin-right:auto}",
+    /* tokens: 8-point spacing, three radii, one easing, durations of 150/250/400 ms */
+    ".nthview-sequence{--sq-mono:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;--sq-r1:6px;--sq-r2:10px;--sq-r3:16px;--sq-ease:cubic-bezier(.2,0,0,1);--sq-ease-in:cubic-bezier(.05,.7,.1,1);--sq-fast:150ms;--sq-mid:250ms;--sq-slow:400ms;--sq-lane-min:7.5rem;--sq-bar-h:0px;position:relative;max-width:none;min-height:100vh;padding:1.5rem 1rem 6rem;font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}",
+    ".nthview-sequence>*:not(.nthview-scrim):not(.nthview-drawer):not(.nthview-pop):not(.nthview-bar){max-width:68rem;margin-left:auto;margin-right:auto}",
     ".nthview-sequence button{font:inherit;color:inherit}",
     ".nthview-sequence [tabindex='-1']:focus{outline:none}",
-    ".nthview-sequence code{font-family:var(--sq-mono);font-size:.88em;background:var(--sq-soft);border:1px solid var(--nv-border);padding:0 .3em;border-radius:.3em;overflow-wrap:anywhere}",
-    /* header */
-    ".nthview-head{display:flex;flex-wrap:wrap;gap:.75rem 1.25rem;align-items:flex-start;justify-content:space-between;margin-bottom:.9rem}",
-    ".nthview-head-text{flex:1 1 22rem;min-width:0}",
-    ".nthview-eyebrow{margin:0 0 .15rem;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--nv-muted);font-weight:600}",
-    ".nthview-title{font-family:var(--sq-head);font-size:1.6rem;line-height:1.2;margin:0 0 .35rem;letter-spacing:-.01em;font-weight:650}",
-    ".nthview-sub{margin:0;color:var(--nv-muted);max-width:68ch}",
-    ".nthview-toolbar{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}",
-    ".nthview-seg{display:inline-flex;border:1px solid var(--nv-border);border-radius:.55rem;background:var(--sq-panel);padding:2px}",
-    ".nthview-seg button{border:0;background:transparent;padding:.4rem .75rem;border-radius:.4rem;cursor:pointer;font-size:.88rem;color:var(--nv-muted);white-space:nowrap}",
-    ".nthview-seg button[aria-pressed=true]{background:var(--nv-accent);color:var(--sq-on-accent);font-weight:600}",
-    ".nthview-tbtn,.nthview-restart{border:1px solid var(--nv-border);background:var(--sq-panel);padding:.42rem .75rem;border-radius:.55rem;cursor:pointer;font-size:.88rem;white-space:nowrap}",
-    ".nthview-tbtn:hover,.nthview-restart:hover,.nthview-seg button:hover{border-color:var(--nv-muted)}",
-    ".nthview-progress{height:3px;background:var(--nv-border);border-radius:2px;overflow:hidden;margin:0 0 .9rem}",
-    ".nthview-progress span{display:block;height:100%;background:var(--nv-accent);transition:width .35s ease}",
-    /* stage: zones, lanes, track */
-    ".nthview-stage{position:relative;background:var(--sq-panel);border:1px solid var(--nv-border);border-radius:.7rem;overflow:hidden}",
+    ".nthview-sequence [hidden]{display:none!important}",
+    ".nthview-sequence code{font-family:var(--sq-mono);font-size:.875em;background:var(--sq-soft);border:1px solid var(--sq-line);padding:.05em .35em;border-radius:var(--sq-r1);overflow-wrap:anywhere}",
+    ".nthview-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}",
+    ".nthview-narrow{display:none}",
+    /* buttons: one family */
+    ".nthview-tbtn,.nthview-restart,.nthview-nav,.nthview-ghost{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:40px;border:1px solid var(--nv-border);background:var(--sq-panel);padding:.5rem 1rem;border-radius:var(--sq-r2);cursor:pointer;font-size:.875rem;font-weight:550;white-space:nowrap;box-shadow:var(--sq-sh1);transition:border-color var(--sq-fast) var(--sq-ease),background var(--sq-fast) var(--sq-ease),transform var(--sq-fast) var(--sq-ease)}",
+    ".nthview-tbtn:hover,.nthview-restart:hover,.nthview-nav:hover,.nthview-ghost:hover{border-color:var(--nv-muted)}",
+    ".nthview-nav:active,.nthview-tbtn:active,.nthview-ghost:active{transform:translateY(1px)}",
+    ".nthview-nav{font-size:.9375rem;padding:.5rem 1.125rem}",
+    ".nthview-nav:disabled{opacity:.45;cursor:default;box-shadow:none}",
+    ".nthview-nav.nthview-primary{background:var(--nv-accent);border-color:var(--nv-accent);color:var(--sq-on-accent);font-weight:650}",
+    ".nthview-nav.nthview-primary:hover{border-color:var(--nv-fg)}",
+    ".nthview-ghost{background:transparent;box-shadow:none;color:var(--nv-muted)}",
+    ".nthview-i{width:16px;height:16px;flex:none}",
+    /* header: the page title, then the sticky bar */
+    ".nthview-head{margin-bottom:1.5rem}",
+    ".nthview-eyebrow{display:flex;flex-wrap:wrap;gap:.25rem .5rem;margin:0 0 .5rem;font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--nv-muted);font-weight:650}",
+    ".nthview-eyebrow span+span::before{content:'·';margin-right:.5rem}",
+    ".nthview-title{font-family:var(--sq-head);font-size:2rem;line-height:1.15;margin:0 0 .5rem;letter-spacing:var(--sq-head-ls);font-weight:700;max-width:44rem}",
+    ".nthview-sub{margin:0;color:var(--nv-muted);max-width:70ch;font-size:1.0625rem}",
+    ".nthview-bar{position:sticky;top:0;z-index:20;margin:0 -1rem 1.5rem;padding:.5rem 1rem;background:var(--sq-bar);-webkit-backdrop-filter:saturate(1.4) blur(12px);backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--nv-border)}",
+    ".nthview-bar-in{max-width:68rem;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:.5rem 1rem}",
+    ".nthview-seg{display:inline-flex;border:1px solid var(--nv-border);border-radius:var(--sq-r2);background:var(--sq-soft);padding:3px;gap:2px}",
+    ".nthview-seg button{border:0;background:transparent;min-height:34px;padding:.25rem .875rem;border-radius:7px;cursor:pointer;font-size:.875rem;font-weight:550;color:var(--nv-muted);white-space:nowrap;transition:background var(--sq-fast) var(--sq-ease),color var(--sq-fast) var(--sq-ease)}",
+    ".nthview-seg button:hover{color:var(--nv-fg)}",
+    ".nthview-seg button[aria-pressed=true]{background:var(--sq-panel);color:var(--nv-fg);font-weight:650;box-shadow:var(--sq-sh1)}",
+    ".nthview-meter{flex:1 1 14rem;min-width:0;display:flex;align-items:center;gap:.75rem}",
+    ".nthview-progress{flex:1;height:6px;background:var(--sq-line);border-radius:99px;overflow:hidden;min-width:4rem}",
+    ".nthview-progress span{display:block;height:100%;background:var(--nv-accent);border-radius:99px;transition:width var(--sq-slow) var(--sq-ease)}",
+    ".nthview-meter-t{font-size:.8125rem;color:var(--nv-muted);white-space:nowrap;font-variant-numeric:tabular-nums}",
+    ".nthview-meter-t b{color:var(--nv-fg);font-weight:650}",
+    ".nthview-bar .nthview-tbtn,.nthview-bar .nthview-restart{min-height:36px;padding:.25rem .75rem}",
+    /* resume notice */
+    ".nthview-resume{display:flex;align-items:center;gap:.5rem;margin:0 0 1rem;padding:.625rem 1rem;border-radius:var(--sq-r2);background:var(--sq-hi);border:1px solid var(--nv-border);font-size:.9375rem;box-shadow:var(--sq-sh1);transition:opacity var(--sq-slow) var(--sq-ease)}",
+    ".nthview-resume::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--nv-accent);flex:none}",
+    ".nthview-resume.nthview-resume-hide{opacity:0}",
+    /* avatars: the party's colour identity (--pc ink, --pq tint) */
+    ".nthview-ava{--ava:44px;position:relative;display:inline-flex;align-items:center;justify-content:center;flex:none;width:var(--ava);height:var(--ava);border-radius:50%;background:var(--pq,var(--sq-soft));color:var(--pc,var(--nv-muted));box-shadow:inset 0 0 0 1.5px var(--pc,var(--nv-border));transition:box-shadow var(--sq-mid) var(--sq-ease),transform var(--sq-mid) var(--sq-ease),opacity var(--sq-mid) var(--sq-ease),filter var(--sq-mid) var(--sq-ease)}",
+    ".nthview-ava svg{width:56%;height:56%}",
+    ".nthview-ava.nthview-ava-sm{--ava:22px;box-shadow:inset 0 0 0 1.25px var(--pc,var(--nv-border))}",
+    ".nthview-ava.nthview-ava-md{--ava:30px}",
+    ".nthview-ava.nthview-ava-grp{border-radius:30%}",
+    ".nthview-stack{display:inline-flex;align-items:center}",
+    ".nthview-stack .nthview-ava{--ava:20px;margin-left:-6px;border:2px solid var(--sq-panel);box-shadow:none}",
+    ".nthview-stack .nthview-ava:first-child{margin-left:0}",
+    ".nthview-stack .nthview-more{margin-left:.25rem;font-size:.75rem;font-weight:650;color:var(--nv-muted)}",
+    /* stage: zones, lanes with avatars, lifelines, the flight */
+    ".nthview-stage{position:relative;background:var(--sq-panel);border:1px solid var(--nv-border);border-radius:var(--sq-r3);overflow:hidden;box-shadow:var(--sq-sh2)}",
+    ".nthview-sequence[data-theme=blueprint] .nthview-stage,.nthview-sequence[data-theme=blueprint] .nthview-dpanel{background-image:linear-gradient(var(--sq-grid) 1px,transparent 1px),linear-gradient(90deg,var(--sq-grid) 1px,transparent 1px);background-size:24px 24px}",
     ".nthview-stage-scroll{overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin}",
     ".nthview-sequence .nthview-stage-scroll:focus-visible{outline-offset:-3px}",
-    ".nthview-stage-in{position:relative;padding:.7rem .6rem .35rem;min-width:calc(var(--sq-lanes,4) * var(--sq-lane-min) + 1.2rem)}",
-    ".nthview-stage-more{margin:0;padding:.3rem .6rem .4rem;border-top:1px dashed var(--nv-border);font-size:.8rem;color:var(--nv-muted);text-align:center}",
-    ".nthview-zonebg{position:absolute;inset:0;display:grid;pointer-events:none;padding:0 .6rem}",
-    ".nthview-zoneband{border-left:1px dashed var(--nv-border);border-right:1px dashed var(--nv-border)}",
+    ".nthview-stage-in{position:relative;padding:1rem .75rem 0;min-width:calc(var(--sq-lanes,4) * var(--sq-lane-min) + 1.5rem)}",
+    ".nthview-stage-more{margin:0;padding:.375rem .75rem;border-top:1px dashed var(--nv-border);font-size:.8125rem;color:var(--nv-muted);text-align:center}",
+    ".nthview-zonebg{position:absolute;inset:0;display:grid;pointer-events:none;padding:0 .75rem}",
+    ".nthview-zoneband{margin:0 3px;border-radius:var(--sq-r2) var(--sq-r2) 0 0}",
     ".nthview-zoneband.nthview-za{background:var(--sq-zone-a)}",
     ".nthview-zoneband.nthview-zb{background:var(--sq-zone-b)}",
     ".nthview-zonerow,.nthview-lanes,.nthview-rails{position:relative;display:grid;gap:0}",
     ".nthview-zonerow{align-items:end}",
-    ".nthview-zonelabel{font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--nv-muted);text-align:center;padding:0 .3rem .35rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}",
-    ".nthview-lane{margin:0 .25rem;text-align:center;padding:.45rem .3rem;border:1px solid var(--nv-border);border-radius:.55rem;background:var(--sq-panel);min-width:0;transition:background .2s,border-color .2s,color .2s}",
-    ".nthview-lane svg{width:22px;height:22px;display:block;margin:0 auto .15rem;color:var(--nv-muted)}",
-    ".nthview-lane b{display:block;font-size:.84rem;font-weight:600;line-height:1.25;overflow:hidden;overflow-wrap:break-word;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}",
-    ".nthview-lane small{display:block;font-size:.7rem;color:var(--nv-muted);line-height:1.3;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}",
-    ".nthview-lane.nthview-on{background:var(--sq-hi);border-color:var(--nv-accent)}",
-    ".nthview-lane.nthview-on svg{color:var(--nv-accent)}",
-    ".nthview-lane.nthview-sender b::before{content:'\\25B8\\00a0';color:var(--nv-accent)}",
-    ".nthview-track{position:relative;height:78px}",
+    ".nthview-zonelabel{font-size:.6875rem;letter-spacing:.1em;text-transform:uppercase;color:var(--nv-muted);text-align:center;padding:0 .375rem .5rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:650}",
+    ".nthview-lane{position:relative;display:flex;flex-direction:column;align-items:center;margin:0 .25rem;text-align:center;padding:.25rem .25rem .5rem;min-width:0;transition:color var(--sq-mid) var(--sq-ease)}",
+    ".nthview-lane .nthview-lane-ava{margin-bottom:.625rem}",
+    ".nthview-lane b{display:block;max-width:100%;font-size:.875rem;font-weight:650;line-height:1.25;overflow:hidden;overflow-wrap:break-word;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;transition:color var(--sq-mid) var(--sq-ease)}",
+    ".nthview-lane small{display:block;max-width:100%;font-size:.75rem;color:var(--nv-muted);line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin-top:.125rem}",
+    ".nthview-lane-tag{position:absolute;bottom:-.5rem;left:50%;transform:translateX(-50%);font-size:.6875rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:0 .4rem;border-radius:99px;background:var(--sq-panel);color:var(--nv-fg);border:1px solid var(--nv-border);line-height:1.5;white-space:nowrap;opacity:0;transition:opacity var(--sq-mid) var(--sq-ease)}",
+    ".nthview-lane.nthview-on .nthview-lane-tag{opacity:1}",
+    ".nthview-lane.nthview-on .nthview-lane-ava{box-shadow:inset 0 0 0 1.5px var(--pc),0 0 0 3px var(--sq-panel),0 0 0 5.5px var(--pc);transform:scale(1.06)}",
+    ".nthview-stage.nthview-live .nthview-lane:not(.nthview-on) .nthview-lane-ava,.nthview-stage.nthview-live .nthview-lane:not(.nthview-on) .nthview-stack{opacity:.45;filter:saturate(.4)}",
+    ".nthview-stage.nthview-live .nthview-lane:not(.nthview-on) b{color:var(--nv-muted);font-weight:550}",
+    ".nthview-lane.nthview-arrive .nthview-lane-ava{animation:nthview-arrive 320ms var(--sq-ease)}",
+    "@keyframes nthview-arrive{0%{transform:scale(1.06)}45%{transform:scale(1.14)}100%{transform:scale(1.06)}}",
+    ".nthview-lane .nthview-stack{margin-top:.25rem}",
+    ".nthview-lane .nthview-inside{display:inline-block;margin-top:.25rem;font-size:.6875rem;font-weight:650;color:var(--nv-muted);line-height:1.4}",
+    ".nthview-grouprow{position:relative;display:grid;align-items:end}",
+    ".nthview-grouplabel{margin:0 .375rem .375rem;font-size:.6875rem;font-weight:700;color:var(--nv-fg);text-align:center;border:1px dashed var(--nv-muted);border-bottom:0;border-radius:var(--sq-r2) var(--sq-r2) 0 0;padding:.125rem .375rem .25rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
+    ".nthview-track{position:relative;height:92px}",
     ".nthview-rails{position:absolute;inset:0}",
     ".nthview-rail{position:relative}",
-    ".nthview-rail::before{content:'';position:absolute;left:50%;top:0;bottom:0;border-left:1px dashed var(--nv-border)}",
-    ".nthview-flight{position:absolute;top:44px;height:0;border-top:2px solid currentColor;transition:left .55s ease-in-out,width .55s ease-in-out}",
+    ".nthview-rail::before{content:'';position:absolute;left:50%;top:0;bottom:0;border-left:2px dotted var(--pc,var(--nv-border));opacity:.55;transition:opacity var(--sq-mid) var(--sq-ease)}",
+    ".nthview-stage.nthview-live .nthview-rail:not(.nthview-on)::before{opacity:.25}",
+    ".nthview-flight{position:absolute;top:58px;height:0;border-top:3px solid currentColor;border-radius:2px;transition:left var(--sq-slow) var(--sq-ease),width var(--sq-slow) var(--sq-ease)}",
     ".nthview-flight.nthview-k-return{border-top-style:dashed}",
-    ".nthview-head-tip{position:absolute;top:-7px;width:12px;height:12px}",
-    ".nthview-fwd .nthview-head-tip{right:-3px}",
-    ".nthview-rev .nthview-head-tip{left:-3px;transform:scaleX(-1)}",
-    ".nthview-packet{position:absolute;top:38px;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:currentColor;box-shadow:0 0 0 3px var(--sq-panel);transition:left .55s ease-in-out,opacity .3s;opacity:0}",
+    ".nthview-head-tip{position:absolute;top:-9.5px;width:16px;height:16px}",
+    ".nthview-fwd .nthview-head-tip{right:-4px}",
+    ".nthview-rev .nthview-head-tip{left:-4px;transform:scaleX(-1)}",
+    ".nthview-packet{position:absolute;top:52.5px;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:currentColor;box-shadow:0 0 0 3px var(--sq-panel),0 0 0 6px var(--sq-hi);transition:left var(--sq-slow) var(--sq-ease),opacity var(--sq-fast) var(--sq-ease);opacity:0;pointer-events:none}",
     ".nthview-packet.nthview-go{opacity:1}",
-    ".nthview-loop{position:absolute;top:24px;width:34px;height:26px;border:2px solid currentColor;border-left:0;border-radius:0 13px 13px 0}",
-    ".nthview-loop .nthview-head-tip{left:-6px;bottom:-7px;top:auto;transform:scaleX(-1)}",
-    ".nthview-payload{position:absolute;top:12px;font-family:var(--sq-mono);font-size:.74rem;white-space:nowrap;max-width:96%;overflow:hidden;text-overflow:ellipsis;padding:0 .35rem;border-radius:.3rem;background:var(--sq-panel)}",
-    ".nthview-waiting{position:absolute;left:0;right:0;top:0;height:78px;display:flex;align-items:center;justify-content:center;padding:0 .75rem;text-align:center;font-size:.8rem;color:var(--nv-muted);pointer-events:none}",
-    /* controls */
-    ".nthview-controls{display:flex;align-items:center;gap:.6rem;margin:.8rem 0}",
-    ".nthview-nav{border:1px solid var(--nv-border);background:var(--sq-panel);padding:.5rem 1rem;border-radius:.55rem;cursor:pointer;white-space:nowrap}",
-    ".nthview-nav:hover{border-color:var(--nv-muted)}",
-    ".nthview-nav:disabled{opacity:.45;cursor:default}",
-    ".nthview-nav.nthview-primary{background:var(--nv-accent);border-color:var(--nv-accent);color:var(--sq-on-accent);font-weight:600}",
-    ".nthview-chips{display:flex;flex-wrap:wrap;gap:4px;flex:1;justify-content:center}",
-    ".nthview-chip{position:relative;min-width:28px;height:28px;padding:0 .3rem;font-family:var(--sq-mono);font-size:.72rem;border:1px solid var(--nv-border);background:var(--sq-panel);color:var(--nv-muted);border-radius:.4rem;cursor:pointer}",
-    ".nthview-chip[aria-current=step]{background:var(--nv-accent);border-color:var(--nv-accent);color:var(--sq-on-accent)}",
-    ".nthview-chip.nthview-alt-chip{border-style:dashed}",
-    ".nthview-chip.nthview-has-check::after{content:'';position:absolute;top:-3px;right:-3px;width:7px;height:7px;border-radius:50%;background:var(--h-amber);border:1px solid var(--sq-panel)}",
+    ".nthview-loop{position:absolute;top:38px;width:40px;height:32px;border:3px solid currentColor;border-left:0;border-radius:0 16px 16px 0}",
+    ".nthview-loop .nthview-head-tip{left:-8px;bottom:-9.5px;top:auto;transform:scaleX(-1)}",
+    ".nthview-payload{position:absolute;top:14px;display:inline-flex;align-items:center;gap:.375rem;font-family:var(--sq-mono);font-size:.8125rem;font-weight:600;white-space:nowrap;max-width:96%;overflow:hidden;text-overflow:ellipsis;padding:.1875rem .625rem .1875rem .25rem;border-radius:99px;background:var(--sq-panel);border:1.5px solid currentColor;box-shadow:var(--sq-sh1);line-height:1.4}",
+    ".nthview-payload b{flex:none;display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 .3rem;border-radius:99px;background:currentColor;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:.6875rem;font-weight:750}",
+    ".nthview-payload b span{color:var(--sq-panel)}",
+    ".nthview-payload>span{color:var(--nv-fg);overflow:hidden;text-overflow:ellipsis}",
+    ".nthview-payload.nthview-in{animation:nthview-fade-in var(--sq-mid) var(--sq-ease) 120ms both}",
+    ".nthview-waiting{position:absolute;left:0;right:0;top:0;height:92px;display:flex;align-items:center;justify-content:center;padding:0 1rem;text-align:center;font-size:.875rem;color:var(--nv-muted);pointer-events:none}",
+    ".nthview-waiting span{background:var(--sq-panel);padding:.25rem .75rem;border-radius:99px;border:1px dashed var(--nv-border)}",
+    /* stage footer: the legend of channels and arrow kinds, the current ones emphasised */
+    ".nthview-sfoot{display:flex;flex-wrap:wrap;align-items:center;gap:.375rem 1.25rem;padding:.625rem 1rem;border-top:1px solid var(--sq-line);background:var(--sq-soft);font-size:.8125rem;color:var(--nv-muted)}",
+    ".nthview-legend{display:flex;flex-wrap:wrap;gap:.25rem .875rem;margin:0;padding:0;list-style:none}",
+    ".nthview-legend li{display:flex;align-items:center;gap:.375rem;transition:color var(--sq-fast) var(--sq-ease)}",
+    ".nthview-legend i{display:inline-block;width:18px;border-top:3px solid currentColor;border-radius:2px}",
+    ".nthview-legend li.nthview-cur{color:var(--nv-fg);font-weight:650}",
+    ".nthview-legend li span{color:inherit}",
+    ".nthview-kindleg svg{width:28px;height:10px}",
+    ".nthview-sfoot .nthview-sep{width:1px;align-self:stretch;background:var(--nv-border)}",
+    /* controls and chip rail */
+    ".nthview-controls{display:flex;align-items:center;gap:.75rem;margin:1rem 0}",
+    ".nthview-chips{display:flex;flex-wrap:wrap;gap:6px;flex:1;justify-content:center}",
+    ".nthview-chip{position:relative;min-width:32px;height:32px;padding:0 .375rem;font-size:.8125rem;font-weight:600;font-variant-numeric:tabular-nums;border:1px solid var(--nv-border);background:var(--sq-panel);color:var(--nv-muted);border-radius:99px;cursor:pointer;transition:background var(--sq-fast) var(--sq-ease),border-color var(--sq-fast) var(--sq-ease),color var(--sq-fast) var(--sq-ease),transform var(--sq-fast) var(--sq-ease)}",
+    ".nthview-chip:hover{border-color:var(--nv-accent);color:var(--nv-fg)}",
+    ".nthview-chip.nthview-seen{background:var(--sq-hi);border-color:transparent;color:var(--nv-fg)}",
+    ".nthview-chip[aria-current=step]{background:var(--nv-accent);border-color:var(--nv-accent);color:var(--sq-on-accent);transform:scale(1.08);box-shadow:var(--sq-sh1)}",
+    ".nthview-chip.nthview-alt-chip{border-style:dashed;border-color:var(--h-violet)}",
+    ".nthview-chip.nthview-has-check::after{content:'';position:absolute;top:-2px;right:-2px;width:9px;height:9px;border-radius:50%;background:var(--h-amber);border:2px solid var(--sq-panel)}",
     ".nthview-chip.nthview-check-done::after{background:var(--h-green)}",
-    /* card */
-    ".nthview-card,.nthview-check,.nthview-recap{background:var(--sq-panel);border:1px solid var(--nv-border);border-radius:.7rem;padding:1.1rem 1.2rem}",
-    ".nthview-card.nthview-fade{animation:nthview-fade .3s ease}",
-    "@keyframes nthview-fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}",
-    ".nthview-meta{display:flex;align-items:center;flex-wrap:wrap;gap:.4rem .5rem;margin-bottom:.55rem}",
-    ".nthview-idx{font-family:var(--sq-mono);font-size:.78rem;color:var(--nv-muted)}",
-    ".nthview-badge{display:inline-flex;align-items:center;gap:.35rem;font-size:.75rem;padding:.12rem .55rem;border-radius:.35rem;font-weight:600;background:var(--t-slate);color:var(--h-slate);line-height:1.5}",
+    ".nthview-chip.nthview-has-inner::before{content:'';position:absolute;left:50%;bottom:3px;width:12px;margin-left:-6px;border-top:2px solid currentColor;border-radius:2px;opacity:.75}",
+    ".nthview-chip.nthview-chip-group{border:1.5px dashed var(--h-teal);color:var(--h-teal);padding:0 .625rem;font-weight:700}",
+    ".nthview-chip.nthview-chip-group.nthview-seen{background:var(--t-teal);border-style:solid}",
+    ".nthview-chip.nthview-chip-group[aria-current=step]{background:var(--h-teal);border-color:var(--h-teal);color:var(--sq-panel)}",
+    /* cards */
+    ".nthview-card,.nthview-check,.nthview-recap,.nthview-gcard{position:relative;background:var(--sq-panel);border:1px solid var(--nv-border);border-radius:var(--sq-r3);padding:1.5rem;box-shadow:var(--sq-sh2)}",
+    ".nthview-card.nthview-fade,.nthview-gcard.nthview-fade{animation:nthview-fade-in var(--sq-slow) var(--sq-ease) both}",
+    "@keyframes nthview-fade-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}",
+    ".nthview-cardhead{display:flex;align-items:flex-start;gap:1rem;margin-bottom:.75rem}",
+    ".nthview-stepno{flex:none;display:inline-flex;align-items:center;justify-content:center;min-width:2.5rem;height:2.5rem;padding:0 .5rem;border-radius:99px;font-weight:750;font-size:1rem;font-variant-numeric:tabular-nums;background:var(--sq-soft);color:var(--nv-fg);border:2px solid currentColor;line-height:1}",
+    ".nthview-stepno span{color:var(--nv-fg)}",
+    ".nthview-cardhead-t{flex:1;min-width:0}",
+    ".nthview-idx{display:block;font-size:.75rem;font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:var(--nv-muted);margin:0 0 .125rem}",
+    ".nthview-card h2,.nthview-check h2,.nthview-recap h2,.nthview-gcard h2{font-family:var(--sq-head);font-size:1.375rem;line-height:1.3;margin:0;font-weight:700;letter-spacing:var(--sq-head-ls)}",
+    ".nthview-meta{display:flex;align-items:center;flex-wrap:wrap;gap:.5rem;margin:0 0 1rem}",
+    ".nthview-badge{display:inline-flex;align-items:center;gap:.375rem;font-size:.75rem;padding:.125rem .625rem;border-radius:99px;font-weight:650;background:var(--t-slate);color:var(--h-slate);line-height:1.6}",
     ".nthview-badge i{width:8px;height:8px;border-radius:50%;background:currentColor;display:inline-block}",
-    ".nthview-badge.nthview-plain{background:transparent;border:1px solid var(--nv-border);color:var(--nv-muted);font-weight:500}",
-    ".nthview-route{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem .5rem;font-size:.85rem;color:var(--nv-muted);margin:0 0 .35rem}",
-    ".nthview-route b{color:var(--nv-fg);font-weight:600}",
-    ".nthview-route svg{width:16px;height:16px;vertical-align:-3px;margin-right:.2rem}",
-    ".nthview-route code{font-size:.8rem}",
-    ".nthview-card h2,.nthview-check h2,.nthview-recap h2{font-family:var(--sq-head);font-size:1.22rem;line-height:1.3;margin:.1rem 0 .7rem;font-weight:650;letter-spacing:-.005em}",
-    ".nthview-frag{display:flex;flex-wrap:wrap;gap:.35rem .6rem;align-items:baseline;font-size:.82rem;color:var(--nv-muted);margin:0 0 .5rem}",
-    ".nthview-frag b{font-family:var(--sq-mono);font-size:.74rem;border:1px solid var(--nv-border);border-radius:.3rem;padding:0 .35rem;color:var(--nv-fg)}",
-    ".nthview-altnote{border:1px dashed var(--h-violet);background:var(--t-violet);color:var(--nv-fg);border-radius:.5rem;padding:.55rem .8rem;margin:0 0 .75rem;font-size:.9rem}",
-    ".nthview-wire{font-family:var(--sq-mono);font-size:.8rem;line-height:1.65;background:var(--sq-soft);border:1px solid var(--nv-border);border-left:3px solid var(--h-slate);border-radius:0 .45rem .45rem 0;padding:.75rem .9rem;margin:0;white-space:pre-wrap;overflow-wrap:anywhere;tab-size:2}",
-    ".nthview-why{margin:.8rem 0 0;max-width:74ch}",
-    ".nthview-compare{margin-top:.8rem;padding:.7rem .9rem;border-radius:.5rem;background:var(--t-amber);color:var(--nv-fg);border-left:3px solid var(--h-amber);font-size:.92rem}",
-    ".nthview-compare>b:first-child{color:var(--h-amber)}",
-    ".nthview-note{display:flex;gap:.6rem;margin-top:.8rem;padding:.65rem .85rem;border-radius:.5rem;font-size:.92rem;border:1px solid currentColor;background:var(--t-blue);color:var(--h-blue)}",
-    ".nthview-note>div{color:var(--nv-fg)}",
-    ".nthview-note svg{flex:none;width:18px;height:18px;margin-top:.15rem}",
-    ".nthview-note.nthview-sev-warning{background:var(--t-amber);color:var(--h-amber)}",
-    ".nthview-note.nthview-sev-danger{background:var(--t-red);color:var(--h-red)}",
+    ".nthview-badge.nthview-plain{background:transparent;border:1px solid var(--nv-border);color:var(--nv-muted);font-weight:550}",
+    ".nthview-badge svg{width:22px;height:8px}",
+    ".nthview-route{display:flex;flex-wrap:wrap;align-items:center;gap:.375rem .5rem;font-size:.9375rem;color:var(--nv-muted);margin:0 0 .75rem}",
+    ".nthview-route b{display:inline-flex;align-items:center;gap:.375rem;color:var(--nv-fg);font-weight:650}",
+    ".nthview-route .nthview-arr{font-weight:700;color:var(--nv-fg)}",
+    ".nthview-route code{font-size:.8125rem}",
+    ".nthview-frag{display:flex;flex-wrap:wrap;gap:.375rem .625rem;align-items:center;font-size:.8125rem;color:var(--nv-muted);margin:0 0 .5rem}",
+    ".nthview-frag b{font-family:var(--sq-mono);font-size:.75rem;border-radius:var(--sq-r1);padding:0 .4rem;background:var(--t-violet);color:var(--h-violet)}",
+    ".nthview-frag.nthview-fk-loop b{background:var(--t-teal);color:var(--h-teal)}",
+    ".nthview-frag.nthview-fk-opt b{background:var(--t-blue);color:var(--h-blue)}",
+    ".nthview-altnote{border:1px dashed var(--h-violet);background:var(--t-violet);color:var(--nv-fg);border-radius:var(--sq-r2);padding:.625rem 1rem;margin:0 0 1rem;font-size:.9375rem}",
+    /* the wire: a real request pane */
+    ".nthview-wirebox{margin:0 0 1rem;border-radius:var(--sq-r2);overflow:hidden;background:var(--sq-term);color:var(--sq-term-fg);box-shadow:var(--sq-sh1);border:1px solid var(--sq-term-head)}",
+    ".nthview-wirehead{display:flex;align-items:center;gap:.5rem;padding:.375rem .875rem;background:var(--sq-term-head);font-size:.75rem;color:var(--sq-term-muted);letter-spacing:.02em}",
+    ".nthview-wirehead i{width:8px;height:8px;border-radius:50%;flex:none}",
+    ".nthview-wirehead b{color:var(--sq-term-fg);font-weight:650}",
+    ".nthview-wirehead span:last-child{margin-left:auto}",
+    ".nthview-wire{font-family:var(--sq-mono);font-size:.8125rem;line-height:1.7;margin:0;padding:.875rem 1rem 1rem;white-space:pre-wrap;overflow-wrap:anywhere;tab-size:2;color:var(--sq-term-fg)}",
+    ".nthview-wire code{background:none;border:0;padding:0;font-size:1em;color:inherit;border-radius:0}",
+    ".nthview-wire .nthview-w-k{color:var(--sq-term-key)}",
+    ".nthview-wire .nthview-w-c{color:var(--sq-term-muted)}",
+    ".nthview-wire .nthview-w-n{color:var(--sq-term-note)}",
+    ".nthview-wire .nthview-w-v{font-weight:700}",
+    ".nthview-why{margin:0;max-width:70ch;font-size:1.0625rem;line-height:1.65}",
+    ".nthview-callout{display:flex;gap:.75rem;margin-top:1rem;padding:.875rem 1rem;border-radius:var(--sq-r2);font-size:.9375rem;color:var(--nv-fg)}",
+    ".nthview-callout svg{flex:none;width:20px;height:20px;margin-top:.125rem}",
+    ".nthview-callout h3{margin:0 0 .125rem;font-size:.8125rem;font-weight:750;letter-spacing:.02em}",
+    ".nthview-callout p{margin:0}",
+    ".nthview-compare{background:var(--t-amber);border:1px solid var(--t-amber);box-shadow:inset 3px 0 0 var(--h-amber)}",
+    ".nthview-compare svg,.nthview-compare h3{color:var(--h-amber)}",
+    ".nthview-note{background:var(--t-blue);box-shadow:inset 3px 0 0 var(--h-blue)}",
+    ".nthview-note svg,.nthview-note h3{color:var(--h-blue)}",
+    ".nthview-note.nthview-sev-warning{background:var(--t-amber);box-shadow:inset 3px 0 0 var(--h-amber)}",
+    ".nthview-note.nthview-sev-warning svg,.nthview-note.nthview-sev-warning h3{color:var(--h-amber)}",
+    ".nthview-note.nthview-sev-danger{background:var(--t-red);box-shadow:inset 3px 0 0 var(--h-red)}",
+    ".nthview-note.nthview-sev-danger svg,.nthview-note.nthview-sev-danger h3{color:var(--h-red)}",
     ".nthview-sevb-info{background:var(--t-blue);color:var(--h-blue)}",
     ".nthview-sevb-warning{background:var(--t-amber);color:var(--h-amber)}",
     ".nthview-sevb-danger{background:var(--t-red);color:var(--h-red)}",
-    ".nthview-details{margin-top:.9rem;border:1px solid var(--nv-border);border-radius:.5rem;background:var(--sq-soft)}",
-    ".nthview-details summary{padding:.6rem .85rem;cursor:pointer;font-size:.88rem;font-weight:600;color:var(--nv-accent);list-style:none;display:flex;align-items:center;gap:.5rem}",
+    ".nthview-details{margin-top:1rem;border:1px solid var(--nv-border);border-radius:var(--sq-r2);background:var(--sq-panel)}",
+    ".nthview-details summary{min-height:44px;padding:.625rem 1rem;cursor:pointer;font-size:.9375rem;font-weight:650;list-style:none;display:flex;align-items:center;gap:.625rem;border-radius:var(--sq-r2)}",
+    ".nthview-details summary:hover{background:var(--sq-soft)}",
     ".nthview-details summary::-webkit-details-marker{display:none}",
-    ".nthview-details summary::before{content:'';border-left:5px solid currentColor;border-top:4px solid transparent;border-bottom:4px solid transparent;transition:transform .15s}",
-    ".nthview-details[open] summary::before{transform:rotate(90deg)}",
-    ".nthview-drows{margin:0;padding:.1rem .85rem .6rem;border-top:1px solid var(--nv-border)}",
-    ".nthview-drow{display:grid;grid-template-columns:9.5rem 1fr;gap:.6rem;padding:.5rem 0;border-bottom:1px dashed var(--nv-border)}",
+    ".nthview-details summary::before{content:'';width:7px;height:7px;border-right:2px solid var(--nv-muted);border-bottom:2px solid var(--nv-muted);transform:rotate(-45deg);transition:transform var(--sq-mid) var(--sq-ease);margin:0 .125rem}",
+    ".nthview-details[open] summary::before{transform:rotate(45deg)}",
+    ".nthview-details summary small{margin-left:auto;font-weight:500;color:var(--nv-muted);font-size:.8125rem}",
+    ".nthview-drows{margin:0;padding:.25rem 1rem .75rem;border-top:1px solid var(--sq-line)}",
+    ".nthview-drow{display:grid;grid-template-columns:10rem 1fr;gap:1rem;padding:.625rem 0;border-bottom:1px solid var(--sq-line)}",
     ".nthview-drow:last-child{border-bottom:0}",
-    ".nthview-drow dt{font-size:.78rem;color:var(--nv-muted);padding-top:.1rem}",
-    ".nthview-drow dd{margin:0;font-size:.9rem}",
-    ".nthview-holds{margin-top:1rem;padding-top:.85rem;border-top:1px solid var(--nv-border)}",
-    ".nthview-holds h3,.nthview-recap h3{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--nv-muted);margin:0 0 .55rem;font-weight:600}",
-    ".nthview-hgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(10.5rem,1fr));gap:.7rem}",
-    ".nthview-hcol h4{margin:0 0 .3rem;font-size:.82rem;font-weight:600;display:flex;align-items:center;gap:.3rem}",
-    ".nthview-hcol h4 svg{width:15px;height:15px;color:var(--nv-muted)}",
-    ".nthview-pills{display:flex;flex-wrap:wrap;gap:.25rem}",
-    ".nthview-pill{font-family:var(--sq-mono);font-size:.7rem;padding:.08rem .45rem;border-radius:.3rem;background:var(--t-slate);color:var(--nv-fg);border:1px solid transparent;overflow-wrap:anywhere}",
-    ".nthview-pill.nthview-new{background:var(--sq-hi);border-color:var(--nv-accent);color:var(--nv-fg);font-weight:600}",
-    ".nthview-pill.nthview-new::before{content:'+ ';color:var(--nv-accent)}",
-    ".nthview-pill.nthview-gone{background:transparent;border:1px dashed var(--nv-border);color:var(--nv-muted);text-decoration:line-through}",
-    ".nthview-none{font-size:.78rem;color:var(--nv-muted)}",
-    ".nthview-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}",
-    ".nthview-toggle{display:inline-flex;align-items:center;gap:.5rem;font-size:.88rem;color:var(--nv-muted);cursor:pointer;margin-top:.9rem}",
-    ".nthview-toggle input{accent-color:var(--nv-accent);width:16px;height:16px}",
-    ".nthview-hint{font-size:.8rem;color:var(--nv-muted);margin:.7rem 0 0}",
-    ".nthview-legend{display:flex;flex-wrap:wrap;gap:.35rem 1rem;margin:.7rem 0 0;padding:0;list-style:none;font-size:.8rem;color:var(--nv-muted)}",
-    ".nthview-legend li{display:flex;align-items:center;gap:.4rem}",
-    ".nthview-legend i{display:inline-block;width:22px;border-top:3px solid currentColor}",
-    /* checks */
-    ".nthview-check{margin-bottom:.8rem;border-color:var(--h-amber)}",
-    ".nthview-check-label{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--h-amber);font-weight:700;margin:0 0 .2rem}",
-    ".nthview-opts{list-style:none;margin:0;padding:0;display:grid;gap:.45rem}",
-    ".nthview-opts.nthview-who{grid-template-columns:repeat(auto-fit,minmax(8.5rem,1fr))}",
-    ".nthview-opt{width:100%;text-align:left;display:flex;align-items:center;gap:.6rem;border:1px solid var(--nv-border);background:var(--sq-soft);padding:.6rem .8rem;border-radius:.5rem;cursor:pointer}",
-    ".nthview-opt:hover{border-color:var(--nv-accent)}",
-    ".nthview-opt svg{width:20px;height:20px;flex:none;color:var(--nv-muted)}",
-    ".nthview-opt .nthview-key{font-family:var(--sq-mono);font-size:.75rem;border:1px solid var(--nv-border);border-radius:.3rem;padding:0 .35rem;flex:none}",
+    ".nthview-drow dt{font-size:.8125rem;font-weight:650;color:var(--nv-muted);padding-top:.125rem}",
+    ".nthview-drow dd{margin:0;font-size:.9375rem}",
+    /* inner sequence entry: "there is more here" */
+    ".nthview-innerbox{margin-top:1rem;padding:1rem;border:1px solid var(--nv-border);border-radius:var(--sq-r2);background:var(--sq-hi);display:flex;flex-wrap:wrap;gap:.75rem 1rem;align-items:center}",
+    ".nthview-innerbox .nthview-layers{flex:none;width:40px;height:40px;color:var(--nv-accent)}",
+    ".nthview-innerbox div{flex:1 1 14rem;min-width:0}",
+    ".nthview-innerbox p{margin:0;font-size:.9375rem}",
+    ".nthview-innerbox p b{display:block;font-size:1rem}",
+    ".nthview-innerbox .nthview-nav{white-space:normal;text-align:left}",
+    /* holds: one card per party, in its colour */
+    ".nthview-holds{margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--sq-line)}",
+    ".nthview-holds-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.5rem 1rem;margin:0 0 .75rem}",
+    ".nthview-holds h3,.nthview-recap h3{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--nv-muted);margin:0;font-weight:700}",
+    ".nthview-hgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr));gap:.75rem}",
+    ".nthview-hcard{border:1px solid var(--nv-border);border-radius:var(--sq-r2);background:var(--sq-panel);padding:.625rem .75rem .75rem;box-shadow:inset 0 3px 0 var(--pc,var(--nv-border))}",
+    ".nthview-hcard.nthview-hchanged{background:var(--sq-soft)}",
+    ".nthview-hcard h4{margin:0 0 .5rem;font-size:.875rem;font-weight:650;display:flex;align-items:center;gap:.5rem;min-width:0}",
+    ".nthview-hcard h4 .nthview-hname{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}",
+    ".nthview-hdelta{flex:none;font-size:.75rem;font-weight:700;font-variant-numeric:tabular-nums;color:var(--nv-fg);background:var(--sq-hi);border-radius:99px;padding:0 .4rem}",
+    ".nthview-pills{display:flex;flex-wrap:wrap;gap:.375rem}",
+    ".nthview-pill{position:relative;font-family:var(--sq-mono);font-size:.75rem;padding:.125rem .5rem;border-radius:var(--sq-r1);background:var(--sq-soft);color:var(--nv-fg);border:1px solid var(--sq-line);overflow-wrap:anywhere;line-height:1.5}",
+    ".nthview-hchanged .nthview-pill{background:var(--sq-panel)}",
+    ".nthview-pill.nthview-new{background:var(--sq-hi);border-color:var(--nv-accent);font-weight:650}",
+    ".nthview-pill.nthview-new::before{content:'+ ';color:var(--nv-accent);font-weight:800}",
+    ".nthview-fresh .nthview-pill.nthview-new{animation:nthview-glow 500ms var(--sq-ease) 250ms both}",
+    "@keyframes nthview-glow{from{box-shadow:0 0 0 5px var(--sq-hi);transform:scale(1.04)}to{box-shadow:0 0 0 0 var(--sq-hi);transform:none}}",
+    ".nthview-pill.nthview-gone{background:transparent;border:1px dashed var(--nv-border);color:var(--nv-muted)}",
+    ".nthview-pill.nthview-gone::after{content:'';position:absolute;left:.375rem;right:.375rem;top:50%;border-top:1.5px solid currentColor}",
+    ".nthview-fresh .nthview-pill.nthview-gone{animation:nthview-dim 450ms var(--sq-ease) 250ms both}",
+    ".nthview-fresh .nthview-pill.nthview-gone::after{transform-origin:left;animation:nthview-strike 400ms var(--sq-ease) 250ms both}",
+    "@keyframes nthview-dim{from{color:var(--nv-fg)}to{color:var(--nv-muted)}}",
+    "@keyframes nthview-strike{from{transform:scaleX(0)}to{transform:scaleX(1)}}",
+    ".nthview-none{font-size:.8125rem;color:var(--nv-muted)}",
+    ".nthview-toggle{display:inline-flex;align-items:center;gap:.5rem;font-size:.875rem;color:var(--nv-muted);cursor:pointer;min-height:36px}",
+    ".nthview-toggle input{accent-color:var(--nv-accent);width:18px;height:18px;margin:0}",
+    ".nthview-toggle-row{margin-top:1rem}",
+    ".nthview-hint{font-size:.8125rem;color:var(--nv-muted);margin:1rem 0 0}",
+    /* checks: a moment of prediction */
+    ".nthview-check{margin-bottom:1rem;background:var(--sq-panel);border:1.5px solid var(--h-amber);box-shadow:var(--sq-sh2),inset 0 4px 0 var(--h-amber)}",
+    ".nthview-check-top{display:flex;align-items:center;gap:.625rem;margin:0 0 .75rem}",
+    ".nthview-check-ico{flex:none;display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:var(--t-amber);color:var(--h-amber)}",
+    ".nthview-check-ico svg{width:18px;height:18px}",
+    ".nthview-check-label{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--h-amber);font-weight:750;margin:0}",
+    ".nthview-check h2{margin-bottom:1rem}",
+    ".nthview-opts{list-style:none;margin:0;padding:0;display:grid;gap:.625rem}",
+    ".nthview-opts.nthview-who{grid-template-columns:repeat(auto-fit,minmax(10rem,1fr))}",
+    ".nthview-opt{width:100%;min-height:56px;text-align:left;display:flex;align-items:center;gap:.75rem;border:1.5px solid var(--nv-border);background:var(--sq-panel);padding:.625rem 1rem;border-radius:var(--sq-r2);cursor:pointer;font-size:1rem;line-height:1.4;box-shadow:var(--sq-sh1);transition:border-color var(--sq-fast) var(--sq-ease),transform var(--sq-fast) var(--sq-ease),box-shadow var(--sq-fast) var(--sq-ease),background var(--sq-fast) var(--sq-ease)}",
+    ".nthview-opt:not([aria-disabled]):hover{border-color:var(--nv-accent);transform:translateY(-1px);box-shadow:var(--sq-sh2)}",
+    ".nthview-opt[aria-disabled]{cursor:default;box-shadow:none}",
+    ".nthview-opt .nthview-key{flex:none;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;font-size:.8125rem;font-weight:750;border:1.5px solid var(--nv-border);color:var(--nv-muted)}",
+    ".nthview-opt .nthview-opt-n{display:flex;flex-direction:column;min-width:0}",
+    ".nthview-opt .nthview-opt-n small{font-size:.75rem;color:var(--nv-muted)}",
     ".nthview-opt.nthview-right{border-color:var(--h-green);background:var(--t-green)}",
     ".nthview-opt.nthview-wrong{border-color:var(--h-red);background:var(--t-red)}",
-    ".nthview-opt-tag{margin-left:auto;font-size:.72rem;font-weight:700;white-space:nowrap}",
+    ".nthview-opt.nthview-dim{color:var(--nv-muted);background:var(--sq-soft);border-color:var(--sq-line)}",
+    ".nthview-opt-tag{margin-left:auto;display:inline-flex;align-items:center;gap:.25rem;font-size:.75rem;font-weight:750;white-space:nowrap}",
+    ".nthview-opt-tag svg{width:16px;height:16px}",
     ".nthview-right .nthview-opt-tag{color:var(--h-green)}",
     ".nthview-wrong .nthview-opt-tag{color:var(--h-red)}",
-    ".nthview-fb{margin-top:.75rem;padding:.7rem .9rem;border-radius:.5rem;border-left:3px solid var(--h-green);background:var(--t-green)}",
-    ".nthview-fb.nthview-no{border-left-color:var(--h-red);background:var(--t-red)}",
-    ".nthview-fb h3{margin:0 0 .25rem;font-size:.95rem}",
-    ".nthview-fb p{margin:.25rem 0 0;font-size:.92rem}",
-    ".nthview-check-actions{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.75rem}",
-    ".nthview-ghost{border:1px solid var(--nv-border);background:transparent;padding:.42rem .8rem;border-radius:.5rem;cursor:pointer;font-size:.88rem;color:var(--nv-muted)}",
+    ".nthview-revealing .nthview-opt-tag{animation:nthview-pop 300ms var(--sq-ease-in) both}",
+    "@keyframes nthview-pop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}",
+    ".nthview-fb{margin-top:1rem;padding:.875rem 1rem;border-radius:var(--sq-r2);background:var(--t-green);box-shadow:inset 3px 0 0 var(--h-green)}",
+    ".nthview-fb.nthview-no{background:var(--sq-soft);box-shadow:inset 3px 0 0 var(--nv-accent)}",
+    ".nthview-revealing .nthview-fb{animation:nthview-fade-in var(--sq-slow) var(--sq-ease) 80ms both}",
+    ".nthview-fb h3{margin:0 0 .25rem;font-size:1rem}",
+    ".nthview-fb p{margin:.375rem 0 0;font-size:.9375rem}",
+    ".nthview-check-actions{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem 1rem;margin-top:1rem}",
+    ".nthview-check-actions .nthview-hint{margin:0;flex:1 1 16rem}",
+    /* collapsed group: a stack of folded pages */
+    ".nthview-gcard{border:1.5px dashed var(--h-teal);margin-bottom:12px;box-shadow:var(--sq-sh2),6px 6px 0 -1px var(--sq-panel),6px 6px 0 0 var(--nv-border),12px 12px 0 -1px var(--sq-panel),12px 12px 0 0 var(--sq-line)}",
+    ".nthview-gcard-label{display:inline-flex;align-items:center;gap:.5rem;font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--h-teal);font-weight:750;margin:0 0 .5rem}",
+    ".nthview-gcard h2{margin-bottom:.5rem}",
+    ".nthview-gcard .nthview-why{margin-bottom:1rem}",
+    ".nthview-gparties{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem 1rem;margin:0 0 .25rem;font-size:.9375rem}",
+    ".nthview-gparties b{display:inline-flex;align-items:center;gap:.375rem;font-weight:600}",
+    ".nthview-ghead{display:flex;flex-wrap:wrap;align-items:center;gap:.25rem .75rem;margin:0 0 .75rem;padding:.375rem .5rem .375rem 1rem;border:1px dashed var(--h-teal);border-radius:var(--sq-r2);background:var(--t-teal);font-size:.875rem}",
+    ".nthview-ghead b{color:var(--h-teal);text-transform:uppercase;letter-spacing:.08em;font-size:.6875rem}",
+    ".nthview-ghead span{font-weight:650}",
+    ".nthview-ghead .nthview-ghead-n{font-weight:500;color:var(--nv-fg);font-size:.8125rem}",
+    ".nthview-ghead .nthview-ghost{margin-left:auto;min-height:32px;padding:.125rem .75rem;background:var(--sq-panel);color:var(--nv-fg);border-color:var(--nv-border)}",
+    /* breadcrumb: the path into the tree */
+    ".nthview-crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem 1rem;margin:0 0 1rem;padding:.625rem .75rem;background:var(--sq-panel);border:1px solid var(--nv-border);border-radius:var(--sq-r3);box-shadow:var(--sq-sh1);font-size:.875rem}",
+    ".nthview-crumbs ol{display:flex;flex-wrap:wrap;align-items:center;gap:.25rem;margin:0;padding:0;list-style:none;flex:1 1 16rem;min-width:0}",
+    ".nthview-crumbs li{display:flex;align-items:center;gap:.25rem;min-width:0;max-width:100%}",
+    ".nthview-crumbs li+li::before{content:'';flex:none;width:7px;height:7px;border-right:2px solid var(--nv-muted);border-top:2px solid var(--nv-muted);transform:rotate(45deg);margin:0 .375rem 0 .125rem}",
+    ".nthview-crumb{display:inline-flex;align-items:center;gap:.375rem;border:1px solid transparent;background:var(--sq-soft);color:var(--nv-fg);min-height:32px;padding:.125rem .625rem;border-radius:99px;cursor:pointer;max-width:17rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:550;transition:border-color var(--sq-fast) var(--sq-ease)}",
+    ".nthview-crumb:hover{border-color:var(--nv-accent)}",
+    ".nthview-crumb svg{width:14px;height:14px;flex:none}",
+    ".nthview-crumb>span:last-child,.nthview-crumb-cur>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}",
+    ".nthview-crumb-n{font-variant-numeric:tabular-nums;font-weight:750;color:var(--nv-accent)}",
+    ".nthview-crumb-cur{display:inline-flex;align-items:center;gap:.375rem;font-weight:700;min-height:32px;padding:.125rem .75rem;border-radius:99px;background:var(--sq-hi);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}",
+    ".nthview-crumbs .nthview-up{min-height:36px}",
+    ".nthview-crumbs-info{flex-basis:100%;margin:0;color:var(--nv-muted);font-size:.875rem;padding:0 .25rem}",
     /* recap */
-    ".nthview-recap-list{margin:0 0 1rem;padding:0;list-style:none;counter-reset:none;display:grid;gap:.2rem}",
-    ".nthview-recap-list button{width:100%;display:grid;grid-template-columns:minmax(2rem,auto) 1fr;gap:.5rem;text-align:left;border:0;background:transparent;padding:.4rem .5rem;border-radius:.4rem;cursor:pointer}",
+    ".nthview-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(8rem,1fr));gap:.75rem;margin:1rem 0 1.5rem}",
+    ".nthview-stat{border:1px solid var(--sq-line);background:var(--sq-soft);border-radius:var(--sq-r2);padding:.75rem 1rem}",
+    ".nthview-stat b{display:block;font-family:var(--sq-head);font-size:1.5rem;line-height:1.2;font-variant-numeric:tabular-nums}",
+    ".nthview-stat span{font-size:.8125rem;color:var(--nv-muted)}",
+    ".nthview-recap>h3{margin:1.5rem 0 .75rem}",
+    ".nthview-recap-list{margin:0 0 1rem;padding:0;list-style:none;display:grid;grid-template-columns:minmax(0,1fr);gap:.125rem}",
+    ".nthview-recap-list button{width:100%;display:grid;grid-template-columns:2.5rem minmax(0,1fr);gap:.75rem;align-items:start;text-align:left;border:0;background:transparent;padding:.5rem;border-radius:var(--sq-r2);cursor:pointer;transition:background var(--sq-fast) var(--sq-ease)}",
     ".nthview-recap-list button:hover{background:var(--sq-soft)}",
-    ".nthview-recap-n{font-family:var(--sq-mono);font-size:.78rem;color:var(--nv-muted);padding-top:.1rem}",
-    ".nthview-recap-route{display:block;font-size:.8rem;color:var(--nv-muted)}",
-    ".nthview-recap-route i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:.35rem;vertical-align:0}",
-    ".nthview-recap-route code{font-size:.76rem}",
-    ".nthview-recap-alt{font-size:.7rem;border:1px dashed var(--h-violet);color:var(--h-violet);border-radius:.3rem;padding:0 .3rem;margin-left:.35rem}",
-    ".nthview-recap-checks{margin:0 0 1rem;padding-left:1.1rem;font-size:.9rem}",
-    ".nthview-recap-checks li{margin:.25rem 0}",
-    ".nthview-ok-t{color:var(--h-green);font-weight:600}",
-    ".nthview-no-t{color:var(--h-red);font-weight:600}",
-    ".nthview-actions{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}",
+    ".nthview-recap-n{display:inline-flex;align-items:center;justify-content:center;min-width:2rem;height:1.625rem;padding:0 .375rem;border-radius:99px;font-size:.75rem;font-weight:750;font-variant-numeric:tabular-nums;border:2px solid currentColor;justify-self:start}",
+    ".nthview-recap-n span{color:var(--nv-fg)}",
+    ".nthview-recap-t{display:block;font-weight:600;overflow-wrap:break-word}",
+    ".nthview-recap-route{display:flex;flex-wrap:wrap;align-items:center;gap:.25rem .375rem;font-size:.8125rem;color:var(--nv-muted);margin-top:.125rem}",
+    ".nthview-recap-route code{font-size:.75rem}",
+    ".nthview-recap-alt{font-size:.6875rem;border:1px dashed var(--h-violet);color:var(--h-violet);border-radius:var(--sq-r1);padding:0 .3rem}",
+    ".nthview-recap-checks{margin:0 0 1rem;padding:0;list-style:none;display:grid;gap:.375rem;font-size:.9375rem}",
+    ".nthview-recap-checks li>span:first-child{font-weight:650}",
+    ".nthview-ok-t{color:var(--h-green);font-weight:700;white-space:nowrap}",
+    ".nthview-no-t{color:var(--h-red);font-weight:700;white-space:nowrap}",
+    ".nthview-actions{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.5rem}",
+    ".nthview-recap-inner{margin:.125rem 0 .25rem 1.75rem;padding:0 0 0 .75rem;border-left:2px solid var(--nv-border)}",
+    ".nthview-recap-glabel{font-size:.75rem;color:var(--h-teal);font-weight:750;padding:.75rem .5rem .125rem;letter-spacing:.04em;text-transform:uppercase}",
+    ".nthview-recap-ingroup{border-left:2px dashed var(--h-teal);margin-left:.5rem}",
+    ".nthview-recap-list .nthview-recap-open{display:inline-flex;width:auto;margin:.125rem 0 .5rem 3.25rem;font-size:.8125rem;min-height:32px;padding:.25rem .75rem;border:1px solid var(--nv-border);border-radius:99px;color:var(--nv-fg);background:var(--sq-panel);white-space:normal;text-align:left;max-width:calc(100% - 3.25rem)}",
     /* diagram */
-    ".nthview-dtools{display:flex;flex-wrap:wrap;align-items:center;gap:.45rem;margin:0 0 .5rem;padding:.4rem 0;position:sticky;top:0;z-index:5;background:var(--nv-bg)}",
-    ".nthview-dtools .nthview-zoomv{font-family:var(--sq-mono);font-size:.8rem;color:var(--nv-muted);min-width:3.2rem;text-align:center}",
+    ".nthview-dtools{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;margin:0 0 .75rem;padding:.5rem 0;position:sticky;top:var(--sq-bar-h);z-index:5;background:var(--nv-bg)}",
+    ".nthview-zoomg{display:inline-flex;align-items:center;border:1px solid var(--nv-border);border-radius:var(--sq-r2);background:var(--sq-panel);box-shadow:var(--sq-sh1);overflow:hidden}",
+    ".nthview-zoomg .nthview-tbtn{border:0;border-radius:0;box-shadow:none;min-width:40px;padding:.25rem .625rem;font-size:1rem}",
+    ".nthview-zoomg .nthview-tbtn+.nthview-tbtn,.nthview-zoomg .nthview-zoomv+.nthview-tbtn{border-left:1px solid var(--sq-line)}",
+    ".nthview-dtools .nthview-zoomv{font-size:.8125rem;font-variant-numeric:tabular-nums;color:var(--nv-muted);min-width:3.5rem;text-align:center;border-left:1px solid var(--sq-line);align-self:stretch;display:flex;align-items:center;justify-content:center}",
     ".nthview-dtools .nthview-spacer{flex:1}",
-    ".nthview-dpanel{background:var(--sq-panel);border:1px solid var(--nv-border);border-radius:.7rem;overflow:auto;max-height:75vh;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y}",
+    ".nthview-dtools .nthview-tostep{gap:.3em}",
+    ".nthview-dtools .nthview-expand[aria-pressed=true]{background:var(--nv-accent);border-color:var(--nv-accent);color:var(--sq-on-accent)}",
+    ".nthview-dwrap{position:relative;display:flex;gap:.5rem}",
+    ".nthview-dpanel{flex:1;min-width:0;background:var(--sq-panel);border:1px solid var(--nv-border);border-radius:var(--sq-r3);overflow:auto;max-height:75vh;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y;box-shadow:var(--sq-sh2)}",
     ".nthview-dpanel svg{display:block;margin:0 auto}",
+    ".nthview-dpanel svg.nthview-zooming{transition:width var(--sq-mid) var(--sq-ease),height var(--sq-mid) var(--sq-ease)}",
+    ".nthview-mini{position:relative;flex:none;width:14px;border-radius:99px;background:var(--sq-soft);border:1px solid var(--sq-line);cursor:pointer;max-height:75vh}",
+    ".nthview-mini i{position:absolute;left:50%;width:6px;height:2px;margin-left:-3px;border-radius:2px;background:var(--nv-muted);opacity:.6}",
+    ".nthview-mini i.nthview-cur{width:10px;height:4px;margin-left:-5px;margin-top:-1px;background:var(--nv-accent);opacity:1}",
+    ".nthview-mini b{position:absolute;left:1px;right:1px;border-radius:99px;border:1.5px solid var(--nv-accent);background:var(--sq-hi);opacity:.55;transition:top 80ms linear}",
+    ".nthview-dtip{position:absolute;z-index:6;pointer-events:none;max-width:20rem;padding:.5rem .75rem;border-radius:var(--sq-r2);background:var(--nv-fg);color:var(--nv-bg);font-size:.8125rem;line-height:1.4;box-shadow:var(--sq-sh3)}",
+    ".nthview-dtip b{display:block;font-weight:700}",
     ".nthview-dsvg text{font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;fill:var(--nv-fg)}",
     ".nthview-dsvg .nthview-mono{font-family:var(--sq-mono)}",
     ".nthview-dsvg .nthview-muted-t{fill:var(--nv-muted)}",
+    ".nthview-dsvg .nthview-band{transition:transform var(--sq-slow) var(--sq-ease)}",
     ".nthview-arrow{cursor:pointer}",
     ".nthview-sequence .nthview-arrow:focus,.nthview-sequence .nthview-arrow:focus-visible{outline:none}",
-    ".nthview-arrow .nthview-hit{fill:transparent;stroke:none}",
+    ".nthview-arrow .nthview-hit{fill:transparent;stroke:none;transition:fill var(--sq-fast) var(--sq-ease)}",
     ".nthview-arrow:hover .nthview-hit{fill:var(--sq-soft)}",
-    ".nthview-arrow:focus-visible .nthview-hit{stroke:var(--nv-accent);stroke-width:1.5;stroke-dasharray:4 3}",
-    ".nthview-arrow.nthview-cur .nthview-hit{fill:var(--sq-hi)}",
-    ".nthview-arrow.nthview-cur .nthview-line{stroke-width:3}",
-    ".nthview-arrow.nthview-cur .nthview-lbl{stroke:var(--nv-accent);stroke-width:1.5}",
-    ".nthview-dlegend{margin-top:.6rem;font-size:.8rem;color:var(--nv-muted)}",
-    ".nthview-dlegend p{margin:.35rem 0 0}",
-    ".nthview-kinds{display:flex;flex-wrap:wrap;gap:.35rem 1.1rem;margin:.45rem 0 0;padding:0;list-style:none}",
-    ".nthview-kinds li{display:flex;align-items:center;gap:.4rem}",
+    ".nthview-arrow:focus-visible .nthview-hit{stroke:var(--nv-accent);stroke-width:2;stroke-dasharray:5 4}",
+    ".nthview-arrow.nthview-cur .nthview-line{stroke-width:3.5}",
+    ".nthview-arrow.nthview-cur .nthview-lbl{stroke-width:2.5}",
+    ".nthview-dlegend{margin-top:1rem;font-size:.875rem;color:var(--nv-muted);display:grid;gap:.5rem}",
+    ".nthview-dlegend p{margin:0;max-width:80ch}",
+    ".nthview-dlegend .nthview-legend{font-size:.8125rem}",
+    ".nthview-kinds{display:flex;flex-wrap:wrap;gap:.375rem 1.25rem;margin:0;padding:0;list-style:none;font-size:.8125rem}",
+    ".nthview-kinds li{display:flex;align-items:center;gap:.5rem}",
     ".nthview-kinds svg{width:40px;height:12px;color:var(--nv-fg)}",
+    ".nthview-ref{cursor:pointer}",
+    ".nthview-sequence .nthview-ref:focus{outline:none}",
+    ".nthview-ref .nthview-ref-box{transition:filter var(--sq-fast) var(--sq-ease)}",
+    ".nthview-ref:hover .nthview-ref-box{filter:brightness(.96)}",
+    ".nthview-ref:focus-visible .nthview-ref-box,.nthview-ref.nthview-cur .nthview-ref-box{stroke-width:3}",
+    ".nthview-ref:focus-visible>path:first-child{opacity:.8}",
     /* glossary */
     ".nthview-term{border-bottom:1.5px dotted currentColor;cursor:help;text-decoration:none}",
     ".nthview-term:hover{color:var(--nv-accent)}",
-    ".nthview-pop{position:absolute;z-index:30;max-width:min(22rem,calc(100% - 24px));background:var(--sq-panel);color:var(--nv-fg);border:1px solid var(--nv-border);border-radius:.55rem;padding:.6rem .8rem;font-size:.88rem;box-shadow:0 8px 24px rgba(0,0,0,.18)}",
-    ".nthview-pop b{display:block;margin-bottom:.15rem}",
-    ".nthview-scrim{position:fixed;inset:0;background:rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .2s;z-index:40}",
+    ".nthview-pop{position:absolute;z-index:30;max-width:min(22rem,calc(100% - 24px));background:var(--sq-panel);color:var(--nv-fg);border:1px solid var(--nv-border);border-radius:var(--sq-r2);padding:.75rem 1rem;font-size:.9375rem;box-shadow:var(--sq-sh3);animation:nthview-fade-in var(--sq-mid) var(--sq-ease) both}",
+    ".nthview-pop b{display:block;margin-bottom:.25rem}",
+    ".nthview-scrim{position:fixed;inset:0;background:rgba(0,0,0,.38);opacity:0;pointer-events:none;transition:opacity var(--sq-mid) var(--sq-ease);z-index:40}",
     ".nthview-scrim.nthview-open{opacity:1;pointer-events:auto}",
-    ".nthview-drawer{position:fixed;top:0;right:0;bottom:0;width:min(24rem,92vw);background:var(--sq-panel);color:var(--nv-fg);border-left:1px solid var(--nv-border);z-index:41;transform:translateX(105%);transition:transform .25s ease;overflow:auto;padding:1rem 1.1rem 5.5rem;visibility:hidden}",
-    ".nthview-drawer.nthview-open{transform:none;visibility:visible}",
-    ".nthview-drawer-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem}",
-    ".nthview-drawer-head h2{margin:0;font-size:1.1rem;font-family:var(--sq-head)}",
-    ".nthview-gloss dt{font-weight:700;margin-top:.7rem}",
-    ".nthview-gloss dd{margin:.15rem 0 0;color:var(--nv-muted)}",
-    /* progress storage (§5.5): Restart control and resume notice */
-    ".nthview-resume{margin:0 0 .8rem;padding:.5rem .8rem;border-radius:.5rem;background:var(--sq-hi);border:1px solid var(--nv-accent);font-size:.88rem;transition:opacity .4s}",
-    ".nthview-resume.nthview-resume-hide{opacity:0}",
-    ".nthview-sequence [hidden]{display:none!important}",
-    /* inner sequences, groups and the breadcrumb */
-    ".nthview-crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem .6rem;margin:0 0 .8rem;padding:.55rem .75rem;background:var(--sq-panel);border:1px solid var(--nv-accent);border-left-width:4px;border-radius:.6rem;font-size:.86rem}",
-    ".nthview-crumbs ol{display:flex;flex-wrap:wrap;align-items:center;gap:.15rem;margin:0;padding:0;list-style:none;flex:1 1 16rem;min-width:0}",
-    ".nthview-crumbs li{display:flex;align-items:center;min-width:0;max-width:100%}",
-    ".nthview-crumbs li+li::before{content:'\\203A';color:var(--nv-muted);padding:0 .3rem;font-size:1.05rem}",
-    ".nthview-crumb{border:0;background:transparent;color:var(--nv-accent);padding:.2rem .35rem;border-radius:.35rem;cursor:pointer;text-decoration:underline;text-underline-offset:2px;max-width:17rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}",
-    ".nthview-crumb:hover{background:var(--sq-soft)}",
-    ".nthview-crumb-cur{font-weight:650;padding:.2rem .35rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}",
-    ".nthview-crumbs-info{flex-basis:100%;margin:0;color:var(--nv-muted);font-size:.84rem}",
-    ".nthview-innerbox{margin-top:.9rem;padding:.75rem .9rem;border:1px dashed var(--nv-accent);border-radius:.55rem;background:var(--sq-hi);display:flex;flex-wrap:wrap;gap:.6rem .9rem;align-items:center}",
-    ".nthview-innerbox p{margin:0;flex:1 1 14rem;font-size:.9rem}",
-    ".nthview-innerbox .nthview-nav{white-space:normal;text-align:left}",
-    ".nthview-lane .nthview-inside{display:inline-block;margin-top:.2rem;font-size:.68rem;font-weight:650;color:var(--nv-accent);border:1px solid var(--nv-accent);border-radius:.3rem;padding:0 .3rem;line-height:1.45}",
-    ".nthview-lane.nthview-lane-group{border:3px double var(--nv-muted)}",
-    ".nthview-lane.nthview-lane-group.nthview-on{border-color:var(--nv-accent)}",
-    ".nthview-grouprow{position:relative;display:grid;align-items:end}",
-    ".nthview-grouplabel{margin:0 .25rem .3rem;font-size:.7rem;font-weight:650;color:var(--nv-accent);text-align:center;border-bottom:2px solid var(--nv-accent);padding-bottom:.1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
-    ".nthview-chip.nthview-chip-group{border:2px dashed var(--h-teal);color:var(--h-teal);padding:0 .45rem;font-weight:600}",
-    ".nthview-chip.nthview-chip-group[aria-current=step]{background:var(--h-teal);border-color:var(--h-teal);color:var(--sq-panel)}",
-    ".nthview-chip.nthview-has-inner{box-shadow:inset 0 -3px 0 var(--nv-accent)}",
-    ".nthview-gcard{background:var(--sq-panel);border:2px dashed var(--h-teal);border-radius:.7rem;padding:1.1rem 1.2rem}",
-    ".nthview-gcard-label{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--h-teal);font-weight:700;margin:0 0 .2rem}",
-    ".nthview-gcard h2{font-family:var(--sq-head);font-size:1.22rem;line-height:1.3;margin:.1rem 0 .5rem;font-weight:650}",
-    ".nthview-gcard .nthview-route{margin-top:.7rem}",
-    ".nthview-ghead{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem .7rem;margin:0 0 .6rem;padding:.4rem .5rem .4rem .8rem;border:1px dashed var(--h-teal);border-radius:.55rem;background:var(--t-teal);font-size:.86rem}",
-    ".nthview-ghead b{color:var(--h-teal);text-transform:uppercase;letter-spacing:.08em;font-size:.72rem}",
-    ".nthview-ghead span{font-weight:600}",
-    ".nthview-ghead .nthview-ghead-n{font-weight:400;color:var(--nv-muted);font-size:.8rem}",
-    ".nthview-ghead .nthview-ghost{margin-left:auto;padding:.25rem .7rem;background:var(--sq-panel)}",
-    ".nthview-recap-inner{margin:.05rem 0 .2rem 1.3rem;padding:0 0 0 .5rem;border-left:2px solid var(--nv-accent)}",
-    ".nthview-recap-glabel{font-size:.76rem;color:var(--h-teal);font-weight:700;padding:.4rem .5rem 0;letter-spacing:.02em}",
-    ".nthview-recap-ingroup{border-left:2px dashed var(--h-teal);margin-left:.5rem}",
-    ".nthview-recap-list .nthview-recap-open{display:inline-block;width:auto;margin:.05rem 0 .35rem 1.8rem;font-size:.82rem;padding:.25rem .65rem;border:1px solid var(--nv-border);border-radius:.45rem;color:var(--nv-accent);background:var(--sq-panel)}",
-    ".nthview-dtools .nthview-expand[aria-pressed=true]{background:var(--nv-accent);border-color:var(--nv-accent);color:var(--sq-on-accent);font-weight:600}",
-    ".nthview-ref{cursor:pointer}",
-    ".nthview-sequence .nthview-ref:focus{outline:none}",
-    ".nthview-ref:hover .nthview-ref-box{filter:brightness(.97)}",
-    ".nthview-ref:focus-visible .nthview-ref-box,.nthview-ref.nthview-cur .nthview-ref-box{stroke-width:3}",
-    ".nthview-ref:focus-visible>path:first-child{opacity:.8}",
+    ".nthview-drawer{position:fixed;top:0;right:0;bottom:0;width:min(26rem,92vw);background:var(--sq-panel);color:var(--nv-fg);border-left:1px solid var(--nv-border);z-index:41;transform:translateX(105%);transition:transform var(--sq-slow) var(--sq-ease),visibility 0s linear var(--sq-slow);overflow:auto;padding:1.25rem 1.5rem 6rem;visibility:hidden;box-shadow:var(--sq-sh3)}",
+    ".nthview-drawer.nthview-open{transform:none;visibility:visible;transition:transform var(--sq-slow) var(--sq-ease),visibility 0s}",
+    ".nthview-drawer-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem}",
+    ".nthview-drawer-head h2{margin:0;font-size:1.25rem;font-family:var(--sq-head)}",
+    ".nthview-gloss dt{font-weight:700;margin-top:1rem}",
+    ".nthview-gloss dd{margin:.25rem 0 0;color:var(--nv-muted)}",
     /* small screens */
     "@media (max-width:700px){",
-    "  .nthview-sequence{--sq-lane-min:4.75rem;padding:.9rem .75rem 5.5rem;font-size:16px}",
-    "  .nthview-eyebrow{font-size:.78rem}",
-    "  .nthview-title{font-size:1.35rem}",
-    "  .nthview-toolbar{width:100%}",
-    "  .nthview-seg{flex:1 1 100%}",
-    "  .nthview-seg button{flex:1;padding:.55rem .5rem;font-size:.95rem}",
-    "  .nthview-toolbar>.nthview-tbtn,.nthview-toolbar>.nthview-restart{flex:1;min-height:44px;font-size:.95rem}",
-    "  .nthview-stage-in{padding:.55rem .35rem .3rem}",
-    "  .nthview-lane{margin:0 .12rem;padding:.4rem .2rem}",
-    "  .nthview-lane small{display:none}",
-    "  .nthview-lane b{font-size:.8rem;line-height:1.2;hyphens:auto}",
-    "  .nthview-zonelabel{font-size:.75rem;letter-spacing:0;text-transform:none;line-height:1.25;white-space:normal;overflow-wrap:break-word;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}",
-    "  .nthview-track{height:80px}",
-    "  .nthview-waiting{height:80px;font-size:.9rem}",
-    "  .nthview-payload{top:auto;bottom:30px;font-size:.8rem;line-height:1.3;white-space:normal;text-align:center;max-width:min(96%,14rem);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}",
-    "  .nthview-flight{top:56px}",
-    "  .nthview-packet{top:50px}",
-    "  .nthview-loop{top:40px}",
-    "  .nthview-stage-more{font-size:.85rem}",
-    "  .nthview-controls{flex-wrap:wrap}",
-    "  .nthview-chips{order:3;flex-basis:100%;gap:6px}",
-    "  .nthview-chip{min-width:38px;height:38px;font-size:.85rem}",
-    "  .nthview-controls .nthview-nav{flex:1;min-height:46px}",
-    "  .nthview-card,.nthview-check,.nthview-recap{padding:.9rem .85rem}",
-    "  .nthview-idx{font-size:.85rem}",
-    "  .nthview-badge{font-size:.82rem}",
-    "  .nthview-route{font-size:.92rem}",
-    "  .nthview-route code{font-size:.85rem}",
-    "  .nthview-frag{font-size:.88rem}",
-    "  .nthview-frag b{font-size:.8rem}",
-    "  .nthview-drow{grid-template-columns:1fr;gap:.1rem}",
-    "  .nthview-drow dt{font-size:.85rem}",
-    "  .nthview-drow dd{font-size:.95rem}",
-    "  .nthview-details summary{font-size:.95rem;min-height:44px}",
-    "  .nthview-wire{font-size:.82rem;padding:.6rem .65rem;white-space:pre;overflow-wrap:normal;overflow-x:auto}",
-    "  .nthview-holds h3,.nthview-recap h3{font-size:.82rem}",
-    "  .nthview-hgrid{grid-template-columns:repeat(auto-fit,minmax(min(100%,9rem),1fr))}",
-    "  .nthview-hcol h4{font-size:.9rem}",
-    "  .nthview-pill{font-size:.8rem;padding:.12rem .45rem}",
-    "  .nthview-none{font-size:.85rem}",
-    "  .nthview-toggle{font-size:.95rem;padding:.3rem 0}",
-    "  .nthview-toggle input{width:20px;height:20px}",
-    "  .nthview-hint,.nthview-legend,.nthview-dlegend{font-size:.88rem}",
-    "  .nthview-check-label{font-size:.78rem}",
-    "  .nthview-opt{flex-wrap:wrap;min-height:48px}",
-    "  .nthview-opt>span:not(.nthview-key):not(.nthview-opt-tag){flex:1 1 0;min-width:0}",
-    "  .nthview-opt .nthview-key{font-size:.82rem}",
-    "  .nthview-opt-tag{flex-basis:100%;text-align:right;font-size:.82rem}",
-    "  .nthview-ghost{min-height:44px;font-size:.95rem}",
-    "  .nthview-recap-n{font-size:.85rem}",
-    "  .nthview-recap-route{font-size:.88rem}",
-    "  .nthview-recap-route code{font-size:.82rem}",
-    "  .nthview-recap-alt{font-size:.78rem}",
-    "  .nthview-dtools .nthview-tbtn{min-width:44px;min-height:44px}",
-    "  .nthview-dtools .nthview-zoomv{font-size:.88rem;min-width:2.8rem}",
+    "  .nthview-sequence{--sq-lane-min:4.75rem;padding:1rem 1rem 6rem;font-size:16px}",
     "  .nthview-wide{display:none}",
-    "  .nthview-dpanel{max-height:calc(100vh - 6rem);max-height:calc(100svh - 6rem);overscroll-behavior:auto}",
-    "  .nthview-crumbs{font-size:.95rem;padding:.5rem .6rem}",
-    "  .nthview-crumb{min-height:40px;max-width:12rem}",
-    "  .nthview-crumbs .nthview-up{flex:1 1 100%;min-height:44px;font-size:.95rem}",
-    "  .nthview-crumbs-info{font-size:.9rem}",
-    "  .nthview-innerbox .nthview-nav{flex:1 1 100%;min-height:46px}",
-    "  .nthview-gcard{padding:.9rem .85rem}",
-    "  .nthview-ghead{font-size:.92rem}",
-    "  .nthview-ghead .nthview-ghost{min-height:40px}",
-    "  .nthview-lane .nthview-inside{font-size:.72rem}",
+    "  .nthview-narrow{display:inline}",
+    "  .nthview-head{margin-bottom:1rem}",
+    "  .nthview-eyebrow{font-size:.75rem}",
+    "  .nthview-title{font-size:1.5rem}",
+    "  .nthview-sub{font-size:1rem}",
+    "  .nthview-bar{margin-bottom:1rem;padding:.5rem 1rem}",
+    "  .nthview-bar-in{gap:.5rem}",
+    "  .nthview-seg{flex:1 1 auto}",
+    "  .nthview-seg button{flex:1;min-height:40px;padding:.25rem .5rem;font-size:.9375rem}",
+    "  .nthview-bar .nthview-tbtn,.nthview-bar .nthview-restart{min-height:44px;min-width:44px;font-size:.9375rem;padding:.25rem .75rem}",
+    "  .nthview-meter{order:3;flex-basis:100%}",
+    "  .nthview-meter-t{font-size:.8125rem}",
+    "  .nthview-stage-in{padding:.875rem .5rem 0}",
+    "  .nthview-lane{margin:0 .125rem}",
+    "  .nthview-lane .nthview-lane-ava{--ava:38px}",
+    "  .nthview-lane small{display:none}",
+    "  .nthview-lane b{font-size:.8125rem;line-height:1.2;hyphens:auto}",
+    "  .nthview-lane .nthview-inside{font-size:.75rem}",
+    "  .nthview-zonelabel{font-size:.75rem;letter-spacing:0;text-transform:none;line-height:1.25;white-space:normal;overflow-wrap:break-word;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}",
     "  .nthview-grouplabel{font-size:.75rem}",
-    "  .nthview-recap-inner{margin-left:.6rem}",
-    "  .nthview-recap-list .nthview-recap-open{margin-left:.8rem;min-height:40px}",
+    "  .nthview-track{height:100px}",
+    "  .nthview-waiting{height:100px;font-size:.9375rem}",
+    "  .nthview-payload{top:8px;font-size:.8125rem;white-space:normal;max-width:min(96%,15rem);line-height:1.3}",
+    "  .nthview-payload>span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}",
+    "  .nthview-flight{top:68px}",
+    "  .nthview-packet{top:62.5px}",
+    "  .nthview-loop{top:50px;height:30px}",
+    "  .nthview-stage-more{font-size:.875rem}",
+    "  .nthview-sfoot{padding:.625rem .75rem;font-size:.875rem;gap:.375rem .875rem}",
+    "  .nthview-sfoot .nthview-sep{display:none}",
+    "  .nthview-sfoot.nthview-has-cur li:not(.nthview-cur){display:none}",
+    "  .nthview-controls{flex-wrap:wrap;gap:.5rem}",
+    "  .nthview-chips{order:3;flex-basis:100%;gap:8px}",
+    "  .nthview-chip{min-width:44px;height:44px;font-size:.9375rem}",
+    "  .nthview-controls .nthview-nav{flex:1;min-height:48px;font-size:1rem}",
+    "  .nthview-card,.nthview-check,.nthview-recap,.nthview-gcard{padding:1.125rem 1rem;border-radius:var(--sq-r2)}",
+    "  .nthview-gcard{margin-right:12px}",
+    "  .nthview-cardhead{gap:.75rem}",
+    "  .nthview-stepno{min-width:2.25rem;height:2.25rem;font-size:.9375rem}",
+    "  .nthview-idx{font-size:.8125rem}",
+    "  .nthview-card h2,.nthview-check h2,.nthview-recap h2,.nthview-gcard h2{font-size:1.25rem}",
+    "  .nthview-badge{font-size:.8125rem}",
+    "  .nthview-route{font-size:1rem}",
+    "  .nthview-route code{font-size:.875rem}",
+    "  .nthview-frag{font-size:.875rem}",
+    "  .nthview-frag b{font-size:.8125rem}",
+    "  .nthview-wirehead{font-size:.8125rem;padding:.375rem .75rem}",
+    "  .nthview-wire{font-size:.8125rem;padding:.75rem;white-space:pre;overflow-wrap:normal;overflow-x:auto}",
+    "  .nthview-why{font-size:1rem}",
+    "  .nthview-callout{font-size:1rem;padding:.75rem .875rem}",
+    "  .nthview-callout h3{font-size:.875rem}",
+    "  .nthview-drow{grid-template-columns:1fr;gap:.125rem}",
+    "  .nthview-drow dt{font-size:.875rem}",
+    "  .nthview-drow dd{font-size:1rem}",
+    "  .nthview-details summary{font-size:1rem;min-height:48px}",
+    "  .nthview-details summary small{display:none}",
+    "  .nthview-holds h3,.nthview-recap h3{font-size:.8125rem}",
+    "  .nthview-hgrid{grid-template-columns:repeat(auto-fill,minmax(min(100%,9.5rem),1fr))}",
+    "  .nthview-hcard h4{font-size:.9375rem}",
+    "  .nthview-pill{font-size:.8125rem;padding:.125rem .5rem}",
+    "  .nthview-hdelta{font-size:.8125rem}",
+    "  .nthview-none{font-size:.875rem}",
+    "  .nthview-toggle{font-size:.9375rem;min-height:44px}",
+    "  .nthview-toggle input{width:20px;height:20px}",
+    "  .nthview-hint,.nthview-dlegend{font-size:.875rem}",
+    "  .nthview-legend,.nthview-kinds,.nthview-dlegend .nthview-legend{font-size:.875rem}",
+    "  .nthview-check-label{font-size:.8125rem}",
+    "  .nthview-opt{flex-wrap:wrap;min-height:56px;font-size:1rem}",
+    "  .nthview-opt>span:not(.nthview-key):not(.nthview-opt-tag):not(.nthview-ava){flex:1 1 0;min-width:0}",
+    "  .nthview-opt .nthview-opt-n small{font-size:.8125rem}",
+    "  .nthview-opt .nthview-key{font-size:.875rem}",
+    "  .nthview-opt-tag{flex-basis:100%;justify-content:flex-end;font-size:.8125rem}",
+    "  .nthview-ghost{min-height:44px;font-size:.9375rem}",
+    "  .nthview-gcard-label{font-size:.8125rem}",
+    "  .nthview-ghead{font-size:.9375rem}",
+    "  .nthview-ghead b{font-size:.75rem}",
+    "  .nthview-ghead .nthview-ghead-n{font-size:.875rem}",
+    "  .nthview-ghead .nthview-ghost{min-height:40px}",
+    "  .nthview-stat b{font-size:1.25rem}",
+    "  .nthview-stat span{font-size:.875rem}",
+    "  .nthview-stats{grid-template-columns:repeat(2,minmax(0,1fr))}",
+    "  .nthview-recap-n{font-size:.8125rem}",
+    "  .nthview-recap-route{font-size:.875rem}",
+    "  .nthview-recap-route code{font-size:.8125rem}",
+    "  .nthview-recap-alt{font-size:.75rem}",
+    "  .nthview-recap-inner{margin-left:.75rem}",
+    "  .nthview-recap-list .nthview-recap-open{margin-left:.75rem;min-height:44px;font-size:.875rem;max-width:calc(100% - .75rem)}",
+    "  .nthview-dtools .nthview-tbtn,.nthview-zoomg .nthview-tbtn{min-width:44px;min-height:44px}",
+    "  .nthview-dtools .nthview-zoomv{font-size:.875rem;min-width:3rem}",
+    "  .nthview-dpanel{max-height:calc(100vh - 9rem);max-height:calc(100svh - 9rem);overscroll-behavior:auto}",
+    "  .nthview-mini{width:10px;max-height:calc(100svh - 9rem)}",
+    "  .nthview-crumbs{font-size:.9375rem;padding:.625rem}",
+    "  .nthview-crumb,.nthview-crumb-cur{min-height:40px;max-width:13rem}",
+    "  .nthview-crumbs .nthview-up{flex:1 1 100%;min-height:44px;font-size:.9375rem}",
+    "  .nthview-crumbs-info{font-size:.9375rem}",
+    "  .nthview-innerbox .nthview-nav{flex:1 1 100%;min-height:48px}",
+    "  .nthview-pop{font-size:1rem}",
+    "  .nthview-drawer{top:auto;left:0;width:auto;max-height:82vh;max-height:82svh;border-left:0;border-top:1px solid var(--nv-border);border-radius:var(--sq-r3) var(--sq-r3) 0 0;transform:translateY(105%);padding:1rem 1.25rem 6rem}",
+    "  .nthview-drawer::before{content:'';display:block;width:40px;height:4px;border-radius:99px;background:var(--nv-border);margin:0 auto .75rem}",
+    "  .nthview-gloss dd{font-size:1rem}",
     "}",
     "@media (prefers-reduced-motion:reduce){",
     "  .nthview-sequence *,.nthview-sequence *::before,.nthview-sequence *::after{transition:none!important;animation:none!important}",
@@ -1858,9 +2024,31 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       info: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 11v5M12 8h.01",
       warning: "M12 3.5 2.8 19.5h18.4L12 3.5zM12 10v4.5M12 17h.01",
       danger: "M8.2 3h7.6L21 8.2v7.6L15.8 21H8.2L3 15.8V8.2L8.2 3zM12 8v5M12 16h.01",
-      close: "M6 6l12 12M18 6 6 18"
+      close: "M6 6l12 12M18 6 6 18",
+      check: "M5 12.5 10 17.5 19 7",
+      cross: "M7 7l10 10M17 7 7 17",
+      predict: "M9.2 9.3a2.9 2.9 0 1 1 4.3 2.5c-.9.5-1.5 1.2-1.5 2.2v.4M12 17.6h.01M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z",
+      history: "M3.5 12a8.5 8.5 0 1 0 2.6-6.1M3.5 4v4.2h4.2M12 7.5V12l3 2",
+      layers: "M12 3 2.5 8 12 13l9.5-5L12 3zM2.5 12.5 12 17.5l9.5-5M2.5 16.5 12 21.5l9.5-5",
+      home: "M4 11 12 4l8 7M6.5 9.5V20h11V9.5",
+      back: "M15 5l-7 7 7 7",
+      book: "M4.5 5.5A2.5 2.5 0 0 1 7 3h12.5v15H7a2.5 2.5 0 0 0-2.5 2.5v-15zM4.5 20.5A2.5 2.5 0 0 0 7 23h12.5",
+      chev: "M9 5l7 7-7 7",
+      folder: "M3.5 6.5A1.5 1.5 0 0 1 5 5h4.5l2 2.5H19a1.5 1.5 0 0 1 1.5 1.5v8.5A1.5 1.5 0 0 1 19 19H5a1.5 1.5 0 0 1-1.5-1.5v-11z"
     };
-    return sv("svg", { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", "stroke-width": "2", "stroke-linecap": "round", "stroke-linejoin": "round", "aria-hidden": "true", focusable: "false" }, [sv("path", { d: paths[name] })]);
+    return sv("svg", { class: "nthview-i", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", "stroke-width": "2", "stroke-linecap": "round", "stroke-linejoin": "round", "aria-hidden": "true", focusable: "false" }, [sv("path", { d: paths[name] })]);
+  }
+  /* the arrow kind as a tiny line sample, for legends and badges */
+  function kindSample(k) {
+    var s = sv("svg", { viewBox: "0 0 40 12", "aria-hidden": "true", focusable: "false" });
+    if (k === "self") {
+      s.appendChild(sv("path", { d: "M6 3h18a3.5 3.5 0 0 1 0 7H12", fill: "none", stroke: "currentColor", "stroke-width": 2 }));
+      s.appendChild(sv("path", { d: "M14 7 9.5 10 14 12.5", fill: "none", stroke: "currentColor", "stroke-width": 1.6 }));
+      return s;
+    }
+    s.appendChild(sv("line", { x1: 2, y1: 6, x2: 34, y2: 6, stroke: "currentColor", "stroke-width": 2, "stroke-dasharray": k === "return" ? "5 4" : "none" }));
+    s.appendChild(k === "sync" ? sv("path", { d: "M30 1.5 39 6 30 10.5z", fill: "currentColor" }) : sv("path", { d: "M31 1.5 39 6 31 10.5", fill: "none", stroke: "currentColor", "stroke-width": 2 }));
+    return s;
   }
   /* arrowheads drawn in a 12x12 box pointing right */
   function headTip(kind) {
@@ -1984,7 +2172,30 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       Lv.S.forEach(function (s) { used[s.channel] = true; });
       Lv.channelsUsed = Object.keys(Lv.C).filter(function (c) { return used[c]; }).map(function (c) { return Lv.C[c]; });
     });
-    return { ROOT: ROOT, LEVELS: LEVELS, PMAP: PMAP, GLOSS: GLOSS, RANK: RANK, PARENT: PARENT, byRank: byRank };
+    /* Colour identity: one hue per party for the whole document, so a party keeps its colour at every
+       level. Greedy over who is drawn together: parties sharing a level's lanes weigh 10, parties that
+       meet only in an expanded diagram weigh 1; ties go to the least used hue, then document order. */
+    var COLOR = {}, near = {}, uses = [];
+    for (var u = 0; u < NIDENT; u++) uses.push(0);
+    function addW(a, b, w) { if (a === b) return; near[a] = near[a] || {}; near[a][b] = Math.max(near[a][b] || 0, w); }
+    Object.keys(LEVELS).forEach(function (k) {
+      var Lv = LEVELS[k], all = {};
+      Lv.lanes.forEach(function (a) { Lv.lanes.forEach(function (b) { addW(a, b, 10); }); });
+      (function walk(x) { x.lanes.forEach(function (id) { all[id] = true; }); x.S.forEach(function (s, i) { if (s.inner) walk(LEVELS[x.key ? x.key + "." + i : String(i)]); }); })(Lv);
+      var al = Object.keys(all);
+      al.forEach(function (a) { al.forEach(function (b) { addW(a, b, 1); }); });
+    });
+    Object.keys(PMAP).sort(byRank).forEach(function (id) {
+      var best = 0, bestScore = Infinity;
+      for (var c = 0; c < NIDENT; c++) {
+        var score = 0;
+        Object.keys(near[id] || {}).forEach(function (o) { if (COLOR[o] === c) score += near[id][o]; });
+        score = score * 1000 + uses[c];
+        if (score < bestScore) { bestScore = score; best = c; }
+      }
+      COLOR[id] = best; uses[best]++;
+    });
+    return { ROOT: ROOT, LEVELS: LEVELS, PMAP: PMAP, GLOSS: GLOSS, RANK: RANK, PARENT: PARENT, byRank: byRank, COLOR: COLOR };
   }
 
   function render(container, data) {
@@ -1997,7 +2208,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     var anyCompare = levelKeys.some(function (k) { return LEVELS[k].S.some(function (s) { return !!s.compare; }); });
     var anyFold = innerCount > 0 || levelKeys.some(function (k) { return (LEVELS[k].seq.fragments || []).some(function (f) { return f.kind === "group"; }); });
     var key = storageKey(data);
-    var state = { path: [], step: 0, mode: "step", zoom: "fit", expand: false, compare: false, details: false, checks: {}, groups: {}, summarySeen: false, recapSeen: {} };
+    var state = { path: [], step: 0, mode: "step", zoom: "fit", expand: false, compare: false, details: false, checks: {}, groups: {}, summarySeen: false, recapSeen: {}, seen: {}, holdsChanged: false };
     /* the level being shown, and shortcuts into it */
     var L, S, N, C, FRAG, HOLDS, holders;
     function useLevel() {
@@ -2073,10 +2284,10 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     }
 
     /* ---------- progress (§5.5) ---------- */
-    function untouched() { return !state.path.length && state.step === 0 && state.mode === "step" && !Object.keys(state.checks).length && !Object.keys(state.groups).length && !state.compare && !state.details && !state.expand && state.zoom === "fit"; }
+    function untouched() { return !state.path.length && state.step === 0 && state.mode === "step" && !Object.keys(state.checks).length && !Object.keys(state.groups).length && !state.compare && !state.details && !state.expand && !state.holdsChanged && state.zoom === "fit" && Object.keys(state.seen).every(function (k) { return k === "0"; }); }
     function persist() {
       if (untouched()) { clearState(key); return; }
-      saveState(key, { path: state.path.slice(), step: state.step, mode: state.mode, zoom: state.zoom, expand: state.expand, compare: state.compare, details: state.details, checks: state.checks, groups: state.groups, summarySeen: state.summarySeen, recapSeen: state.recapSeen });
+      saveState(key, { path: state.path.slice(), step: state.step, mode: state.mode, zoom: state.zoom, expand: state.expand, compare: state.compare, details: state.details, checks: state.checks, groups: state.groups, summarySeen: state.summarySeen, recapSeen: state.recapSeen, seen: state.seen, holdsChanged: state.holdsChanged });
     }
     function resumeNotice(text) {
       var n = el("div", { class: "nthview-resume", role: "status" }, [el("span", { text: text })]);
@@ -2118,26 +2329,42 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     /* ---------- header ---------- */
     var status = el("div", { class: "nthview-sr", "aria-live": "polite" });
     var RN = M.ROOT.N;
-    var headText = el("div", { class: "nthview-head-text" }, [el("p", { class: "nthview-eyebrow", text: "Sequence · " + RN + " steps · " + M.ROOT.lanes.length + " parties" + (innerCount ? " · " + innerCount + " inner sequence" + (innerCount > 1 ? "s" : "") : "") }), el("h1", { class: "nthview-title", text: data.title })]);
+    var eyebrow = el("p", { class: "nthview-eyebrow" }, [el("span", { text: "Sequence" }), el("span", { text: RN + " steps" }), el("span", { text: M.ROOT.lanes.length + " parties" })]);
+    if (innerCount) eyebrow.appendChild(el("span", { text: innerCount + " inner sequence" + (innerCount > 1 ? "s" : "") }));
+    var headText = el("div", { class: "nthview-head-text" }, [eyebrow, el("h1", { class: "nthview-title", text: data.title })]);
     if (data.subtitle) headText.appendChild(para("nthview-sub", data.subtitle));
-    var bStep = el("button", { type: "button", "aria-pressed": "true", text: "Step by step" });
-    var bDiag = el("button", { type: "button", "aria-pressed": "false", text: "Full diagram" });
+    function modeBtn(wide, narrow, pressed) { return el("button", { type: "button", "aria-pressed": pressed, "aria-label": wide }, [el("span", { class: "nthview-wide", text: wide }), el("span", { class: "nthview-narrow", "aria-hidden": "true", text: narrow })]); }
+    var bStep = modeBtn("Step by step", "Steps", "true");
+    var bDiag = modeBtn("Full diagram", "Diagram", "false");
     bStep.addEventListener("click", function () { setMode("step", true); });
     bDiag.addEventListener("click", function () { setMode("diagram", true); });
-    var toolbar = el("div", { class: "nthview-toolbar" }, [el("div", { class: "nthview-seg", role: "group", "aria-label": "View mode" }, [bStep, bDiag])]);
-    var glossBtn = null;
-    if (Object.keys(GLOSS).length) {
-      glossBtn = el("button", { type: "button", class: "nthview-tbtn", "aria-expanded": "false", text: "Glossary" });
-      toolbar.appendChild(glossBtn);
-    }
-    toolbar.appendChild(restartButton(container, data, key));
-    var header = el("header", { class: "nthview-head" }, [headText, toolbar]);
     var progBar = el("span");
     var prog = el("div", { class: "nthview-progress", role: "progressbar", "aria-label": "Progress through the sequence", "aria-valuemin": "0", "aria-valuemax": String(N) }, [progBar]);
+    var meterT = el("span", { class: "nthview-meter-t" });
+    var barIn = el("div", { class: "nthview-bar-in" }, [el("div", { class: "nthview-seg", role: "group", "aria-label": "View mode" }, [bStep, bDiag]), el("div", { class: "nthview-meter" }, [prog, meterT])]);
+    var glossBtn = null;
+    if (Object.keys(GLOSS).length) {
+      glossBtn = el("button", { type: "button", class: "nthview-tbtn", "aria-expanded": "false", "aria-label": "Glossary" }, [icon("book"), el("span", { class: "nthview-wide", text: "Glossary" })]);
+      barIn.appendChild(glossBtn);
+    }
+    barIn.appendChild(restartButton(container, data, key));
+    var header = el("header", { class: "nthview-head" }, [headText]);
+    var bar = el("div", { class: "nthview-bar" }, [barIn]);
     container.appendChild(header);
+    container.appendChild(bar);
     var resumeSlot = el("div");
     container.appendChild(resumeSlot);
-    container.appendChild(prog);
+    /* "Step 3 of 10 · about 4 min left": about half a minute per remaining step */
+    function setMeter(i) {
+      meterT.textContent = "";
+      var done = i >= N, left = Math.max(0, N - i), mins = Math.round(left * 0.5);
+      meterT.appendChild(el("b", { text: done ? "Recap" : (L.depth ? "Step " + numLabel(L, i) : "Step " + (i + 1)) + " of " + N }));
+      meterT.appendChild(doc.createTextNode(done ? " · all " + N + " steps seen" + (L.depth ? " here" : "") : " · " + (left <= 1 ? "almost done" : mins < 1 ? "under a minute left" : "about " + mins + " min left")));
+      progBar.style.width = Math.round(Math.min(i + 1, N) / N * 100) + "%";
+      prog.setAttribute("aria-valuenow", String(Math.min(i + 1, N)));
+      prog.setAttribute("aria-valuetext", meterT.textContent);
+    }
+    function measureBar() { container.style.setProperty("--sq-bar-h", bar.offsetHeight + "px"); }
     var touchFirst = !!(root.matchMedia && root.matchMedia("(hover: none) and (pointer: coarse)").matches);
 
     /* ---------- breadcrumb: where the learner is in the tree ---------- */
@@ -2151,20 +2378,40 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       for (x = L; x; x = x.parent) chain.unshift(x);
       var ol = el("ol");
       chain.forEach(function (lv, k) {
-        var label = k === 0 ? "Main" : numLabel(lv.parent, lv.parentIdx) + " " + clip(parentStep(lv).title, 34);
-        var full = k === 0 ? "The main sequence" : "Step " + numLabel(lv.parent, lv.parentIdx) + ": " + parentStep(lv).title;
-        if (k === chain.length - 1) { ol.appendChild(el("li", {}, [el("span", { class: "nthview-crumb-cur", "aria-current": "location", title: full, text: label })])); return; }
-        var b = el("button", { type: "button", class: "nthview-crumb", title: "Go to " + full, text: label }), target = chain[k + 1];
+        var num = k === 0 ? "" : numLabel(lv.parent, lv.parentIdx);
+        var full = k === 0 ? "The main sequence" : "Step " + num + ": " + parentStep(lv).title;
+        function label(node) {
+          if (k === 0) { node.appendChild(icon("home")); node.appendChild(el("span", { text: "Main" })); return node; }
+          node.appendChild(el("span", { class: "nthview-crumb-n", text: num }));
+          node.appendChild(el("span", { text: clip(parentStep(lv).title, 34) }));
+          return node;
+        }
+        if (k === chain.length - 1) { ol.appendChild(el("li", {}, [label(el("span", { class: "nthview-crumb-cur", "aria-current": "location", title: full }))])); return; }
+        var b = label(el("button", { type: "button", class: "nthview-crumb", title: "Go to " + full, "aria-label": "Go to " + full })), target = chain[k + 1];
         b.addEventListener("click", function () { gotoLevel(lv.path, target.parentIdx, { reveal: true }); });
         ol.appendChild(el("li", {}, [b]));
       });
-      var up = el("button", { type: "button", class: "nthview-tbtn nthview-up", text: "Back to step " + numLabel(L.parent, L.parentIdx) });
+      var up = el("button", { type: "button", class: "nthview-tbtn nthview-up" }, [icon("back"), el("span", { text: "Back to step " + numLabel(L.parent, L.parentIdx) })]);
       up.addEventListener("click", upLevel);
       crumbs.appendChild(ol);
       crumbs.appendChild(up);
       crumbs.appendChild(el("p", { class: "nthview-crumbs-info", text: "Inside step " + numLabel(L.parent, L.parentIdx) + ": how it is carried out, " + N + " steps between " + L.lanes.length + " parties." + (touchFirst ? "" : " Escape or Backspace goes back up.") }));
       if (L.seq.subtitle) crumbs.appendChild(para("nthview-crumbs-info", L.seq.subtitle));
     }
+
+    /* ---------- party identity: avatars in the party's colour ---------- */
+    function paint(n, id) { var c = M.COLOR[id]; n.style.setProperty("--pc", "var(--p" + c + ")"); n.style.setProperty("--pq", "var(--q" + c + ")"); return n; }
+    function avatar(id, size) {
+      var a = el("span", { class: "nthview-ava" + (size ? " nthview-ava-" + size : "") + (PMAP[id].isGroup ? " nthview-ava-grp" : ""), "aria-hidden": "true" }, [glyph(kindOf(id))]);
+      return paint(a, id);
+    }
+    function memberStack(id, max) {
+      var p = pOf(id), st = el("span", { class: "nthview-stack", "aria-hidden": "true" });
+      p.members.slice(0, max).forEach(function (m) { st.appendChild(avatar(m.id)); });
+      if (p.members.length > max) st.appendChild(el("span", { class: "nthview-more", text: "+" + (p.members.length - max) }));
+      return st;
+    }
+    function who(id) { return el("b", {}, [avatar(id, "sm"), el("span", { text: nameOf(id) })]); }
 
     /* ---------- step mode: stage, rebuilt for each level ---------- */
     var stage = el("div", { class: "nthview-stage" });
@@ -2180,7 +2427,9 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     var waiting = el("div", { class: "nthview-waiting" });
     /* the waiting note sits over the track but outside the scroller, so it stays in view however far the lanes scroll */
     stage.appendChild(waiting); stage.appendChild(stageMore);
-    var laneEls = [], track = null, nLanes = 0, stageKey = null;
+    var sfoot = el("div", { class: "nthview-sfoot" });
+    stage.appendChild(sfoot);
+    var laneEls = [], railEls = [], track = null, nLanes = 0, stageKey = null;
     function buildStage() {
       stageKey = L.key;
       stageIn.textContent = "";
@@ -2220,15 +2469,19 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       var lanes = el("div", { class: "nthview-lanes" }); lanes.style.gridTemplateColumns = cols;
       laneEls = ids.map(function (id) {
         var p = pOf(id), grp = PMAP[id].isGroup;
-        var l = el("div", { class: "nthview-lane" + (grp ? " nthview-lane-group" : ""), title: p.name + (p.role ? " — " + p.role : "") + (grp ? " (" + p.members.length + " parties inside)" : "") }, [glyph(kindOf(id)), el("b", { text: p.name })]);
+        var tag = el("span", { class: "nthview-lane-tag", "aria-hidden": "true" });
+        var la = avatar(id); la.classList.add("nthview-lane-ava"); la.appendChild(tag);
+        var l = el("div", { class: "nthview-lane" + (grp ? " nthview-lane-group" : ""), title: p.name + (p.role ? " — " + p.role : "") + (grp ? " (" + p.members.length + " parties inside)" : "") }, [la, el("b", { text: p.name })]);
+        paint(l, id);
         if (p.role) l.appendChild(el("small", { text: p.role }));
-        if (grp) l.appendChild(el("span", { class: "nthview-inside", text: p.members.length + " inside" }));
+        if (grp) { l.appendChild(memberStack(id, 4)); l.appendChild(el("span", { class: "nthview-inside", text: p.members.length + " inside" })); }
+        l.__tag = tag;
         lanes.appendChild(l); return l;
       });
       stageIn.appendChild(lanes);
       track = el("div", { class: "nthview-track", "aria-hidden": "true" });
       var rails = el("div", { class: "nthview-rails" }); rails.style.gridTemplateColumns = cols;
-      ids.forEach(function () { rails.appendChild(el("div", { class: "nthview-rail" })); });
+      railEls = ids.map(function (id) { var r = paint(el("div", { class: "nthview-rail" }), id); rails.appendChild(r); return r; });
       track.appendChild(rails);
       [flight, packet, loop, payload].forEach(function (n) { track.appendChild(n); });
       stageIn.appendChild(track);
@@ -2276,29 +2529,38 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     var chipsSig = null;
     function buildChips() {
       var us = unitsOf(L, false), sig = L.key + "|" + us.map(function (u) { return u.start + "-" + u.end; }).join(",");
-      if (sig === chipsSig) {
-        chips.forEach(function (c) { if (!c.u.g && c.u.start < N && S[c.u.start].check) c.node.classList.toggle("nthview-check-done", !!state.checks[ckey(L, c.u.start)]); });
-        return;
-      }
+      if (sig === chipsSig) { refreshChips(); return; }
       chipsSig = sig;
       chipsBox.textContent = ""; chips = [];
       us.forEach(function (u) {
         var c;
         if (u.g) {
           var a = u.start + 1, b = u.end + 1;
-          c = el("button", { type: "button", class: "nthview-chip nthview-chip-group", text: a + "–" + b, "aria-label": "Steps " + a + " to " + b + ": " + u.g.label + " (collapsed group)" });
+          c = el("button", { type: "button", class: "nthview-chip nthview-chip-group", text: a + "–" + b, title: "Steps " + a + "–" + b + ": " + u.g.label, "aria-label": "Steps " + a + " to " + b + ": " + u.g.label + " (collapsed group)" });
         } else {
           var i = u.start, s = S[i];
           var inAltSide = FRAG[i].some(function (x) { return x.f.kind === "alt" && x.branch > 0; });
           c = el("button", { type: "button", class: "nthview-chip" + (s.check ? " nthview-has-check" : "") + (inAltSide ? " nthview-alt-chip" : "") + (s.inner ? " nthview-has-inner" : ""), text: String(i + 1), "aria-label": "Step " + (i + 1) + ": " + s.title + (inAltSide ? " (alternative path)" : "") + (s.check ? " (has a check)" : "") + (s.inner ? " (has an inner sequence)" : "") });
-          if (s.check) c.classList.toggle("nthview-check-done", !!state.checks[ckey(L, i)]);
+          c.title = (i + 1) + ". " + s.title + (s.check ? (state.checks[ckey(L, i)] ? " · check answered" : " · check first") : "") + (s.inner ? " · opens an inner sequence" : "");
         }
         c.addEventListener("click", function () { go(u.start); });
         chipsBox.appendChild(c); chips.push({ node: c, u: u });
       });
       var endChip = el("button", { type: "button", class: "nthview-chip", text: "End", "aria-label": L.depth ? "Recap of this inner sequence" : "Recap of the whole sequence" });
       endChip.addEventListener("click", function () { go(N); });
+      endChip.title = L.depth ? "Recap of this inner sequence" : "Recap of the whole sequence";
       chipsBox.appendChild(endChip); chips.push({ node: endChip, u: { start: N, end: N } });
+      refreshChips();
+    }
+    /* read, unread and check states on the chip rail */
+    function refreshChips() {
+      chips.forEach(function (c) {
+        var u = c.u, seen = false;
+        if (u.start >= N) seen = L.depth ? !!state.recapSeen[L.key] : state.summarySeen;
+        else for (var j = u.start; j <= u.end; j++) if (state.seen[ckey(L, j)]) seen = true;
+        c.node.classList.toggle("nthview-seen", seen);
+        if (!u.g && u.start < N && S[u.start].check) c.node.classList.toggle("nthview-check-done", !!state.checks[ckey(L, u.start)]);
+      });
     }
     function chipNodes() { return chips.map(function (c) { return c.node; }); }
     back.addEventListener("click", function () { if (state.step > 0) go(state.step - 1); });
@@ -2317,11 +2579,10 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       cmpBox.addEventListener("change", function () { state.compare = cmpBox.checked; persist(); renderStep(false); });
       cmpToggle = el("label", { class: "nthview-toggle" }, [cmpBox, el("span", { text: data.compareLabel || "Show the comparison" })]);
     }
-    var hint = el("p", { class: "nthview-hint", text: (touchFirst ? "Tap Next or a step number to move. " : "Arrow keys step through, Home and End jump" + (innerCount ? ", Escape or Backspace leaves an inner sequence" : "") + ". ") + "The colour of an arrow is its channel; a dashed arrow is a reply." });
-    var legendSlot = el("div");
-    var stepMode = el("section", { class: "nthview-stepmode", "aria-label": "Step by step" }, [stage, controls, cardSlot]);
-    if (cmpToggle) stepMode.appendChild(cmpToggle);
-    stepMode.appendChild(legendSlot);
+    var hint = el("p", { class: "nthview-hint", text: (touchFirst ? "Tap Next or a step number to move. " : "Arrow keys step through, Home and End jump" + (innerCount ? ", Escape or Backspace leaves an inner sequence" : "") + ". ") + "Each party keeps its colour everywhere; the colour of an arrow is its channel, and a dashed arrow is a reply." });
+    var stepMode = el("section", { class: "nthview-stepmode", "aria-label": "Step by step" }, [stage, controls]);
+    if (cmpToggle) { cmpToggle.classList.add("nthview-toggle-row"); stepMode.appendChild(cmpToggle); }
+    stepMode.appendChild(cardSlot);
     stepMode.appendChild(hint);
     container.appendChild(stepMode);
 
@@ -2329,28 +2590,59 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       var ul = el("ul", { class: "nthview-legend", "aria-label": "Channels" });
       list.forEach(function (c) {
         var li = el("li", { title: c.description || c.name }, [el("i"), el("span", { text: c.name })]);
-        li.querySelector("i").style.color = hue(c.color);
+        li.style.color = hue(c.color); li.__ch = c.id;
         ul.appendChild(li);
       });
       return ul;
     }
+    function kindLegend(list) {
+      var ul = el("ul", { class: "nthview-legend nthview-kindleg", "aria-label": "Arrow kinds" });
+      list.forEach(function (k) { var li = el("li", {}, [kindSample(k), el("span", { text: KIND_NAMES[k] })]); li.__k = k; ul.appendChild(li); });
+      return ul;
+    }
+    var legCh = null, legK = null;
     function setupLevel() {
       buildCrumbs();
       if (stageKey !== L.key) buildStage();
-      legendSlot.textContent = "";
-      legendSlot.appendChild(channelLegend(L.depth ? L.channelsUsed : data.channels));
+      sfoot.textContent = "";
+      var kinds = {};
+      S.forEach(function (s) { kinds[stepKind(s)] = true; });
+      legCh = channelLegend(L.depth ? L.channelsUsed : data.channels);
+      legK = kindLegend(["sync", "async", "return", "self"].filter(function (k) { return kinds[k]; }));
+      sfoot.appendChild(legCh); sfoot.appendChild(el("span", { class: "nthview-sep", "aria-hidden": "true" })); sfoot.appendChild(legK);
       prog.setAttribute("aria-valuemax", String(N));
+    }
+    function markLegend(s) {
+      if (!legCh) return;
+      Array.prototype.forEach.call(legCh.childNodes, function (li) { li.classList.toggle("nthview-cur", !!s && li.__ch === s.channel); });
+      Array.prototype.forEach.call(legK.childNodes, function (li) { li.classList.toggle("nthview-cur", !!s && li.__k === stepKind(s)); });
+      sfoot.classList.toggle("nthview-has-cur", !!s);
     }
 
     /* ---------- step mode: flight ---------- */
     function laneX(i) { return (i + 0.5) / nLanes * 100; }
+    var arriveT = 0;
     function showFlight(s, animate) {
-      var k = stepKind(s), color = hue(chColor(s));
+      var k = stepKind(s), color = hue(chColor(s)), idx = S.indexOf(s);
       var a = L.laneOf(s.from), b = L.laneOf(s.to);
       [flight, packet, loop, payload].forEach(function (n) { n.style.color = color; });
       waiting.hidden = true;
-      payload.textContent = s.payload; payload.hidden = false;
-      laneEls.forEach(function (l, i) { l.classList.toggle("nthview-on", i === a || i === b); l.classList.toggle("nthview-sender", i === a); });
+      stage.classList.add("nthview-live");
+      payload.textContent = "";
+      payload.appendChild(el("b", {}, [el("span", { text: numLabel(L, idx) })]));
+      payload.appendChild(el("span", { text: s.payload }));
+      payload.hidden = false;
+      payload.classList.remove("nthview-in");
+      if (animate && !reduceMotion) { void payload.offsetWidth; payload.classList.add("nthview-in"); }
+      laneEls.forEach(function (l, j) {
+        var on = j === a || j === b;
+        l.classList.toggle("nthview-on", on); l.classList.toggle("nthview-sender", j === a); l.classList.remove("nthview-arrive");
+        l.__tag.textContent = !on ? "" : a === b ? "on its own" : j === a ? "sends" : "receives";
+      });
+      railEls.forEach(function (r, j) { r.classList.toggle("nthview-on", j === a || j === b); });
+      markLegend(s);
+      clearTimeout(arriveT);
+      if (animate && !reduceMotion && a !== b) arriveT = setTimeout(function () { var l = laneEls[b]; if (l) { l.classList.add("nthview-arrive"); arriveT = setTimeout(function () { l.classList.remove("nthview-arrive"); }, 360); } }, 380);
       if (k === "self" || a === b) {
         flight.hidden = true; packet.classList.remove("nthview-go"); packet.hidden = true;
         loop.hidden = false; loop.textContent = ""; loop.appendChild(headTip("sync"));
@@ -2373,7 +2665,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         flight.style.transition = ""; packet.style.transition = "";
         return;
       }
-      /* grow from the sender to the receiver; the packet rides along */
+      /* grow from the sender to the receiver in 400 ms; the packet rides the tip, then fades */
       flight.style.transition = "none"; packet.style.transition = "none";
       flight.style.left = laneX(a) + "%"; flight.style.width = "0%";
       packet.style.left = laneX(a) + "%"; packet.classList.add("nthview-go");
@@ -2382,7 +2674,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       setTimeout(function () {
         flight.style.left = laneX(lo) + "%"; flight.style.width = (laneX(hi) - laneX(lo)) + "%";
         packet.style.left = laneX(b) + "%";
-        setTimeout(function () { packet.classList.remove("nthview-go"); }, 700);
+        setTimeout(function () { packet.classList.remove("nthview-go"); }, 430);
       }, 20);
     }
     var lastLabel = null;
@@ -2398,7 +2690,10 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     function hideFlight() {
       lastLabel = null;
       flight.hidden = true; packet.hidden = true; loop.hidden = true; payload.hidden = true;
-      laneEls.forEach(function (l) { l.classList.remove("nthview-on", "nthview-sender"); });
+      stage.classList.remove("nthview-live");
+      laneEls.forEach(function (l) { l.classList.remove("nthview-on", "nthview-sender", "nthview-arrive"); l.__tag.textContent = ""; });
+      railEls.forEach(function (r) { r.classList.remove("nthview-on"); });
+      markLegend(null);
     }
 
     /* ---------- the step card ---------- */
@@ -2407,49 +2702,93 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       if (c) { b.style.background = tint(c); b.style.color = hue(c); }
       return b;
     }
-    function holdsStrip(i, atEnd) {
-      var box = el("div", { class: "nthview-holds" }, [el("h3", { text: atEnd ? (L.depth ? "Where everyone ends up in this inner sequence" : "Where everyone ends up") : "What each party holds now" })]);
-      var grid = el("div", { class: "nthview-hgrid" });
+    function setWaiting(text) { waiting.textContent = ""; waiting.appendChild(el("span", { text: text })); }
+    /* holds as a living state panel: one card per party in its colour; new items glow once, given-up items are struck */
+    function holdsStrip(i, atEnd, fresh) {
       var st = atEnd ? HOLDS.final : HOLDS.after[i], add = atEnd ? {} : HOLDS.added[i], rem = atEnd ? {} : HOLDS.removed[i];
+      var onlyChanged = !atEnd && state.holdsChanged;
+      var box = el("section", { class: "nthview-holds" + (fresh ? " nthview-fresh" : ""), "aria-label": atEnd ? "Final holdings" : "What each party holds after this step" });
+      var head = el("div", { class: "nthview-holds-head" }, [el("h3", { text: atEnd ? (L.depth ? "Where everyone ends up in this inner sequence" : "Where everyone ends up") : "What each party holds now" })]);
+      if (!atEnd) {
+        var cb = el("input", { type: "checkbox" });
+        cb.checked = state.holdsChanged;
+        cb.addEventListener("change", function () { state.holdsChanged = cb.checked; persist(); var f = renderStep(false); var again = cardSlot.querySelector(".nthview-holds input"); if (again) again.focus({ preventScroll: true }); else if (f) f.focus({ preventScroll: true }); });
+        head.appendChild(el("label", { class: "nthview-toggle" }, [cb, el("span", { text: "Only what changed in this step" })]));
+      }
+      box.appendChild(head);
+      var grid = el("div", { class: "nthview-hgrid" }), shown = 0;
       holders.forEach(function (id) {
-        var items = st[id] || [], pills = el("div", { class: "nthview-pills" });
+        var items = st[id] || [], a = add[id] || [], r = rem[id] || [], changed = a.length + r.length > 0;
+        if (onlyChanged && !changed) return;
+        var pills = el("div", { class: "nthview-pills" });
         items.forEach(function (x) {
-          var isNew = (add[id] || []).indexOf(x) !== -1;
+          var isNew = a.indexOf(x) !== -1;
+          if (onlyChanged && !isNew) return;
           var pill = el("span", { class: "nthview-pill" + (isNew ? " nthview-new" : ""), text: x });
           if (isNew) pill.appendChild(el("span", { class: "nthview-sr", text: " (new at this step)" }));
           pills.appendChild(pill);
         });
-        (rem[id] || []).forEach(function (x) {
+        r.forEach(function (x) {
           var pill = el("span", { class: "nthview-pill nthview-gone", text: x });
           pill.appendChild(el("span", { class: "nthview-sr", text: " (given up at this step)" }));
           pills.appendChild(pill);
         });
         if (!pills.childNodes.length) pills.appendChild(el("span", { class: "nthview-none", text: "nothing yet" }));
-        grid.appendChild(el("div", { class: "nthview-hcol" }, [el("h4", {}, [glyph(kindOf(id)), el("span", { text: nameOf(id) })]), pills]));
+        var h4 = el("h4", { title: nameOf(id) }, [avatar(id, "sm"), el("span", { class: "nthview-hname", text: nameOf(id) })]);
+        if (changed) h4.appendChild(el("span", { class: "nthview-hdelta", title: (a.length ? a.length + " new" : "") + (a.length && r.length ? ", " : "") + (r.length ? r.length + " given up" : ""), text: (a.length ? "+" + a.length : "") + (a.length && r.length ? " " : "") + (r.length ? "−" + r.length : "") }));
+        grid.appendChild(paint(el("div", { class: "nthview-hcard" + (changed ? " nthview-hchanged" : "") }, [h4, pills]), id));
+        shown++;
       });
+      if (!shown) grid.appendChild(el("p", { class: "nthview-none", text: "Nothing changes hands at this step." }));
       box.appendChild(grid);
       return box;
     }
-    function stepCard(i) {
+    /* the wire, shown exactly; field names, annotations and trailing comments get a quieter tint */
+    function wireLines(text) {
+      var code = el("code"), lines = String(text).split("\n");
+      lines.forEach(function (line, n) {
+        if (n) code.appendChild(doc.createTextNode("\n"));
+        var m;
+        if (/^\s*[→←⇢⇠✓✗]/.test(line)) { code.appendChild(el("span", { class: "nthview-w-n", text: line })); return; }
+        var tail = "", tm = /(\s{2,}\([^()]*\)\s*)$/.exec(line);
+        if (tm) { tail = tm[1]; line = line.slice(0, line.length - tail.length); }
+        if (n === 0 && (m = /^((?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s|HTTP\/[\d.]+\s+\d{3}\b|\d{3}\s)(.*)$/.exec(line))) {
+          code.appendChild(el("span", { class: "nthview-w-v", text: m[1] })); code.appendChild(doc.createTextNode(m[2]));
+        } else if ((m = /^(\s*[?&]?)([A-Za-z_][\w.\-]*)(\s*:(?=\s|$)\s?|\s*=\s?|\s{2,})(.*)$/.exec(line))) {
+          code.appendChild(doc.createTextNode(m[1])); code.appendChild(el("span", { class: "nthview-w-k", text: m[2] })); code.appendChild(doc.createTextNode(m[3] + m[4]));
+        } else code.appendChild(doc.createTextNode(line));
+        if (tail) code.appendChild(el("span", { class: "nthview-w-c", text: tail }));
+      });
+      return code;
+    }
+    function callout(cls, iconName, title, text, role) {
+      var body = el("div", {}, [el("h3", { text: title })]), p = el("p"); p.appendChild(rich(text)); body.appendChild(p);
+      return el("div", { class: "nthview-callout " + cls, role: role || "note" }, [icon(iconName), body]);
+    }
+    function stepCard(i, fresh) {
       var s = S[i], c = chColor(s), k = stepKind(s);
       var card = el("article", { class: "nthview-card", "aria-labelledby": "nthview-step-title" });
-      var meta = el("div", { class: "nthview-meta" }, [el("span", { class: "nthview-idx", text: (L.depth ? "Step " + numLabel(L, i) + " · " : "") + pad2(i + 1, 2) + " / " + pad2(N, 2) }), badge(C[s.channel].name, c)]);
-      meta.appendChild(el("span", { class: "nthview-badge nthview-plain", text: KIND_NAMES[k] }));
+      var no = el("span", { class: "nthview-stepno", "aria-hidden": "true" }, [el("span", { text: numLabel(L, i) })]);
+      no.style.color = hue(c);
+      var ht = el("div", { class: "nthview-cardhead-t" }, [el("span", { class: "nthview-idx", text: (L.depth ? "Inner step " + (i + 1) : "Step " + (i + 1)) + " of " + N }), el("h2", { id: "nthview-step-title", tabindex: "-1", text: s.title })]);
+      card.appendChild(el("div", { class: "nthview-cardhead" }, [no, ht]));
+      var route = el("p", { class: "nthview-route" });
+      route.appendChild(who(s.from));
+      if (k === "self") route.appendChild(el("span", { text: "works on its own" }));
+      else { route.appendChild(el("span", { class: "nthview-arr", "aria-label": k === "return" ? "replies to" : "to", text: k === "return" ? "⇢" : "→" })); route.appendChild(who(s.to)); }
+      route.appendChild(el("span", { "aria-hidden": "true", text: "·" }));
+      route.appendChild(el("span", {}, [doc.createTextNode("carries "), el("code", { text: s.payload })]));
+      card.appendChild(route);
+      var meta = el("div", { class: "nthview-meta" }, [badge(C[s.channel].name, c)]);
+      var kb = el("span", { class: "nthview-badge nthview-plain" }, [kindSample(k), el("span", { text: KIND_NAMES[k] })]);
+      meta.appendChild(kb);
       if (s.note) meta.appendChild(el("span", { class: "nthview-badge nthview-sevb-" + s.note.severity, text: s.note.severity === "danger" ? "Security-critical" : s.note.severity === "warning" ? "Watch out" : "Note" }));
       if (s.inner) meta.appendChild(el("span", { class: "nthview-badge nthview-plain", text: "has an inner sequence" }));
       card.appendChild(meta);
-      var route = el("p", { class: "nthview-route" });
-      var fromB = el("b", {}, [glyph(kindOf(s.from)), doc.createTextNode(nameOf(s.from))]);
-      route.appendChild(fromB);
-      if (k === "self") route.appendChild(el("span", { text: "works on its own" }));
-      else { route.appendChild(el("span", { text: k === "return" ? "replies to" : "→" })); route.appendChild(el("b", {}, [glyph(kindOf(s.to)), doc.createTextNode(nameOf(s.to))])); }
-      route.appendChild(el("span", { text: "·" }));
-      route.appendChild(el("span", {}, [doc.createTextNode("carries "), el("code", { text: s.payload })]));
-      card.appendChild(route);
       FRAG[i].forEach(function (x) {
         var f = x.f;
         if (f.kind === "group") return;
-        var line = el("p", { class: "nthview-frag" }, [el("b", { text: f.kind })]);
+        var line = el("p", { class: "nthview-frag nthview-fk-" + f.kind }, [el("b", { text: f.kind })]);
         if (f.label) line.appendChild(el("span", { text: f.label }));
         var cond = f.kind === "alt" ? f.branches[x.branch].condition : f.condition;
         line.appendChild(el("span", { text: "[" + cond + "]" }));
@@ -2462,34 +2801,33 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
           card.appendChild(el("p", { class: "nthview-altnote", text: "Alternative path, taken only when [" + cond + "]. " + resume }));
         }
       });
-      card.appendChild(el("h2", { id: "nthview-step-title", tabindex: "-1", text: s.title }));
-      if (s.wire) { var w = el("pre", { class: "nthview-wire", "aria-label": "What travels" }, [el("code", { text: s.wire })]); w.firstChild.style.cssText = "background:none;border:0;padding:0;font-size:1em"; w.style.borderLeftColor = hue(c); card.appendChild(w); }
+      if (s.wire) {
+        var dot = el("i"); dot.style.background = hue(c);
+        var wh = el("div", { class: "nthview-wirehead", "aria-hidden": "true" }, [dot, el("b", { text: k === "self" ? "What " + nameOf(s.from) + " works out" : "On the wire" }), el("span", { text: k === "self" ? "local" : nameOf(s.from) + " → " + nameOf(s.to) })]);
+        var w = el("pre", { class: "nthview-wire", "aria-label": "What travels" }, [wireLines(s.wire)]);
+        card.appendChild(el("div", { class: "nthview-wirebox" }, [wh, w]));
+      }
       card.appendChild(para("nthview-why", s.why));
       if (s.inner) {
         var IL = innerOf(L, i);
-        var ob = el("button", { type: "button", class: "nthview-nav nthview-primary nthview-open-inner", text: "Open the inner sequence · " + IL.lanes.length + " parties · " + IL.N + " steps" });
+        var ob = el("button", { type: "button", class: "nthview-nav nthview-primary nthview-open-inner", "aria-label": "Open the inner sequence · " + IL.lanes.length + " parties · " + IL.N + " steps" }, [el("span", { text: "Open the inner sequence" }), icon("chev")]);
         ob.addEventListener("click", function () { openInner(i); });
-        card.appendChild(el("div", { class: "nthview-innerbox" }, [el("p", { text: "This step is a sequence of its own. Open it to see how it is carried out, then come back here." }), ob]));
+        var lay = icon("layers"); lay.setAttribute("class", "nthview-layers");
+        card.appendChild(el("div", { class: "nthview-innerbox" }, [lay, el("div", {}, [el("p", {}, [el("b", { text: "There is more inside this step" }), doc.createTextNode(IL.N + " steps between " + IL.lanes.length + " parties show how it is carried out. Open them, then come back here.")])]), ob]));
       }
-      if (s.compare && state.compare) {
-        var cmp = el("div", { class: "nthview-compare" }, [el("b", { text: s.compare.label + ": " })]);
-        cmp.appendChild(rich(s.compare.text)); card.appendChild(cmp);
-      }
-      if (s.note) {
-        var nd = el("div"); nd.appendChild(rich(s.note.text));
-        card.appendChild(el("div", { class: "nthview-note nthview-sev-" + s.note.severity, role: "note" }, [icon(s.note.severity), nd]));
-      }
+      if (s.compare && state.compare) card.appendChild(callout("nthview-compare", "history", s.compare.label, s.compare.text));
+      if (s.note) card.appendChild(callout("nthview-note nthview-sev-" + s.note.severity, s.note.severity, s.note.severity === "danger" ? "Security-critical" : s.note.severity === "warning" ? "Watch out" : "Good to know", s.note.text));
       if (s.detail) {
         var det = el("details", { class: "nthview-details" });
         if (state.details) det.setAttribute("open", "");
-        det.appendChild(el("summary", { text: "What's involved in this step" }));
+        det.appendChild(el("summary", {}, [el("span", { text: "What's involved in this step" }), el("small", { text: s.detail.length + " " + (s.detail.length === 1 ? "note" : "notes") })]));
         var dl = el("dl", { class: "nthview-drows" });
         s.detail.forEach(function (d) { var dd = el("dd"); dd.appendChild(rich(d.text)); dl.appendChild(el("div", { class: "nthview-drow" }, [el("dt", { text: d.label }), dd])); });
         det.appendChild(dl);
         det.addEventListener("toggle", function () { state.details = det.open; persist(); });
         card.appendChild(det);
       }
-      if (holders.length) card.appendChild(holdsStrip(i, false));
+      if (holders.length) card.appendChild(holdsStrip(i, false, fresh));
       return card;
     }
 
@@ -2498,14 +2836,13 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     function groupCard(u) {
       var n = u.end - u.start + 1, k = gkey(L, u.gi);
       var box = el("section", { class: "nthview-gcard", tabindex: "0", "aria-labelledby": "nthview-step-title" });
-      box.appendChild(el("p", { class: "nthview-gcard-label", text: "Group · steps " + groupRange(L, u.g) }));
+      box.appendChild(el("p", { class: "nthview-gcard-label" }, [icon("folder"), el("span", { text: "Group · steps " + groupRange(L, u.g) + " · " + n + " steps folded" })]));
       box.appendChild(el("h2", { id: "nthview-step-title", text: u.g.label }));
       if (u.g.summary) box.appendChild(para("nthview-why", u.g.summary));
-      var route = el("p", { class: "nthview-route" }, [el("span", { text: "Between" })]);
-      partiesOf(L, u.start, u.end).forEach(function (id) { route.appendChild(el("b", {}, [glyph(kindOf(id)), doc.createTextNode(nameOf(id))])); });
+      var route = el("p", { class: "nthview-gparties" }, [el("span", { class: "nthview-idx", text: "Between" })]);
+      partiesOf(L, u.start, u.end).forEach(function (id) { route.appendChild(who(id)); });
       box.appendChild(route);
-      box.appendChild(el("p", { class: "nthview-hint", text: n + " steps, folded so the main story stays in view. Expand them to go one by one, or press Next to move past the group." }));
-      var ex = el("button", { type: "button", class: "nthview-nav nthview-primary", text: "Expand the " + n + " steps" });
+      var ex = el("button", { type: "button", class: "nthview-nav nthview-primary" }, [el("span", { text: "Expand the " + n + " steps" }), icon("chev")]);
       function expand() {
         state.groups[k] = true; D = null; persist();
         var f = renderStep(true);
@@ -2514,7 +2851,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       }
       ex.addEventListener("click", expand);
       box.addEventListener("keydown", function (e) { if (e.key === "Enter" && e.target === box) { e.preventDefault(); expand(); } });
-      box.appendChild(el("div", { class: "nthview-check-actions" }, [ex]));
+      box.appendChild(el("div", { class: "nthview-check-actions" }, [ex, el("p", { class: "nthview-hint", text: "Folded so the main story stays in view. Expand to go one by one, or press Next to move past the group." })]));
       return box;
     }
     function groupHead(x, i) {
@@ -2530,22 +2867,30 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     }
 
     /* ---------- checks: learning first, a wrong pick explains and reveals ---------- */
-    function checkPanel(i) {
+    var CHEER = ["Nice, you called it.", "Spot on.", "Exactly right.", "Yes, that is the one."];
+    var NUDGE = ["Not quite, and that is how it sticks.", "Close. Here is the twist.", "Good guess. Here is what really happens."];
+    function checkPanel(i, revealing) {
       var s = S[i], ck = s.check, ans = state.checks[ckey(L, i)];
-      var box = el("section", { class: "nthview-check", "aria-label": "Check before step " + numLabel(L, i) });
-      box.appendChild(el("p", { class: "nthview-check-label", text: ans ? "Check · step " + numLabel(L, i) : "Before you see step " + numLabel(L, i) }));
+      var box = el("section", { class: "nthview-check" + (revealing ? " nthview-revealing" : ""), "aria-label": "Check before step " + numLabel(L, i) });
+      box.appendChild(el("div", { class: "nthview-check-top" }, [el("span", { class: "nthview-check-ico", "aria-hidden": "true" }, [icon("predict")]), el("p", { class: "nthview-check-label", text: ans ? "Your prediction · step " + numLabel(L, i) : "Predict · before step " + numLabel(L, i) })]));
       var h = el("h2", { tabindex: "-1" }); h.appendChild(rich(ck.type === "who" ? (ck.prompt || "Who sends the next message?") : ck.prompt)); box.appendChild(h);
       var opts = el("ul", { class: "nthview-opts" + (ck.type === "who" ? " nthview-who" : "") });
       var correctIdx = ck.type === "who" ? L.laneOf(ck.answer) : ck.options.map(function (o) { return !!o.correct; }).indexOf(true);
       var list = ck.type === "who" ? L.lanes : ck.options;
       list.forEach(function (o, j) {
         var b = el("button", { type: "button", class: "nthview-opt" });
-        if (ck.type === "who") { b.appendChild(glyph(kindOf(o))); b.appendChild(el("span", { text: nameOf(o) })); }
-        else { b.appendChild(el("span", { class: "nthview-key", "aria-hidden": "true", text: LETTERS[j] })); var t = el("span"); t.appendChild(rich(o.text)); b.appendChild(t); }
+        if (ck.type === "who") {
+          b.appendChild(avatar(o, "md"));
+          var nm = el("span", { class: "nthview-opt-n" }, [el("span", { text: nameOf(o) })]);
+          if (pOf(o).role) nm.appendChild(el("small", { text: pOf(o).role }));
+          b.appendChild(nm);
+        } else { b.appendChild(el("span", { class: "nthview-key", "aria-hidden": "true", text: LETTERS[j] })); var t = el("span"); t.appendChild(rich(o.text)); b.appendChild(t); }
+        function tag(text, ok) { return el("span", { class: "nthview-opt-tag" }, [icon(ok ? "check" : "cross"), el("span", { text: text })]); }
         if (ans && !ans.skipped) {
-          if (j === correctIdx) { b.classList.add("nthview-right"); b.appendChild(el("span", { class: "nthview-opt-tag", text: j === ans.picked ? "Your pick, right" : "Right answer" })); }
-          else if (j === ans.picked) { b.classList.add("nthview-wrong"); b.appendChild(el("span", { class: "nthview-opt-tag", text: "Your pick" })); }
-        } else if (ans && ans.skipped && j === correctIdx) { b.classList.add("nthview-right"); b.appendChild(el("span", { class: "nthview-opt-tag", text: "Right answer" })); }
+          if (j === correctIdx) { b.classList.add("nthview-right"); b.appendChild(tag(j === ans.picked ? "Your pick, right" : "Right answer", true)); }
+          else if (j === ans.picked) { b.classList.add("nthview-wrong"); b.appendChild(tag("Your pick", false)); }
+          else b.classList.add("nthview-dim");
+        } else if (ans && ans.skipped) { if (j === correctIdx) { b.classList.add("nthview-right"); b.appendChild(tag("Right answer", true)); } else b.classList.add("nthview-dim"); }
         if (ans) b.setAttribute("aria-disabled", "true");
         else b.addEventListener("click", function () { answer(i, j, j === correctIdx); });
         opts.appendChild(el("li", {}, [b]));
@@ -2554,7 +2899,9 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       if (ans) {
         var fb = el("div", { class: "nthview-fb" + (ans.correct ? "" : " nthview-no"), role: "status" });
         var right = ck.type === "who" ? nameOf(L.lanes[correctIdx]) : ck.options[correctIdx].text;
-        fb.appendChild(el("h3", { text: ans.skipped ? "Skipped. The answer: " + right : ans.correct ? "Right." : "Not quite. The answer: " + right }));
+        var line = ans.skipped ? "Here is the answer." : ans.correct ? CHEER[i % CHEER.length] : NUDGE[i % NUDGE.length];
+        fb.appendChild(el("h3", { text: line }));
+        if (!ans.correct) fb.appendChild(para("", "**The answer:** " + right));
         if (ck.type === "choice") {
           if (!ans.skipped && !ans.correct) fb.appendChild(para("", "**Your pick:** " + ck.options[ans.picked].why));
           fb.appendChild(para("", (ans.correct ? "" : "**Why the answer is right:** ") + ck.options[correctIdx].why));
@@ -2564,10 +2911,9 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         }
         box.appendChild(fb);
       } else {
-        box.appendChild(el("p", { class: "nthview-hint", text: "Take a guess. A wrong one is fine: you get the explanation and the step straight away." }));
         var skip = el("button", { type: "button", class: "nthview-ghost", text: "Just show me the step" });
         skip.addEventListener("click", function () { state.checks[ckey(L, i)] = { skipped: true }; persist(); renderStep(true); });
-        box.appendChild(el("div", { class: "nthview-check-actions" }, [skip]));
+        box.appendChild(el("div", { class: "nthview-check-actions" }, [el("p", { class: "nthview-hint", text: "Take a guess. A wrong one is fine: you get the explanation and the step straight away." }), skip]));
       }
       return { node: box, focus: h };
     }
@@ -2575,7 +2921,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       state.checks[ckey(L, i)] = { picked: j, correct: ok };
       persist();
       status.textContent = ok ? "Right." : "Not quite; the answer and the step are shown.";
-      renderStep(true, true);
+      renderStep(true, true, true);
     }
 
     /* ---------- recap: the steps of this level, inner sequences indented under their step ---------- */
@@ -2587,11 +2933,13 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
           ol.appendChild(el("li", { class: "nthview-recap-glabel", text: "Group: " + x.f.label + " · " + (x.f.end - x.f.start + 1) + " steps" }));
         });
         var k = stepKind(s), route = el("span", { class: "nthview-recap-route" });
-        var dot = el("i"); dot.style.background = hue(Lv.C[s.channel].color); route.appendChild(dot);
-        route.appendChild(doc.createTextNode(k === "self" ? nameOf(s.from) + " (on its own) · " : nameOf(s.from) + (k === "return" ? " ⇢ " : " → ") + nameOf(s.to) + " · "));
+        route.appendChild(avatar(s.from, "sm")); route.appendChild(el("span", { text: nameOf(s.from) }));
+        if (k === "self") route.appendChild(el("span", { text: "on its own ·" }));
+        else { route.appendChild(el("span", { text: k === "return" ? "⇢" : "→" })); route.appendChild(avatar(s.to, "sm")); route.appendChild(el("span", { text: nameOf(s.to) + " ·" })); }
         route.appendChild(el("code", { text: s.payload }));
         if (Lv.FRAG[i].some(function (x) { return x.f.kind === "alt" && x.branch > 0; })) route.appendChild(el("span", { class: "nthview-recap-alt", text: "alternative" }));
-        var b = el("button", { type: "button" }, [el("span", { class: "nthview-recap-n", text: numLabel(Lv, i) }), el("span", {}, [el("span", { text: s.title }), route])]);
+        var nb = el("span", { class: "nthview-recap-n" }, [el("span", { text: numLabel(Lv, i) })]); nb.style.color = hue(Lv.C[s.channel].color);
+        var b = el("button", { type: "button", "aria-label": "Step " + numLabel(Lv, i) + ": " + s.title }, [nb, el("span", {}, [el("span", { class: "nthview-recap-t", text: s.title }), route])]);
         b.addEventListener("click", function () { gotoLevel(Lv.path, i, { reveal: true }); });
         var inGroup = gs.some(function (x) { return i >= x.f.start && i <= x.f.end; });
         var li = el("li", inGroup ? { class: "nthview-recap-ingroup" } : {}, [b]);
@@ -2611,14 +2959,19 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       var box = el("section", { class: "nthview-recap", "aria-labelledby": "nthview-recap-title" });
       box.appendChild(el("h2", { id: "nthview-recap-title", tabindex: "-1", text: inner ? "Inside step " + numLabel(L.parent, L.parentIdx) + ": " + parentStep(L).title : "The whole sequence" }));
       var nestedHere = S.some(function (s) { return !!s.inner; });
-      box.appendChild(el("p", { class: "nthview-sub", text: N + " steps between " + L.lanes.length + " parties. Select a line to revisit that step" + (nestedHere ? "; indented lines are inner sequences." : ".") }));
+      box.appendChild(el("p", { class: "nthview-sub", text: "Select a line to revisit that step" + (nestedHere ? "; indented lines are inner sequences." : ".") }));
+      var checked = [], nInner = 0;
+      (function walk(Lv) { Lv.S.forEach(function (s, i) { if (s.check) checked.push({ Lv: Lv, i: i }); if (s.inner) { nInner++; walk(innerOf(Lv, i)); } }); })(L);
+      var right = 0, wrong = 0, skipped = 0, open = 0;
+      checked.forEach(function (c) { var a = state.checks[ckey(c.Lv, c.i)]; if (!a) open++; else if (a.skipped) skipped++; else if (a.correct) right++; else wrong++; });
+      function stat(n, t) { return el("div", { class: "nthview-stat" }, [el("b", { text: String(n) }), el("span", { text: t })]); }
+      var stats = el("div", { class: "nthview-stats" }, [stat(N, N === 1 ? "step" : "steps"), stat(L.lanes.length, "parties")]);
+      if (nInner) stats.appendChild(stat(nInner, nInner === 1 ? "inner sequence" : "inner sequences"));
+      if (checked.length) stats.appendChild(stat(right + " / " + checked.length, "predicted right"));
+      box.appendChild(stats);
       box.appendChild(recapList(L, false));
       if (holders.length) box.appendChild(holdsStrip(N - 1, true));
-      var checked = [];
-      (function walk(Lv) { Lv.S.forEach(function (s, i) { if (s.check) checked.push({ Lv: Lv, i: i }); if (s.inner) walk(innerOf(Lv, i)); }); })(L);
       if (checked.length) {
-        var right = 0, wrong = 0, skipped = 0, open = 0;
-        checked.forEach(function (c) { var a = state.checks[ckey(c.Lv, c.i)]; if (!a) open++; else if (a.skipped) skipped++; else if (a.correct) right++; else wrong++; });
         box.appendChild(el("h3", { text: "Your checks" }));
         box.appendChild(el("p", { text: right + " of " + checked.length + " right first time" + (wrong ? ", " + wrong + " learned on the way" : "") + (skipped ? ", " + skipped + " skipped" : "") + (open ? ", " + open + " not reached" : "") + ". Nothing here is a score; the checks are there to make you predict." }));
         var cl = el("ul", { class: "nthview-recap-checks" });
@@ -2644,7 +2997,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         var again = el("button", { type: "button", class: "nthview-nav", text: "Start again" });
         again.addEventListener("click", function () {
           clearState(key);
-          state.checks = {}; state.groups = {}; state.summarySeen = false; state.recapSeen = {}; state.compare = false; state.details = false; state.zoom = "fit"; state.expand = false;
+          state.checks = {}; state.groups = {}; state.summarySeen = false; state.recapSeen = {}; state.seen = {}; state.holdsChanged = false; state.compare = false; state.details = false; state.zoom = "fit"; state.expand = false;
           if (cmpBox) cmpBox.checked = false;
           D = null;
           gotoLevel([], 0);
@@ -2656,17 +3009,20 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     }
 
     /* ---------- step mode render ---------- */
-    function renderStep(animate, keepCheckFocus) {
+    function renderStep(animate, keepCheckFocus, revealing) {
       if (stageKey !== L.key) setupLevel();
       var us = unitsOf(L, false), u = null;
       if (state.step < N) { u = us[unitAt(us, state.step)]; state.step = u.start; }
       var i = state.step;
+      if (i < N) {
+        var sk = ckey(L, i), showsStep = !!u.g || !S[i].check || !!state.checks[sk];
+        if (showsStep && !state.seen[sk]) { state.seen[sk] = true; persist(); }
+      }
       closePop();
       updateStageOverflow();
       buildChips();
       chips.forEach(function (c) { if (c.u.start === i) c.node.setAttribute("aria-current", "step"); else c.node.removeAttribute("aria-current"); });
-      progBar.style.width = Math.round(Math.min(i + 1, N) / N * 100) + "%";
-      prog.setAttribute("aria-valuenow", String(Math.min(i + 1, N)));
+      setMeter(i);
       back.disabled = i === 0;
       next.disabled = i >= N;
       cardSlot.textContent = "";
@@ -2686,9 +3042,9 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         hideFlight();
         var inv = partiesOf(L, u.start, u.end);
         inv.forEach(function (id) { var l = laneEls[L.LI[id]]; if (l) l.classList.add("nthview-on"); });
-        waiting.textContent = "Steps " + groupRange(L, u.g) + " are folded into one group. Expand it to see each message.";
+        setWaiting("Steps " + groupRange(L, u.g) + " are folded into one group. Expand it to see each message."); stage.classList.add("nthview-live");
         waiting.hidden = false; placeWaiting();
-        var gc = groupCard(u); cardSlot.appendChild(gc);
+        var gc = groupCard(u); if (animate) gc.classList.add("nthview-fade"); cardSlot.appendChild(gc);
         status.textContent = "Steps " + groupRange(L, u.g) + ": " + u.g.label + ", a collapsed group.";
         return gc;
       }
@@ -2696,12 +3052,14 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       var pending = s.check && !state.checks[ck];
       next.textContent = pending ? "Show step" : i === N - 1 ? "Recap" : "Next";
       if (s.check) {
-        var cp = checkPanel(i); cardSlot.appendChild(cp.node);
+        var cp = checkPanel(i, revealing); cardSlot.appendChild(cp.node);
         if (pending || keepCheckFocus) focusEl = cp.focus;
       }
-      if (pending) { hideFlight(); waiting.textContent = "Answer the check below to see this message."; waiting.hidden = false; placeWaiting(); status.textContent = "Step " + numLabel(L, i) + " of " + N + ": a check comes first."; return focusEl; }
+      if (pending) { hideFlight(); setWaiting("Predict first: answer the check below to see this message."); waiting.hidden = false; placeWaiting(); status.textContent = "Step " + numLabel(L, i) + " of " + N + ": a check comes first."; return focusEl; }
       showFlight(s, animate);
-      var card = stepCard(i); if (animate) card.classList.add("nthview-fade"); cardSlot.appendChild(card);
+      var card = stepCard(i, animate && !reduceMotion);
+      if (animate) { card.classList.add("nthview-fade"); if (s.from !== s.to && !revealing) card.style.animationDelay = "160ms"; }
+      cardSlot.appendChild(card);
       var wire = card.querySelector(".nthview-wire");
       if (wire && wire.scrollWidth > wire.clientWidth + 1) { wire.setAttribute("tabindex", "0"); wire.setAttribute("role", "region"); }
       if (!focusEl) focusEl = card.querySelector("h2");
@@ -2739,7 +3097,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       } else {
         var f = renderStep(true);
         persist();
-        var top = (crumbs.hidden ? stage : crumbs).getBoundingClientRect().top;
+        var top = (crumbs.hidden ? stage : crumbs).getBoundingClientRect().top - bar.offsetHeight;
         if (top < 0) root.scrollTo(0, Math.max(0, (root.pageYOffset || 0) + top - 8));
         if (f) setTimeout(function () { f.focus({ preventScroll: true }); }, 30);
       }
@@ -2758,21 +3116,27 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     var zoomIn = el("button", { type: "button", class: "nthview-tbtn", "aria-label": "Zoom in", text: "+" });
     var zoomFit = el("button", { type: "button", class: "nthview-tbtn", text: "Fit" });
     var zoomVal = el("span", { class: "nthview-zoomv", "aria-live": "polite" });
+    var zoomG = el("div", { class: "nthview-zoomg", role: "group", "aria-label": "Zoom" }, [zoomOut, zoomVal, zoomIn, zoomFit]);
     var bExpand = el("button", { type: "button", class: "nthview-tbtn nthview-expand", "aria-pressed": "false", text: "Expand all", title: "Draw every inner sequence and group in place" });
     bExpand.addEventListener("click", function () {
       state.expand = !state.expand; persist();
       buildDiagram(); highlightDiagram(true);
       status.textContent = state.expand ? "Every inner sequence and group is drawn in place." : "Inner sequences and groups are folded again.";
     });
-    var toStep = el("button", { type: "button", class: "nthview-tbtn" });
+    var toStep = el("button", { type: "button", class: "nthview-tbtn nthview-tostep" });
     toStep.addEventListener("click", function () { setMode("step", true); });
     var dpanel = el("div", { class: "nthview-dpanel", tabindex: "0", role: "region", "aria-label": "Sequence diagram, scrollable" });
-    var dtools = el("div", { class: "nthview-dtools" }, [zoomOut, zoomVal, zoomIn, zoomFit]);
+    /* "where am I" on long diagrams: a rail with one tick per step and the visible window */
+    var mini = el("div", { class: "nthview-mini", "aria-hidden": "true", title: "Where you are in the diagram: select to jump" });
+    var miniWin = el("b"), miniTicks = [];
+    var dtip = el("div", { class: "nthview-dtip", hidden: "", "aria-hidden": "true" });
+    var dwrap = el("div", { class: "nthview-dwrap" }, [dpanel, mini, dtip]);
+    var dtools = el("div", { class: "nthview-dtools" }, [zoomG]);
     if (anyFold) dtools.appendChild(bExpand);
     dtools.appendChild(el("span", { class: "nthview-spacer" }));
     dtools.appendChild(toStep);
     var dChannels = el("div");
-    var diagMode = el("section", { class: "nthview-diagmode", "aria-label": "Full diagram", hidden: "" }, [dtools, dpanel, diagramLegend()]);
+    var diagMode = el("section", { class: "nthview-diagmode", "aria-label": "Full diagram", hidden: "" }, [dtools, dwrap, diagramLegend()]);
     container.appendChild(diagMode);
     var D = null; /* { svg, w, h, units[], key, expand } */
 
@@ -2780,15 +3144,12 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       var box = el("div", { class: "nthview-dlegend" });
       box.appendChild(dChannels);
       var kinds = el("ul", { class: "nthview-kinds", "aria-label": "Arrow kinds" });
-      [["sync", "call: the sender waits"], ["async", "async message: no waiting"], ["return", "reply"]].forEach(function (k) {
-        var s = sv("svg", { viewBox: "0 0 40 12", "aria-hidden": "true", focusable: "false" });
-        s.appendChild(sv("line", { x1: 2, y1: 6, x2: 34, y2: 6, stroke: "currentColor", "stroke-width": 2, "stroke-dasharray": k[0] === "return" ? "5 4" : "none" }));
-        s.appendChild(k[0] === "sync" ? sv("path", { d: "M30 1.5 39 6 30 10.5z", fill: "currentColor" }) : sv("path", { d: "M31 1.5 39 6 31 10.5", fill: "none", stroke: "currentColor", "stroke-width": 2 }));
-        kinds.appendChild(el("li", {}, [s, el("span", { text: k[1] })]));
+      [["sync", "call: the sender waits"], ["async", "async message: no waiting"], ["return", "reply"], ["self", "on its own"]].forEach(function (k) {
+        kinds.appendChild(el("li", {}, [kindSample(k[0]), el("span", { text: k[1] })]));
       });
       box.appendChild(kinds);
-      box.appendChild(el("p", { text: "Thin bars on a lifeline show when that party is busy: each run of consecutive steps it takes part in. Frames mark alt (one branch or another), opt (only sometimes) and loop (repeats). Shaded bands are trust zones. Select any arrow to open that step." }));
-      if (anyFold) box.appendChild(el("p", { text: "A frame marked ref is a step with an inner sequence: select it to open that sequence's own diagram. A frame marked group folds a run of steps; select it to unfold them. Expand all draws every inner sequence and group in place, with the parties inside a group in a shaded band under its name." }));
+      box.appendChild(el("p", { text: "Each party keeps its colour: its avatar, its dotted lifeline and the bars on it, which show when it is busy. Arrow colours are channels. Frames mark alt (one branch or another), opt (only sometimes) and loop (repeats). Shaded bands are trust zones. The highlighted band is the current step; select any arrow to open that step." }));
+      if (anyFold) box.appendChild(el("p", { text: "A frame marked ref, with a chevron, is a step with an inner sequence: select it to open that sequence's own diagram. A stacked frame marked group folds a run of steps; select it to unfold them. Expand all draws every inner sequence and group in place, with the parties inside a group in a shaded band under its name." }));
       box.appendChild(el("p", { text: "Zoom with the − and + buttons, a pinch on a touch screen, or Ctrl and the scroll wheel; drag or scroll to move around." }));
       return box;
     }
@@ -2809,7 +3170,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
        get lifelines (members in a band under their group), groups are unfolded, to any depth. */
     function buildDiagram() {
       var EXP = state.expand, B = L;
-      var COL = 184, PADX = 28, HEADH = 70, CW = 7.25;
+      var COL = 184, PADX = 28, HEADH = 74, CW = 7.25;
       var set = {};
       B.lanes.forEach(function (id) { set[id] = true; });
       if (EXP) (function walkIds(Lv, top) {
@@ -2836,7 +3197,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         fr.x0 = fr.lo - 14; fr.x1 = fr.hi + 14;
         var need = 260;
         fr.guards.forEach(function (g) { need = Math.max(need, g.text.length * 6.3 + 40); });
-        if (fr.tag) need = Math.max(need, fr.tag.length * 7 + 60);
+        if (fr.tag) need = Math.max(need, fr.tag.length * 7 + 60 + (fr.type === "inner" ? 170 : 0));
         if (fr.x1 - fr.x0 < need) { var grow = (need - (fr.x1 - fr.x0)) / 2; fr.x0 -= grow; fr.x1 += grow; }
         if (fr.x0 < 4) { fr.x1 += 4 - fr.x0; fr.x0 = 4; }
         touch(fr.x0, fr.x1);
@@ -2853,7 +3214,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         var txt = clip(s.payload, selfish ? 40 : Math.max(26, Math.floor((span - 40) / CW)));
         var w = txt.length * CW + nb + 15 + (s.inner ? 20 : 0);
         var lx = selfish ? cx(a) + 50 : Math.max(4, (cx(a) + cx(b)) / 2 - w / 2);
-        var row = { Lv: Lv, i: i, s: s, a: a, b: b, k: k, selfish: selfish, num: num, nb: nb, txt: txt, w: w, lx: lx, col: hue(Lv.C[s.channel].color) };
+        var row = { Lv: Lv, i: i, s: s, a: a, b: b, k: k, selfish: selfish, num: num, nb: nb, txt: txt, w: w, lx: lx, col: hue(Lv.C[s.channel].color), tint: tint(Lv.C[s.channel].color) };
         usedCh[s.channel] = Lv.C[s.channel];
         row.y = y; row.h = selfish ? 66 : 52; row.arrowY = y + (selfish ? 24 : 34);
         row.x0 = Math.min(cx(a), cx(b), lx) - 14; row.x1 = Math.max(cx(a), cx(b) + (selfish ? 46 : 0), lx + w) + 6;
@@ -2928,9 +3289,12 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       var where = B.depth ? "inner sequence of step " + numLabel(B.parent, B.parentIdx) : "sequence";
       var svgEl = sv("svg", { class: "nthview-dsvg", viewBox: "0 0 " + W + " " + H, role: "group", "aria-label": "Diagram of the " + where + ": " + B.N + " steps between " + B.lanes.length + " parties" + (EXP ? ", every inner sequence and group drawn in place" : "") });
       svgEl.appendChild(sv("title", { text: (B.depth ? "Step " + numLabel(B.parent, B.parentIdx) + ", " + parentStep(B).title : data.title) + ": sequence diagram" }));
-      var gBack = sv("g"), gZones = sv("g", { "aria-hidden": "true" }), gBands = sv("g", { "aria-hidden": "true" }), gLife = sv("g", { "aria-hidden": "true" }), gFr = sv("g", { "aria-hidden": "true" }), gAct = sv("g", { "aria-hidden": "true" }), gFrTop = sv("g"), gBox = sv("g"), gNotes = sv("g", { "aria-hidden": "true" }), gArr = sv("g"), gHead = sv("g", { "aria-hidden": "true" });
-      [gBack, gZones, gBands, gLife, gFr, gAct, gFrTop, gBox, gNotes, gArr, gHead].forEach(function (g) { svgEl.appendChild(g); });
-      gBack.appendChild(sv("rect", { x: 0, y: 0, width: W, height: H, fill: "var(--sq-panel)" }));
+      var gBack = sv("g"), gZones = sv("g", { "aria-hidden": "true" }), gBand = sv("g", { "aria-hidden": "true" }), gBands = sv("g", { "aria-hidden": "true" }), gFrFill = sv("g", { "aria-hidden": "true" }), gLife = sv("g", { "aria-hidden": "true" }), gFr = sv("g", { "aria-hidden": "true" }), gAct = sv("g", { "aria-hidden": "true" }), gFrTop = sv("g"), gBox = sv("g"), gNotes = sv("g", { "aria-hidden": "true" }), gArr = sv("g"), gHead = sv("g", { "aria-hidden": "true" });
+      [gBack, gZones, gBand, gBands, gFrFill, gLife, gFr, gAct, gFrTop, gBox, gNotes, gArr, gHead].forEach(function (g) { svgEl.appendChild(g); });
+      gBack.appendChild(sv("rect", { x: 0, y: 0, width: W, height: H, fill: "var(--sq-panel)", "fill-opacity": container.getAttribute("data-theme") === "blueprint" ? ".55" : "1" }));
+      /* the current step: a soft band across the whole diagram, moved by highlightDiagram */
+      var band = sv("g", { class: "nthview-band" }), bandRect = sv("rect", { x: 0, y: 0, width: W, height: 10, fill: "var(--nv-accent)", "fill-opacity": ".09" }), bandMark = sv("rect", { x: 0, y: 0, width: 4, height: 10, fill: "var(--nv-accent)" });
+      band.appendChild(bandRect); band.appendChild(bandMark); gBand.appendChild(band);
 
       /* zones */
       var zk = 0;
@@ -2938,36 +3302,43 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         if (!r.zone) return;
         var x0 = cx(r.start) - COL / 2 + 5, w = r.n * COL - 10;
         if (r.start + r.n === nP) w = Math.max(w, W - x0 - 6);
-        gZones.appendChild(sv("rect", { x: x0, y: 6, width: w, height: H - 12, rx: 10, fill: zk++ % 2 ? "var(--sq-zone-b)" : "var(--sq-zone-a)", stroke: "var(--nv-border)", "stroke-dasharray": "5 4" }));
+        gZones.appendChild(sv("rect", { x: x0, y: 6, width: w, height: H - 12, rx: 14, fill: zk++ % 2 ? "var(--sq-zone-b)" : "var(--sq-zone-a)" }));
         gZones.appendChild(sv("text", { x: x0 + (r.n * COL - 10) / 2, y: 22, "text-anchor": "middle", "font-size": 10.5, "font-weight": 600, "letter-spacing": "1.2", class: "nthview-muted-t", text: clip(ZI[r.zone].name.toUpperCase(), Math.floor((r.n * COL - 10) / 8)) }));
       });
       /* group bands: the parties inside a group, under its name */
       bands.forEach(function (b) {
         var inset = 9 + b.depth * 5, x0 = cx(b.c0) - COL / 2 + inset, x1 = cx(b.c1) + COL / 2 - inset, top = ZONEH + 8 + b.depth * 22;
-        gBands.appendChild(sv("rect", { x: x0, y: top, width: x1 - x0, height: lifeEnd - top + 6, rx: 8, fill: "var(--sq-hi)", "fill-opacity": ".55", stroke: "var(--nv-accent)", "stroke-width": 1, "stroke-dasharray": "4 3" }));
-        gBands.appendChild(sv("text", { x: (x0 + x1) / 2, y: top + 15, "text-anchor": "middle", "font-size": 11, "font-weight": 700, style: "fill:var(--nv-accent)", text: clip(nameOf(b.g) + (b.hasOwn ? "" : " · inside"), Math.floor((x1 - x0) / 7)) }));
+        gBands.appendChild(sv("rect", { x: x0, y: top, width: x1 - x0, height: lifeEnd - top + 6, rx: 12, fill: "var(--q" + M.COLOR[b.g] + ")", "fill-opacity": ".45", stroke: "var(--p" + M.COLOR[b.g] + ")", "stroke-width": 1.2, "stroke-dasharray": "5 4" }));
+        gBands.appendChild(sv("text", { x: (x0 + x1) / 2, y: top + 15, "text-anchor": "middle", "font-size": 11.5, "font-weight": 700, text: clip(nameOf(b.g) + (b.hasOwn ? "" : " · inside"), Math.floor((x1 - x0) / 7)) }));
       });
 
       /* participant heads and lifelines */
       function head(c, top) {
-        var id = ids[c], p = pOf(id), grp = PMAP[id].isGroup, w = COL - 22, x0 = cx(c) - w / 2, tx = x0 + 38, room = w - 44;
+        var id = ids[c], p = pOf(id), grp = PMAP[id].isGroup, w = COL - 22, x0 = cx(c) - w / 2, hh = HEADH - 8, ci = M.COLOR[id];
+        var ink = "var(--p" + ci + ")", tn = "var(--q" + ci + ")", r = 15, acx = x0 + 11 + r, acy = top + hh / 2, tx = acx + r + 9, room = x0 + w - 8 - tx;
         var g = sv("g");
-        g.appendChild(sv("rect", { x: x0, y: top, width: w, height: HEADH - 8, rx: 8, fill: "var(--sq-panel)", stroke: "var(--nv-fg)", "stroke-width": grp ? 2.6 : 1.3 }));
-        var gl = glyph(kindOf(id), { x: x0 + 9, y: top + (HEADH - 8) / 2 - 11, width: 22, height: 22 }); gl.style.color = "var(--nv-muted)";
+        g.appendChild(sv("rect", { x: x0, y: top, width: w, height: hh, rx: 12, fill: "var(--sq-panel)", stroke: grp ? ink : "var(--nv-border)", "stroke-width": grp ? 1.6 : 1.2, "stroke-dasharray": grp ? "5 3" : "none" }));
+        g.appendChild(sv("path", { d: "M" + (x0 + 14) + " " + (top + 1.5) + "H" + (x0 + w - 14), stroke: ink, "stroke-width": 3, "stroke-linecap": "round" }));
+        g.appendChild(grp ? sv("rect", { x: acx - r, y: acy - r, width: 2 * r, height: 2 * r, rx: 9, fill: tn, stroke: ink, "stroke-width": 1.5 }) : sv("circle", { cx: acx, cy: acy, r: r, fill: tn, stroke: ink, "stroke-width": 1.5 }));
+        var gl = glyph(kindOf(id), { x: acx - 9, y: acy - 9, width: 18, height: 18 }); gl.style.color = ink;
         g.appendChild(gl);
         var nameLines = wrapText(p.name, Math.floor(room / 7.3), 2);
         var extra = grp ? [p.members.length + " inside"] : [];
-        var roleRoom = 3 - nameLines.length - extra.length, roleLines = p.role && roleRoom > 0 ? wrapText(p.role, Math.floor(room / 5.7), roleRoom) : [];
-        var total = nameLines.length * 15 + (roleLines.length + extra.length) * 13, ty = top + (HEADH - 8 - total) / 2 + 11;
+        var roleRoom = 3 - nameLines.length - extra.length, roleLines = p.role && roleRoom > 0 ? wrapText(p.role, Math.floor(room / 5.9), roleRoom) : [];
+        var total = nameLines.length * 15 + (roleLines.length + extra.length) * 13, ty = top + (hh - total) / 2 + 11;
         nameLines.forEach(function (t) { g.appendChild(sv("text", { x: tx, y: ty, "font-size": 13, "font-weight": 650, text: t })); ty += 15; });
         roleLines.forEach(function (t) { g.appendChild(sv("text", { x: tx, y: ty, "font-size": 10.5, class: "nthview-muted-t", text: t })); ty += 13; });
-        extra.forEach(function (t) { g.appendChild(sv("text", { x: tx, y: ty, "font-size": 10.5, "font-weight": 700, style: "fill:var(--nv-accent)", text: t })); ty += 13; });
+        extra.forEach(function (t) {
+          g.appendChild(sv("text", { x: tx, y: ty, "font-size": 10.5, "font-weight": 700, class: "nthview-muted-t", text: t }));
+          p.members.slice(0, Math.max(0, Math.floor((room - 50) / 9))).forEach(function (m, k) { g.appendChild(sv("circle", { cx: tx + 54 + k * 9, cy: ty - 3.5, r: 4, fill: "var(--q" + M.COLOR[m.id] + ")", stroke: "var(--p" + M.COLOR[m.id] + ")", "stroke-width": 1.2 })); });
+          ty += 13;
+        });
         g.appendChild(sv("title", { text: p.name + (p.role ? ": " + p.role : "") + (grp ? " (" + p.members.length + " parties inside)" : "") }));
         gHead.appendChild(g);
       }
       ids.forEach(function (id, c) {
         head(c, HEADY);
-        gLife.appendChild(sv("line", { x1: cx(c), y1: HEADY + HEADH - 8, x2: cx(c), y2: lifeEnd, stroke: "var(--nv-muted)", "stroke-width": 1.2, "stroke-dasharray": "4 5" }));
+        gLife.appendChild(sv("line", { x1: cx(c), y1: HEADY + HEADH - 8, x2: cx(c), y2: lifeEnd, stroke: "var(--p" + M.COLOR[id] + ")", "stroke-opacity": ".6", "stroke-width": 2, "stroke-linecap": "round", "stroke-dasharray": "0.5 6" }));
         if (bottomHeads) head(c, lifeEnd);
       });
 
@@ -2980,11 +3351,11 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
           if (!involved && startR !== -1) {
             var a = rows[startR], b = rows[r - 1];
             var y0 = a.arrowY - 10, y1 = (b.selfish ? b.arrowY + 26 : b.arrowY) + 10;
-            gAct.appendChild(sv("rect", { x: cx(c) - 5, y: y0, width: 10, height: Math.max(16, y1 - y0), fill: "var(--sq-soft)", stroke: "var(--nv-fg)", "stroke-width": 1 }));
+            gAct.appendChild(sv("rect", { x: cx(c) - 5, y: y0, width: 10, height: Math.max(16, y1 - y0), rx: 4, fill: "var(--q" + M.COLOR[id] + ")", stroke: "var(--p" + M.COLOR[id] + ")", "stroke-width": 1.3 }));
             startR = -1;
           }
         }
-        rows.forEach(function (row) { if (row.selfish && row.a === c) gAct.appendChild(sv("rect", { x: cx(c) + 1, y: row.arrowY + 4, width: 10, height: 26, fill: "var(--sq-hi)", stroke: "var(--nv-fg)", "stroke-width": 1 })); });
+        rows.forEach(function (row) { if (row.selfish && row.a === c) gAct.appendChild(sv("rect", { x: cx(c) + 1, y: row.arrowY + 4, width: 10, height: 26, rx: 4, fill: "var(--sq-panel)", stroke: "var(--p" + M.COLOR[id] + ")", "stroke-width": 1.3 })); });
       });
 
       function button(g, label, act) {
@@ -2995,11 +3366,13 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       /* frames: alt/opt/loop, unfolded groups and, with Expand all, inner sequences */
       frames.forEach(function (fr) {
         var x0 = fr.x0, x1 = Math.min(W - 4, fr.x1), y0 = fr.y0, y1 = fr.y1;
-        var col = fr.type === "inner" ? "var(--nv-accent)" : fr.type === "group" ? "var(--h-teal)" : fr.f.kind === "alt" ? "var(--h-violet)" : fr.f.kind === "loop" ? "var(--h-teal)" : "var(--h-blue)";
-        gFr.appendChild(sv("rect", { x: x0, y: y0, width: x1 - x0, height: y1 - y0, rx: 4, fill: "none", stroke: col, "stroke-width": fr.type === "frag" ? 1.4 : 1.8, "stroke-dasharray": fr.type === "group" ? "7 4" : "none" }));
+        var hn = fr.type === "inner" ? null : fr.type === "group" ? "teal" : fr.f.kind === "alt" ? "violet" : fr.f.kind === "loop" ? "teal" : "blue";
+        var col = hn ? hue(hn) : "var(--nv-accent)", fill = hn ? tint(hn) : "var(--sq-hi)";
+        gFrFill.appendChild(sv("rect", { x: x0, y: y0, width: x1 - x0, height: y1 - y0, rx: 10, fill: fill, "fill-opacity": fr.type === "frag" ? ".35" : ".45" }));
+        gFr.appendChild(sv("rect", { x: x0, y: y0, width: x1 - x0, height: y1 - y0, rx: 10, fill: "none", stroke: col, "stroke-width": fr.type === "frag" ? 1.4 : 1.8, "stroke-dasharray": fr.type === "group" ? "7 4" : "none" }));
         var tw = Math.min(x1 - x0 - 10, fr.tag.length * 7 + 22);
         var tab = sv("g");
-        tab.appendChild(sv("path", { d: "M" + x0 + " " + y0 + "h" + tw + "v12l-8 8H" + x0 + "z", fill: col }));
+        tab.appendChild(sv("path", { d: "M" + x0 + " " + (y0 + 10) + "a10 10 0 0 1 10 -10H" + (x0 + tw) + "v12a8 8 0 0 1 -8 8H" + x0 + "z", fill: col }));
         tab.appendChild(sv("text", { x: x0 + 7, y: y0 + 14.5, "font-size": 11.5, "font-weight": 700, style: "fill:var(--sq-panel)", text: clip(fr.tag, Math.floor((tw - 12) / 7)) }));
         gFrTop.appendChild(tab);
         if (fr.type === "inner") {
@@ -3019,7 +3392,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         fr.guards.forEach(function (g) {
           if (g.divider !== undefined) gFr.appendChild(sv("line", { x1: x0, y1: g.divider, x2: x1, y2: g.divider, stroke: col, "stroke-width": 1.2, "stroke-dasharray": "6 4" }));
           var gt = "[" + clip(g.text, Math.floor((x1 - x0 - 24) / 6.3)) + "]";
-          gFrTop.appendChild(sv("rect", { x: x0 + 6, y: g.y - 4, width: Math.min(x1 - x0 - 12, gt.length * 6.3 + 8), height: 16, rx: 3, fill: "var(--sq-panel)", opacity: ".92" }));
+          gFrTop.appendChild(sv("rect", { x: x0 + 6, y: g.y - 4, width: Math.min(x1 - x0 - 12, gt.length * 6.3 + 8), height: 16, rx: 8, fill: "var(--sq-panel)" }));
           gFrTop.appendChild(sv("text", { x: x0 + 10, y: g.y + 8, "font-size": 11.5, "font-style": "italic", style: "fill:" + col, text: gt }));
         });
       });
@@ -3028,9 +3401,11 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       boxes.forEach(function (bx) {
         var g = sv("g", { class: "nthview-ref" }), col = bx.type === "ref" ? "var(--nv-accent)" : "var(--h-teal)";
         var x0 = bx.x0, x1 = bx.x1, w = x1 - x0, room = Math.floor((w - 80) / 6.8);
-        g.appendChild(sv("rect", { class: "nthview-ref-box", x: x0, y: bx.y, width: w, height: bx.h, rx: 6, fill: bx.type === "ref" ? "var(--sq-soft)" : "var(--t-teal)", stroke: col, "stroke-width": 1.6, "stroke-dasharray": bx.type === "group" ? "7 4" : "none" }));
+        /* folded pages behind the box: there is more here */
+        [6, 3].forEach(function (o) { g.appendChild(sv("rect", { x: x0 + o, y: bx.y + o, width: w, height: bx.h, rx: 10, fill: "var(--sq-panel)", stroke: col, "stroke-opacity": ".45", "stroke-width": 1.2 })); });
+        g.appendChild(sv("rect", { class: "nthview-ref-box", x: x0, y: bx.y, width: w, height: bx.h, rx: 10, fill: bx.type === "ref" ? "var(--sq-hi)" : "var(--t-teal)", stroke: col, "stroke-width": 1.6, "stroke-dasharray": bx.type === "group" ? "7 4" : "none" }));
         var tag = bx.type === "ref" ? "ref" : "group", tw = tag.length * 7 + 18;
-        g.appendChild(sv("path", { d: "M" + x0 + " " + bx.y + "h" + tw + "v11l-7 7H" + x0 + "z", fill: col }));
+        g.appendChild(sv("path", { d: "M" + x0 + " " + (bx.y + 10) + "a10 10 0 0 1 10 -10H" + (x0 + tw) + "v11a7 7 0 0 1 -7 7H" + x0 + "z", fill: col }));
         g.appendChild(sv("text", { x: x0 + 6, y: bx.y + 13, "font-size": 11, "font-weight": 700, style: "fill:var(--sq-panel)", text: tag }));
         var line1, line2, label;
         if (bx.type === "ref") {
@@ -3051,10 +3426,10 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         }
         g.appendChild(sv("text", { x: x0 + tw + 10, y: bx.y + 20, "font-size": 12.5, "font-weight": 650, text: clip(line1, room - 4) }));
         g.appendChild(sv("text", { x: x0 + tw + 10, y: bx.y + 37, "font-size": 11, class: "nthview-muted-t", text: clip(line2, room) }));
-        /* the plus marker: there is more inside */
-        var px = x1 - 20, py = bx.y + bx.h / 2;
-        g.appendChild(sv("circle", { cx: px, cy: py, r: 9, fill: col }));
-        g.appendChild(sv("path", { d: "M" + (px - 4.5) + " " + py + "h9M" + px + " " + (py - 4.5) + "v9", stroke: "var(--sq-panel)", "stroke-width": 2, "stroke-linecap": "round" }));
+        /* the chevron marker: select to go in (ref) or to unfold (group) */
+        var px = x1 - 22, py = bx.y + bx.h / 2;
+        g.appendChild(sv("circle", { cx: px, cy: py, r: 11, fill: col }));
+        g.appendChild(sv("path", { d: bx.type === "ref" ? "M" + (px - 2.5) + " " + (py - 5) + "l5 5-5 5" : "M" + (px - 5) + " " + (py - 2.5) + "l5 5 5-5", fill: "none", stroke: "var(--sq-panel)", "stroke-width": 2.2, "stroke-linecap": "round", "stroke-linejoin": "round" }));
         g.appendChild(sv("title", { text: label }));
         gBox.appendChild(g);
         bx.node = g;
@@ -3080,14 +3455,14 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
           ly = yy2 - 12;
         }
         var bx = row.lx, lg = sv("g");
-        lg.appendChild(sv("rect", { class: "nthview-lbl", x: bx, y: ly - 13, width: row.w, height: 19, rx: 9.5, fill: "var(--sq-panel)", stroke: col, "stroke-width": 1 }));
+        lg.appendChild(sv("rect", { class: "nthview-lbl", x: bx, y: ly - 13, width: row.w, height: 19, rx: 9.5, fill: row.tint, stroke: col, "stroke-width": 1.2 }));
         lg.appendChild(sv("rect", { x: bx + 2.5, y: ly - 11, width: row.nb, height: 15, rx: 7.5, fill: col }));
         lg.appendChild(sv("text", { x: bx + 2.5 + row.nb / 2, y: ly, "text-anchor": "middle", "font-size": row.num.length > 1 ? 8.5 : 9.5, "font-weight": 700, style: "fill:var(--sq-panel)", text: row.num }));
         lg.appendChild(sv("text", { x: bx + row.nb + 9, y: ly + 0.5, "font-size": 12, class: "nthview-mono", text: row.txt }));
         if (s.inner) {
           var mx = bx + row.w - 12, my = ly - 3.5;
           lg.appendChild(sv("circle", { cx: mx, cy: my, r: 7, fill: col }));
-          lg.appendChild(sv("path", { d: "M" + (mx - 3.5) + " " + my + "h7M" + mx + " " + (my - 3.5) + "v7", stroke: "var(--sq-panel)", "stroke-width": 1.8, "stroke-linecap": "round" }));
+          lg.appendChild(sv("path", { d: "M" + (mx - 1.5) + " " + (my - 3.5) + "l3.5 3.5-3.5 3.5", fill: "none", stroke: "var(--sq-panel)", "stroke-width": 1.8, "stroke-linecap": "round", "stroke-linejoin": "round" }));
         }
         g.appendChild(lg);
         g.appendChild(sv("title", { text: row.num + ". " + s.title }));
@@ -3098,6 +3473,11 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
           setMode("step", true);
         }
         g.addEventListener("click", open);
+        if (canHover) {
+          g.addEventListener("pointerenter", function (e) { if (e.pointerType === "mouse") showTip(e, row.num, s.title, row.selfish ? nameOf(s.from) + " on its own" : nameOf(s.from) + (k === "return" ? " replies to " : " → ") + nameOf(s.to)); });
+          g.addEventListener("pointermove", function (e) { if (e.pointerType === "mouse") moveTip(e); });
+          g.addEventListener("pointerleave", hideTip);
+        }
         g.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); open(); } });
         if (top) g.addEventListener("focus", function () { if (state.step !== row.i && state.mode === "diagram") { state.step = row.i; persist(); highlightDiagram(false); } });
         gArr.appendChild(g);
@@ -3108,8 +3488,10 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       rows.forEach(function (row) {
         var n = row.note; if (!n) return;
         var c = row.s.note.severity === "danger" ? "red" : row.s.note.severity === "warning" ? "amber" : "blue";
-        gNotes.appendChild(sv("path", { d: "M" + n.x + " " + n.y + "h" + (n.w - 12) + "l12 12v" + (n.h - 12) + "H" + n.x + "z", fill: tint(c), stroke: hue(c), "stroke-width": 1.1 }));
-        gNotes.appendChild(sv("path", { d: "M" + (n.x + n.w - 12) + " " + n.y + "v12h12", fill: "none", stroke: hue(c), "stroke-width": 1.1 }));
+        gNotes.appendChild(sv("path", { d: "M" + (n.x + 3) + " " + (n.y + 4) + "h" + (n.w - 12) + "l12 12v" + (n.h - 12) + "H" + (n.x + 3) + "z", fill: "var(--nv-fg)", "fill-opacity": ".07" }));
+        gNotes.appendChild(sv("path", { d: "M" + n.x + " " + n.y + "h" + (n.w - 14) + "l14 14v" + (n.h - 14) + "H" + n.x + "z", fill: tint(c), stroke: hue(c), "stroke-width": 1.1, "stroke-linejoin": "round" }));
+        gNotes.appendChild(sv("path", { d: "M" + (n.x + n.w - 14) + " " + n.y + "v10a4 4 0 0 0 4 4h10", fill: "var(--sq-panel)", "fill-opacity": ".6", stroke: hue(c), "stroke-width": 1.1, "stroke-linejoin": "round" }));
+        gNotes.appendChild(sv("rect", { x: n.x, y: n.y, width: 3, height: n.h, fill: hue(c) }));
         n.lines.forEach(function (line, k) {
           gNotes.appendChild(sv("text", { x: n.x + 10, y: n.y + 18 + k * 15, "font-size": 11.5, text: line }));
         });
@@ -3124,11 +3506,54 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       dpanel.appendChild(svgEl);
       dChannels.textContent = "";
       dChannels.appendChild(channelLegend(Object.keys(usedCh).map(function (c) { return usedCh[c]; })));
-      D = { svg: svgEl, w: W, h: H, units: units, key: B.key, expand: EXP };
+      D = { svg: svgEl, w: W, h: H, units: units, key: B.key, expand: EXP, band: band, bandRect: bandRect, bandMark: bandMark };
+      hideTip();
+      buildMini();
       bExpand.setAttribute("aria-pressed", String(EXP));
       applyZoom();
     }
 
+    /* hover tooltips (mouse only): the step's number, title and route */
+    var canHover = !!(root.matchMedia && root.matchMedia("(hover: hover) and (pointer: fine)").matches);
+    function showTip(e, num, title, route) {
+      dtip.textContent = "";
+      dtip.appendChild(el("b", { text: "Step " + num + " · " + title }));
+      dtip.appendChild(el("span", { text: route }));
+      dtip.hidden = false; moveTip(e);
+    }
+    function moveTip(e) {
+      if (dtip.hidden) return;
+      var r = dwrap.getBoundingClientRect(), w = dtip.offsetWidth, h = dtip.offsetHeight;
+      var x = Math.min(r.width - w - 8, Math.max(8, e.clientX - r.left + 14)), y = e.clientY - r.top + 18;
+      if (y + h > r.height - 8) y = e.clientY - r.top - h - 12;
+      dtip.style.left = x + "px"; dtip.style.top = Math.max(8, y) + "px";
+    }
+    function hideTip() { dtip.hidden = true; }
+    /* the "where am I" rail: ticks per step and the visible window; shown when the diagram is taller than its panel */
+    function buildMini() {
+      mini.textContent = ""; miniTicks = [];
+      D.units.forEach(function (u) {
+        var t = el("i"); t.style.top = ((u.y + u.h / 2) / D.h * 100) + "%";
+        if (u.row) t.style.background = u.row.col;
+        mini.appendChild(t); miniTicks.push(t);
+      });
+      mini.appendChild(miniWin);
+      updateMini();
+    }
+    function updateMini() {
+      if (!D) return;
+      var sh = dpanel.scrollHeight, ch = dpanel.clientHeight;
+      mini.hidden = !(sh > ch + 40) || state.mode !== "diagram";
+      if (mini.hidden) return;
+      mini.style.height = ch + "px";
+      miniWin.style.top = (dpanel.scrollTop / sh * 100) + "%";
+      miniWin.style.height = Math.max(6, ch / sh * 100) + "%";
+    }
+    dpanel.addEventListener("scroll", function () { updateMini(); hideTip(); }, { passive: true });
+    mini.addEventListener("click", function (e) {
+      var r = mini.getBoundingClientRect(), f = (e.clientY - r.top) / r.height;
+      dpanel.scrollTop = Math.max(0, f * dpanel.scrollHeight - dpanel.clientHeight / 2);
+    });
     function fitZoom() { var pw = dpanel.clientWidth || container.clientWidth || 800; return Math.max(state.expand ? 0.5 : 0.7, Math.min(1.25, (pw - 2) / D.w)); }
     function currentZoom() { return state.zoom === "fit" ? fitZoom() : state.zoom; }
     function applyZoom() {
@@ -3136,10 +3561,19 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       var z = currentZoom();
       D.svg.setAttribute("width", String(Math.round(D.w * z)));
       D.svg.setAttribute("height", String(Math.round(D.h * z)));
+      D.svg.style.width = Math.round(D.w * z) + "px"; D.svg.style.height = Math.round(D.h * z) + "px";
       zoomVal.textContent = Math.round(z * 100) + "%";
       zoomFit.setAttribute("aria-pressed", String(state.zoom === "fit"));
     }
-    function setZoom(z) { state.zoom = z === "fit" ? "fit" : Math.round(Math.max(0.4, Math.min(2.5, z)) * 10) / 10; applyZoom(); persist(); highlightDiagram(true); }
+    /* button zoom eases over 250 ms; pinch and Ctrl+wheel follow the fingers directly */
+    var zoomT = 0;
+    function setZoom(z) {
+      state.zoom = z === "fit" ? "fit" : Math.round(Math.max(0.4, Math.min(2.5, z)) * 10) / 10;
+      if (D && !reduceMotion) D.svg.classList.add("nthview-zooming");
+      applyZoom(); persist();
+      clearTimeout(zoomT);
+      zoomT = setTimeout(function () { if (D) D.svg.classList.remove("nthview-zooming"); highlightDiagram(true); updateMini(); }, reduceMotion ? 0 : 270);
+    }
     zoomIn.addEventListener("click", function () { setZoom(currentZoom() + 0.2); });
     zoomOut.addEventListener("click", function () { setZoom(currentZoom() - 0.2); });
     zoomFit.addEventListener("click", function () { setZoom("fit"); });
@@ -3184,10 +3618,22 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         u.node.classList.toggle("nthview-cur", j === k && state.step < N);
         u.node.setAttribute("tabindex", j === k ? "0" : "-1");
       });
+      var cu = k !== -1 && state.step < N ? D.units[k] : null;
+      D.band.style.display = cu ? "" : "none";
+      if (cu) {
+        var first = !D.bandPlaced; D.bandPlaced = true;
+        if (first) D.band.style.transition = "none";
+        var by = cu.y + (cu.box ? -4 : 2), bh = cu.h + (cu.box ? 8 : -4) + (cu.row && cu.row.note ? cu.row.note.h + 10 : 0);
+        D.band.style.transform = "translate(0px," + by + "px)";
+        D.bandRect.setAttribute("height", String(bh)); D.bandMark.setAttribute("height", String(bh));
+        if (first) { void D.band.getBoundingClientRect(); D.band.style.transition = ""; }
+      }
+      miniTicks.forEach(function (t, j) { t.classList.toggle("nthview-cur", j === k && state.step < N); });
+      updateMini();
       toStep.textContent = "";
-      if (state.step < N) { toStep.appendChild(doc.createTextNode("Open step " + numLabel(L, state.step))); toStep.appendChild(el("span", { class: "nthview-wide", text: " in step mode" })); }
+      if (state.step < N) { toStep.appendChild(doc.createTextNode("Open step " + numLabel(L, state.step))); toStep.appendChild(el("span", { class: "nthview-wide", text: "in step mode" })); }
       else toStep.textContent = L.depth ? "Back to the inner recap" : "Back to the recap";
-      progBar.style.width = Math.round(Math.min(state.step + 1, N) / N * 100) + "%";
+      setMeter(state.step);
       if (scroll && state.step < N && k !== -1) {
         var z = currentZoom(), u = D.units[k], top = u.y * z, ph = dpanel.clientHeight;
         if (top < dpanel.scrollTop + 20 || top + u.h * z > dpanel.scrollTop + ph - 20) dpanel.scrollTop = Math.max(0, top - ph / 3);
@@ -3220,6 +3666,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         persist();
         if (fromUser && root.matchMedia && root.matchMedia("(max-width: 700px)").matches) {
           var top = dtools.getBoundingClientRect().top + (root.pageYOffset || 0);
+          top -= bar.offsetHeight;
           if (top > (root.pageYOffset || 0) + 8) root.scrollTo(0, Math.max(0, top - 4));
         }
         highlightDiagram(true);
@@ -3234,7 +3681,9 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     }
     function onResize() {
       if (!container.isConnected) return;
+      measureBar();
       if (D && state.zoom === "fit" && state.mode === "diagram") applyZoom();
+      if (D && state.mode === "diagram") updateMini();
       if (state.mode === "step") {
         updateStageOverflow();
         if (lastLabel) { placeLabel(lastLabel[0], lastLabel[1]); if (lastFlight) revealFlight(lastFlight[0], lastFlight[1], false); }
@@ -3336,6 +3785,11 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       if (saved.mode === "step" || saved.mode === "diagram") state.mode = saved.mode;
       if (saved.zoom === "fit" || (typeof saved.zoom === "number" && saved.zoom >= 0.4 && saved.zoom <= 2.5)) state.zoom = saved.zoom;
       state.compare = saved.compare === true; state.details = saved.details === true; state.summarySeen = saved.summarySeen === true; state.expand = saved.expand === true;
+      state.holdsChanged = saved.holdsChanged === true;
+      if (saved.seen && typeof saved.seen === "object") Object.keys(saved.seen).forEach(function (k) {
+        var parts = k.split("."), last = parts.pop(), lvl = LEVELS[parts.join(".")], i = parseInt(last, 10);
+        if (lvl && String(i) === last && i >= 0 && i < lvl.N && saved.seen[k] === true) state.seen[k] = true;
+      });
       if (saved.recapSeen && typeof saved.recapSeen === "object") Object.keys(saved.recapSeen).forEach(function (k) { if (LEVELS[k] && k && saved.recapSeen[k] === true) state.recapSeen[k] = true; });
       if (saved.groups && typeof saved.groups === "object") {
         Object.keys(saved.groups).forEach(function (k) {
@@ -3358,6 +3812,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       }
     }
     setupLevel();
+    measureBar();
     if (state.mode === "diagram") setMode("diagram"); else { renderStep(false); }
     if (saved && !untouched()) {
       var whereTxt = L.depth
