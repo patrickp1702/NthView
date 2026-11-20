@@ -24,7 +24,8 @@ commit, and then update every existing view to match.
 6. **Single file.** The output depends on no sibling or local file: the
    view's own code is inlined. Third-party libraries and fonts may be loaded
    from the allowed CDNs (§5.4), pinned to a version and declared in
-   `NthView.libs`. Nothing else is fetched at runtime.
+   `NthView.libs`. Nothing else is fetched at runtime, except what a
+   declared on-demand entry loads after the learner asks for it (§5.4).
 7. Every data object carries an integer `schemaVersion`.
 8. The deliverable is **one** standalone HTML file built with the exact
    template in §6. Scripts are inlined in the order validate.js, view.js,
@@ -574,7 +575,9 @@ Rules the skeleton enforces and every view must keep:
    data, so content cannot inject markup.
 6. No `fetch`, `XMLHttpRequest`, `import`, and no local resources
    (`src="./x.js"`, `href="x.css"`, `url(./img.png)`). The only external
-   resources are the CDN entries declared in `NthView.libs` (§5.4).
+   resources are the CDN entries declared in `NthView.libs` (§5.4). The one
+   exception to `import` is the dynamic `import(<entry>.src)` of a declared
+   `module` entry (§5.4 rules 7–9).
 7. Responsive from 320px up; no horizontal page scroll.
 8. Keyboard: every interactive element is a real `button`, `a`, `input` or
    has `tabindex="0"` plus a key handler; visible focus comes from the shared
@@ -604,18 +607,53 @@ Rules:
 
 1. Allowed hosts, and no others: `cdnjs.cloudflare.com`, `cdn.jsdelivr.net`,
    `unpkg.com`, `fonts.googleapis.com`, `fonts.gstatic.com`. Always `https`.
+   Model weights for a `module` entry are the one exception (rule 9).
 2. Pin the version in the URL (`three.js/r128/`, `chart.js/4.4.1/`). Never
    `latest`.
-3. For every `script` entry, `build()` checks that `root[global]` exists and,
+3. For every `script` entry not marked `lazy`, `build()` checks that `root[global]` exists and,
    if not, renders the standard error panel with one error at `$`:
    `"<name> did not load from <src>. This file needs internet access the
    first time it opens."` It never throws and never renders a broken scene.
-4. The HTML template (§6) carries one tag per entry, before the inlined
+4. The HTML template (§6) carries one tag per entry that is not on demand
+   (rules 7–8), before the inlined
    scripts. `scripts/build-html.js` writes them from `NthView.libs`.
 5. `SKILL.md` names each library and states that the file needs internet
    access to load it.
 6. Prefer no library when plain JavaScript and CSS do the job. A view with
    no libraries omits `NthView.libs` entirely.
+
+**On-demand entries.** A library that only an optional feature needs (an
+exporter, a speech model) is loaded when the learner asks for that feature,
+never when the page opens:
+
+```js
+  { kind: "script", lazy: true, src: "https://cdn.jsdelivr.net/npm/mp4-muxer@5.2.2/build/mp4-muxer.js",
+    global: "Mp4Muxer", name: "mp4-muxer 5.2.2" },
+  { kind: "module", src: "https://cdn.jsdelivr.net/npm/kokoro-js@1.2.1/dist/kokoro.web.js",
+    name: "kokoro-js 1.2.1", weights: "https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX", size: "92 MB" }
+```
+
+7. A `lazy: true` script entry gets no tag in the HTML and no check in
+   `build()`. The view adds its `<script src>` only after the learner's
+   action, then checks `root[global]`.
+8. A `module` entry is a pinned ES module, always on demand. The view loads
+   it with `import(<entry>.src)`, the only form of `import` allowed, either
+   in the page or in a Web Worker the view creates from a `Blob` of its own
+   inline code (so heavy work does not freeze the page). It gets no tag in
+   the HTML.
+9. A `module` that needs model weights declares them in `weights`, with
+   their total download in `size`. Weights may come only from
+   `huggingface.co`, which serves the files through its own CDN on hosts
+   ending in `.hf.co` (for example `us.aws.cdn.hf.co`); the view never
+   names those hosts itself. The view says the download size before the
+   learner starts it, shows progress, lets the library cache the files in
+   the browser, and never fetches weights when the page opens.
+10. On-demand entries never block the view: offline, blocked or failed, the
+    feature shows a clear message and falls back (for example to the
+    system voice); everything else keeps working.
+11. `scripts/build-html.js` writes tags only for entries that are not
+    on demand. In a one-file lesson (§6 rule 9) on-demand entries stay CDN
+    links: they work online only and are never embedded.
 
 ### 5.5 Progress storage
 
@@ -719,7 +757,7 @@ four placeholders filled in. No other structure is permitted.
 <body>
   <div id="app"></div>
 
-{{one tag per entry in NthView.libs, in order, or nothing when the view has none:
+{{one tag per entry in NthView.libs that is not on demand (§5.4), in order, or nothing:
   <link rel="stylesheet" href="…">   for kind "style"
   <script src="…"></script>          for kind "script"}}
 
@@ -1033,8 +1071,9 @@ Copy into the task; every box must be ticked.
 - [ ] Built from the skeleton; `build`, error panel and style injection
       unchanged; `CSS`, `render` and helpers filled in.
 - [ ] Error panel verified by feeding invalid data.
-- [ ] No `fetch(`, `XMLHttpRequest` or `import`; every URL is an allowed
-      CDN host declared in `NthView.libs` (§5.4), version pinned.
+- [ ] No `fetch(`, `XMLHttpRequest` or `import` (except `import(<entry>.src)`
+      of a declared `module`); every URL is an allowed CDN host declared in
+      `NthView.libs` (§5.4), version pinned; weights only from `huggingface.co`.
 - [ ] With a CDN library blocked, the page shows the error panel, not a
       blank screen.
 - [ ] Checked at 320px and desktop width; both colour schemes; keyboard-only.
@@ -1104,7 +1143,8 @@ against the allowed CDN hosts, and must print no errors.
 ### Dependencies
 - No npm packages, bundlers or build steps. No `package.json` in the repo.
 - CDN libraries and fonts only as §5.4 allows: allowed hosts, pinned
-  versions, declared in `NthView.libs`, checked in `build()`.
+  versions, declared in `NthView.libs`, checked in `build()`, or loaded on
+  demand after the learner asks (§5.4 rules 7–11).
 - No analytics, tracking, or data fetched at runtime. The JSON is embedded.
 - Node is used only to run the repo scripts; it is not a dependency of the
   output.
