@@ -73,7 +73,7 @@ gallery: `nthview-island-quest`, `nthview-scenario-quiz`,
 `nthview-explorable`, `nthview-detective`, `nthview-concept-map`,
 `nthview-zoom-map`, `nthview-courier`, `nthview-temple-run`,
 `nthview-sequence`, `nthview-highlights`, `nthview-hunter`, `nthview-dataflow`,
-`nthview-mechanism`, `nthview-timeline`, plus the parent skill `nthview` (§10). New views are
+`nthview-mechanism`, `nthview-timeline`, `nthview-compare`, plus the parent skill `nthview` (§10). New views are
 added one at a time following §11.
 
 ---
