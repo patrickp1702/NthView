@@ -504,6 +504,8 @@
           return true;
         }
         function writeHash() {
+          /* only while the learner has the dialog open, so a plain visit never gains #lessons */
+          if (!(dlg.open || dlg.hasAttribute("open"))) return;
           var p = [];
           if (F.q) p.push("q=" + encodeURIComponent(F.q)); if (F.level) p.push("level=" + F.level); if (F.domain) p.push("domain=" + F.domain);
           if (F.tags.length) p.push("tag=" + F.tags.map(encodeURIComponent).join(",")); if (F.within) p.push("within=" + F.within); if (F.from) p.push("from=" + F.from); if (F.to) p.push("to=" + F.to); if (F.sort !== "updated") p.push("sort=" + F.sort);
