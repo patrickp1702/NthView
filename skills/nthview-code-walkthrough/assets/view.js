@@ -18,157 +18,264 @@
     ".nthview-error-panel h2{margin:0 0 .5rem;color:var(--nv-error)}",
     ".nthview-error-panel code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}",
     /* ---- view-specific styles below, every class prefixed nthview- ---- */
-    V + "{--nv-bg:#fbfaf7;--nv-fg:#1c1b19;--nv-muted:#5c5952;--nv-accent:#2457d6;--nv-on-accent:#fff;--nv-border:#dedad1;",
-    "  --nv-surface:#fff;--nv-soft:#f2f0ea;--nv-code:#f7f5f0;--nv-line:#fff2bf;--nv-bar:#d99a00;--nv-mark:rgba(255,196,0,.38);",
-    "  --nv-ok:#15803d;--nv-ok-bg:#e8f6ec;--nv-bad:#b42318;--nv-bad-bg:#fdeceb;",
-    "  --nv-kw:#7c3aed;--nv-str:#0f766e;--nv-com:#6b6f76;--nv-num:#b45309;--nv-pp:#be185d;",
-    "  max-width:82rem;padding:1rem 1rem 3rem;--nv-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace}",
-    "@media (prefers-color-scheme:dark){" + V + "{--nv-bg:#121316;--nv-fg:#e9e7e2;--nv-muted:#a9a59c;--nv-accent:#86a8ff;--nv-on-accent:#0b1220;--nv-border:#30323a;",
-    "  --nv-surface:#1a1c21;--nv-soft:#22252b;--nv-code:#16181c;--nv-line:#363117;--nv-bar:#f2c341;--nv-mark:rgba(242,195,65,.3);",
-    "  --nv-ok:#4ade80;--nv-ok-bg:#12291b;--nv-bad:#fb8a80;--nv-bad-bg:#33181a;",
-    "  --nv-kw:#c4b5fd;--nv-str:#5eead4;--nv-com:#8e939c;--nv-num:#fdba74;--nv-pp:#f9a8d4}}",
-    V + " h1,"+ V + " h2," + V + " h3{line-height:1.25}",
+    V + "{--nv-bg:#f7f6f3;--nv-fg:#1f1d1a;--nv-muted:#5c5850;--nv-accent:#2f58cd;--nv-on-accent:#fff;--nv-border:#e2ded5;--nv-strong-border:#c9c4b8;",
+    "  --nv-surface:#fff;--nv-soft:#efede8;--nv-tint:#e9eefc;--nv-code:#fcfbf9;--nv-gutter:#6f6a61;--nv-dim:#69655d;--nv-line:#fdf2cf;--nv-bar:#c58a00;--nv-mark:rgba(250,190,20,.34);",
+    "  --nv-ok:#13723a;--nv-ok-bg:#e7f5ec;--nv-bad:#b3261e;--nv-bad-bg:#fcebe9;",
+    "  --nv-kw:#6a3bcf;--nv-str:#0a7466;--nv-com:#6b675f;--nv-num:#9c4c08;--nv-pp:#a8216f;",
+    "  --nv-shadow:0 1px 2px rgba(30,25,15,.06),0 4px 16px rgba(30,25,15,.06);--nv-r:14px;--nv-stick:0px;",
+    "  --nv-mono:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;",
+    "  max-width:84rem;padding:0 1rem 4rem;font-size:16px;line-height:1.6}",
+    "@media (prefers-color-scheme:dark){" + V + "{--nv-bg:#111214;--nv-fg:#ecebe7;--nv-muted:#a9a59d;--nv-accent:#8eaaff;--nv-on-accent:#0b1226;--nv-border:#2b2d33;--nv-strong-border:#41444c;",
+    "  --nv-surface:#18191c;--nv-soft:#212328;--nv-tint:#1c2440;--nv-code:#141518;--nv-gutter:#8f8c84;--nv-dim:#9c988f;--nv-line:#2c2814;--nv-bar:#e8b83c;--nv-mark:rgba(232,184,60,.28);",
+    "  --nv-ok:#5fd48d;--nv-ok-bg:#11281b;--nv-bad:#ff8f86;--nv-bad-bg:#2f1618;",
+    "  --nv-kw:#c2b0ff;--nv-str:#6ed8c7;--nv-com:#959aa3;--nv-num:#f3b07a;--nv-pp:#f29bc9;--nv-shadow:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.25)}}",
+    V + " h1," + V + " h2," + V + " h3{line-height:1.2;letter-spacing:-.01em}",
     V + " button{font:inherit;color:inherit}",
-    V + " .nthview-cw-top{display:flex;align-items:flex-start;gap:.5rem 1rem;justify-content:space-between;margin-bottom:.5rem}",
-    V + " .nthview-cw-top>div{min-width:0;flex:1 1 auto}",
-    V + " .nthview-cw-kicker{margin:0;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--nv-muted)}",
-    V + " h1.nthview-title{margin:.1rem 0 .2rem;font-size:clamp(1.3rem,4vw,1.9rem);overflow-wrap:anywhere}",
-    V + " .nthview-cw-sub{margin:0;color:var(--nv-muted)}",
-    V + " .nthview-restart{min-height:40px;padding:.4rem .9rem;border-radius:999px;border:1px solid var(--nv-border);background:var(--nv-surface);cursor:pointer;font-weight:600}",
-    V + " .nthview-restart:hover{border-color:var(--nv-accent)}",
-    V + " .nthview-cw-tabs{display:flex;gap:.25rem;border-bottom:1px solid var(--nv-border);margin:.5rem 0 1rem;overflow-x:auto;scrollbar-width:thin}",
-    V + " .nthview-cw-tab{min-height:44px;padding:0 .9rem;background:none;border:0;border-bottom:3px solid transparent;color:var(--nv-muted);font-weight:650;cursor:pointer;white-space:nowrap}",
-    V + " .nthview-cw-tab[aria-selected=true]{color:var(--nv-fg);border-bottom-color:var(--nv-accent)}",
-    "@media (max-width:420px){" + V + " .nthview-cw-tab{padding:0 .4rem;font-size:.9rem}" + V + " .nthview-cw-count{margin-left:.2rem;padding:0 .3rem}" + V + " .nthview-restart{padding:.3rem .7rem}" + V + " .nthview-cw-codehead{gap:.3rem}" + V + " .nthview-cw-codehead .nthview-cw-path{font-size:.8rem}" + V + " .nthview-cw-codehead .nthview-cw-small{min-height:32px;padding:.1rem .45rem;font-size:.8rem}}",
-    V + " .nthview-cw-count{display:inline-block;margin-left:.35rem;padding:0 .45rem;border-radius:999px;background:var(--nv-soft);font-size:.8rem}",
-    V + " .nthview-resume{display:flex;gap:.5rem;align-items:center;background:var(--nv-soft);border:1px solid var(--nv-border);border-left:4px solid var(--nv-accent);border-radius:.6rem;padding:.55rem .85rem;margin:0 0 1rem;font-weight:600;transition:opacity .4s}",
-    V + " .nthview-resume.nthview-cw-gone{opacity:0}",
-    V + " .nthview-cw-btn{min-height:44px;padding:.5rem 1rem;border-radius:.65rem;border:1px solid var(--nv-border);background:var(--nv-surface);cursor:pointer;font-weight:600;text-align:center}",
+    V + " svg.nthview-cw-i{width:1.15em;height:1.15em;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.2em}",
+    V + " [hidden]{display:none!important}",
+    /* app bar */
+    V + " .nthview-cw-appbar{display:flex;align-items:center;gap:.75rem;padding:.75rem 0;border-bottom:1px solid var(--nv-border);margin-bottom:1.25rem;flex-wrap:wrap}",
+    V + " .nthview-cw-brand{flex:1 1 0;min-width:0;display:flex;flex-direction:column}",
+    V + " .nthview-cw-brand small{font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--nv-muted)}",
+    V + ".nthview-cw-at-intro .nthview-cw-brand strong{visibility:hidden}",
+    V + " .nthview-cw-brand strong{font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
+    V + " .nthview-cw-tabs{display:inline-flex;gap:2px;padding:3px;border-radius:12px;background:var(--nv-soft);border:1px solid var(--nv-border)}",
+    V + " .nthview-cw-tab{min-height:40px;padding:0 1rem;border:0;border-radius:9px;background:none;color:var(--nv-muted);font-weight:650;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:.4rem}",
+    V + " .nthview-cw-tab:hover{color:var(--nv-fg)}",
+    V + " .nthview-cw-tab[aria-selected=true]{background:var(--nv-surface);color:var(--nv-fg);box-shadow:0 1px 2px rgba(0,0,0,.12)}",
+    V + " .nthview-cw-count{font-size:.78rem;font-weight:700;padding:0 .4rem;border-radius:999px;background:var(--nv-border);color:var(--nv-fg);font-variant-numeric:tabular-nums}",
+    V + " .nthview-restart{min-height:40px;padding:0 .9rem;border-radius:10px;border:1px solid var(--nv-border);background:var(--nv-surface);cursor:pointer;font-weight:600;color:var(--nv-muted)}",
+    V + " .nthview-restart:hover{color:var(--nv-fg);border-color:var(--nv-strong-border)}",
+    "@media (max-width:640px){" + V + " .nthview-cw-tabs{order:3;flex:1 1 100%;display:grid;grid-template-columns:repeat(3,1fr)}" + V + " .nthview-cw-tab{justify-content:center;padding:0 .3rem}" + V + " .nthview-cw-appbar{gap:.5rem;margin-bottom:1rem}}",
+    /* resume toast: fixed, so it never shifts the layout */
+    V + " .nthview-resume{position:fixed;left:50%;bottom:1rem;z-index:20;transform:translateX(-50%);max-width:min(30rem,calc(100vw - 2rem));background:var(--nv-fg);color:var(--nv-bg);border-radius:12px;padding:.7rem 1rem;font-weight:600;font-size:.92rem;box-shadow:var(--nv-shadow);transition:opacity .3s,transform .3s}",
+    V + " .nthview-resume.nthview-cw-gone{opacity:0;transform:translate(-50%,8px)}",
+    /* buttons */
+    V + " .nthview-cw-btn{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;min-height:44px;padding:.5rem 1.05rem;border-radius:11px;border:1px solid var(--nv-strong-border);background:var(--nv-surface);cursor:pointer;font-weight:650;text-align:center;transition:background .15s,border-color .15s,transform .1s}",
     V + " .nthview-cw-btn:hover{border-color:var(--nv-accent)}",
-    V + " .nthview-cw-btn[disabled]{opacity:.5;cursor:default}",
+    V + " .nthview-cw-btn:active{transform:translateY(1px)}",
+    V + " .nthview-cw-btn[disabled]{opacity:.45;cursor:default;transform:none}",
     V + " .nthview-cw-primary{background:var(--nv-accent);border-color:var(--nv-accent);color:var(--nv-on-accent)}",
-    V + " .nthview-cw-small{min-height:36px;padding:.25rem .7rem;font-size:.88rem;border-radius:.5rem}",
-    V + " .nthview-cw-small[aria-pressed=true]{background:var(--nv-soft);border-color:var(--nv-accent)}",
-    V + " .nthview-cw-row{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}",
-    V + " .nthview-cw-card{background:var(--nv-surface);border:1px solid var(--nv-border);border-radius:.9rem;padding:1rem 1.1rem;margin:0 0 1rem}",
-    V + " .nthview-cw-card>:first-child{margin-top:0}",
-    V + " .nthview-cw-card>:last-child{margin-bottom:0}",
-    V + " .nthview-cw-ic{font-family:var(--nv-mono);font-size:.9em;background:var(--nv-soft);border:1px solid var(--nv-border);border-radius:.3rem;padding:0 .25rem;overflow-wrap:anywhere}",
-    V + " .nthview-cw-link{background:none;border:0;padding:0;color:var(--nv-accent);text-decoration:underline;cursor:pointer;font-weight:600}",
-    V + " a{color:var(--nv-accent)}",
+    V + " .nthview-cw-primary:hover{filter:brightness(1.07)}",
+    V + " .nthview-cw-ghost{border-color:transparent;background:none;color:var(--nv-muted)}",
+    V + " .nthview-cw-ghost:hover{color:var(--nv-fg);background:var(--nv-soft);border-color:transparent}",
+    V + " .nthview-cw-small{min-height:36px;padding:.25rem .75rem;font-size:.9rem;border-radius:9px}",
+    V + " .nthview-cw-link{background:none;border:0;padding:0;color:var(--nv-accent);text-decoration:underline;text-underline-offset:2px;cursor:pointer;font-weight:600}",
+    V + " a{color:var(--nv-accent);text-underline-offset:2px}",
+    V + " .nthview-cw-row{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center}",
+    V + " .nthview-cw-ic{font-family:var(--nv-mono);font-size:.88em;background:var(--nv-soft);border:1px solid var(--nv-border);border-radius:5px;padding:.05em .3em;overflow-wrap:anywhere}",
+    V + " .nthview-cw-eyebrow{margin:0 0 .35rem;font-size:.78rem;font-weight:750;letter-spacing:.08em;text-transform:uppercase;color:var(--nv-accent)}",
+    V + " .nthview-cw-card{background:var(--nv-surface);border:1px solid var(--nv-border);border-radius:var(--nv-r);padding:1.1rem 1.25rem;margin:0 0 1rem;box-shadow:var(--nv-shadow)}",
+    V + " .nthview-cw-card>:first-child{margin-top:0}" + V + " .nthview-cw-card>:last-child{margin-bottom:0}",
+    V + " .nthview-cw-in{animation:nthview-cw-in .22s ease-out both}",
+    "@keyframes nthview-cw-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}",
+    /* intro hero */
+    V + " .nthview-cw-hero{max-width:46rem;padding:1.5rem 0 .5rem}",
+    V + " .nthview-cw-hero h1{font-size:clamp(1.9rem,6vw,3rem);margin:.2rem 0 .6rem;overflow-wrap:anywhere}",
+    V + " .nthview-cw-lede{font-size:1.15rem;color:var(--nv-muted);margin:0 0 1.1rem;max-width:40rem}",
+    V + " .nthview-cw-meta{display:flex;flex-wrap:wrap;gap:.4rem .5rem;margin:0 0 1.4rem;padding:0;list-style:none}",
+    V + " .nthview-cw-meta li{display:inline-flex;align-items:center;gap:.35rem;padding:.25rem .65rem;border-radius:999px;background:var(--nv-surface);border:1px solid var(--nv-border);font-size:.88rem;font-weight:600;color:var(--nv-muted)}",
+    V + " .nthview-cw-cta{display:flex;flex-wrap:wrap;gap:.5rem 1rem;align-items:center;margin:0 0 2rem}",
+    V + " .nthview-cw-cta .nthview-cw-primary{min-height:52px;padding:.6rem 1.5rem;font-size:1.05rem;border-radius:13px}",
+    V + " .nthview-cw-cta p{margin:0;color:var(--nv-muted);font-size:.95rem}",
+    V + " .nthview-cw-introgrid{display:grid;gap:1rem;grid-template-columns:minmax(0,1fr);max-width:64rem}",
+    "@media (min-width:900px){" + V + " .nthview-cw-introgrid{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);align-items:start}}",
+    V + " .nthview-cw-section{font-size:1.05rem;margin:0 0 .6rem}",
+    V + " .nthview-cw-prose p{margin:0 0 .8rem;max-width:68ch}",
+    V + " .nthview-cw-files{list-style:none;margin:.2rem 0 0;padding:0;display:grid;gap:.4rem}",
+    V + " .nthview-cw-files li{display:flex;flex-wrap:wrap;gap:.2rem .6rem;align-items:baseline;font-size:.93rem}",
+    V + " .nthview-cw-files code{font-family:var(--nv-mono);font-weight:600;font-size:.9em}",
+    V + " .nthview-cw-files span{color:var(--nv-muted)}",
+    V + " .nthview-cw-route{list-style:none;margin:0;padding:0;display:grid;gap:.2rem}",
+    /* step list rows (contents dialog, route, code tab) */
+    V + " .nthview-cw-jump{display:flex;gap:.7rem;width:100%;min-height:44px;align-items:center;text-align:left;background:none;border:0;border-radius:10px;padding:.35rem .55rem;cursor:pointer}",
+    V + " .nthview-cw-jump:hover{background:var(--nv-soft)}",
+    V + " .nthview-cw-jump[aria-current=step]{background:var(--nv-tint);font-weight:700}",
+    V + " .nthview-cw-jump small{display:block;color:var(--nv-muted);font-weight:500;font-size:.82rem}",
+    V + " .nthview-cw-num{flex:none;width:1.9rem;height:1.9rem;border-radius:999px;border:1.5px solid var(--nv-strong-border);display:inline-flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:750;font-variant-numeric:tabular-nums;background:var(--nv-surface)}",
+    V + " .nthview-cw-seen .nthview-cw-num{background:var(--nv-soft);border-color:var(--nv-soft)}",
+    V + " [aria-current=step] .nthview-cw-num{background:var(--nv-accent);border-color:var(--nv-accent);color:var(--nv-on-accent)}",
+    V + " .nthview-cw-tick{margin-left:auto;color:var(--nv-ok);display:inline-flex}",
+    V + " .nthview-cw-grouplabel{margin:.9rem 0 .25rem .55rem;font-size:.75rem;font-weight:750;letter-spacing:.08em;text-transform:uppercase;color:var(--nv-muted)}",
+    /* dialog */
+    V + " .nthview-cw-dialog{border:1px solid var(--nv-border);border-radius:18px;padding:0;width:min(34rem,calc(100vw - 1.5rem));max-height:min(40rem,calc(100vh - 3rem));background:var(--nv-surface);color:var(--nv-fg);box-shadow:0 20px 60px rgba(0,0,0,.35)}",
+    V + " .nthview-cw-dialog::backdrop{background:rgba(10,10,12,.45)}",
+    V + " .nthview-cw-dlghead{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.8rem .8rem .6rem 1.2rem;border-bottom:1px solid var(--nv-border);position:sticky;top:0;background:var(--nv-surface);z-index:1}",
+    V + " .nthview-cw-dlghead h2{margin:0;font-size:1.1rem}",
+    V + " .nthview-cw-dlgbody{padding:.4rem .7rem 1rem}",
+    V + " .nthview-cw-iconbtn{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;border-radius:10px;border:1px solid transparent;background:none;cursor:pointer;color:var(--nv-muted)}",
+    V + " .nthview-cw-iconbtn:hover{background:var(--nv-soft);color:var(--nv-fg)}",
     /* walkthrough layout */
-    V + " .nthview-cw-walk{display:grid;gap:1rem;grid-template-columns:minmax(0,1fr)}",
+    V + " .nthview-cw-walk{display:grid;gap:1.5rem;grid-template-columns:minmax(0,1fr);min-height:calc(100vh - 2rem)}",
+    "@media (min-width:960px){" + V + " .nthview-cw-walk{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:2.25rem;align-items:start}" + V + " .nthview-cw-codepane{position:sticky;top:1rem}" + V + " .nthview-cw-codepane .nthview-cw-code{max-height:calc(100vh - 11rem)}}",
     V + " .nthview-cw-codepane{min-width:0;background:var(--nv-bg)}",
-    "@media (min-width:900px){" + V + " .nthview-cw-walk{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);align-items:start}" + V + " .nthview-cw-codepane{position:sticky;top:.75rem}" + V + " .nthview-cw-codepane .nthview-cw-code{max-height:calc(100vh - 8rem)}}",
-    "@media (max-width:899px) and (min-height:560px){" + V + " .nthview-cw-codepane{position:sticky;top:0;z-index:2;padding:.4rem 0 .5rem;box-shadow:0 10px 12px -12px rgba(0,0,0,.35)}" + V + " .nthview-cw-codepane .nthview-cw-code{max-height:34vh}" + V + " .nthview-cw-codepane.nthview-cw-shrunk .nthview-cw-code{max-height:5.2em}}",
-    V + " .nthview-cw-codehead{display:flex;flex-wrap:wrap;gap:.35rem .5rem;align-items:center;margin-bottom:.4rem;font-size:.88rem;color:var(--nv-muted)}",
-    V + " .nthview-cw-path{font-family:var(--nv-mono);color:var(--nv-fg);font-weight:600;overflow-wrap:anywhere;margin-right:auto}",
-    "@media (min-width:900px),(max-height:559px){" + V + " .nthview-cw-only-phone{display:none}}",
-    "@media (max-width:899px) and (min-height:560px){" + V + " .nthview-cw-codepane .nthview-cw-caption{display:none}}",
-    "@media (max-width:360px){" + V + " .nthview-cw-count{display:none}}",
-    V + " .nthview-cw-caption{font-size:.85rem;color:var(--nv-muted);margin:.4rem 0 0}",
-    /* code block */
-    V + " .nthview-cw-code{position:relative;background:var(--nv-code);border:1px solid var(--nv-border);border-radius:.6rem;overflow:auto;padding:.4rem 0;font:14px/1.55 var(--nv-mono);tab-size:4;-moz-tab-size:4}",
+    "@media (max-width:959px) and (min-height:540px){" + V + " .nthview-cw-codepane{position:sticky;top:0;z-index:5;margin:0 -1rem;padding:.5rem 1rem .6rem;border-bottom:1px solid var(--nv-border);box-shadow:0 8px 16px -14px rgba(0,0,0,.5)}" + V + " .nthview-cw-codepane .nthview-cw-code{max-height:30vh}" + V + " .nthview-cw-codepane.nthview-cw-shrunk .nthview-cw-code{max-height:6.9em}}",
+    "@media (min-width:960px),(max-height:539px){" + V + " .nthview-cw-only-phone{display:none!important}}",
+    "@media (max-width:959px) and (min-height:540px){" + V + " .nthview-cw-codepane .nthview-cw-caption{display:none}}",
+    V + " .nthview-cw-short{display:none}",
+    "@media (max-width:600px){" + V + " .nthview-cw-spot{max-height:19rem}}",
+    "@media (max-width:420px){" + V + " .nthview-cw-long{display:none}" + V + " .nthview-cw-short{display:inline}" + V + " .nthview-cw-filebar>svg{display:none}}",
+    /* step bar: Previous / n of m / Next, always at the same place */
+    V + " .nthview-cw-stepbar{display:grid;grid-template-columns:minmax(0,1fr) 9rem minmax(0,1fr);gap:.5rem;align-items:center;margin:0 0 .6rem}",
+    V + " .nthview-cw-stepbar .nthview-cw-btn{min-height:44px;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
+    V + " .nthview-cw-stepbar .nthview-cw-prev{justify-self:start}",
+    V + " .nthview-cw-stepno{display:flex;flex-direction:column;align-items:center;gap:.3rem;width:100%;min-height:44px;justify-content:center;padding:.2rem .3rem;border-radius:10px;border:0;background:none;cursor:pointer;font-weight:700;font-variant-numeric:tabular-nums}",
+    V + " .nthview-cw-stepno:hover{background:var(--nv-soft)}",
+    V + " .nthview-cw-stepno>span{display:inline-flex;align-items:center;gap:.3rem;font-size:.92rem;white-space:nowrap}",
+    V + " .nthview-cw-ticks{display:flex;gap:3px;width:100%}",
+    V + " .nthview-cw-ticks i{flex:1;height:4px;border-radius:2px;background:var(--nv-border)}",
+    V + " .nthview-cw-ticks i.nthview-cw-t-seen{background:color-mix(in srgb,var(--nv-accent) 45%,var(--nv-border))}",
+    V + " .nthview-cw-ticks i.nthview-cw-t-now{background:var(--nv-accent)}",
+    /* code box */
+    V + " .nthview-cw-codebox{border:1px solid var(--nv-border);border-radius:var(--nv-r);background:var(--nv-code);box-shadow:var(--nv-shadow);overflow:hidden}",
+    V + " .nthview-cw-filebar{position:relative;display:flex;align-items:center;gap:.5rem;min-height:44px;padding:.15rem .3rem .15rem .9rem;border-bottom:1px solid var(--nv-border);background:var(--nv-surface);font-size:.85rem}",
+    V + " .nthview-cw-path{font-family:var(--nv-mono);font-weight:650;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}",
+    V + " .nthview-cw-filetag{flex:none;padding:.05rem .5rem;border-radius:999px;background:var(--nv-soft);color:var(--nv-muted);font-weight:650;font-size:.78rem;white-space:nowrap}",
+    V + " .nthview-cw-filebar .nthview-cw-iconbtn{margin-left:auto;min-height:40px;min-width:40px}",
+    V + " .nthview-cw-menu{position:absolute;right:.4rem;top:calc(100% + .3rem);z-index:6;min-width:15rem;padding:.4rem;border-radius:12px;border:1px solid var(--nv-border);background:var(--nv-surface);box-shadow:0 12px 32px rgba(0,0,0,.2)}",
+    V + " .nthview-cw-switch{display:flex;align-items:center;justify-content:space-between;gap:1rem;width:100%;min-height:44px;padding:.3rem .6rem;border:0;border-radius:8px;background:none;cursor:pointer;text-align:left;font-size:.92rem}",
+    V + " .nthview-cw-switch:hover{background:var(--nv-soft)}",
+    V + " .nthview-cw-switch b{flex:none;width:2.3rem;height:1.35rem;border-radius:999px;background:var(--nv-strong-border);position:relative;transition:background .15s}",
+    V + " .nthview-cw-switch b::after{content:'';position:absolute;top:3px;left:3px;width:calc(1.35rem - 6px);height:calc(1.35rem - 6px);border-radius:50%;background:#fff;transition:transform .15s}",
+    V + " .nthview-cw-switch[aria-checked=true] b{background:var(--nv-accent)}",
+    V + " .nthview-cw-switch[aria-checked=true] b::after{transform:translateX(.95rem)}",
+    V + " .nthview-cw-code{position:relative;overflow:auto;padding:.5rem 0;font:14px/1.65 var(--nv-mono);tab-size:4;-moz-tab-size:4;overscroll-behavior:contain}",
     V + " .nthview-cw-tx{--nv-ind:var(--nv-i4)}",
-    "@media (max-width:600px){" + V + " .nthview-cw-code{font-size:13.5px;tab-size:2;-moz-tab-size:2}" + V + " .nthview-cw-tx{--nv-ind:var(--nv-i2)}}",
+    "@media (max-width:600px){" + V + " .nthview-cw-code{font-size:13px;tab-size:2;-moz-tab-size:2}" + V + " .nthview-cw-tx{--nv-ind:var(--nv-i2)}}",
     V + " .nthview-cw-lines{min-width:100%}",
     V + " .nthview-cw-nowrap .nthview-cw-lines{width:max-content}",
-    V + " .nthview-cw-line{display:grid;grid-template-columns:var(--nv-gw,6ch) minmax(0,1fr);min-height:1.55em}",
-    V + " .nthview-cw-ln{position:sticky;left:0;z-index:1;text-align:right;padding-right:1ch;color:var(--nv-muted);background:var(--nv-code);user-select:none;-webkit-user-select:none;font-variant-numeric:tabular-nums}",
-    V + " .nthview-cw-tx{white-space:pre-wrap;overflow-wrap:anywhere;padding-left:calc((var(--nv-ind,0) + 2) * 1ch);text-indent:-2ch;padding-right:.8em}",
+    V + " .nthview-cw-line{display:grid;grid-template-columns:var(--nv-gw,6ch) minmax(0,1fr);min-height:1.65em;transition:opacity .2s}",
+    V + " .nthview-cw-ln{position:sticky;left:0;z-index:1;display:flex;justify-content:flex-end;align-items:flex-start;gap:.3rem;padding-right:1.2ch;color:var(--nv-gutter);background:var(--nv-code);user-select:none;-webkit-user-select:none;font-variant-numeric:tabular-nums}",
+    V + " .nthview-cw-tx{white-space:pre-wrap;overflow-wrap:anywhere;padding-left:calc((var(--nv-ind,0) + 2) * 1ch);text-indent:-2ch;padding-right:1ch}",
     V + " .nthview-cw-nowrap .nthview-cw-tx{white-space:pre;overflow-wrap:normal}",
-    V + " .nthview-cw-on,.nthview-code-walkthrough .nthview-cw-on .nthview-cw-ln{background:var(--nv-line)}",
-    V + " .nthview-cw-on .nthview-cw-ln{color:var(--nv-fg);box-shadow:inset 3px 0 var(--nv-bar)}",
-    V + " .nthview-cw-dim .nthview-cw-line:not(.nthview-cw-on){opacity:.45}",
+    V + " .nthview-cw-on," + V + " .nthview-cw-on .nthview-cw-ln{background:var(--nv-line)}",
+    V + " .nthview-cw-on .nthview-cw-ln{color:var(--nv-fg);font-weight:650;box-shadow:inset 3px 0 var(--nv-bar)}",
+    /* dimmed lines change colour, not opacity, so they keep 4.5:1 contrast (WCAG 1.4.3) */
+    V + " .nthview-cw-dim .nthview-cw-line:not(.nthview-cw-on) .nthview-cw-tx," + V + " .nthview-cw-dim .nthview-cw-line:not(.nthview-cw-on) .nthview-cw-tx *{color:var(--nv-dim);font-weight:400}",
     V + " .nthview-cw-mark{background:var(--nv-mark);color:inherit;border-radius:3px;box-shadow:0 0 0 1px var(--nv-bar)}",
+    V + " .nthview-cw-flash .nthview-cw-on{animation:nthview-cw-flash .9s ease-out}",
+    "@keyframes nthview-cw-flash{0%{filter:brightness(.92)}100%{filter:none}}",
     V + " .nthview-t-kw{color:var(--nv-kw);font-weight:600}" + V + " .nthview-t-str{color:var(--nv-str)}" + V + " .nthview-t-com{color:var(--nv-com);font-style:italic}" + V + " .nthview-t-num{color:var(--nv-num)}" + V + " .nthview-t-pp{color:var(--nv-pp)}",
-    V + " .nthview-cw-has{cursor:pointer}",
-    V + " .nthview-cw-has:hover .nthview-cw-tx{background:var(--nv-soft)}",
-    V + " .nthview-cw-badge{display:inline-block;min-width:1.5em;margin-right:.3em;padding:0 .3em;border-radius:999px;background:var(--nv-accent);color:var(--nv-on-accent);font-size:.72em;line-height:1.5;text-align:center;font-weight:700}",
-    /* note pane */
-    V + " .nthview-cw-notepane{min-width:0}",
-    V + " .nthview-cw-progress{display:flex;flex-wrap:wrap;gap:.25rem .75rem;align-items:center;font-size:.88rem;color:var(--nv-muted);margin-bottom:.35rem}",
-    V + " .nthview-cw-chip{display:inline-block;padding:.15rem .6rem;border-radius:999px;background:var(--nv-soft);border:1px solid var(--nv-border);color:var(--nv-fg);font-weight:650;font-size:.82rem}",
-    V + " .nthview-cw-bar{height:6px;border-radius:99px;background:var(--nv-soft);overflow:hidden;margin:.2rem 0 .8rem}",
-    V + " .nthview-cw-bar>span{display:block;height:100%;background:var(--nv-accent);transition:width .3s}",
-    V + " h2.nthview-cw-steptitle{margin:.2rem 0 .6rem;font-size:1.3rem}",
+    V + " .nthview-cw-badge{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:22px;padding:0 .35rem;border-radius:999px;border:0;background:var(--nv-accent);color:var(--nv-on-accent);font:700 .72rem/1 system-ui,sans-serif;cursor:pointer}",
+    V + " .nthview-cw-caption{font-size:.85rem;color:var(--nv-muted);margin:.55rem .2rem 0}",
+    /* note column */
+    V + " .nthview-cw-notepane{min-width:0;max-width:42rem}",
+    V + " h2.nthview-cw-steptitle{margin:0 0 .7rem;font-size:clamp(1.35rem,3.2vw,1.7rem)}",
     V + " h2.nthview-cw-steptitle:focus{outline:none}",
-    V + " .nthview-cw-note p{margin:0 0 .75rem}",
-    V + " .nthview-cw-outline{margin:0 0 1rem;padding:.6rem .8rem;border:1px solid var(--nv-border);border-radius:.7rem;background:var(--nv-surface)}",
-    V + " .nthview-cw-outline h3{margin:.6rem 0 .25rem;font-size:.82rem;text-transform:uppercase;letter-spacing:.05em;color:var(--nv-muted)}",
-    V + " .nthview-cw-outline ol{list-style:none;margin:0;padding:0}",
-    V + " .nthview-cw-jump{display:flex;gap:.5rem;width:100%;min-height:40px;align-items:center;text-align:left;background:none;border:0;border-radius:.45rem;padding:.3rem .5rem;cursor:pointer}",
-    V + " .nthview-cw-jump:hover{background:var(--nv-soft)}",
-    V + " .nthview-cw-jump[aria-current=step]{background:var(--nv-line);font-weight:700}",
-    V + " .nthview-cw-num{flex:none;min-width:1.7em;height:1.7em;border-radius:999px;border:1px solid var(--nv-border);display:inline-flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700}",
-    V + " .nthview-cw-seen .nthview-cw-num{background:var(--nv-soft)}",
-    V + " .nthview-cw-tick{margin-left:auto;color:var(--nv-ok);font-weight:700}",
-    V + " .nthview-cw-watch{width:100%;border-collapse:collapse;margin:0 0 1rem;font-size:.92rem;background:var(--nv-surface);border:1px solid var(--nv-border);border-radius:.6rem;overflow:hidden}",
-    V + " .nthview-cw-watch caption{text-align:left;font-weight:700;font-size:.82rem;text-transform:uppercase;letter-spacing:.05em;color:var(--nv-muted);padding:0 0 .3rem}",
-    V + " .nthview-cw-watch th,.nthview-code-walkthrough .nthview-cw-watch td{padding:.35rem .6rem;border-top:1px solid var(--nv-border);text-align:left;vertical-align:top}",
-    V + " .nthview-cw-watch th{font-family:var(--nv-mono);font-weight:600;overflow-wrap:anywhere;width:42%}",
-    V + " .nthview-cw-watch td b{font-family:var(--nv-mono)}",
-    V + " .nthview-cw-watch small{display:block;color:var(--nv-muted)}",
-    V + " .nthview-cw-gate{border:1px dashed var(--nv-border);border-radius:.7rem;padding:.7rem .9rem;margin:0 0 1rem;color:var(--nv-muted)}",
-    V + " .nthview-cw-nav{display:flex;gap:.5rem;justify-content:space-between;margin-top:1.25rem;flex-wrap:wrap}",
-    V + " .nthview-cw-nav .nthview-cw-btn{flex:1 1 9rem}",
-    V + " .nthview-cw-keys{font-size:.82rem;color:var(--nv-muted);margin:.6rem 0 0}",
+    V + " .nthview-cw-where{display:inline-flex;align-items:center;gap:.4rem;min-height:32px;margin:0 0 .9rem;padding:.15rem .65rem;border-radius:999px;border:1px solid var(--nv-border);background:var(--nv-surface);font:600 .82rem/1.2 var(--nv-mono);color:var(--nv-muted);cursor:pointer}",
+    V + " .nthview-cw-where:hover{border-color:var(--nv-bar);color:var(--nv-fg)}",
+    V + " .nthview-cw-where i{width:.6rem;height:.6rem;border-radius:2px;background:var(--nv-bar)}",
+    V + " .nthview-cw-note p{margin:0 0 .9rem;font-size:1.03rem;line-height:1.7}",
+    V + " .nthview-cw-trace{margin:0 0 1.25rem;border:1px solid var(--nv-border);border-radius:12px;overflow:hidden;background:var(--nv-surface)}",
+    V + " .nthview-cw-trace h3{margin:0;padding:.5rem .85rem;font-size:.75rem;font-weight:750;letter-spacing:.08em;text-transform:uppercase;color:var(--nv-muted);background:var(--nv-soft);border-bottom:1px solid var(--nv-border)}",
+    V + " .nthview-cw-trace dl{margin:0;display:grid;grid-template-columns:minmax(6rem,auto) minmax(0,1fr)}",
+    V + " .nthview-cw-trace dt," + V + " .nthview-cw-trace dd{margin:0;padding:.45rem .85rem;border-top:1px solid var(--nv-border)}",
+    V + " .nthview-cw-trace dt:first-of-type," + V + " .nthview-cw-trace dt:first-of-type+dd{border-top:0}",
+    V + " .nthview-cw-trace dt{font-family:var(--nv-mono);font-size:.88rem;color:var(--nv-muted);overflow-wrap:anywhere}",
+    V + " .nthview-cw-trace dd b{font-family:var(--nv-mono);font-size:.95rem}",
+    V + " .nthview-cw-trace dd small{display:block;color:var(--nv-muted);font-size:.84rem;line-height:1.4}",
+    V + " .nthview-cw-gate{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;justify-content:space-between;border:1.5px dashed var(--nv-strong-border);border-radius:12px;padding:.8rem 1rem;margin:0 0 1rem;color:var(--nv-muted)}",
+    V + " .nthview-cw-gate p{margin:0}",
+    V + " .nthview-cw-next{display:flex;flex-direction:column;align-items:flex-start;gap:.15rem;width:100%;min-height:64px;padding:.8rem 1.1rem;margin-top:1.5rem;border-radius:var(--nv-r);border:1px solid var(--nv-accent);background:var(--nv-tint);cursor:pointer;text-align:left}",
+    V + " .nthview-cw-next small{font-size:.78rem;font-weight:750;letter-spacing:.08em;text-transform:uppercase;color:var(--nv-accent)}",
+    V + " .nthview-cw-next span{font-weight:700;font-size:1.05rem}",
+    V + " .nthview-cw-next:hover{filter:brightness(.98)}",
+    V + " .nthview-cw-back{margin-top:.6rem}",
+    V + " .nthview-cw-keys{font-size:.84rem;color:var(--nv-muted);margin:1rem 0 0}",
+    V + " kbd{font:600 .8em var(--nv-mono);padding:.05em .4em;border-radius:5px;border:1px solid var(--nv-strong-border);border-bottom-width:2px;background:var(--nv-surface)}",
+    "@media (hover:none){" + V + " .nthview-cw-keys{display:none}}",
     /* checks */
-    V + " .nthview-cw-check{border-left:4px solid var(--nv-accent)}",
-    V + " .nthview-cw-check.nthview-cw-solved{border-left-color:var(--nv-ok)}",
-    V + " .nthview-cw-kind{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;font-size:.78rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--nv-muted);margin:0 0 .35rem}",
-    V + " .nthview-cw-status{margin-left:auto;text-transform:none;letter-spacing:0;color:var(--nv-ok)}",
-    V + " .nthview-cw-prompt{font-weight:650;margin:0 0 .7rem}",
-    V + " .nthview-cw-opts{display:grid;gap:.45rem;margin:0 0 .6rem}",
-    V + " .nthview-cw-opt{display:block;width:100%;text-align:left;min-height:44px;padding:.55rem .8rem;border-radius:.6rem;border:1px solid var(--nv-border);background:var(--nv-bg);cursor:pointer}",
+    V + " .nthview-cw-checkhead{margin:1.6rem 0 .6rem;font-size:.78rem;font-weight:750;letter-spacing:.08em;text-transform:uppercase;color:var(--nv-muted);display:flex;align-items:center;gap:.6rem}",
+    V + " .nthview-cw-checkhead::after{content:'';flex:1;height:1px;background:var(--nv-border)}",
+    V + " .nthview-cw-check{padding:1rem 1.1rem 1.1rem}",
+    V + " .nthview-cw-kind{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin:0 0 .45rem;font-size:.8rem;font-weight:700;color:var(--nv-accent)}",
+    V + " .nthview-cw-pill{margin-left:auto;display:inline-flex;align-items:center;gap:.25rem;padding:.1rem .55rem;border-radius:999px;font-size:.76rem;font-weight:700;background:var(--nv-ok-bg);color:var(--nv-ok)}",
+    V + " .nthview-cw-pill.nthview-cw-pill-shown{background:var(--nv-soft);color:var(--nv-muted)}",
+    V + " .nthview-cw-prompt{font-weight:650;font-size:1.02rem;margin:0 0 .8rem}",
+    V + " .nthview-cw-opts{display:grid;gap:.5rem;margin:0 0 .3rem}",
+    V + " .nthview-cw-opt{display:grid;grid-template-columns:1.9rem minmax(0,1fr);gap:.65rem;align-items:start;width:100%;text-align:left;min-height:48px;padding:.6rem .8rem;border-radius:11px;border:1.5px solid var(--nv-border);background:var(--nv-surface);cursor:pointer;transition:border-color .15s,background .15s}",
     V + " .nthview-cw-opt:hover{border-color:var(--nv-accent)}",
+    V + " .nthview-cw-opt[aria-disabled=true]{cursor:default}",
+    V + " .nthview-cw-opt[aria-disabled=true]:hover{border-color:var(--nv-border)}",
+    V + " .nthview-cw-letter{width:1.9rem;height:1.9rem;border-radius:8px;border:1.5px solid var(--nv-strong-border);display:inline-flex;align-items:center;justify-content:center;font-weight:750;font-size:.85rem;color:var(--nv-muted)}",
     V + " .nthview-cw-opt.nthview-cw-ok{border-color:var(--nv-ok);background:var(--nv-ok-bg)}",
+    V + " .nthview-cw-opt.nthview-cw-ok .nthview-cw-letter{background:var(--nv-ok);border-color:var(--nv-ok);color:var(--nv-surface)}",
     V + " .nthview-cw-opt.nthview-cw-bad{border-color:var(--nv-bad);background:var(--nv-bad-bg)}",
-    V + " .nthview-cw-why{display:block;font-size:.9rem;color:var(--nv-muted);margin-top:.25rem}",
-    V + " .nthview-cw-mk{font-weight:800;margin-right:.35rem}",
-    V + " .nthview-cw-ok>.nthview-cw-mk{color:var(--nv-ok)}" + V + " .nthview-cw-bad>.nthview-cw-mk{color:var(--nv-bad)}",
-    V + " .nthview-cw-fb{min-height:1.2em;margin:.5rem 0 0;font-weight:600}",
-    V + " .nthview-cw-fb.nthview-cw-badtxt{color:var(--nv-bad)}" + V + " .nthview-cw-fb.nthview-cw-oktxt{color:var(--nv-ok)}",
-    V + " .nthview-cw-explain{margin:.7rem 0 0;padding:.6rem .8rem;border-radius:.6rem;background:var(--nv-soft)}",
-    V + " .nthview-cw-explain strong{display:block;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;color:var(--nv-muted)}",
-    V + " .nthview-cw-input{font:16px var(--nv-mono);min-height:44px;padding:.45rem .6rem;border-radius:.5rem;border:1px solid var(--nv-border);background:var(--nv-bg);color:var(--nv-fg);width:14rem;max-width:100%}",
+    V + " .nthview-cw-opt.nthview-cw-bad .nthview-cw-letter{background:var(--nv-bad);border-color:var(--nv-bad);color:var(--nv-surface)}",
+    V + " .nthview-cw-opt .nthview-cw-why{grid-column:2}",
+    V + " .nthview-cw-why{display:block;font-size:.92rem;color:var(--nv-muted);margin-top:.15rem;line-height:1.5}",
+    V + " .nthview-cw-actions{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin-top:.8rem}",
+    V + " .nthview-cw-fb{display:grid;grid-template-columns:auto minmax(0,1fr);gap:.2rem .6rem;margin-top:.9rem;padding:.75rem .9rem;border-radius:12px;background:var(--nv-soft);border-left:4px solid var(--nv-strong-border)}",
+    V + " .nthview-cw-fb:focus{outline:none}",
+    V + " .nthview-cw-fb>svg{margin-top:.2rem}",
+    V + " .nthview-cw-fb strong{display:block}",
+    V + " .nthview-cw-fb p{margin:.15rem 0 0;line-height:1.55}",
+    V + " .nthview-cw-fb.nthview-cw-fb-ok{background:var(--nv-ok-bg);border-left-color:var(--nv-ok)}",
+    V + " .nthview-cw-fb.nthview-cw-fb-ok>svg," + V + " .nthview-cw-fb.nthview-cw-fb-ok strong{color:var(--nv-ok)}",
+    V + " .nthview-cw-fb.nthview-cw-fb-bad{background:var(--nv-bad-bg);border-left-color:var(--nv-bad)}",
+    V + " .nthview-cw-fb.nthview-cw-fb-bad>svg," + V + " .nthview-cw-fb.nthview-cw-fb-bad strong{color:var(--nv-bad)}",
+    V + " .nthview-cw-input{font:16px var(--nv-mono);min-height:46px;padding:.45rem .7rem;border-radius:10px;border:1.5px solid var(--nv-strong-border);background:var(--nv-surface);color:var(--nv-fg);width:15rem;max-width:100%}",
+    V + " .nthview-cw-input:focus{border-color:var(--nv-accent)}",
     V + " .nthview-cw-input[aria-invalid=true]{border-color:var(--nv-bad);background:var(--nv-bad-bg)}",
     V + " .nthview-cw-input.nthview-cw-good{border-color:var(--nv-ok);background:var(--nv-ok-bg)}",
-    V + " .nthview-cw-spot{display:grid;gap:2px;font:13.5px/1.45 var(--nv-mono);tab-size:2;-moz-tab-size:2;background:var(--nv-code);border:1px solid var(--nv-border);border-radius:.6rem;padding:.3rem;margin:0 0 .6rem;max-height:24rem;overflow:auto}",
-    V + " .nthview-cw-sl{display:grid;grid-template-columns:3.2em minmax(0,1fr) auto;align-items:start;width:100%;min-height:36px;text-align:left;background:none;border:1px solid transparent;border-radius:.4rem;padding:.25rem .3rem;cursor:pointer;font:inherit}",
-    V + " .nthview-cw-sl:hover{border-color:var(--nv-accent)}",
-    V + " .nthview-cw-sl .nthview-cw-ln{position:static;background:none}",
-    V + " .nthview-cw-sl[aria-pressed=true]{background:var(--nv-line);border-color:var(--nv-bar)}",
+    V + " .nthview-cw-spot{display:grid;gap:1px;font:13.5px/1.5 var(--nv-mono);tab-size:2;-moz-tab-size:2;background:var(--nv-code);border:1px solid var(--nv-border);border-radius:12px;padding:.35rem;max-height:26rem;overflow:auto;overscroll-behavior:contain}",
+    V + " .nthview-cw-sl{display:grid;grid-template-columns:3.4em minmax(0,1fr) 1.4em;align-items:start;width:100%;min-height:36px;text-align:left;background:none;border:1.5px solid transparent;border-radius:8px;padding:.35rem .35rem;cursor:pointer;font:inherit}",
+    V + " .nthview-cw-sl:hover{border-color:var(--nv-accent);background:var(--nv-surface)}",
+    V + " .nthview-cw-sl .nthview-cw-ln{position:static;background:none;padding-right:.9ch}",
+    V + " .nthview-cw-sl[aria-pressed=true]{background:var(--nv-tint);border-color:var(--nv-accent)}",
     V + " .nthview-cw-sl.nthview-cw-ok{background:var(--nv-ok-bg);border-color:var(--nv-ok)}",
     V + " .nthview-cw-sl.nthview-cw-bad{background:var(--nv-bad-bg);border-color:var(--nv-bad)}",
-    V + " .nthview-cw-fill{font:14px/2.4 var(--nv-mono);tab-size:2;-moz-tab-size:2;background:var(--nv-code);border:1px solid var(--nv-border);border-radius:.6rem;padding:.5rem .7rem;margin:0 0 .6rem;white-space:pre-wrap;overflow-wrap:anywhere}",
-    V + " .nthview-cw-fill .nthview-cw-input{width:auto;min-width:5ch;min-height:38px;padding:.15rem .35rem;vertical-align:baseline}",
-    V + " .nthview-cw-fill select.nthview-cw-input{padding-right:1.4rem}",
-    V + " .nthview-cw-order h4{margin:.4rem 0 .35rem;font-size:.82rem;text-transform:uppercase;letter-spacing:.05em;color:var(--nv-muted)}",
-    V + " .nthview-cw-answer{list-style:none;margin:0 0 .6rem;padding:.4rem;min-height:3.2rem;border:2px dashed var(--nv-border);border-radius:.6rem;display:grid;gap:.35rem}",
-    V + " .nthview-cw-answer li{display:grid;grid-template-columns:1.6em minmax(0,1fr) auto;gap:.35rem;align-items:center;background:var(--nv-surface);border:1px solid var(--nv-border);border-radius:.5rem;padding:.25rem .35rem}",
+    V + " .nthview-cw-sl .nthview-cw-mk{display:inline-flex;justify-content:center}",
+    V + " .nthview-cw-ok>.nthview-cw-mk{color:var(--nv-ok)}" + V + " .nthview-cw-bad>.nthview-cw-mk{color:var(--nv-bad)}",
+    V + " .nthview-cw-fill{font:14px/2.6 var(--nv-mono);tab-size:2;-moz-tab-size:2;background:var(--nv-code);border:1px solid var(--nv-border);border-radius:12px;padding:.5rem .8rem;white-space:pre-wrap;overflow-wrap:anywhere}",
+    V + " .nthview-cw-fill .nthview-cw-input{width:auto;min-width:6ch;min-height:40px;padding:.15rem .4rem;vertical-align:baseline;line-height:1.3}",
+    V + " .nthview-cw-order h4{margin:.5rem 0 .4rem;font-size:.75rem;font-weight:750;letter-spacing:.08em;text-transform:uppercase;color:var(--nv-muted)}",
+    V + " .nthview-cw-answer{list-style:none;margin:0 0 .5rem;padding:.45rem;min-height:3.4rem;border:2px dashed var(--nv-strong-border);border-radius:12px;display:grid;gap:.4rem}",
+    V + " .nthview-cw-answer li{display:grid;grid-template-columns:1.9rem minmax(0,1fr) auto;gap:.45rem;align-items:center;background:var(--nv-surface);border:1.5px solid var(--nv-border);border-radius:10px;padding:.3rem .35rem .3rem .45rem}",
     V + " .nthview-cw-answer li.nthview-cw-bad{border-color:var(--nv-bad);background:var(--nv-bad-bg)}",
     V + " .nthview-cw-answer li.nthview-cw-ok{border-color:var(--nv-ok);background:var(--nv-ok-bg)}",
-    V + " .nthview-cw-blk{font:13.5px/1.4 var(--nv-mono);overflow-wrap:anywhere;white-space:pre-wrap}",
+    V + " .nthview-cw-answer li.nthview-cw-empty{display:block;border:0;background:none;color:var(--nv-muted);font-size:.92rem;padding:.4rem}",
+    V + " .nthview-cw-blk{font:13.5px/1.45 var(--nv-mono);overflow-wrap:anywhere;white-space:pre-wrap}",
     V + " .nthview-cw-tools{display:flex;gap:.2rem}",
-    V + " .nthview-cw-icon{min-width:36px;min-height:36px;border-radius:.45rem;border:1px solid var(--nv-border);background:var(--nv-bg);cursor:pointer;font-weight:700}",
-    V + " .nthview-cw-pool{display:grid;gap:.4rem;margin:0 0 .6rem}",
-    V + " .nthview-cw-piece{display:block;width:100%;text-align:left;min-height:44px;padding:.45rem .7rem;border-radius:.5rem;border:1px solid var(--nv-border);background:var(--nv-bg);cursor:pointer}",
+    V + " .nthview-cw-tools .nthview-cw-iconbtn{min-width:38px;min-height:38px;border-color:var(--nv-border)}",
+    V + " .nthview-cw-pool{display:grid;gap:.45rem}",
+    V + " .nthview-cw-piece{display:flex;gap:.6rem;align-items:center;width:100%;text-align:left;min-height:46px;padding:.45rem .75rem;border-radius:10px;border:1.5px solid var(--nv-border);background:var(--nv-surface);cursor:pointer}",
     V + " .nthview-cw-piece:hover{border-color:var(--nv-accent)}",
-    V + " .nthview-cw-pair{border:1px solid var(--nv-bar);border-radius:.65rem;padding:.4rem;display:grid;gap:.35rem}",
-    V + " .nthview-cw-pair>span{font-size:.78rem;font-weight:700;color:var(--nv-muted);padding:0 .2rem}",
-    V + " .nthview-cw-empty{color:var(--nv-muted);font-size:.9rem;padding:.4rem}",
-    /* questions, intro, wrap-up */
-    V + " .nthview-cw-group h3{margin:1.4rem 0 .5rem;font-size:1.05rem;display:flex;flex-wrap:wrap;gap:.3rem .8rem;align-items:baseline}",
-    V + " .nthview-cw-route{margin:0;padding:0;list-style:none;display:grid;gap:.4rem}",
-    V + " .nthview-cw-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:.6rem;margin:0 0 1rem}",
-    V + " .nthview-cw-stat{background:var(--nv-surface);border:1px solid var(--nv-border);border-radius:.8rem;padding:.7rem .9rem}",
-    V + " .nthview-cw-stat b{display:block;font-size:1.5rem}",
-    V + " .nthview-cw-points{padding-left:1.2rem;margin:0}",
-    V + " .nthview-cw-points li{margin:0 0 .45rem}",
-    V + " .nthview-cw-sources{padding-left:1.2rem;margin:0;overflow-wrap:anywhere}",
+    V + " .nthview-cw-piece::before{content:'+';font-weight:800;color:var(--nv-accent);width:1rem;text-align:center;flex:none}",
+    V + " .nthview-cw-pair{border:1.5px solid var(--nv-bar);border-radius:12px;padding:.45rem;display:grid;gap:.4rem;background:color-mix(in srgb,var(--nv-line) 40%,transparent)}",
+    V + " .nthview-cw-pair>span{font-size:.78rem;font-weight:700;color:var(--nv-muted);padding:0 .25rem}",
+    V + " .nthview-cw-empty{color:var(--nv-muted);font-size:.92rem;padding:.4rem;margin:0}",
+    /* questions tab */
+    V + " .nthview-cw-qhead{display:flex;flex-wrap:wrap;gap:.75rem 1rem;align-items:center;justify-content:space-between;margin:0 0 .5rem}",
+    V + " .nthview-cw-qhead h2{margin:0;font-size:1.4rem}",
+    V + " .nthview-cw-seg{display:inline-flex;gap:2px;padding:3px;border-radius:11px;background:var(--nv-soft);border:1px solid var(--nv-border)}",
+    V + " .nthview-cw-seg button{min-height:38px;padding:0 .9rem;border:0;border-radius:8px;background:none;cursor:pointer;font-weight:650;color:var(--nv-muted)}",
+    V + " .nthview-cw-seg button[aria-pressed=true]{background:var(--nv-surface);color:var(--nv-fg);box-shadow:0 1px 2px rgba(0,0,0,.12)}",
+    V + " .nthview-cw-meter{height:8px;border-radius:99px;background:var(--nv-soft);overflow:hidden;margin:.2rem 0 1.25rem;max-width:46rem}",
+    V + " .nthview-cw-meter span{display:block;height:100%;background:var(--nv-ok);border-radius:99px;transition:width .3s}",
+    V + " .nthview-cw-group{max-width:46rem}",
+    V + " .nthview-cw-group>h3{margin:1.6rem 0 .6rem;font-size:1rem;display:flex;flex-wrap:wrap;gap:.3rem .8rem;align-items:center}",
+    /* code tab */
+    V + " .nthview-cw-codetab{display:grid;gap:1.5rem;grid-template-columns:minmax(0,1fr)}",
+    "@media (min-width:960px){" + V + " .nthview-cw-codetab{grid-template-columns:minmax(0,1.6fr) minmax(16rem,1fr);align-items:start}" + V + " .nthview-cw-codetab .nthview-cw-code{max-height:calc(100vh - 12rem)}}",
+    V + " .nthview-cw-has{cursor:pointer}",
+    V + " .nthview-cw-has:hover .nthview-cw-tx{background:var(--nv-soft)}",
+    V + " .nthview-cw-snips{margin:0 0 .8rem}",
+    /* wrap-up */
+    V + " .nthview-cw-done{max-width:50rem}",
+    V + " .nthview-cw-donebadge{display:inline-flex;align-items:center;justify-content:center;width:3.2rem;height:3.2rem;border-radius:50%;background:var(--nv-ok-bg);color:var(--nv-ok);margin-bottom:.6rem}",
+    V + " .nthview-cw-donebadge svg{width:1.7rem;height:1.7rem}",
+    V + " .nthview-cw-done h2{font-size:clamp(1.6rem,4.5vw,2.3rem);margin:0 0 .4rem}",
+    V + " .nthview-cw-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.6rem;margin:1.2rem 0 1.5rem}",
+    V + " .nthview-cw-stat{background:var(--nv-surface);border:1px solid var(--nv-border);border-radius:12px;padding:.7rem .8rem;font-size:.85rem;color:var(--nv-muted);line-height:1.3}",
+    V + " .nthview-cw-stat b{display:block;font-size:1.5rem;color:var(--nv-fg);font-variant-numeric:tabular-nums;margin-bottom:.15rem}",
+    V + " .nthview-cw-points{list-style:none;padding:0;margin:0;display:grid;gap:.7rem}",
+    V + " .nthview-cw-points li{display:grid;grid-template-columns:1.6rem minmax(0,1fr);gap:.5rem;align-items:start}",
+    V + " .nthview-cw-points li>svg{color:var(--nv-ok);margin-top:.2rem}",
+    V + " .nthview-cw-sources{padding-left:1.2rem;margin:0;overflow-wrap:anywhere;display:grid;gap:.35rem}",
     V + " .nthview-cw-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}",
-    "@media (prefers-reduced-motion:reduce){" + V + " *{transition:none!important}}"
+    "@media (max-width:420px){" + V + " .nthview-cw-card{padding:1rem}" + V + " .nthview-cw-stat b{font-size:1.25rem}" + V + " .nthview-cw-stepbar{grid-template-columns:minmax(0,1fr) 7.5rem minmax(0,1fr)}" + V + " .nthview-cw-stepbar .nthview-cw-btn{padding:.25rem .55rem}" + V + " .nthview-cw-btxt{display:none}}",
+    "@media (prefers-reduced-motion:reduce){" + V + " *," + V + " *::before," + V + " *::after{animation:none!important;transition:none!important}}"
   ].join("\n");
 
   function injectStyles() {
@@ -379,6 +486,28 @@
     return nodes;
   }
 
+  // ---- icons (inline SVG, no fonts or images) --------------------------------
+  var SVGNS = "http://www.w3.org/2000/svg";
+  var ICONS = {
+    left: "M15 18l-6-6 6-6", right: "M9 18l6-6-6-6", up: "M18 15l-6-6-6 6", down: "M6 9l6 6 6-6",
+    check: "M20 6L9 17l-5-5", x: "M18 6L6 18M6 6l12 12",
+    list: "M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01",
+    sliders: "M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M2 14h4M10 8h4M18 16h4",
+    alert: "M12 8v4M12 16h.01M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0",
+    eye: "M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12zM15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0",
+    clock: "M12 7v5l3 2M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0",
+    steps: "M4 6h16M4 12h10M4 18h6",
+    help: "M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0",
+    file: "M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8zM14 3v5h5"
+  };
+  function icon(name) {
+    var s = root.document.createElementNS(SVGNS, "svg");
+    s.setAttribute("viewBox", "0 0 24 24"); s.setAttribute("class", "nthview-cw-i"); s.setAttribute("aria-hidden", "true");
+    var p = root.document.createElementNS(SVGNS, "path"); p.setAttribute("d", ICONS[name]);
+    s.appendChild(p);
+    return s;
+  }
+
   // ---- the view --------------------------------------------------------------
   function render(container, data) {
     var doc = root.document;
@@ -401,15 +530,16 @@
       else g.steps.push(i);
     });
     function groupOf(i) { for (var g = 0; g < groups.length; g++) if (groups[g].steps.indexOf(i) !== -1) return g; return 0; }
-    var labelled = groups.filter(function (g) { return g.label; }).length;
+    var labelled = groups.filter(function (g) { return g.label; });
+    var minutes = Math.max(5, Math.round((N * 40 + checks.length * 45) / 300) * 5);
 
     var key = storageKey(data);
-    var state = { tab: "walk", step: -1, wrap: true, dim: true, seen: {}, checks: {}, open: {}, done: false, snip: 0, filter: "all", outline: false, shrunk: false };
+    var state = { tab: "walk", step: -1, wrap: true, dim: true, seen: {}, checks: {}, open: {}, done: false, snip: 0, filter: "all", shrunk: false };
     var saved = loadState(key), resumed = false;
     if (saved) {
       if (["walk", "code", "questions"].indexOf(saved.tab) !== -1) state.tab = saved.tab;
       if (typeof saved.step === "number" && saved.step >= -1 && saved.step <= N && Math.floor(saved.step) === saved.step) state.step = saved.step;
-      ["wrap", "dim", "done", "outline", "shrunk"].forEach(function (k) { if (typeof saved[k] === "boolean") state[k] = saved[k]; });
+      ["wrap", "dim", "done", "shrunk"].forEach(function (k) { if (typeof saved[k] === "boolean") state[k] = saved[k]; });
       if (typeof saved.snip === "number" && saved.snip >= 0 && saved.snip < snipList.length) state.snip = Math.floor(saved.snip);
       if (saved.filter === "todo") state.filter = "todo";
       if (saved.seen && typeof saved.seen === "object") Object.keys(saved.seen).forEach(function (k) { if (+k >= 0 && +k < N) state.seen[k] = 1; });
@@ -423,63 +553,76 @@
     if (state.step === N) state.done = true;
     function save() { saveState(key, state); }
     function cs(id) { return state.checks[id] || (state.checks[id] = { s: "open", t: 0 }); }
-    function answered() { return checks.filter(function (e) { return state.checks[e.c.id] && state.checks[e.c.id].s !== "open"; }).length; }
+    function isDone(id) { return state.checks[id] && state.checks[id].s !== "open"; }
+    function answered() { return checks.filter(function (e) { return isDone(e.c.id); }).length; }
+    function firstUnseen() { for (var i = 0; i < N; i++) if (!state.seen[i]) return i; return 0; }
 
-    /* ---- frame ---- */
-    var head = el("div", { class: "nthview-cw-top" }, [
-      el("div", {}, [
-        el("p", { class: "nthview-cw-kicker", text: "Code walkthrough" }),
-        el("h1", { class: "nthview-title", text: data.title })
-      ].concat(data.subtitle ? [el("p", { class: "nthview-cw-sub", text: data.subtitle })] : [])),
-      restartButton(container, data, key)
-    ]);
-    container.appendChild(head);
+    /* ---- frame: app bar with a segmented control, then the panel ---- */
+    var tabDefs = [["walk", "Steps"], ["code", "Code"], ["questions", "Questions"]], tabBtns = {};
     var tabs = el("div", { class: "nthview-cw-tabs", role: "tablist", "aria-label": "Ways to study this code" });
-    var tabDefs = [["walk", "Walkthrough"], ["code", "Code"], ["questions", "Questions"]];
-    var tabBtns = {};
-    tabDefs.forEach(function (d) {
+    tabDefs.forEach(function (d, i) {
       var b = el("button", { type: "button", role: "tab", class: "nthview-cw-tab", id: "nthview-cw-tab-" + d[0], "aria-controls": "nthview-cw-panel" }, [txt(d[1])]);
       if (d[0] === "questions") b.appendChild(el("span", { class: "nthview-cw-count" }));
       b.addEventListener("click", function () { setTab(d[0]); });
       b.addEventListener("keydown", function (e) {
-        var i = tabDefs.map(function (x) { return x[0]; }).indexOf(d[0]);
-        if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
-          e.preventDefault(); e.stopPropagation();
-          var n = tabDefs[(i + (e.key === "ArrowRight" ? 1 : tabDefs.length - 1)) % tabDefs.length][0];
-          setTab(n); tabBtns[n].focus();
-        }
+        if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+        e.preventDefault(); e.stopPropagation();
+        var n = tabDefs[(i + (e.key === "ArrowRight" ? 1 : tabDefs.length - 1)) % tabDefs.length][0];
+        setTab(n); tabBtns[n].focus();
       });
       tabBtns[d[0]] = b; tabs.appendChild(b);
     });
-    container.appendChild(tabs);
-    var notice = null;
+    container.appendChild(el("header", { class: "nthview-cw-appbar" }, [
+      el("div", { class: "nthview-cw-brand" }, [el("small", { text: "Code walkthrough" }), el("strong", { class: "nthview-title", text: data.title, title: data.title })]),
+      tabs,
+      restartButton(container, data, key)
+    ]));
+    var live = el("div", { class: "nthview-cw-sr", role: "status", "aria-live": "polite" });
+    container.appendChild(live);
+    function announce(t) { live.textContent = ""; root.setTimeout(function () { live.textContent = t; }, 30); }
+    var panel = el("main", { id: "nthview-cw-panel", role: "tabpanel" });
+    container.appendChild(panel);
+
+    /* resume notice: a toast fixed to the viewport, so it never moves the page */
     if (resumed && (state.step >= 0 || answered() > 0)) {
-      var where = state.step === N ? "the wrap-up" : state.step >= 0 ? "step " + (state.step + 1) + " of " + N + ": " + steps[state.step].title : "the start";
-      notice = el("div", { class: "nthview-resume", role: "status" }, [txt("Welcome back, continuing from " + where + ".")]);
+      var where = state.step === N ? "the wrap-up" : state.step >= 0 ? "step " + (state.step + 1) + " of " + N + ", " + steps[state.step].title : "the overview";
+      var notice = el("div", { class: "nthview-resume", role: "status" }, [txt("Welcome back, continuing from " + where + ".")]);
       container.appendChild(notice);
       var hide = function () {
         if (!notice) return;
         var n = notice; notice = null; n.classList.add("nthview-cw-gone");
-        root.setTimeout(function () { if (n.parentNode) n.parentNode.removeChild(n); }, 450);
+        root.setTimeout(function () { if (n.parentNode) n.parentNode.removeChild(n); }, 350);
         container.removeEventListener("pointerdown", hide); container.removeEventListener("keydown", hide);
       };
-      root.setTimeout(hide, 6000);
+      root.setTimeout(hide, 5000);
       container.addEventListener("pointerdown", hide); container.addEventListener("keydown", hide);
     }
-    var panel = el("div", { id: "nthview-cw-panel", role: "tabpanel" });
-    container.appendChild(panel);
+
+    /* contents: every step in a native modal dialog (Esc closes, focus stays inside) */
+    var dialog = el("dialog", { class: "nthview-cw-dialog", "aria-labelledby": "nthview-cw-dlg-title" });
+    container.appendChild(dialog);
+    function openContents() {
+      dialog.innerHTML = "";
+      var close = el("button", { type: "button", class: "nthview-cw-iconbtn", "aria-label": "Close" }, [icon("x")]);
+      close.addEventListener("click", function () { dialog.close(); });
+      dialog.appendChild(el("div", { class: "nthview-cw-dlghead" }, [el("h2", { id: "nthview-cw-dlg-title", text: "All " + N + " steps" }), close]));
+      var body = el("div", { class: "nthview-cw-dlgbody" }), current = null;
+      body.appendChild(stepList(function (i, b) { if (i === state.step) current = b; }, function (i) { dialog.close(); go(i, "top-next"); }));
+      dialog.appendChild(body);
+      if (typeof dialog.showModal === "function") dialog.showModal(); else dialog.setAttribute("open", "");
+      (current || close).focus();
+    }
+    dialog.addEventListener("click", function (e) { if (e.target === dialog) dialog.close(); });
 
     container.addEventListener("keydown", function (e) {
-      if (state.tab !== "walk" || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+      if (state.tab !== "walk" || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey || dialog.open) return;
       var t = e.target, tag = t && t.tagName;
       if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA" || (t.getAttribute && (t.getAttribute("role") === "tab" || t.getAttribute("data-scroll")))) return;
-      if (e.key === "ArrowRight" && state.step < N) { e.preventDefault(); go(state.step + 1, true); }
-      else if (e.key === "ArrowLeft" && state.step > -1) { e.preventDefault(); go(state.step - 1, true); }
+      if (e.key === "ArrowRight" && state.step < N) { e.preventDefault(); go(state.step + 1, "top-next"); }
+      else if (e.key === "ArrowLeft" && state.step > -1) { e.preventDefault(); go(state.step - 1, "top-prev"); }
     });
 
-    function setTab(t) {
-      state.tab = t; save(); show();
-    }
+    function setTab(t) { state.tab = t; save(); show(); }
     function show() {
       tabDefs.forEach(function (d) {
         tabBtns[d[0]].setAttribute("aria-selected", state.tab === d[0] ? "true" : "false");
@@ -488,9 +631,18 @@
       panel.setAttribute("aria-labelledby", "nthview-cw-tab-" + state.tab);
       updateCount();
       panel.innerHTML = "";
+      /* the overview shows the title as its heading, so the app bar does not repeat it */
+      container.classList.toggle("nthview-cw-at-intro", state.tab === "walk" && state.step === -1);
       if (state.tab === "walk") renderWalk();
       else if (state.tab === "code") renderCodeTab();
       else renderQuestions();
+      stickPad();
+    }
+    /* keep keyboard focus out from under the pinned code pane on phones (WCAG 2.4.11) */
+    function stickPad() {
+      var pane = panel.querySelector(".nthview-cw-codepane"), pad = "";
+      if (pane && root.getComputedStyle(pane).position === "sticky" && root.innerWidth < 960) pad = (pane.offsetHeight + 12) + "px";
+      doc.documentElement.style.scrollPaddingTop = pad;
     }
     function updateCount() {
       var c = tabBtns.questions.querySelector(".nthview-cw-count");
@@ -503,12 +655,17 @@
       if (i === N) state.done = true; /* §5.5 rule 8: the wrap-up is the end */
       state.tab = "walk";
       save(); show();
+      /* scroll so the pinned code pane, and the step bar on it, stays exactly where it was */
+      var pane = panel.querySelector(".nthview-cw-codepane"), stick = 8;
+      if (pane) { var ps = root.getComputedStyle(pane); if (ps.position === "sticky") stick = parseFloat(ps.top) || 0; }
       var top = panel.getBoundingClientRect().top;
-      if (top < 0) root.scrollTo(0, root.pageYOffset + top - 8);
+      if (top < stick) root.scrollTo(0, root.pageYOffset + top - stick);
       if (focus) {
-        var h = panel.querySelector("[data-heading]");
+        var h = typeof focus === "string" && panel.querySelector('[data-k="' + focus + '"]');
+        if (!h || h.disabled) h = panel.querySelector("[data-heading]");
         if (h) h.focus({ preventScroll: true });
       }
+      if (i >= 0 && i < N) announce("Step " + (i + 1) + " of " + N + ": " + steps[i].title);
     }
     function stepLink(id) {
       var i = stepIndex[id];
@@ -516,16 +673,40 @@
       b.addEventListener("click", function () { go(i, true); });
       return b;
     }
+    /* one list of steps, grouped by subgoal; used by the dialog, the overview and the Code tab */
+    function stepList(each, onPick, filter) {
+      var box = el("div");
+      groups.forEach(function (gr) {
+        var items = gr.steps.filter(function (i) { return !filter || filter(i); });
+        if (!items.length) return;
+        if (gr.label) box.appendChild(el("p", { class: "nthview-cw-grouplabel", text: gr.label }));
+        var ol = el("ol", { class: "nthview-cw-route" });
+        items.forEach(function (i) {
+          var st = steps[i], cks = st.checks || [];
+          var b = el("button", { type: "button", class: "nthview-cw-jump" + (state.seen[i] ? " nthview-cw-seen" : "") }, [
+            el("span", { class: "nthview-cw-num", text: String(i + 1) }),
+            el("span", {}, [txt(st.title), el("small", { text: "Lines " + st.lines[0] + (st.lines[1] > st.lines[0] ? "–" + st.lines[1] : "") + (snipList.length > 1 && st.sn.src.title ? " · " + st.sn.src.title : "") + (cks.length ? " · " + cks.length + " question" + (cks.length > 1 ? "s" : "") : "") })])
+          ]);
+          if (cks.length && cks.every(function (c) { return isDone(c.id); })) b.appendChild(el("span", { class: "nthview-cw-tick", "aria-label": "questions answered" }, [icon("check")]));
+          if (i === state.step && state.tab === "walk") b.setAttribute("aria-current", "step");
+          b.addEventListener("click", function () { onPick(i); });
+          if (each) each(i, b);
+          ol.appendChild(el("li", {}, [b]));
+        });
+        box.appendChild(ol);
+      });
+      return box;
+    }
 
     /* ---- code block ---- */
     function codeBlock(sn, opt) {
       opt = opt || {};
       var lo = opt.from || sn.start, hi = opt.to || sn.start + sn.lines.length - 1;
-      var gw = String(sn.start + sn.lines.length - 1).length + (opt.badges ? 5 : 2);
+      var gw = String(sn.start + sn.lines.length - 1).length + (opt.badges ? 6 : 2.4);
       var box = el("div", {
         class: "nthview-cw-code" + (state.wrap ? "" : " nthview-cw-nowrap") + (opt.dim && state.dim ? " nthview-cw-dim" : ""),
         role: "region", tabindex: "0", "data-scroll": "1",
-        "aria-label": (sn.src.path || sn.src.title || "Code") + (opt.on ? ", lines " + opt.on[0] + " to " + opt.on[1] + " in focus" : "")
+        "aria-label": (sn.src.path || sn.src.title || "Code") + (opt.on ? ", lines " + opt.on[0] + " to " + opt.on[1] + " highlighted" : "")
       });
       box.style.setProperty("--nv-gw", gw + "ch");
       var wrapEl = el("div", { class: "nthview-cw-lines" }), lineEls = {};
@@ -536,9 +717,13 @@
         var tx = el("span", { class: "nthview-cw-tx" }, lineNodes(line, opt.marks && opt.marks[n], ind4.len));
         if (!line.text.trim()) tx.textContent = " ";
         tx.style.setProperty("--nv-i4", ind4.cols); tx.style.setProperty("--nv-i2", ind2.cols);
-        var ln = el("span", { class: "nthview-cw-ln", "aria-hidden": "true" });
-        if (opt.badges && opt.badges[n]) opt.badges[n].forEach(function (i) { ln.appendChild(el("span", { class: "nthview-cw-badge", text: String(i + 1) })); });
-        ln.appendChild(txt(String(n)));
+        var ln = el("span", { class: "nthview-cw-ln" });
+        if (opt.badges && opt.badges[n]) opt.badges[n].forEach(function (i) {
+          var b = el("button", { type: "button", class: "nthview-cw-badge", text: String(i + 1), "aria-label": "Go to step " + (i + 1) + ": " + steps[i].title });
+          b.addEventListener("click", function (e) { e.stopPropagation(); go(i, true); });
+          ln.appendChild(b);
+        });
+        ln.appendChild(el("span", { "aria-hidden": "true", text: String(n) }));
         var row = el("div", { class: "nthview-cw-line" }, [el("span", { class: "nthview-cw-sr", text: "line " + n + ": " }), ln, tx]);
         if (opt.on && n >= opt.on[0] && n <= opt.on[1]) row.classList.add("nthview-cw-on");
         if (opt.onLine) opt.onLine(n, row);
@@ -547,20 +732,53 @@
       box.appendChild(wrapEl);
       return { box: box, lines: lineEls };
     }
-    function scrollToLine(box, row) {
+    /* bring the focused lines to the middle of the code box (CodeTour centres its step) */
+    function scrollToLines(box, rows, smooth) {
       root.requestAnimationFrame(function () {
-        if (!row) return;
-        box.scrollTop = Math.max(0, row.offsetTop - Math.min(48, box.clientHeight / 4));
+        if (!rows.length) return;
+        var a = rows[0].offsetTop, z = rows[rows.length - 1].offsetTop + rows[rows.length - 1].offsetHeight;
+        var t = z - a < box.clientHeight - 16 ? a - (box.clientHeight - (z - a)) / 2 : a - 8;
+        var reduce = root.matchMedia && root.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (smooth && !reduce && box.scrollTo) box.scrollTo({ top: Math.max(0, t), behavior: "smooth" });
+        else box.scrollTop = Math.max(0, t);
         box.scrollLeft = 0;
       });
     }
-    function toggle(label, on, onClick, title) {
-      var b = el("button", { type: "button", class: "nthview-cw-btn nthview-cw-small", "aria-pressed": on ? "true" : "false", text: label, title: title });
-      b.addEventListener("click", onClick);
-      return b;
+    function fileBar(sn, menu) {
+      var bar = el("div", { class: "nthview-cw-filebar" }, [icon("file"), el("span", { class: "nthview-cw-path", text: sn.src.path || sn.src.title || "Code", title: sn.src.path || "" })]);
+      if (sn.src.path && sn.src.title) bar.appendChild(el("span", { class: "nthview-cw-filetag", text: sn.src.title }));
+      if (menu) bar.appendChild(menu);
+      return bar;
+    }
+    /* display options in one menu: fewer controls in view, each a labelled switch */
+    function displayMenu(getBox, pane) {
+      var wrap = el("span", {});
+      var btnEl = el("button", { type: "button", class: "nthview-cw-iconbtn", "aria-label": "Display options", "aria-expanded": "false", "aria-haspopup": "true", title: "Display options" }, [icon("sliders")]);
+      var menu = el("div", { class: "nthview-cw-menu", hidden: "" });
+      function sw(label, k, apply, cls) {
+        var b = el("button", { type: "button", role: "switch", class: "nthview-cw-switch" + (cls ? " " + cls : ""), "aria-checked": state[k] ? "true" : "false" }, [el("span", { text: label }), el("b", { "aria-hidden": "true" })]);
+        b.addEventListener("click", function () { state[k] = !state[k]; b.setAttribute("aria-checked", state[k] ? "true" : "false"); save(); apply(state[k]); });
+        menu.appendChild(b);
+      }
+      sw("Wrap long lines", "wrap", function (on) { getBox().classList.toggle("nthview-cw-nowrap", !on); });
+      if (pane) {
+        sw("Dim the other lines", "dim", function (on) { getBox().classList.toggle("nthview-cw-dim", on); });
+        sw("Compact code", "shrunk", function (on) { pane.classList.toggle("nthview-cw-shrunk", on); stickPad(); }, "nthview-cw-only-phone");
+      }
+      function outside(e) { if (!wrap.contains(e.target)) setOpen(false); }
+      function setOpen(on) {
+        menu.hidden = !on; btnEl.setAttribute("aria-expanded", on ? "true" : "false");
+        if (on) { doc.addEventListener("pointerdown", outside, true); var f = menu.querySelector("button"); if (f) f.focus(); }
+        else doc.removeEventListener("pointerdown", outside, true);
+      }
+      btnEl.addEventListener("click", function () { setOpen(menu.hidden); });
+      menu.addEventListener("keydown", function (e) { if (e.key === "Escape") { e.stopPropagation(); setOpen(false); btnEl.focus(); } });
+      wrap.style.marginLeft = "auto";
+      wrap.appendChild(btnEl); wrap.appendChild(menu);
+      return wrap;
     }
 
-    /* ---- walkthrough tab ---- */
+    /* ---- Steps tab ---- */
     function renderWalk() {
       if (state.step === -1) return renderIntro();
       if (state.step === N) return renderWrap();
@@ -568,176 +786,200 @@
       var marks = {};
       (st.focus || []).forEach(function (f) { (marks[f.line] = marks[f.line] || []).push(f.text); });
       var cb = codeBlock(sn, { on: st.lines, marks: marks, dim: true });
+      var onRows = []; for (var n = st.lines[0]; n <= st.lines[1]; n++) if (cb.lines[n]) onRows.push(cb.lines[n]);
       var pane = el("div", { class: "nthview-cw-codepane" + (state.shrunk ? " nthview-cw-shrunk" : "") });
-      var headBits = [
-        el("span", { class: "nthview-cw-path", text: (sn.src.path || sn.src.title || "Code") }),
-        toggle("Wrap", state.wrap, function () { state.wrap = !state.wrap; save(); show(); }, "Wrap long lines"),
-        toggle("Focus", state.dim, function () { state.dim = !state.dim; save(); show(); }, "Dim the lines outside this step")
-      ];
-      var shrink = toggle("Less", state.shrunk, function () { state.shrunk = !state.shrunk; save(); pane.classList.toggle("nthview-cw-shrunk", state.shrunk); shrink.setAttribute("aria-pressed", state.shrunk ? "true" : "false"); scrollToLine(cb.box, cb.lines[st.lines[0]]); }, "Show fewer lines of code on small screens");
-      shrink.classList.add("nthview-cw-only-phone");
-      headBits.push(shrink);
-      pane.appendChild(el("div", { class: "nthview-cw-codehead" }, headBits));
-      pane.appendChild(cb.box);
-      if (sn.src.title || sn.src.caption) pane.appendChild(el("p", { class: "nthview-cw-caption", text: [sn.src.title, sn.src.caption].filter(Boolean).join(" · ") }));
-      scrollToLine(cb.box, cb.lines[st.lines[0]]);
+      pane.appendChild(stepBar());
+      var codebox = el("div", { class: "nthview-cw-codebox" }, [fileBar(sn, displayMenu(function () { return cb.box; }, pane)), cb.box]);
+      pane.appendChild(codebox);
+      if (sn.src.caption) pane.appendChild(el("p", { class: "nthview-cw-caption", text: sn.src.caption }));
+      scrollToLines(cb.box, onRows, false);
 
-      var note = el("div", { class: "nthview-cw-notepane" });
+      var note = el("article", { class: "nthview-cw-notepane nthview-cw-in", "aria-labelledby": "nthview-cw-step-title" });
       var g = groupOf(state.step);
-      var prog = el("div", { class: "nthview-cw-progress" }, []);
-      if (groups[g].label) prog.appendChild(el("span", { class: "nthview-cw-chip", text: (labelled > 1 ? "Subgoal " + (groups.slice(0, g + 1).filter(function (x) { return x.label; }).length) + " of " + labelled + " · " : "") + groups[g].label }));
-      prog.appendChild(el("span", { text: "Step " + (state.step + 1) + " of " + N + " · " + (snipList.length > 1 && sn.src.title ? sn.src.title + ", lines " : "lines ") + st.lines[0] + (st.lines[1] !== st.lines[0] ? "–" + st.lines[1] : "") }));
-      var outlineBtn = toggle("All steps", state.outline, function () { state.outline = !state.outline; save(); show(); }, "Show every step and jump to any of them");
-      outlineBtn.setAttribute("aria-expanded", state.outline ? "true" : "false");
-      prog.appendChild(outlineBtn);
-      note.appendChild(prog);
-      var bar = el("div", { class: "nthview-cw-bar", role: "progressbar", "aria-valuemin": "0", "aria-valuemax": String(N), "aria-valuenow": String(state.step + 1), "aria-label": "Progress" }, [el("span")]);
-      bar.firstChild.style.width = Math.round((state.step + 1) / N * 100) + "%";
-      note.appendChild(bar);
-      if (state.outline) note.appendChild(outline());
-      note.appendChild(el("h2", { class: "nthview-cw-steptitle", tabindex: "-1", "data-heading": "1", text: st.title }));
+      if (groups[g].label) note.appendChild(el("p", { class: "nthview-cw-eyebrow", text: groups[g].label + (labelled.length > 1 ? " · part " + (labelled.indexOf(groups[g]) + 1) + " of " + labelled.length : "") }));
+      note.appendChild(el("h2", { class: "nthview-cw-steptitle", id: "nthview-cw-step-title", tabindex: "-1", "data-heading": "1", text: st.title }));
+      var whereBtn = el("button", { type: "button", class: "nthview-cw-where", title: "Show these lines in the code" }, [
+        el("i", { "aria-hidden": "true" }), txt((st.lines[1] > st.lines[0] ? "Lines " + st.lines[0] + "–" + st.lines[1] : "Line " + st.lines[0]) + (snipList.length > 1 && sn.src.title ? " · " + sn.src.title : ""))
+      ]);
+      whereBtn.addEventListener("click", function () {
+        scrollToLines(cb.box, onRows, true);
+        cb.box.classList.remove("nthview-cw-flash"); void cb.box.offsetWidth; cb.box.classList.add("nthview-cw-flash");
+        var r = pane.getBoundingClientRect(); if (r.top < 0 || r.top > root.innerHeight) pane.scrollIntoView({ block: "start" });
+      });
+      note.appendChild(whereBtn);
 
       var before = (st.checks || []).filter(function (c) { return c.ask === "before"; })[0];
+      var after = (st.checks || []).filter(function (c) { return c !== before; });
       var holder = el("div"), shown = false;
       function fillBody() {
         shown = true;
         holder.innerHTML = "";
+        holder.className = "nthview-cw-note" + (before ? " nthview-cw-in" : "");
         st.note.forEach(function (p) { holder.appendChild(el("p", {}, rich(p, stepLink))); });
-        holder.className = "nthview-cw-note";
-        if (st.watch && st.watch.length) holder.appendChild(watchTable(st.watch));
-        (st.checks || []).forEach(function (c) { if (c !== before) holder.appendChild(checkCard(checkById[c.id])); });
+        if (st.watch && st.watch.length) holder.appendChild(traceTable(st.watch));
+        if (after.length) {
+          holder.appendChild(el("h3", { class: "nthview-cw-checkhead", text: after.length > 1 ? "Check yourself · " + after.length + " questions" : "Check yourself" }));
+          after.forEach(function (c) { holder.appendChild(checkCard(checkById[c.id])); });
+        }
       }
       if (before) {
+        note.appendChild(el("h3", { class: "nthview-cw-checkhead", text: "Predict first" }));
         var gateOpen = function () { return state.open[st.id] || cs(before.id).s !== "open"; };
         note.appendChild(checkCard(checkById[before.id], function () { if (gateOpen() && !shown) fillBody(); }));
         if (gateOpen()) fillBody();
         else {
-          var skip = btn("Read the note without answering", "nthview-cw-small", function () { state.open[st.id] = 1; save(); fillBody(); var p = holder.querySelector("p"); if (p) { p.setAttribute("tabindex", "-1"); p.focus(); } });
-          holder.appendChild(el("div", { class: "nthview-cw-gate" }, [el("p", { text: "Predict first: answer above to reveal the explanation, or skip ahead." }), skip]));
+          var skip = btn("Show the explanation", "nthview-cw-small", function () {
+            state.open[st.id] = 1; save(); fillBody();
+            var p = holder.querySelector("p"); if (p) { p.setAttribute("tabindex", "-1"); p.focus(); }
+          });
+          holder.appendChild(el("div", { class: "nthview-cw-gate" }, [el("p", { text: "Answer above first, then the explanation opens. Or read it now." }), skip]));
         }
       } else fillBody();
       note.appendChild(holder);
-      note.appendChild(navRow());
-      note.appendChild(el("p", { class: "nthview-cw-keys", text: "Tip: the ← and → keys move between steps." }));
+
+      var last = state.step === N - 1;
+      var next = el("button", { type: "button", class: "nthview-cw-next", "data-k": "next-card" }, [
+        el("small", { text: last ? "Finish" : "Next step" }),
+        el("span", { text: last ? "See what you have learned →" : (state.step + 2) + ". " + steps[state.step + 1].title + " →" })
+      ]);
+      next.addEventListener("click", function () { go(state.step + 1, true); });
+      note.appendChild(next);
+      note.appendChild(btn(state.step === 0 ? "← Back to the overview" : "← Previous step", "nthview-cw-ghost nthview-cw-small nthview-cw-back", function () { go(state.step - 1, true); }));
+      note.appendChild(el("p", { class: "nthview-cw-keys" }, [txt("Tip: "), el("kbd", { text: "←" }), txt(" "), el("kbd", { text: "→" }), txt(" move between steps.")]));
       panel.appendChild(el("div", { class: "nthview-cw-walk" }, [pane, note]));
     }
-    function navRow() {
-      var prev = btn(state.step <= 0 ? "← Overview" : "← Previous", "", function () { go(state.step - 1, true); });
-      var next = btn(state.step === N - 1 ? "Finish →" : "Next step →", "nthview-cw-primary", function () { go(state.step + 1, true); });
-      return el("div", { class: "nthview-cw-nav" }, [prev, next]);
+    /* Previous · Step n of m · Next, at the same place on every step */
+    function stepBar() {
+      var i = state.step, last = i === N - 1;
+      var prev = el("button", { type: "button", class: "nthview-cw-btn nthview-cw-prev", "data-k": "top-prev", "aria-label": i === 0 ? "Back to the overview" : "Previous step" }, [icon("left"), el("span", { class: "nthview-cw-btxt", text: i === 0 ? "Overview" : "Previous" })]);
+      prev.addEventListener("click", function () { go(i - 1, "top-prev"); });
+      var next = el("button", { type: "button", class: "nthview-cw-btn nthview-cw-primary", "data-k": "top-next", "aria-label": last ? "Finish" : "Next step: " + steps[i + 1].title }, [el("span", { class: "nthview-cw-btxt", text: last ? "Finish" : "Next" }), icon("right")]);
+      next.addEventListener("click", function () { go(i + 1, "top-next"); });
+      var ticks = el("span", { class: "nthview-cw-ticks", "aria-hidden": "true" });
+      for (var k = 0; k < N; k++) ticks.appendChild(el("i", { class: k === i ? "nthview-cw-t-now" : state.seen[k] ? "nthview-cw-t-seen" : "" }));
+      var mid = el("button", { type: "button", class: "nthview-cw-stepno", "aria-haspopup": "dialog", "aria-label": "Step " + (i + 1) + " of " + N + ". Show all steps" }, [
+        el("span", {}, [el("span", { class: "nthview-cw-long", text: "Step " + (i + 1) + " of " + N }), el("span", { class: "nthview-cw-short", text: (i + 1) + " / " + N }), icon("down")]), ticks
+      ]);
+      mid.addEventListener("click", openContents);
+      return el("nav", { class: "nthview-cw-stepbar", "aria-label": "Step navigation" }, [prev, mid, next]);
     }
-    function outline() {
-      var box = el("nav", { class: "nthview-cw-outline", "aria-label": "All steps" });
-      groups.forEach(function (gr) {
-        if (gr.label) box.appendChild(el("h3", { text: gr.label }));
-        var ol = el("ol");
-        gr.steps.forEach(function (i) {
-          var cks = steps[i].checks || [], done = cks.length && cks.every(function (c) { return state.checks[c.id] && state.checks[c.id].s !== "open"; });
-          var b = el("button", { type: "button", class: "nthview-cw-jump" + (state.seen[i] ? " nthview-cw-seen" : "") }, [
-            el("span", { class: "nthview-cw-num", text: String(i + 1) }), el("span", { text: steps[i].title })
-          ]);
-          if (done) b.appendChild(el("span", { class: "nthview-cw-tick", text: "✓", "aria-label": "questions answered" }));
-          if (i === state.step) b.setAttribute("aria-current", "step");
-          b.addEventListener("click", function () { state.outline = false; go(i, true); });
-          ol.appendChild(el("li", {}, [b]));
-        });
-        box.appendChild(ol);
-      });
-      return box;
-    }
-    function watchTable(rows) {
-      var t = el("table", { class: "nthview-cw-watch" }, [el("caption", { text: "Values at this step" })]);
-      var tb = el("tbody");
+    function traceTable(rows) {
+      var dl = el("dl");
       rows.forEach(function (w) {
-        var td = el("td", {}, [el("b", { text: w.value })]);
-        if (w.note) td.appendChild(el("small", { text: w.note }));
-        tb.appendChild(el("tr", {}, [el("th", { scope: "row", text: w.name }), td]));
+        dl.appendChild(el("dt", { text: w.name }));
+        var dd = el("dd", {}, [el("b", { text: w.value })]);
+        if (w.note) dd.appendChild(el("small", { text: w.note }));
+        dl.appendChild(dd);
       });
-      t.appendChild(tb);
-      return t;
+      return el("section", { class: "nthview-cw-trace", "aria-label": "Values at this step" }, [el("h3", { text: "Values at this step" }), dl]);
     }
 
     function renderIntro() {
-      var wrap = el("div", { style: "max-width:48rem" });
-      var card = el("div", { class: "nthview-cw-card" }, [el("h2", { tabindex: "-1", "data-heading": "1", text: "Overview", style: "margin-top:0" })]);
-      (data.intro || []).forEach(function (p) { card.appendChild(el("p", {}, rich(p))); });
-      if (data.goal) card.appendChild(el("p", {}, [el("strong", { text: "Your goal: " }), txt(data.goal)]));
-      var files = el("ul", { class: "nthview-cw-points" });
+      var started = Object.keys(state.seen).length > 0;
+      var hero = el("section", { class: "nthview-cw-hero nthview-cw-in" }, [
+        el("h1", { tabindex: "-1", "data-heading": "1", text: data.title })
+      ]);
+      if (data.subtitle) hero.appendChild(el("p", { class: "nthview-cw-lede", text: data.subtitle }));
+      var nq = checks.length, meta = el("ul", { class: "nthview-cw-meta", "aria-label": "At a glance" }, [
+        el("li", {}, [icon("steps"), txt(N + " steps")]),
+        el("li", {}, [icon("help"), txt(nq + " question" + (nq === 1 ? "" : "s"))]),
+        el("li", {}, [icon("clock"), txt("about " + minutes + " min")]),
+        el("li", {}, [icon("file"), txt(snipList.length + " snippet" + (snipList.length > 1 ? "s" : "") + " · " + snipList.reduce(function (a, s) { return a + s.lines.length; }, 0) + " lines")])
+      ]);
+      hero.appendChild(meta);
+      var startAt = started ? firstUnseen() : 0;
+      var cta = el("div", { class: "nthview-cw-cta" }, [
+        btn(started ? "Continue at step " + (startAt + 1) + " →" : "Start reading →", "nthview-cw-primary", function () { go(startAt, true); }, { "data-k": "start" })
+      ]);
+      var alt = el("p", {}, [txt("or "), el("button", { type: "button", class: "nthview-cw-link", text: "read the whole code" }), txt(" · "), el("button", { type: "button", class: "nthview-cw-link", text: "see all questions" })]);
+      alt.childNodes[1].addEventListener("click", function () { setTab("code"); });
+      alt.childNodes[3].addEventListener("click", function () { setTab("questions"); });
+      cta.appendChild(alt);
+      hero.appendChild(cta);
+      panel.appendChild(hero);
+
+      var left = el("div"), right = el("div");
+      var about = el("section", { class: "nthview-cw-card nthview-cw-prose" }, [el("h2", { class: "nthview-cw-section", text: "About this code" })]);
+      (data.intro || []).forEach(function (p) { about.appendChild(el("p", {}, rich(p))); });
+      if (data.goal) about.appendChild(el("p", {}, [el("strong", { text: "Your goal: " }), txt(data.goal)]));
+      var files = el("ul", { class: "nthview-cw-files" });
       snipList.forEach(function (s) {
-        var n = s.lines.length;
-        files.appendChild(el("li", {}, [el("code", { class: "nthview-cw-ic", text: s.src.path || s.src.title || s.id }), txt((s.src.title && s.src.path ? " — " + s.src.title : "") + " (" + n + " lines, " + s.src.lang + ")")]));
+        files.appendChild(el("li", {}, [el("code", { text: s.src.path || s.src.title || s.id }), el("span", { text: [s.src.path && s.src.title ? s.src.title : null, s.lines.length + " lines", s.src.lang].filter(Boolean).join(" · ") })]));
       });
-      card.appendChild(el("p", { style: "margin-bottom:.3rem", text: "The code:" }));
-      card.appendChild(files);
-      wrap.appendChild(card);
+      about.appendChild(files);
+      left.appendChild(about);
       if (data.opening) {
-        wrap.appendChild(el("h3", { text: "Before you start: predict" }));
-        wrap.appendChild(checkCard(checkById[data.opening.id]));
+        right.appendChild(el("h2", { class: "nthview-cw-checkhead", text: "Warm-up · predict before you read" }));
+        right.appendChild(checkCard(checkById[data.opening.id]));
       }
-      var route = el("div", { class: "nthview-cw-card" }, [el("h3", { text: "The route: " + N + " steps", style: "margin-top:0" })]);
-      var ol = el("ol", { class: "nthview-cw-route" });
-      groups.forEach(function (gr) {
-        var a = gr.steps[0], z = gr.steps[gr.steps.length - 1];
-        var b = el("button", { type: "button", class: "nthview-cw-jump" }, [
-          el("span", { class: "nthview-cw-num", text: String(a + 1) }),
-          el("span", { text: (gr.label || steps[a].title) + (z > a ? " (steps " + (a + 1) + "–" + (z + 1) + ")" : "") })
-        ]);
-        b.addEventListener("click", function () { go(a, true); });
-        ol.appendChild(el("li", {}, [b]));
-      });
-      route.appendChild(ol);
-      wrap.appendChild(route);
-      wrap.appendChild(el("div", { class: "nthview-cw-row" }, [
-        btn(state.seen[0] ? "Continue the walkthrough →" : "Start the walkthrough →", "nthview-cw-primary", function () { go(firstUnseen(), true); }),
-        btn("Read the whole code", "", function () { setTab("code"); }),
-        btn("Go to the questions", "", function () { setTab("questions"); })
-      ]));
-      panel.appendChild(wrap);
+      var route = el("section", { class: "nthview-cw-card" }, [el("h2", { class: "nthview-cw-section", text: "The route" })]);
+      route.appendChild(stepList(null, function (i) { go(i, true); }, function (i) { var gr = groups[groupOf(i)]; return !gr.label || gr.steps[0] === i; }));
+      right.appendChild(route);
+      panel.appendChild(el("div", { class: "nthview-cw-introgrid" }, [left, right]));
     }
-    function firstUnseen() { for (var i = 0; i < N; i++) if (!state.seen[i]) return i; return 0; }
 
     function renderWrap() {
-      var s = data.summary, wrap = el("div", { style: "max-width:52rem" });
+      var s = data.summary, wrap = el("section", { class: "nthview-cw-done nthview-cw-in" });
+      wrap.appendChild(el("div", { class: "nthview-cw-donebadge", "aria-hidden": "true" }, [icon("check")]));
       wrap.appendChild(el("h2", { tabindex: "-1", "data-heading": "1", text: s.heading || "What you have learned" }));
-      var firstTry = checks.filter(function (e) { var r = state.checks[e.c.id]; return r && r.s === "ok" && r.f; }).length;
       var seen = Object.keys(state.seen).length;
+      var firstTry = checks.filter(function (e) { var r = state.checks[e.c.id]; return r && r.s === "ok" && r.f; }).length;
       wrap.appendChild(el("div", { class: "nthview-cw-stats" }, [
         el("div", { class: "nthview-cw-stat" }, [el("b", { text: seen + "/" + N }), txt("steps read")]),
         el("div", { class: "nthview-cw-stat" }, [el("b", { text: answered() + "/" + checks.length }), txt("questions answered")]),
-        el("div", { class: "nthview-cw-stat" }, [el("b", { text: String(firstTry) }), txt("right on the first try")])
+        el("div", { class: "nthview-cw-stat" }, [el("b", { text: String(firstTry) }), txt("right first time")])
       ]));
-      var card = el("div", { class: "nthview-cw-card" }, [el("ul", { class: "nthview-cw-points" }, s.points.map(function (p) { return el("li", {}, rich(p)); }))]);
-      if (s.closing) card.appendChild(el("p", {}, rich(s.closing)));
+      var card = el("div", { class: "nthview-cw-card" }, [el("h3", { class: "nthview-cw-section", text: "Key points" }),
+        el("ul", { class: "nthview-cw-points" }, s.points.map(function (p) { return el("li", {}, [icon("check"), el("span", {}, rich(p))]); }))]);
+      if (s.closing) card.appendChild(el("p", { style: "margin:1rem 0 0" }, rich(s.closing)));
       wrap.appendChild(card);
-      (s.checks || []).forEach(function (c) { wrap.appendChild(checkCard(checkById[c.id])); });
-      var todo = checks.filter(function (e) { return !state.checks[e.c.id] || state.checks[e.c.id].s === "open"; }).length;
-      if (todo) wrap.appendChild(el("p", { text: todo + " question(s) still open. The Questions tab lists them all." }));
-      if (data.sources && data.sources.length) {
-        wrap.appendChild(el("h3", { text: "Sources" }));
-        wrap.appendChild(el("ul", { class: "nthview-cw-sources" }, data.sources.map(function (src) {
-          var li = el("li", {}, [el("a", { href: src.href, target: "_blank", rel: "noopener noreferrer", text: src.label })]);
-          if (src.note) li.appendChild(txt(" — " + src.note));
-          return li;
-        })));
+      if (s.checks && s.checks.length) {
+        wrap.appendChild(el("h3", { class: "nthview-cw-checkhead", text: "Explain it" }));
+        s.checks.forEach(function (c) { wrap.appendChild(checkCard(checkById[c.id])); });
       }
-      wrap.appendChild(el("div", { class: "nthview-cw-row", style: "margin-top:1.2rem" }, [
+      /* questions worth another look: open ones and ones not right first time */
+      var again = checks.filter(function (e) { var r = state.checks[e.c.id]; return e.at >= 0 && e.at < N && (!r || r.s !== "ok" || !r.f); });
+      if (again.length) {
+        var list = el("ol", { class: "nthview-cw-route" });
+        again.forEach(function (e) {
+          var r = state.checks[e.c.id], why = !r || r.s === "open" ? "not answered yet" : r.s === "shown" ? "answer shown" : "solved after a retry";
+          var b = el("button", { type: "button", class: "nthview-cw-jump" }, [el("span", { class: "nthview-cw-num", text: String(e.at + 1) }), el("span", {}, [txt(steps[e.at].title), el("small", { text: KIND_LABEL[e.c.kind] + " · " + why })])]);
+          b.addEventListener("click", function () { go(e.at, true); });
+          list.appendChild(el("li", {}, [b]));
+        });
+        wrap.appendChild(el("div", { class: "nthview-cw-card" }, [el("h3", { class: "nthview-cw-section", text: "Worth another look" }), list]));
+      }
+      if (data.sources && data.sources.length) {
+        wrap.appendChild(el("div", { class: "nthview-cw-card" }, [el("h3", { class: "nthview-cw-section", text: "Sources" }),
+          el("ul", { class: "nthview-cw-sources" }, data.sources.map(function (src) {
+            var li = el("li", {}, [el("a", { href: src.href, target: "_blank", rel: "noopener noreferrer", text: src.label })]);
+            if (src.note) li.appendChild(txt(" — " + src.note));
+            return li;
+          }))]));
+      }
+      var open = checks.length - answered();
+      wrap.appendChild(el("div", { class: "nthview-cw-row", style: "margin-top:1.4rem" }, [
+        open ? btn("Answer the " + open + " open question" + (open > 1 ? "s" : ""), "nthview-cw-primary", function () { state.filter = "todo"; setTab("questions"); })
+          : btn("Read the code again", "nthview-cw-primary", function () { setTab("code"); }),
         btn("← Last step", "", function () { go(N - 1, true); }),
-        btn("Review the questions", "", function () { state.filter = todo ? "todo" : "all"; setTab("questions"); }),
-        btn("Start again", "", function () { clearState(key); NthView.build(container, data); })
+        btn("Start again", "nthview-cw-ghost", function () { clearState(key); NthView.build(container, data); })
       ]));
       panel.appendChild(wrap);
     }
 
-    /* ---- code tab ---- */
+    /* ---- Code tab ---- */
     function renderCodeTab() {
       var sn = snipList[state.snip];
-      var bar = el("div", { class: "nthview-cw-row", style: "margin-bottom:.6rem" });
-      if (snipList.length > 1) snipList.forEach(function (s, i) {
-        bar.appendChild(toggle(s.src.title || s.src.path || s.id, i === state.snip, function () { state.snip = i; save(); show(); }));
-      });
-      bar.appendChild(toggle("Wrap", state.wrap, function () { state.wrap = !state.wrap; save(); show(); }, "Wrap long lines"));
-      panel.appendChild(bar);
-      panel.appendChild(el("p", { class: "nthview-cw-path", style: "margin:0 0 .4rem", text: sn.src.path || sn.src.title || "Code" }));
+      var grid = el("div", { class: "nthview-cw-codetab nthview-cw-in" }), left = el("div"), right = el("div");
+      if (snipList.length > 1) {
+        var seg = el("div", { class: "nthview-cw-seg nthview-cw-snips", role: "group", "aria-label": "Snippet" });
+        snipList.forEach(function (s, i) {
+          var b = el("button", { type: "button", "aria-pressed": i === state.snip ? "true" : "false", text: s.src.title || s.src.path || s.id });
+          b.addEventListener("click", function () { state.snip = i; save(); show(); });
+          seg.appendChild(b);
+        });
+        left.appendChild(seg);
+      }
       var badges = {}, covering = {};
       steps.forEach(function (st, i) {
         if (st.sn !== sn) return;
@@ -753,46 +995,41 @@
           row.addEventListener("click", function () { if (!String(root.getSelection ? root.getSelection() : "")) go(covering[n], true); });
         }
       });
-      panel.appendChild(cb.box);
-      if (sn.src.caption) panel.appendChild(el("p", { class: "nthview-cw-caption", text: sn.src.caption }));
-      var list = el("ol", { class: "nthview-cw-route", style: "margin-top:1rem" });
-      steps.forEach(function (st, i) {
-        if (st.sn !== sn) return;
-        var b = el("button", { type: "button", class: "nthview-cw-jump" + (state.seen[i] ? " nthview-cw-seen" : "") }, [
-          el("span", { class: "nthview-cw-num", text: String(i + 1) }),
-          el("span", { text: st.title + " (lines " + st.lines[0] + "–" + st.lines[1] + ")" })
-        ]);
-        b.addEventListener("click", function () { go(i, true); });
-        list.appendChild(el("li", {}, [b]));
-      });
-      if (list.firstChild) {
-        panel.appendChild(el("h3", { text: "Steps in this code" }));
-        panel.appendChild(list);
-      }
+      left.appendChild(el("div", { class: "nthview-cw-codebox" }, [fileBar(sn, displayMenu(function () { return cb.box; }, null)), cb.box]));
+      if (sn.src.caption) left.appendChild(el("p", { class: "nthview-cw-caption", text: sn.src.caption }));
+      right.appendChild(el("h2", { class: "nthview-cw-section", text: "Steps in this code" }));
+      right.appendChild(el("p", { class: "nthview-cw-why", style: "margin:0 0 .6rem", text: "The numbered badges in the margin mark where each step starts. Choose a step to read it." }));
+      right.appendChild(stepList(null, function (i) { go(i, true); }, function (i) { return steps[i].sn === sn; }));
+      grid.appendChild(left); grid.appendChild(right);
+      panel.appendChild(grid);
     }
 
-    /* ---- questions tab ---- */
+    /* ---- Questions tab ---- */
     function renderQuestions() {
-      var head = el("div", { class: "nthview-cw-row", style: "justify-content:space-between" }, [
-        el("p", { style: "margin:0", text: answered() + " of " + checks.length + " questions answered" }),
-        el("div", { class: "nthview-cw-row" }, [
-          toggle("All", state.filter === "all", function () { state.filter = "all"; save(); show(); }),
-          toggle("Still open", state.filter === "todo", function () { state.filter = "todo"; save(); show(); })
-        ])
-      ]);
-      panel.appendChild(head);
+      var done = answered();
+      var seg = el("div", { class: "nthview-cw-seg", role: "group", "aria-label": "Show" });
+      [["all", "All"], ["todo", "Still open"]].forEach(function (f) {
+        var b = el("button", { type: "button", "aria-pressed": state.filter === f[0] ? "true" : "false", text: f[1] });
+        b.addEventListener("click", function () { state.filter = f[0]; save(); show(); });
+        seg.appendChild(b);
+      });
+      panel.appendChild(el("div", { class: "nthview-cw-qhead" }, [el("h2", { text: "Questions" }), seg]));
+      panel.appendChild(el("p", { class: "nthview-cw-why", style: "margin:0 0 .4rem", text: done + " of " + checks.length + " answered. Each one belongs to a step; you can answer them here in any order." }));
+      var meter = el("div", { class: "nthview-cw-meter", "aria-hidden": "true" }, [el("span")]);
+      meter.firstChild.style.width = Math.round(done / Math.max(1, checks.length) * 100) + "%";
+      panel.appendChild(meter);
       var any = false, lastAt = null, groupEl = null;
       checks.forEach(function (e) {
-        var r = state.checks[e.c.id];
-        if (state.filter === "todo" && r && r.s !== "open") return;
+        if (state.filter === "todo" && isDone(e.c.id)) return;
         any = true;
         if (e.at !== lastAt) {
           lastAt = e.at;
           var h = el("h3");
-          if (e.at === -1) h.appendChild(txt("Before you start"));
+          if (e.at === -1) h.appendChild(txt("Warm-up"));
           else if (e.at === N) h.appendChild(txt("Wrap-up"));
           else {
-            h.appendChild(txt("Step " + (e.at + 1) + " · " + steps[e.at].title));
+            h.appendChild(el("span", { class: "nthview-cw-num", text: String(e.at + 1) }));
+            h.appendChild(txt(steps[e.at].title));
             var at = e.at, rb = el("button", { type: "button", class: "nthview-cw-link", text: "Read this step" });
             rb.addEventListener("click", function () { go(at, true); });
             h.appendChild(rb);
@@ -802,45 +1039,56 @@
         }
         groupEl.appendChild(checkCard(e));
       });
-      if (!any) panel.appendChild(el("p", { class: "nthview-cw-card", text: "Every question is answered. Choose All to review them." }));
+      if (!any) panel.appendChild(el("div", { class: "nthview-cw-card", style: "max-width:46rem" }, [el("p", { text: "Every question is answered. Choose All to review them, with every explanation." })]));
     }
 
     /* ---- checks ---- */
-    var KIND_LABEL = { choice: "Choose", spot: "Spot the line", predict: "Predict", fill: "Fill the blanks", order: "Put in order" };
+    var KIND_LABEL = { choice: "Choose one", spot: "Tap the line", predict: "Predict", fill: "Fill the blanks", order: "Put in order" };
     function checkCard(entry, onChange) {
-      var c = entry.c, card = el("div", { class: "nthview-cw-card nthview-cw-check", "data-check": c.id });
+      var c = entry.c, card = el("section", { class: "nthview-cw-card nthview-cw-check", "data-check": c.id, "aria-label": KIND_LABEL[c.kind] + " question" });
       function refresh(focusKey) {
         var active = doc.activeElement, k = focusKey || (active && card.contains(active) ? active.getAttribute("data-k") : null);
         card.innerHTML = "";
         build();
         updateCount();
-        if (k) { var f = card.querySelector('[data-k="' + k + '"]'); if (f) f.focus({ preventScroll: true }); }
+        if (k) { var f = card.querySelector('[data-k="' + k + '"]'); if (f && !f.disabled) f.focus({ preventScroll: true }); else if (f) { var fb = card.querySelector(".nthview-cw-fb"); if (fb) fb.focus({ preventScroll: true }); } }
         if (onChange) onChange();
       }
       function build() {
-        var r = cs(c.id);
-        card.classList.toggle("nthview-cw-solved", r.s !== "open");
-        var status = r.s === "ok" ? (r.f ? "✓ Right first time" : "✓ Solved") : r.s === "shown" ? "Answer shown" : "";
+        var r = cs(c.id), done = r.s !== "open";
         var kind = el("p", { class: "nthview-cw-kind" }, [txt(KIND_LABEL[c.kind] + (entry.at === -1 ? " · not scored" : ""))]);
-        if (status) kind.appendChild(el("span", { class: "nthview-cw-status", text: status }));
+        if (r.s === "ok") kind.appendChild(el("span", { class: "nthview-cw-pill" }, [icon("check"), txt(r.f ? "Right first time" : "Solved")]));
+        else if (r.s === "shown") kind.appendChild(el("span", { class: "nthview-cw-pill nthview-cw-pill-shown" }, [icon("eye"), txt("Answer shown")]));
         card.appendChild(kind);
         card.appendChild(el("p", { class: "nthview-cw-prompt" }, rich(c.prompt)));
-        var fb = el("p", { class: "nthview-cw-fb", role: "status", "aria-live": "polite" });
-        BODY[c.kind](c, r, card, fb, entry, solve, refresh);
-        card.appendChild(fb);
-        if (r.s === "open" && r.t > 0) {
-          if (c.hint) card.appendChild(el("p", { class: "nthview-cw-why" }, [el("strong", { text: "Hint: " })].concat(rich(c.hint))));
-          card.appendChild(btn("Show the answer", "nthview-cw-small", function () { r.s = "shown"; reveal(c, r); save(); refresh("explain"); }, { "data-k": "show" }));
+        var actions = el("div", { class: "nthview-cw-actions" });
+        BODY[c.kind](c, r, card, entry, solve, refresh, actions);
+        if (!done && r.t > 0) actions.appendChild(btn("Show the answer", "nthview-cw-ghost nthview-cw-small", function () { r.s = "shown"; r.m = ""; reveal(c, r); save(); announce("Answer shown. " + c.explain); refresh("fb"); }, { "data-k": "show" }));
+        if (actions.firstChild) card.appendChild(actions);
+        /* one feedback panel: icon, verdict, then why (Duolingo / Brilliant pattern) */
+        if (done) {
+          card.appendChild(el("div", { class: "nthview-cw-fb " + (r.s === "ok" ? "nthview-cw-fb-ok" : ""), tabindex: "-1", "data-k": "fb" }, [
+            icon(r.s === "ok" ? "check" : "eye"),
+            el("div", {}, [el("strong", { text: r.s === "ok" ? (r.f ? "Correct" : "That's it") : "The answer" }), el("p", {}, rich(c.explain))])
+          ]));
+        } else if (r.m) {
+          var inner = el("div", {}, [el("strong", { text: "Not quite" }), el("p", {}, rich(r.m))]);
+          if (c.hint) inner.appendChild(el("p", {}, [el("strong", { text: "Hint: ", style: "display:inline" })].concat(rich(c.hint))));
+          card.appendChild(el("div", { class: "nthview-cw-fb nthview-cw-fb-bad", tabindex: "-1", "data-k": "fb" }, [icon("alert"), inner]));
         }
-        if (r.s !== "open") card.appendChild(el("div", { class: "nthview-cw-explain", tabindex: "-1", "data-k": "explain" }, [el("strong", { text: r.s === "ok" ? "Why" : "The answer" })].concat(rich(c.explain))));
       }
-      function solve(ok, fbText) {
+      function solve(ok, msg) {
         var r = cs(c.id);
-        if (ok) { r.s = "ok"; r.f = r.t === 0; } else r.t++;
+        if (ok) { r.s = "ok"; r.f = r.t === 0; r.m = ""; } else { r.t++; r.m = msg; }
         save();
+        announce(ok ? (r.f ? "Correct. " : "That's it. ") + c.explain : "Not quite. " + msg);
         refresh();
+        /* keep the verdict in view: on a phone it can fall below a long list of lines */
         var fb = card.querySelector(".nthview-cw-fb");
-        if (fb && fbText) { fb.textContent = fbText; fb.className = "nthview-cw-fb " + (ok ? "nthview-cw-oktxt" : "nthview-cw-badtxt"); }
+        if (fb) {
+          var rc = fb.getBoundingClientRect();
+          if (rc.bottom > root.innerHeight || rc.top < 0) fb.scrollIntoView({ block: "nearest", behavior: root.matchMedia && root.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+        }
       }
       build();
       return card;
@@ -852,46 +1100,48 @@
       else if (c.kind === "fill") r.a = c.blanks.map(function (b) { return b.text; });
       else if (c.kind === "order") r.a = c.lines.map(function (_, i) { return "l" + i; });
     }
-    function mk(ok) { return el("span", { class: "nthview-cw-mk", "aria-hidden": "true", text: ok ? "✓" : "✗" }); }
+    function mk(ok) { var s = el("span", { class: "nthview-cw-mk" }, [icon(ok ? "check" : "x")]); s.appendChild(el("span", { class: "nthview-cw-sr", text: ok ? "right" : "wrong" })); return s; }
 
     var BODY = {
-      choice: function (c, r, card, fb, entry, solve) {
-        var wrong = r.w || (r.w = []), order = shuffled(c.options.map(function (_, i) { return i; }), c.id);
+      choice: function (c, r, card, entry, solve) {
+        var wrong = r.w || (r.w = []), done = r.s !== "open", order = shuffled(c.options.map(function (_, i) { return i; }), c.id);
         var box = el("div", { class: "nthview-cw-opts" });
-        order.forEach(function (i) {
-          var o = c.options[i], isWrong = wrong.indexOf(i) !== -1, isRight = r.s !== "open" && o.correct;
+        order.forEach(function (i, pos) {
+          var o = c.options[i], isWrong = wrong.indexOf(i) !== -1, isRight = done && o.correct;
           var b = el("button", { type: "button", class: "nthview-cw-opt" + (isRight ? " nthview-cw-ok" : isWrong ? " nthview-cw-bad" : ""), "data-k": "o" + i });
-          if (isRight || isWrong) b.appendChild(mk(isRight));
-          b.appendChild(txt(o.text));
-          if ((isRight || isWrong) && o.why) b.appendChild(el("span", { class: "nthview-cw-why", text: o.why }));
+          b.appendChild(el("span", { class: "nthview-cw-letter", "aria-hidden": "true" }, [isRight ? icon("check") : isWrong ? icon("x") : txt("ABCDEF".charAt(pos))]));
+          var body = el("span", {}, [txt(o.text)]);
+          if (isRight || isWrong) body.appendChild(el("span", { class: "nthview-cw-sr", text: isRight ? " (right)" : " (wrong)" }));
+          /* once solved, every option explains itself */
+          if ((isRight || isWrong || done) && o.why) body.appendChild(el("span", { class: "nthview-cw-why", text: o.why }));
+          b.appendChild(body);
+          if (done || isWrong) b.setAttribute("aria-disabled", "true");
           b.addEventListener("click", function () {
-            if (r.s !== "open" || isWrong) return;
+            if (done || isWrong) return;
             r.a = i;
-            if (o.correct) solve(true, "Right.");
-            else { wrong.push(i); solve(false, "Not this one. Read why, then try another."); }
+            if (o.correct) solve(true);
+            else { wrong.push(i); solve(false, "Read why under your choice, then try another option."); }
           });
-          if (r.s !== "open") b.setAttribute("aria-disabled", "true");
           box.appendChild(b);
         });
         card.appendChild(box);
       },
-      spot: function (c, r, card, fb, entry, solve, refresh) {
+      spot: function (c, r, card, entry, solve, refresh, actions) {
         var sn = c.snippet ? snips[c.snippet] : entry.sn;
         var lo = c.lines ? c.lines[0] : sn.start, hi = c.lines ? c.lines[1] : sn.start + sn.lines.length - 1;
-        var all = c.select === "all", wrong = r.w || (r.w = []), sel = r.sel || (r.sel = []);
-        var box = el("div", { class: "nthview-cw-spot", role: "group", "aria-label": "Lines " + lo + " to " + hi });
+        var all = c.select === "all", wrong = r.w || (r.w = []), sel = r.sel || (r.sel = []), done = r.s !== "open";
+        var box = el("div", { class: "nthview-cw-spot", role: "group", "aria-label": "Lines " + lo + " to " + hi + (all ? ", select every matching line" : ", choose one") });
         for (var n = lo; n <= hi; n++) (function (n) {
           var line = sn.lines[n - sn.start], ind = indentOf(line.text, 2);
-          var isAns = c.answer.indexOf(n) !== -1, done = r.s !== "open";
-          var cls = "nthview-cw-sl";
-          if (done && isAns) cls += " nthview-cw-ok";
-          else if (!all && wrong.indexOf(n) !== -1) cls += " nthview-cw-bad";
-          else if (all && r.checked && sel.indexOf(n) !== -1 && !isAns) cls += " nthview-cw-bad";
+          var isAns = c.answer.indexOf(n) !== -1, cls = "nthview-cw-sl", mark = null;
+          if (done && isAns) { cls += " nthview-cw-ok"; mark = mk(true); }
+          else if (!all && wrong.indexOf(n) !== -1) { cls += " nthview-cw-bad"; mark = mk(false); }
+          else if (all && r.checked && sel.indexOf(n) !== -1 && !isAns) { cls += " nthview-cw-bad"; mark = mk(false); }
           var code = el("span", { class: "nthview-cw-blk" }, lineNodes(line, null, ind.len));
           code.style.paddingLeft = ind.cols + "ch";
           if (!line.text.trim()) code.textContent = " ";
           var b = el("button", { type: "button", class: cls, "data-k": "l" + n, "aria-label": "Line " + n + ": " + (line.text.trim() || "blank") }, [
-            el("span", { class: "nthview-cw-ln", text: String(n) }), code
+            el("span", { class: "nthview-cw-ln", text: String(n) }), code, mark || el("span")
           ]);
           if (all) b.setAttribute("aria-pressed", sel.indexOf(n) !== -1 ? "true" : "false");
           b.addEventListener("click", function () {
@@ -902,7 +1152,7 @@
               r.checked = false; save(); refresh("l" + n); return;
             }
             if (wrong.indexOf(n) !== -1) return;
-            if (isAns) return solve(true, "Right: line " + n + ".");
+            if (isAns) return solve(true);
             wrong.push(n);
             var miss = (c.miss || []).filter(function (m) { return m.line === n; })[0];
             solve(false, "Not line " + n + ". " + (miss ? miss.text : "Look again at what that line actually does."));
@@ -910,53 +1160,47 @@
           box.appendChild(b);
         })(n);
         card.appendChild(box);
-        if (!all && wrong.length && r.s === "open") {
-          var last = wrong[wrong.length - 1], miss = (c.miss || []).filter(function (m) { return m.line === last; })[0];
-          fb.textContent = "Not line " + last + ". " + (miss ? miss.text : "Look again at what that line actually does.");
-          fb.className = "nthview-cw-fb nthview-cw-badtxt";
-        }
-        if (all && r.s === "open") {
-          card.appendChild(btn("Check " + sel.length + " line(s)", "nthview-cw-primary nthview-cw-small", function () {
+        if (all && !done) {
+          actions.appendChild(btn(sel.length ? "Check " + sel.length + " line" + (sel.length > 1 ? "s" : "") : "Select lines, then check", "nthview-cw-primary", function () {
             var right = sel.filter(function (n) { return c.answer.indexOf(n) !== -1; }).length, extra = sel.length - right, missing = c.answer.length - right;
             r.checked = true;
-            if (!extra && !missing) return solve(true, "Right: all " + c.answer.length + " lines.");
-            solve(false, right + " right" + (missing ? ", " + missing + " missing" : "") + (extra ? ", " + extra + " that do not belong (marked)" : "") + ".");
+            if (!extra && !missing) return solve(true);
+            solve(false, right + " right" + (missing ? ", " + missing + " still missing" : "") + (extra ? ", " + extra + " that do" + (extra > 1 ? "" : "es") + " not belong (marked)" : "") + ".");
           }, sel.length ? { "data-k": "go" } : { "data-k": "go", disabled: "" }));
         }
       },
-      predict: function (c, r, card, fb, entry, solve) {
+      predict: function (c, r, card, entry, solve, refresh, actions) {
         var done = r.s !== "open";
-        var inp = el("input", { type: "text", class: "nthview-cw-input" + (done ? " nthview-cw-good" : ""), "data-k": "in", autocomplete: "off", autocapitalize: "off", spellcheck: "false", "aria-label": "Your prediction" });
+        var inp = el("input", { type: "text", class: "nthview-cw-input" + (done ? " nthview-cw-good" : ""), "data-k": "in", autocomplete: "off", autocapitalize: "off", autocorrect: "off", spellcheck: "false", enterkeyhint: "done", "aria-label": "Your prediction", placeholder: "Your answer" });
         inp.value = r.a || "";
         if (done) inp.setAttribute("readonly", "");
         else if (r.t > 0) inp.setAttribute("aria-invalid", "true");
         function check() {
           var v = inp.value;
-          if (!v.trim()) { fb.textContent = "Type a prediction first."; return; }
+          if (!v.trim()) { inp.focus(); return; }
           r.a = v;
           var ok = [c.answer].concat(c.accept || []).some(function (a) { return norm(a, c.caseSensitive) === norm(v, c.caseSensitive); });
-          solve(ok, ok ? "Right: " + c.answer + "." : "Not quite. Think it through again, or show the answer.");
+          solve(ok, "“" + v.trim() + "” is not it. Trace it once more, or show the answer.");
         }
         inp.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); if (!done) check(); } });
         inp.addEventListener("input", function () { r.a = inp.value; save(); });
-        var row = el("div", { class: "nthview-cw-row" }, [inp]);
-        if (!done) row.appendChild(btn("Check", "nthview-cw-primary", check, { "data-k": "go" }));
-        card.appendChild(row);
+        card.appendChild(inp);
+        if (!done) actions.appendChild(btn("Check", "nthview-cw-primary", check, { "data-k": "go" }));
       },
-      fill: function (c, r, card, fb, entry, solve, refresh) {
+      fill: function (c, r, card, entry, solve, refresh, actions) {
         var vals = r.a || (r.a = c.blanks.map(function () { return ""; })), done = r.s !== "open";
         var box = el("div", { class: "nthview-cw-fill" }), pos = 0, inputs = [];
         c.blanks.forEach(function (b, i) {
           var at = c.code.indexOf(b.text, pos);
           box.appendChild(txt(c.code.slice(pos, at)));
-          var ok = done || (r.marks && r.marks[i] === 1), bad = !done && r.marks && r.marks[i] === 0;
-          var cls = "nthview-cw-input" + (ok && r.marks ? " nthview-cw-good" : "");
+          var bad = !done && r.marks && r.marks[i] === 0, good = done || (r.marks && r.marks[i] === 1);
+          var cls = "nthview-cw-input" + (good && (done || r.marks) ? " nthview-cw-good" : "");
           var inp;
           if (b.options) {
-            inp = el("select", { class: cls, "data-k": "b" + i, "aria-label": "Blank " + (i + 1) }, [el("option", { value: "", text: "…" })]);
+            inp = el("select", { class: cls, "data-k": "b" + i, "aria-label": "Blank " + (i + 1) + " of " + c.blanks.length }, [el("option", { value: "", text: "choose…" })]);
             shuffled(b.options, c.id + i).forEach(function (o) { inp.appendChild(el("option", { value: o, text: o })); });
           } else {
-            inp = el("input", { type: "text", class: cls, "data-k": "b" + i, size: String(Math.max(4, b.text.length + 1)), autocomplete: "off", autocapitalize: "off", spellcheck: "false", "aria-label": "Blank " + (i + 1) });
+            inp = el("input", { type: "text", class: cls, "data-k": "b" + i, size: String(Math.max(4, b.text.length + 1)), autocomplete: "off", autocapitalize: "off", spellcheck: "false", "aria-label": "Blank " + (i + 1) + " of " + c.blanks.length });
           }
           inp.value = vals[i] || "";
           if (done) inp.setAttribute("disabled", "");
@@ -968,34 +1212,35 @@
         });
         box.appendChild(txt(c.code.slice(pos)));
         card.appendChild(box);
-        if (!done) card.appendChild(btn("Check", "nthview-cw-primary nthview-cw-small", function () {
+        if (!done) actions.appendChild(btn("Check", "nthview-cw-primary", function () {
           inputs.forEach(function (inp, i) { vals[i] = inp.value; });
-          if (vals.some(function (v) { return !v.trim(); })) { fb.textContent = "Fill every blank first."; fb.className = "nthview-cw-fb nthview-cw-badtxt"; return; }
+          var empty = vals.map(function (v, i) { return v.trim() ? -1 : i; }).filter(function (i) { return i >= 0; });
+          if (empty.length) { inputs[empty[0]].focus(); return; }
           r.marks = c.blanks.map(function (b, i) { return [b.text].concat(b.accept || []).some(function (a) { return a.trim() === vals[i].trim(); }) ? 1 : 0; });
           var right = r.marks.filter(function (m) { return m === 1; }).length;
-          solve(right === c.blanks.length, right === c.blanks.length ? "Right: every blank." : right + " of " + c.blanks.length + " blanks right; the wrong ones are marked.");
+          solve(right === c.blanks.length, right + " of " + c.blanks.length + " blanks are right; the wrong ones are outlined in red.");
         }, { "data-k": "go" }));
       },
-      order: function (c, r, card, fb, entry, solve, refresh) {
+      order: function (c, r, card, entry, solve, refresh, actions) {
         var items = {}, done = r.s !== "open";
         c.lines.forEach(function (t, i) { items["l" + i] = { k: "l" + i, t: t, i: i }; });
         (c.distractors || []).forEach(function (d, j) { items["d" + j] = { k: "d" + j, t: d.text, d: d }; });
         var ans = (r.a || (r.a = [])).filter(function (k) { return items[k]; });
         r.a = ans;
         var box = el("div", { class: "nthview-cw-order" });
-        box.appendChild(el("h4", { text: "Your order" }));
+        box.appendChild(el("h4", { text: done ? "The order" : "Your order · " + ans.length + " of " + c.lines.length }));
         var ol = el("ol", { class: "nthview-cw-answer", "aria-label": "Your order" });
-        if (!ans.length) ol.appendChild(el("li", { class: "nthview-cw-empty", style: "display:block;border:0;background:none", text: "Tap the blocks below in the order they run." }));
+        if (!ans.length) ol.appendChild(el("li", { class: "nthview-cw-empty", text: "Tap the blocks below in the order they run." }));
         ans.forEach(function (k, pos) {
           var it = items[k], li = el("li");
-          if (r.checked && !done) li.className = it.i === pos ? "nthview-cw-ok" : "nthview-cw-bad";
           if (done) li.className = "nthview-cw-ok";
+          else if (r.checked) li.className = it.i === pos ? "nthview-cw-ok" : "nthview-cw-bad";
           li.appendChild(el("span", { class: "nthview-cw-num", text: String(pos + 1) }));
           li.appendChild(el("span", { class: "nthview-cw-blk", text: it.t }));
           if (!done) {
             var tools = el("span", { class: "nthview-cw-tools" });
-            [["↑", "Move up", -1], ["↓", "Move down", 1], ["✕", "Remove", 0]].forEach(function (a) {
-              var b = el("button", { type: "button", class: "nthview-cw-icon", text: a[0], "aria-label": a[1] + ": " + it.t, "data-k": k + a[2] });
+            [["up", "Move up", -1], ["down", "Move down", 1], ["x", "Remove", 0]].forEach(function (a) {
+              var b = el("button", { type: "button", class: "nthview-cw-iconbtn", "aria-label": a[1] + ": " + it.t, "data-k": k + a[2] }, [icon(a[0])]);
               if ((a[2] === -1 && pos === 0) || (a[2] === 1 && pos === ans.length - 1)) b.setAttribute("disabled", "");
               b.addEventListener("click", function () {
                 if (a[2] === 0) ans.splice(pos, 1);
@@ -1011,15 +1256,13 @@
         box.appendChild(ol);
         if (!done) {
           box.appendChild(el("h4", { text: "Blocks" }));
-          var pool = el("div", { class: "nthview-cw-pool" });
-          var pairs = {};
+          var pool = el("div", { class: "nthview-cw-pool" }), pairs = {};
           (c.distractors || []).forEach(function (d, j) { pairs[d.pairedWith] = "d" + j; });
           var lineOrder = shuffled(c.lines.map(function (_, i) { return i; }), c.id);
           if (lineOrder.every(function (v, i) { return v === i; })) lineOrder.push(lineOrder.shift());
           var piece = function (k) {
-            var b = el("button", { type: "button", class: "nthview-cw-piece", "data-k": "p" + k }, [el("span", { class: "nthview-cw-blk", text: items[k].t })]);
-            b.setAttribute("aria-label", "Add: " + items[k].t);
-            b.addEventListener("click", function () { ans.push(k); r.checked = false; save(); refresh(); });
+            var b = el("button", { type: "button", class: "nthview-cw-piece", "data-k": "p" + k, "aria-label": "Add: " + items[k].t }, [el("span", { class: "nthview-cw-blk", text: items[k].t })]);
+            b.addEventListener("click", function () { ans.push(k); r.checked = false; save(); var nx = card.querySelector(".nthview-cw-piece:not([data-k='p" + k + "'])"); refresh(nx ? nx.getAttribute("data-k") : "go"); });
             return b;
           };
           lineOrder.forEach(function (i) {
@@ -1030,16 +1273,16 @@
             if (dk && ks.length === 2) pool.appendChild(el("div", { class: "nthview-cw-pair", role: "group", "aria-label": "Pick one of these two" }, [el("span", { text: "Pick one of these two" }), piece(ks[0]), piece(ks[1])]));
             else ks.forEach(function (k) { pool.appendChild(piece(k)); });
           });
-          if (!pool.firstChild) pool.appendChild(el("p", { class: "nthview-cw-empty", text: "All blocks placed." }));
+          if (!pool.firstChild) pool.appendChild(el("p", { class: "nthview-cw-empty", text: "All blocks placed. Check the order." }));
           box.appendChild(pool);
           card.appendChild(box);
-          card.appendChild(btn("Check order", "nthview-cw-primary nthview-cw-small", function () {
+          actions.appendChild(btn("Check the order", "nthview-cw-primary", function () {
             var used = ans.map(function (k) { return items[k]; }), d = used.filter(function (it) { return it.d; })[0];
             r.checked = true;
             var ok = !d && used.length === c.lines.length && used.every(function (it, p) { return it.t === c.lines[p]; });
-            if (ok) return solve(true, "Right: that is the order.");
+            if (ok) return solve(true);
             var place = used.filter(function (it, p) { return !it.d && it.t === c.lines[p]; }).length;
-            solve(false, d ? "One block does not belong: " + d.d.why : used.length < c.lines.length ? place + " in the right place so far; " + (c.lines.length - used.length) + " still to place." : place + " of " + c.lines.length + " in the right place; the others are marked.");
+            solve(false, d ? "One block does not belong. " + d.d.why : used.length < c.lines.length ? place + " in the right place so far; " + (c.lines.length - used.length) + " still to place." : place + " of " + c.lines.length + " are in the right place; the others are outlined in red.");
           }, ans.length ? { "data-k": "go" } : { "data-k": "go", disabled: "" }));
         } else {
           card.appendChild(box);
