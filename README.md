@@ -77,6 +77,11 @@ One concept, many dimensions, one view at a time.
   chapters move the clock as you scroll, and scenarios, parameters and a "what is
   calculated now" view show how it behaves over time.
   Demo: `skills/nthview-mechanism/examples/example.html`.
+- **Compare** (`skills/nthview-compare`) — compare and contrast two to four
+  similar things: a matrix that turns into cards on phones, a predict-then-reveal
+  grid, "when to choose which", a recap of shared and distinctive traits, and
+  five kinds of question that make you tell them apart.
+  Demo: `skills/nthview-compare/examples/example.html`.
 
 Open `index.html` for the gallery of all views, or visit the hosted copy at
 https://patrickp1702.github.io/NthView/ (served by GitHub Pages straight from
