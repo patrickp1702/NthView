@@ -1001,160 +1001,274 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     ".nthview-error-panel h2{margin:0 0 .5rem;color:var(--nv-error)}",
     ".nthview-error-panel code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}",
     /* ---- view-specific styles below, every class prefixed nthview- ---- */
-    ".nthview-compare{--nv-bg:#f7f7f5;--nv-surface:#fff;--nv-soft:#f0efeb;--nv-fg:#1c1b19;--nv-muted:#5d5a54;--nv-border:#dedbd4;--nv-accent:#3b5bdb;--nv-ok:#15803d;--nv-ok-soft:#e5f4ea;--nv-bad:#c2410c;--nv-bad-soft:#fdeee4;--nv-shadow:0 1px 2px rgba(0,0,0,.05),0 4px 14px rgba(0,0,0,.05);max-width:76rem;padding:1rem 1rem 3rem;min-height:100vh;overflow-wrap:break-word}",
-    "@media (prefers-color-scheme:dark){.nthview-compare{--nv-bg:#121316;--nv-surface:#1b1d22;--nv-soft:#23262d;--nv-fg:#ebe9e4;--nv-muted:#a6a39c;--nv-border:#30333b;--nv-accent:#8ea2ff;--nv-ok:#4ade80;--nv-ok-soft:#13291c;--nv-bad:#fb923c;--nv-bad-soft:#2e1c12;--nv-shadow:none}}",
-    ".nthview-compare .nthview-c-blue{--oc:#2563eb;--ocs:#e8effd}.nthview-compare .nthview-c-teal{--oc:#0f766e;--ocs:#e2f4f2}.nthview-compare .nthview-c-amber{--oc:#b45309;--ocs:#fbf0df}",
-    ".nthview-compare .nthview-c-rose{--oc:#be123c;--ocs:#fce7ec}.nthview-compare .nthview-c-violet{--oc:#6d28d9;--ocs:#efe9fc}.nthview-compare .nthview-c-green{--oc:#15803d;--ocs:#e5f4ea}",
-    "@media (prefers-color-scheme:dark){.nthview-compare .nthview-c-blue{--oc:#7aa7ff;--ocs:#18243d}.nthview-compare .nthview-c-teal{--oc:#4fd1c5;--ocs:#10302d}.nthview-compare .nthview-c-amber{--oc:#fbbf24;--ocs:#33270f}.nthview-compare .nthview-c-rose{--oc:#fb7185;--ocs:#361820}.nthview-compare .nthview-c-violet{--oc:#b39dfa;--ocs:#261d3d}.nthview-compare .nthview-c-green{--oc:#4ade80;--ocs:#13291c}}",
-    ".nthview-compare h1,.nthview-compare h2,.nthview-compare h3{line-height:1.2;margin:0}",
-    ".nthview-compare p{margin:.4rem 0}",
-    ".nthview-compare button{font:inherit;color:inherit;cursor:pointer}",
-    ".nthview-compare a{color:var(--nv-accent)}",
-    ".nthview-head{display:flex;gap:1rem;align-items:flex-start;justify-content:space-between;margin:.25rem 0 .75rem}",
-    ".nthview-title{font-size:clamp(1.35rem,4vw,2.1rem);letter-spacing:-.01em}",
-    ".nthview-sub{color:var(--nv-muted);margin:.35rem 0 0}",
-    ".nthview-restart{flex:none;border:1px solid var(--nv-border);background:var(--nv-surface);border-radius:999px;padding:.4rem .9rem;font-size:.9rem;min-height:2.5rem}",
-    ".nthview-restart:hover{border-color:var(--nv-accent)}",
-    ".nthview-tabs{position:sticky;top:0;z-index:5;display:flex;gap:.25rem;overflow-x:auto;scrollbar-width:none;background:var(--nv-bg);border-bottom:1px solid var(--nv-border);margin:0 -1rem 1rem;padding:.4rem 1rem 0}",
-    ".nthview-tabs::-webkit-scrollbar{display:none}",
-    ".nthview-tab{flex:none;border:0;background:none;padding:.55rem .8rem .65rem;border-bottom:3px solid transparent;color:var(--nv-muted);font-weight:600;min-height:2.75rem;display:flex;gap:.4rem;align-items:center}",
-    ".nthview-tab[aria-selected=true]{color:var(--nv-fg);border-bottom-color:var(--nv-accent)}",
-    ".nthview-tab .nthview-count{font-size:.75rem;font-weight:700;background:var(--nv-soft);border-radius:999px;padding:.05rem .45rem;color:var(--nv-muted)}",
-    ".nthview-resume{background:var(--nv-surface);border:1px solid var(--nv-border);border-left:4px solid var(--nv-accent);border-radius:.6rem;padding:.6rem .9rem;margin:0 0 1rem;font-weight:600;transition:opacity .4s}",
+    /* tokens: colour (control borders and state marks keep 3:1), a 4/8 spacing scale, a type scale, radii, motion */
+    ".nthview-compare{--nv-bg:#f6f5f2;--nv-surface:#fff;--nv-sunken:#efede8;--nv-fg:#1b1a17;--nv-muted:#5b574f;--nv-border:#e0ddd5;--nv-control:#8a8477;--nv-accent:#3446c9;--nv-accent-soft:#e9ecfc;--nv-on-accent:#fff;--nv-ok:#12703a;--nv-ok-soft:#e2f2e7;--nv-bad:#b0370c;--nv-bad-soft:#fbeae2;",
+    "  --nv-shadow:0 1px 2px rgba(20,18,14,.06),0 6px 20px -8px rgba(20,18,14,.12);--nv-shadow-lg:0 24px 60px -20px rgba(0,0,0,.35);",
+    "  --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;",
+    "  --t-xs:.8125rem;--t-sm:.9375rem;--t-md:1.0625rem;--t-lg:1.25rem;--t-xl:1.5rem;--t-2xl:clamp(1.6rem,1.1rem + 2.4vw,2.35rem);",
+    "  --r1:8px;--r2:12px;--r3:16px;--ease:cubic-bezier(.2,0,0,1);--dur:200ms;--measure:68ch;",
+    "  max-width:78rem;padding:0 var(--s4) var(--s7);min-height:100vh;font-size:var(--t-md);line-height:1.6;overflow-wrap:break-word;-webkit-text-size-adjust:100%}",
+    "@media (prefers-color-scheme:dark){.nthview-compare{--nv-bg:#111214;--nv-surface:#1a1c20;--nv-sunken:#23252a;--nv-fg:#ecebe7;--nv-muted:#aaa69e;--nv-border:#2f3238;--nv-control:#71747c;--nv-accent:#a3afff;--nv-accent-soft:#252c52;--nv-on-accent:#11131c;--nv-ok:#63d394;--nv-ok-soft:#14291d;--nv-bad:#ff9d6b;--nv-bad-soft:#33211a;--nv-shadow:0 1px 0 rgba(255,255,255,.03);--nv-shadow-lg:0 24px 60px -16px rgba(0,0,0,.7)}}",
+    ".nthview-compare .nthview-c-blue{--oc:#2453c2;--ocs:#e8eefc}.nthview-compare .nthview-c-teal{--oc:#0c7065;--ocs:#e1f3f0}.nthview-compare .nthview-c-amber{--oc:#965400;--ocs:#fbf0dc}",
+    ".nthview-compare .nthview-c-rose{--oc:#b3163c;--ocs:#fce8ed}.nthview-compare .nthview-c-violet{--oc:#6a30c8;--ocs:#f0eafd}.nthview-compare .nthview-c-green{--oc:#16753a;--ocs:#e3f3e8}",
+    "@media (prefers-color-scheme:dark){.nthview-compare .nthview-c-blue{--oc:#86adff;--ocs:#1a2540}.nthview-compare .nthview-c-teal{--oc:#5fd6c8;--ocs:#11302c}.nthview-compare .nthview-c-amber{--oc:#f7c04a;--ocs:#33280f}.nthview-compare .nthview-c-rose{--oc:#ff8aa0;--ocs:#371a22}.nthview-compare .nthview-c-violet{--oc:#bba6ff;--ocs:#271e3f}.nthview-compare .nthview-c-green{--oc:#6ddc94;--ocs:#13291c}}",
+    /* base rules carry no specificity (:where) so every component rule below wins over them */
+    ":where(.nthview-compare) :where(h1,h2,h3){line-height:1.25;margin:0;letter-spacing:-.01em}",
+    ":where(.nthview-compare) :where(p){margin:0 0 var(--s3)}:where(.nthview-compare) :where(p:last-child){margin-bottom:0}",
+    ":where(.nthview-compare) :where(button){font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}",
+    /* keeps the focused control clear of the sticky step bar (WCAG 2.4.11) */
+    ".nthview-compare button,.nthview-compare a,.nthview-compare textarea,.nthview-compare input,.nthview-compare h2[tabindex]{scroll-margin:7rem 0 2rem}",
+    ":where(.nthview-compare) :where(a){color:var(--nv-accent);text-underline-offset:2px}",
+    ":where(.nthview-compare) :where(b,strong){font-weight:650}",
+    /* header and step bar */
+    ".nthview-head{display:flex;gap:var(--s4);align-items:flex-start;justify-content:space-between;padding:var(--s5) 0 var(--s4)}",
+    ".nthview-title{font-size:var(--t-2xl);font-weight:750;max-width:26ch}",
+    ".nthview-sub{color:var(--nv-muted);margin:var(--s2) 0 0;font-size:var(--t-md);max-width:var(--measure)}",
+    ".nthview-compact .nthview-head{padding:var(--s3) 0}",
+    ".nthview-head>div{min-width:0}",
+    ".nthview-compact .nthview-title{font-size:var(--t-lg);max-width:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
+    ".nthview-compact .nthview-sub{display:none}",
+    ".nthview-restart{flex:none;min-height:44px;padding:0 var(--s4);border:1px solid var(--nv-control);background:var(--nv-surface);border-radius:999px;font-size:var(--t-sm);font-weight:600}",
+    ".nthview-restart:hover{background:var(--nv-sunken)}",
+    ".nthview-steps{position:sticky;top:0;z-index:10;display:grid;grid-template-columns:repeat(5,1fr);margin:0 calc(-1 * var(--s4));padding:0 var(--s2);background:var(--nv-bg);border-bottom:1px solid var(--nv-border)}",
+    ".nthview-step{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:58px;padding:var(--s2) 2px;border:0;background:none;color:var(--nv-muted);font-size:var(--t-xs);font-weight:600;line-height:1.2;border-bottom:3px solid transparent;margin-bottom:-1px}",
+    ".nthview-step svg{width:22px;height:22px}",
+    ".nthview-step:hover{color:var(--nv-fg)}",
+    ".nthview-step[aria-selected=true]{color:var(--nv-accent);border-bottom-color:var(--nv-accent);font-weight:750}",
+    ".nthview-step-ic{position:relative;display:inline-flex}",
+    ".nthview-step-badge{position:absolute;top:-6px;left:14px;min-width:18px;height:18px;border-radius:999px;padding:0 5px;font-size:11px;font-weight:700;line-height:18px;text-align:center;background:var(--nv-accent);color:var(--nv-on-accent);border:2px solid var(--nv-bg)}",
+    ".nthview-step-badge.nthview-on{background:var(--nv-ok);color:var(--nv-surface)}",
+    "@media (min-width:720px){.nthview-steps{display:flex;gap:var(--s1);padding:0}.nthview-step{flex-direction:row;gap:var(--s2);padding:0 var(--s4);font-size:var(--t-sm);min-height:52px}.nthview-step-badge{position:static;border:0;margin-left:var(--s1)}}",
+    /* sections and motion */
+    ".nthview-panel{padding-top:var(--s5)}",
+    ".nthview-enter{animation:nthview-in var(--dur) var(--ease)}",
+    "@keyframes nthview-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}",
+    ".nthview-resume{display:flex;align-items:center;gap:var(--s3);background:var(--nv-accent-soft);border-radius:var(--r2);padding:var(--s3) var(--s4);margin:var(--s4) 0 0;font-size:var(--t-sm);font-weight:600;transition:opacity .4s}",
+    ".nthview-resume svg{width:20px;height:20px;flex:none;color:var(--nv-accent)}",
     ".nthview-resume-hide{opacity:0}",
-    ".nthview-card{background:var(--nv-surface);border:1px solid var(--nv-border);border-radius:.9rem;padding:1rem 1.1rem;box-shadow:var(--nv-shadow)}",
-    ".nthview-grid{display:grid;gap:.85rem;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr))}",
-    ".nthview-stack>*+*{margin-top:1rem}",
-    ".nthview-h2{font-size:1.2rem;margin:1.6rem 0 .7rem}",
-    ".nthview-kicker{font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--nv-muted);margin:0 0 .3rem}",
-    ".nthview-focus{font-size:clamp(1.1rem,3vw,1.4rem);font-weight:650;margin:.2rem 0 .6rem}",
+    ".nthview-card{background:var(--nv-surface);border:1px solid var(--nv-border);border-radius:var(--r3);padding:var(--s5);box-shadow:var(--nv-shadow)}",
+    ".nthview-stack>*+*{margin-top:var(--s4)}",
+    ".nthview-grid{display:grid;gap:var(--s4);grid-template-columns:repeat(auto-fit,minmax(min(100%,17rem),1fr))}",
+    ".nthview-h2{font-size:var(--t-xl);font-weight:700;margin:var(--s7) 0 var(--s4)}",
+    ".nthview-h2:first-child{margin-top:0}",
+    ".nthview-h3{font-size:var(--t-lg);margin:0 0 var(--s3)}",
+    ".nthview-lede{color:var(--nv-muted);max-width:var(--measure);margin:0 0 var(--s5)}",
+    ".nthview-prose{max-width:var(--measure)}",
+    ".nthview-kicker{display:block;font-size:var(--t-xs);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--nv-muted);margin:0 0 var(--s2)}",
     ".nthview-muted{color:var(--nv-muted)}",
-    ".nthview-small{font-size:.88rem}",
-    ".nthview-optcard{border-top:5px solid var(--oc)}",
-    ".nthview-optcard h3{color:var(--oc);font-size:1.1rem}",
-    ".nthview-aka{font-size:.85rem;color:var(--nv-muted);margin:.15rem 0 .35rem}",
-    ".nthview-dot{display:inline-block;width:.7rem;height:.7rem;border-radius:50%;background:var(--oc);flex:none}",
-    ".nthview-way{display:flex;flex-direction:column;align-items:flex-start;gap:.3rem;text-align:left;border:1px solid var(--nv-border);background:var(--nv-surface);border-radius:.9rem;padding:.9rem 1rem;min-height:3rem;box-shadow:var(--nv-shadow)}",
-    ".nthview-way:hover{border-color:var(--nv-accent)}",
-    ".nthview-way b{font-size:1.02rem}",
-    ".nthview-way span{color:var(--nv-muted);font-size:.9rem}",
-    ".nthview-way.nthview-rec{border:2px solid var(--nv-accent)}",
-    ".nthview-pill{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;border-radius:999px;padding:.1rem .5rem;background:var(--nv-soft);color:var(--nv-muted)}",
+    ".nthview-small{font-size:var(--t-sm)}",
+    ".nthview-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}",
+    /* buttons */
+    ".nthview-btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);min-height:48px;padding:var(--s2) var(--s5);border-radius:var(--r2);border:1px solid var(--nv-control);background:var(--nv-surface);font-weight:650;font-size:var(--t-md);line-height:1.3;text-align:center;transition:background var(--dur),transform var(--dur) var(--ease)}",
+    ".nthview-btn svg{width:20px;height:20px;flex:none}",
+    ".nthview-btn:hover:not([disabled]){background:var(--nv-sunken)}",
+    ".nthview-btn:active:not([disabled]){transform:scale(.98)}",
+    ".nthview-btn[disabled]{opacity:.4;cursor:not-allowed}",
+    ".nthview-primary{background:var(--nv-accent);border-color:var(--nv-accent);color:var(--nv-on-accent)}",
+    ".nthview-primary:hover:not([disabled]){background:var(--nv-accent);filter:brightness(1.1)}",
+    ".nthview-link{border:0;background:none;color:var(--nv-accent);font-weight:600;min-height:44px;padding:0 var(--s2);text-decoration:underline;text-underline-offset:3px}",
+    ".nthview-actions{display:flex;flex-wrap:wrap;gap:var(--s3);align-items:center;margin-top:var(--s5)}",
+    "@media (max-width:479px){.nthview-actions .nthview-btn{flex:1 1 100%}}",
+    ".nthview-next{display:flex;justify-content:flex-end;margin-top:var(--s7);padding-top:var(--s5);border-top:1px solid var(--nv-border)}",
+    "@media (max-width:479px){.nthview-next .nthview-btn{width:100%}}",
+    /* start screen */
+    ".nthview-hero{padding:var(--s6) var(--s5)}",
+    ".nthview-focus{font-size:var(--t-xl);font-weight:700;line-height:1.3;margin:0 0 var(--s4);max-width:32ch}",
+    ".nthview-meta{display:flex;flex-wrap:wrap;gap:var(--s2) var(--s5);margin:0 0 var(--s5);padding:0;list-style:none;color:var(--nv-muted);font-size:var(--t-sm);font-weight:600}",
+    ".nthview-meta li{display:inline-flex;align-items:center;gap:var(--s2)}",
+    ".nthview-meta svg{width:18px;height:18px}",
+    ".nthview-names{display:flex;flex-wrap:wrap;gap:var(--s2);margin:0 0 var(--s4)}",
+    ".nthview-name{display:inline-flex;align-items:center;gap:var(--s2);padding:var(--s1) var(--s3);border-radius:999px;background:var(--ocs);color:var(--oc);font-weight:650;font-size:var(--t-sm)}",
+    ".nthview-vs{align-self:center;color:var(--nv-muted);font-size:var(--t-sm)}",
+    ".nthview-dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--oc);flex:none}",
+    ".nthview-optcard{border-top:4px solid var(--oc)}",
+    ".nthview-optcard h3{color:var(--oc);font-size:var(--t-lg)}",
+    ".nthview-aka{font-size:var(--t-sm);color:var(--nv-muted);margin:var(--s1) 0 var(--s3)}",
+    ".nthview-details{margin-top:var(--s6);border-top:1px solid var(--nv-border);padding-top:var(--s2)}",
+    ".nthview-details summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:650}",
+    ".nthview-sources{margin:var(--s2) 0 0;padding-left:1.2rem;font-size:var(--t-sm)}.nthview-sources li{margin:var(--s2) 0}",
+    /* compare toolbar */
+    ".nthview-toolbar{display:flex;flex-wrap:wrap;gap:var(--s3);align-items:center;margin:0 0 var(--s4)}",
+    ".nthview-seg{display:inline-flex;flex-wrap:wrap;padding:3px;border-radius:var(--r2);background:var(--nv-sunken);border:1px solid var(--nv-control)}",
+    ".nthview-seg button{min-height:42px;padding:0 var(--s4);border:0;border-radius:calc(var(--r2) - 3px);background:none;color:var(--nv-muted);font-weight:650;font-size:var(--t-sm);transition:background var(--dur),color var(--dur)}",
+    ".nthview-seg button:hover{color:var(--nv-fg)}",
+    ".nthview-seg button[aria-pressed=true]{background:var(--nv-accent);color:var(--nv-on-accent)}",
+    ".nthview-toggle{display:inline-flex;align-items:center;gap:var(--s2);min-height:48px;padding:0 var(--s3);border:1px solid var(--nv-control);border-radius:var(--r2);background:var(--nv-surface);font-size:var(--t-sm);font-weight:600}",
+    ".nthview-toggle i{position:relative;width:36px;height:20px;border-radius:999px;background:var(--nv-control);flex:none;transition:background var(--dur)}",
+    ".nthview-toggle i:after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--nv-surface);transition:transform var(--dur) var(--ease)}",
+    ".nthview-toggle[aria-pressed=true] i{background:var(--nv-accent)}.nthview-toggle[aria-pressed=true] i:after{transform:translateX(16px)}",
+    ".nthview-toolbar .nthview-more-btn{margin-left:auto;min-height:48px;font-size:var(--t-sm);padding:0 var(--s4)}",
+    "@media (max-width:479px){.nthview-toolbar .nthview-more-btn{margin-left:0}}",
+    ".nthview-hint{font-size:var(--t-sm);color:var(--nv-muted);margin:0 0 var(--s4);max-width:var(--measure)}",
+    ".nthview-meter{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s3);padding:var(--s3) var(--s4);border-radius:var(--r2);background:var(--nv-accent-soft);margin:0 0 var(--s3)}",
+    ".nthview-meter p{margin:0;flex:1 1 10rem;font-size:var(--t-sm);font-weight:650}",
+    ".nthview-meter .nthview-btn{min-height:44px;font-size:var(--t-sm);padding:0 var(--s4)}",
+    ".nthview-bar{height:6px;border-radius:999px;background:var(--nv-sunken);overflow:hidden;flex:1 1 100%;box-shadow:inset 0 0 0 1px var(--nv-border)}",
+    ".nthview-bar i{display:block;height:100%;background:var(--nv-accent);border-radius:999px;transition:width .3s var(--ease)}",
+    ".nthview-chips{display:flex;flex-wrap:wrap;gap:var(--s2)}",
+    ".nthview-chip{display:inline-flex;align-items:center;gap:var(--s2);min-height:44px;padding:0 var(--s4);border:1px solid var(--nv-control);border-radius:999px;background:var(--nv-surface);font-size:var(--t-sm);font-weight:600}",
+    ".nthview-chip svg{width:16px;height:16px}",
+    ".nthview-chip:hover:not([disabled]){background:var(--nv-sunken)}",
+    ".nthview-chip[aria-pressed=true]{border-color:var(--oc,var(--nv-accent));background:var(--ocs,var(--nv-accent-soft));color:var(--oc,var(--nv-fg));box-shadow:inset 0 0 0 1px var(--oc,var(--nv-accent));font-weight:700}",
+    ".nthview-chip[aria-pressed=true]:before{content:'\\2713';font-weight:800}",
+    ".nthview-chip[disabled]{cursor:default}",
+    ".nthview-active{display:flex;flex-wrap:wrap;gap:var(--s2);margin:0 0 var(--s4)}",
+    ".nthview-active .nthview-chip{background:var(--nv-accent-soft);border-color:var(--nv-accent);color:var(--nv-fg)}",
+    ".nthview-pill{display:inline-flex;align-items:center;gap:var(--s1);font-size:var(--t-xs);font-weight:700;border-radius:999px;padding:2px var(--s2);background:var(--nv-sunken);color:var(--nv-muted)}",
     ".nthview-pill.nthview-alike{background:var(--nv-ok-soft);color:var(--nv-ok)}",
-    ".nthview-chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}",
-    ".nthview-chip{border:1px solid var(--nv-border);background:var(--nv-surface);border-radius:999px;padding:.35rem .75rem;min-height:2.5rem;display:inline-flex;gap:.4rem;align-items:center;font-size:.92rem}",
-    ".nthview-chip[aria-pressed=true]{border-color:var(--oc,var(--nv-accent));background:var(--ocs,var(--nv-soft));font-weight:650}",
-    ".nthview-chip[aria-pressed=false]{opacity:.7}",
-    ".nthview-chip[aria-pressed=false] .nthview-dot{background:transparent;border:2px solid var(--oc)}",
-    ".nthview-controls{display:flex;flex-wrap:wrap;gap:.6rem 1.2rem;align-items:center;margin:0 0 1rem}",
-    ".nthview-seg{display:inline-flex;border:1px solid var(--nv-border);border-radius:.6rem;overflow:hidden;background:var(--nv-surface)}",
-    ".nthview-seg button{border:0;background:none;padding:.4rem .75rem;min-height:2.5rem;font-size:.9rem;color:var(--nv-muted)}",
-    ".nthview-seg button+button{border-left:1px solid var(--nv-border)}",
-    ".nthview-seg button[aria-pressed=true]{background:var(--nv-accent);color:var(--nv-bg);font-weight:650}",
-    ".nthview-ctl-label{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--nv-muted);display:block;margin-bottom:.2rem}",
-    ".nthview-switch{display:inline-flex;align-items:center;gap:.5rem;border:1px solid var(--nv-border);background:var(--nv-surface);border-radius:999px;padding:.35rem .8rem;min-height:2.5rem;font-size:.9rem}",
-    ".nthview-switch[aria-pressed=true]{border-color:var(--nv-accent);background:var(--nv-soft);font-weight:650}",
-    ".nthview-switch i{width:2rem;height:1.1rem;border-radius:999px;background:var(--nv-border);position:relative;flex:none}",
-    ".nthview-switch i:after{content:'';position:absolute;top:.15rem;left:.15rem;width:.8rem;height:.8rem;border-radius:50%;background:var(--nv-surface);transition:left .15s}",
-    ".nthview-switch[aria-pressed=true] i{background:var(--nv-accent)}.nthview-switch[aria-pressed=true] i:after{left:1.05rem}",
-    ".nthview-testbar{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;background:var(--nv-soft);border-radius:.7rem;padding:.6rem .8rem;margin:0 0 1rem}",
-    ".nthview-testbar p{margin:0;flex:1 1 14rem}",
-    ".nthview-btn{border:1px solid var(--nv-border);background:var(--nv-surface);border-radius:.6rem;padding:.5rem 1rem;min-height:2.75rem;font-weight:600}",
-    ".nthview-btn:hover:not([disabled]){border-color:var(--nv-accent)}",
-    ".nthview-btn[disabled]{opacity:.45;cursor:not-allowed}",
-    ".nthview-primary{background:var(--nv-accent);border-color:var(--nv-accent);color:var(--nv-bg)}",
-    ".nthview-tablewrap{overflow:auto;max-width:100%;max-height:calc(100vh - 4rem);border:1px solid var(--nv-border);border-radius:.9rem;background:var(--nv-surface);box-shadow:var(--nv-shadow)}",
-    ".nthview-matrix{border-collapse:separate;border-spacing:0;width:100%;min-width:34rem;table-layout:fixed}",
-    ".nthview-matrix th,.nthview-matrix td{padding:.65rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--nv-border)}",
-    ".nthview-matrix tr:last-child>*{border-bottom:0}",
-    ".nthview-matrix thead th{position:sticky;top:0;background:var(--nv-surface);z-index:2;border-bottom:3px solid var(--oc,var(--nv-border));color:var(--oc,var(--nv-fg));font-size:.98rem}",
-    ".nthview-matrix tbody th{position:sticky;left:0;background:var(--nv-surface);z-index:1;font-size:.95rem;border-right:1px solid var(--nv-border)}",
-    ".nthview-matrix thead th:first-child{left:0;z-index:3;width:10rem;border-bottom-color:var(--nv-border)}",
-    ".nthview-matrix tbody th small{display:block;font-weight:400;color:var(--nv-muted);margin-top:.2rem}",
-    ".nthview-matrix tr.nthview-alikerow td{background:var(--nv-soft)}",
-    ".nthview-cellbtn{display:block;width:100%;text-align:left;border:1px solid transparent;background:none;border-radius:.5rem;padding:.3rem .35rem;margin:-.3rem -.35rem;min-height:2.5rem}",
-    ".nthview-cellbtn:hover{border-color:var(--nv-border);background:var(--nv-soft)}",
-    ".nthview-cellbtn .nthview-more{display:block;font-size:.8rem;color:var(--nv-accent);margin-top:.15rem}",
-    ".nthview-covered{display:flex;align-items:center;justify-content:center;gap:.4rem;border:2px dashed var(--nv-border)!important;background:var(--nv-soft)!important;color:var(--nv-muted);font-weight:650;margin:0;min-height:3rem}",
-    ".nthview-mark{display:inline-flex;align-items:center;gap:.3rem;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;border-radius:999px;padding:.05rem .5rem .05rem .35rem;margin:0 0 .25rem;background:var(--nv-soft);color:var(--nv-muted);white-space:nowrap}",
-    ".nthview-mark svg{width:1rem;height:1rem;flex:none}",
+    ".nthview-fieldset{border:0;padding:0;margin:0 0 var(--s5)}",
+    ".nthview-fieldset legend{font-weight:700;margin-bottom:var(--s2);padding:0}",
+    ".nthview-fieldset .nthview-muted{margin:var(--s2) 0}",
+    /* marks */
+    ".nthview-mark{display:inline-flex;align-items:center;gap:var(--s1);font-size:var(--t-xs);font-weight:700;border-radius:999px;padding:1px var(--s2) 1px var(--s1);background:var(--nv-sunken);color:var(--nv-muted);white-space:nowrap;vertical-align:1px}",
+    ".nthview-mark svg{width:16px;height:16px;flex:none}",
     ".nthview-m-yes{background:var(--nv-ok-soft);color:var(--nv-ok)}.nthview-m-no{background:var(--nv-bad-soft);color:var(--nv-bad)}",
-    ".nthview-m-high,.nthview-m-medium,.nthview-m-low{color:var(--nv-accent)}",
-    ".nthview-dimcard h3{font-size:1.08rem;display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}",
-    ".nthview-rows{list-style:none;margin:.6rem 0 0;padding:0}",
-    ".nthview-row{display:grid;grid-template-columns:minmax(6rem,9rem) 1fr;gap:.25rem .8rem;padding:.6rem 0 .6rem .7rem;border-top:1px solid var(--nv-border);border-left:4px solid var(--oc);margin-left:-.1rem}",
-    ".nthview-row>b{color:var(--oc);font-size:.95rem}",
-    "@media (max-width:30rem){.nthview-row{grid-template-columns:1fr}}",
-    ".nthview-takeaway{margin:.7rem 0 0;padding:.55rem .75rem;border-radius:.6rem;background:var(--nv-soft);font-size:.95rem}",
-    ".nthview-dl{margin:.6rem 0 0}",
-    ".nthview-dl dt{font-weight:700;font-size:.85rem;color:var(--nv-muted);margin-top:.7rem}",
-    ".nthview-dl dd{margin:.15rem 0 0}",
-    ".nthview-sheetbg{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:1rem}",
-    ".nthview-sheet{background:var(--nv-surface);color:var(--nv-fg);border-radius:1rem;max-width:34rem;width:100%;max-height:88vh;overflow:auto;padding:1.1rem 1.2rem 1.2rem;border-top:6px solid var(--oc,var(--nv-accent));box-shadow:0 10px 40px rgba(0,0,0,.3)}",
-    "@media (max-width:40rem){.nthview-sheetbg{align-items:flex-end;padding:0}.nthview-sheet{border-radius:1rem 1rem 0 0;max-height:85vh}}",
-    ".nthview-sheet-head{display:flex;justify-content:space-between;gap:1rem;align-items:flex-start}",
-    ".nthview-sheet h2{font-size:1.15rem}",
-    ".nthview-close{border:1px solid var(--nv-border);background:none;border-radius:999px;width:2.5rem;height:2.5rem;flex:none;font-size:1.2rem;line-height:1}",
-    ".nthview-predict{display:flex;flex-wrap:wrap;gap:.45rem;margin:.6rem 0}",
-    ".nthview-verdict{border-radius:.6rem;padding:.55rem .75rem;margin:.6rem 0;font-weight:600}",
-    ".nthview-v-ok{background:var(--nv-ok-soft);color:var(--nv-ok)}.nthview-v-bad{background:var(--nv-bad-soft);color:var(--nv-bad)}.nthview-v-meh{background:var(--nv-soft)}",
-    ".nthview-sitgroup{border-left:5px solid var(--oc)}",
-    ".nthview-sitgroup h3{color:var(--oc);font-size:1.05rem;margin-bottom:.3rem}",
-    ".nthview-sits{margin:.3rem 0 0;padding-left:1.1rem}",
-    ".nthview-sits li{margin:.5rem 0}",
-    ".nthview-sits li span{display:block;color:var(--nv-muted);font-size:.92rem}",
-    ".nthview-list{margin:.4rem 0 0;padding-left:1.2rem}.nthview-list li{margin:.35rem 0}",
-    ".nthview-mix dt{font-weight:700;margin-top:.8rem}.nthview-mix dt:before{content:'\\2715  ';color:var(--nv-bad)}",
-    ".nthview-mix dd{margin:.2rem 0 0;padding-left:1.25rem}",
-    ".nthview-big{font-size:1.12rem;font-weight:600;border-left:5px solid var(--nv-accent)}",
-    ".nthview-qhead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:.5rem;margin:0 0 .8rem}",
-    ".nthview-qdots{display:flex;flex-wrap:wrap;gap:.3rem}",
-    ".nthview-qdot{width:1.9rem;height:1.9rem;border-radius:50%;border:2px solid var(--nv-border);background:var(--nv-surface);font-size:.75rem;font-weight:700;padding:0;color:var(--nv-muted)}",
-    ".nthview-qdot[aria-current=step]{border-color:var(--nv-accent);color:var(--nv-fg)}",
-    ".nthview-qdot.nthview-q-ok{background:var(--nv-ok-soft);border-color:var(--nv-ok);color:var(--nv-ok)}",
-    ".nthview-qdot.nthview-q-bad{background:var(--nv-bad-soft);border-color:var(--nv-bad);color:var(--nv-bad)}",
-    ".nthview-qdot.nthview-q-seen{background:var(--nv-soft)}",
-    ".nthview-qcard h2{font-size:1.15rem;margin:.2rem 0 .6rem}",
-    ".nthview-situation{background:var(--nv-soft);border-radius:.6rem;padding:.7rem .85rem;margin:.2rem 0 .8rem}",
-    ".nthview-choices{display:grid;gap:.5rem;margin:.5rem 0}",
-    ".nthview-choice{display:flex;gap:.7rem;align-items:flex-start;text-align:left;border:2px solid var(--nv-border);background:var(--nv-surface);border-radius:.7rem;padding:.65rem .8rem;min-height:3rem;width:100%}",
-    ".nthview-choice:hover{border-color:var(--oc,var(--nv-accent))}",
-    ".nthview-choice[aria-pressed=true]{border-color:var(--nv-accent);background:var(--nv-soft)}",
-    ".nthview-choice .nthview-key{flex:none;width:1.6rem;height:1.6rem;border-radius:50%;background:var(--nv-soft);display:inline-flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700}",
-    ".nthview-choice .nthview-ctext{flex:1}",
-    ".nthview-choice .nthview-ctext small{display:block;color:var(--nv-muted);margin-top:.15rem}",
+    ".nthview-m-low,.nthview-m-medium,.nthview-m-high{background:var(--nv-accent-soft);color:var(--nv-accent)}",
+    /* cells: one button shape for table, cards and lists */
+    ".nthview-cell{position:relative;display:block;width:100%;text-align:left;border:1px solid transparent;border-radius:var(--r1);background:none;padding:var(--s2) var(--s6) var(--s2) var(--s2);min-height:44px;transition:background var(--dur),border-color var(--dur)}",
+    ".nthview-cell:hover{background:var(--nv-sunken);border-color:var(--nv-border)}",
+    ".nthview-cell .nthview-mark{margin-bottom:var(--s1)}",
+    ".nthview-cell .nthview-ctxt{display:block}",
+    ".nthview-cell .nthview-chev{position:absolute;right:var(--s2);top:50%;margin-top:-9px;width:18px;height:18px;color:var(--nv-muted)}",
+    ".nthview-cell.nthview-covered{display:flex;align-items:center;justify-content:center;gap:var(--s2);padding:var(--s3);border:2px dashed var(--nv-control);background:var(--nv-sunken);color:var(--nv-muted);font-weight:650;min-height:52px}",
+    ".nthview-cell.nthview-covered:hover{border-color:var(--nv-accent);color:var(--nv-accent)}",
+    ".nthview-cell.nthview-justrevealed{animation:nthview-flash 1s var(--ease)}",
+    "@keyframes nthview-flash{from{background:var(--nv-accent-soft)}to{background:transparent}}",
+    /* table */
+    ".nthview-tablewrap{overflow:auto;max-height:calc(100vh - 5rem);border:1px solid var(--nv-border);border-radius:var(--r3);background:var(--nv-surface);box-shadow:var(--nv-shadow)}",
+    ".nthview-matrix{border-collapse:separate;border-spacing:0;width:100%;min-width:40rem;table-layout:fixed;font-size:var(--t-sm);line-height:1.5}",
+    ".nthview-matrix th,.nthview-matrix td{padding:var(--s3) var(--s4);text-align:left;vertical-align:top;border-bottom:1px solid var(--nv-border)}",
+    ".nthview-matrix td{padding:var(--s2)}",
+    ".nthview-matrix tbody tr:last-child>*{border-bottom:0}",
+    ".nthview-matrix thead th{position:sticky;top:0;z-index:2;background:var(--nv-surface);font-size:var(--t-md);border-bottom:3px solid var(--oc,var(--nv-border));padding-top:var(--s4)}",
+    ".nthview-matrix thead th span{display:flex;align-items:center;gap:var(--s2);color:var(--oc)}",
+    ".nthview-matrix thead th:first-child{left:0;z-index:3;width:13rem;font-size:var(--t-xs);text-transform:uppercase;letter-spacing:.06em;color:var(--nv-muted)}",
+    ".nthview-matrix tbody th{position:sticky;left:0;z-index:1;background:var(--nv-surface);font-size:var(--t-sm);border-right:1px solid var(--nv-border)}",
+    ".nthview-matrix tbody th small{display:block;font-weight:400;color:var(--nv-muted);margin-top:var(--s1);font-size:var(--t-xs);line-height:1.45}",
+    ".nthview-matrix tbody th .nthview-pill{margin-top:var(--s2)}",
+    ".nthview-matrix tr.nthview-alikerow>*{background:var(--nv-sunken)}",
+    /* cards per criterion and per option */
+    ".nthview-dimhead{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s2) var(--s3);margin:0 0 var(--s1)}",
+    ".nthview-dimhead h3{font-size:var(--t-lg)}",
+    ".nthview-num{font-size:var(--t-xs);font-weight:700;color:var(--nv-muted);margin-left:auto}",
+    ".nthview-why{font-size:var(--t-sm);color:var(--nv-muted);margin:0 0 var(--s3);max-width:var(--measure)}",
+    ".nthview-rows{list-style:none;margin:0;padding:0}",
+    ".nthview-row{padding:var(--s2) 0 var(--s2) var(--s3);border-top:1px solid var(--nv-border);border-left:3px solid var(--oc)}",
+    ".nthview-rowname{display:block;color:var(--oc);font-weight:700;font-size:var(--t-sm);margin:var(--s1) 0 0 var(--s2)}",
+    ".nthview-takeaway{margin:var(--s3) 0 0;padding:var(--s3) var(--s4);border-radius:var(--r2);background:var(--nv-sunken);font-size:var(--t-sm)}",
+    ".nthview-dl{margin:var(--s3) 0 0}",
+    ".nthview-dl dt{font-weight:700;font-size:var(--t-xs);text-transform:uppercase;letter-spacing:.05em;color:var(--nv-muted);margin-top:var(--s4)}",
+    ".nthview-dl dd{margin:var(--s1) 0 0 calc(-1 * var(--s2))}",
+    ".nthview-empty{padding:var(--s5);border:1px dashed var(--nv-control);border-radius:var(--r2);color:var(--nv-muted)}",
+    /* sheet (dialog) */
+    ".nthview-sheetbg{position:fixed;inset:0;z-index:50;background:rgba(10,10,12,.5);display:flex;align-items:center;justify-content:center;padding:var(--s4);animation:nthview-fade var(--dur) var(--ease)}",
+    "@keyframes nthview-fade{from{opacity:0}to{opacity:1}}",
+    ".nthview-sheet{background:var(--nv-surface);color:var(--nv-fg);border-radius:var(--r3);max-width:36rem;width:100%;max-height:88vh;overflow:auto;padding:var(--s5);border-top:5px solid var(--oc,var(--nv-accent));box-shadow:var(--nv-shadow-lg);animation:nthview-up 240ms var(--ease)}",
+    "@keyframes nthview-up{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}",
+    "@media (max-width:599px){.nthview-sheetbg{align-items:flex-end;padding:0}.nthview-sheet{border-radius:var(--r3) var(--r3) 0 0;max-height:86vh;padding-bottom:max(var(--s5),env(safe-area-inset-bottom))}}",
+    ".nthview-sheet-head{display:flex;justify-content:space-between;gap:var(--s4);align-items:flex-start;margin-bottom:var(--s3)}",
+    ".nthview-sheet-head h2{font-size:var(--t-lg)}",
+    ".nthview-sheet-head small{display:block;color:var(--oc,var(--nv-muted));font-weight:700;font-size:var(--t-xs);text-transform:uppercase;letter-spacing:.06em;margin-bottom:var(--s1)}",
+    ".nthview-close{flex:none;width:44px;height:44px;border-radius:999px;border:1px solid var(--nv-control);background:var(--nv-surface);display:inline-flex;align-items:center;justify-content:center}",
+    ".nthview-close svg{width:20px;height:20px}",
+    ".nthview-predict{display:grid;grid-template-columns:repeat(auto-fit,minmax(6.5rem,1fr));gap:var(--s2);margin:var(--s3) 0}",
+    ".nthview-verdict{display:flex;gap:var(--s2);align-items:center;border-radius:var(--r2);padding:var(--s3) var(--s4);margin:0 0 var(--s4);font-weight:650;font-size:var(--t-sm)}",
+    ".nthview-verdict svg{width:20px;height:20px;flex:none}",
+    ".nthview-v-ok{background:var(--nv-ok-soft);color:var(--nv-ok)}.nthview-v-bad{background:var(--nv-bad-soft);color:var(--nv-bad)}.nthview-v-meh{background:var(--nv-sunken)}",
+    ".nthview-celltext{font-size:var(--t-lg);font-weight:600;line-height:1.4;margin:var(--s2) 0 var(--s3)}",
+    /* choose and recap */
+    ".nthview-sitcard{border-left:4px solid var(--oc)}",
+    ".nthview-sitcard h3{display:flex;align-items:center;gap:var(--s2);font-size:var(--t-lg);margin:0 0 var(--s3)}",
+    ".nthview-sits{list-style:none;margin:0;padding:0}",
+    ".nthview-sits li{padding:var(--s3) 0;border-top:1px solid var(--nv-border)}",
+    ".nthview-sits li:first-child{border-top:0;padding-top:0}",
+    ".nthview-sits b{display:block;font-weight:600}",
+    ".nthview-sits span{display:block;color:var(--nv-muted);font-size:var(--t-sm);margin-top:var(--s1)}",
+    ".nthview-big{border:0;background:var(--nv-accent);color:var(--nv-on-accent)}",
+    ".nthview-big .nthview-kicker{color:inherit;opacity:.85}",
+    ".nthview-big p{font-size:var(--t-lg);line-height:1.5;font-weight:500;max-width:var(--measure)}",
+    ".nthview-list{list-style:none;margin:0;padding:0}",
+    ".nthview-list li{position:relative;padding:var(--s3) 0 var(--s3) var(--s6);border-top:1px solid var(--nv-border)}",
+    ".nthview-list li:first-child{border-top:0}",
+    ".nthview-list li svg{position:absolute;left:0;top:calc(var(--s3) + 2px);width:22px;height:22px}",
+    ".nthview-alike-ic{color:var(--nv-ok)}.nthview-diff-ic{color:var(--nv-accent)}",
+    ".nthview-crit{margin:0}",
+    ".nthview-crit>div{display:grid;grid-template-columns:minmax(8rem,13rem) minmax(0,var(--measure));gap:var(--s1) var(--s5);padding:var(--s3) 0;border-top:1px solid var(--nv-border)}",
+    ".nthview-crit dt{font-weight:700}.nthview-crit dd{margin:0}",
+    "@media (max-width:599px){.nthview-crit>div{grid-template-columns:1fr}}",
+    ".nthview-myth p{margin:0}",
+    ".nthview-myth .nthview-claim{display:flex;gap:var(--s2);color:var(--nv-bad);font-weight:650;margin-bottom:var(--s3)}",
+    ".nthview-myth svg{width:20px;height:20px;flex:none;margin-top:3px}",
+    ".nthview-myth .nthview-fact{display:flex;gap:var(--s2)}",
+    ".nthview-myth .nthview-fact svg{color:var(--nv-ok)}",
+    /* practice */
+    ".nthview-qtop,.nthview-qcard,.nthview-qfoot,.nthview-end{max-width:48rem;margin-left:auto;margin-right:auto}",
+    ".nthview-qtop{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s2) var(--s3);margin:0 0 var(--s4)}",
+    ".nthview-qcount{font-weight:700}",
+    ".nthview-qtop .nthview-bar{order:3}",
+    ".nthview-qtop .nthview-link{margin-left:auto}",
+    ".nthview-qcard h2{font-size:var(--t-xl);margin:var(--s2) 0 var(--s4);max-width:var(--measure)}",
+    ".nthview-situation{background:var(--nv-sunken);border-radius:var(--r2);padding:var(--s4);margin:0;max-width:var(--measure)}",
+    ".nthview-choices{display:grid;gap:var(--s3);margin:0}",
+    ".nthview-choice{display:flex;gap:var(--s3);align-items:flex-start;text-align:left;width:100%;min-height:56px;padding:var(--s3) var(--s4);border:1.5px solid var(--nv-control);border-radius:var(--r2);background:var(--nv-surface);transition:border-color var(--dur),background var(--dur),box-shadow var(--dur)}",
+    ".nthview-choice:hover{background:var(--nv-sunken)}",
+    ".nthview-choice[aria-pressed=true]{border-color:var(--nv-accent);background:var(--nv-accent-soft);box-shadow:inset 0 0 0 1px var(--nv-accent)}",
+    ".nthview-key{flex:none;width:28px;height:28px;border-radius:var(--r1);border:1.5px solid var(--nv-control);display:inline-flex;align-items:center;justify-content:center;font-size:var(--t-xs);font-weight:700;color:var(--nv-muted);margin-top:1px}",
+    ".nthview-choice[aria-pressed=true] .nthview-key{background:var(--nv-accent);border-color:var(--nv-accent);color:var(--nv-on-accent)}",
+    ".nthview-key svg{width:16px;height:16px}",
+    ".nthview-ctext{flex:1;padding-top:2px}",
+    ".nthview-ctext small{display:block;color:var(--nv-muted);margin-top:var(--s1)}",
     ".nthview-choice.nthview-right{border-color:var(--nv-ok);background:var(--nv-ok-soft)}",
+    ".nthview-choice.nthview-right .nthview-key{background:var(--nv-ok);border-color:var(--nv-ok);color:var(--nv-surface)}",
     ".nthview-choice.nthview-wrong{border-color:var(--nv-bad);background:var(--nv-bad-soft)}",
-    ".nthview-choice.nthview-viewing{box-shadow:0 0 0 3px var(--nv-accent)}",
-    ".nthview-owner{display:inline-flex;align-items:center;gap:.35rem;font-size:.8rem;font-weight:700;color:var(--oc);margin-top:.25rem}",
-    ".nthview-checks{display:flex;flex-wrap:wrap;gap:.5rem;margin:.8rem 0 0}",
-    ".nthview-fb{margin:.9rem 0 0;border-radius:.7rem;padding:.75rem .9rem;background:var(--nv-soft)}",
-    ".nthview-fb h3{font-size:1rem;margin:0 0 .3rem}",
-    ".nthview-fb.nthview-fb-ok{background:var(--nv-ok-soft)}.nthview-fb.nthview-fb-ok h3{color:var(--nv-ok)}",
-    ".nthview-fb.nthview-fb-bad{background:var(--nv-bad-soft)}.nthview-fb.nthview-fb-bad h3{color:var(--nv-bad)}",
-    ".nthview-sure{font-weight:700}",
-    ".nthview-stmt{border:1px solid var(--nv-border);border-radius:.7rem;padding:.7rem .8rem;margin:.55rem 0}",
-    ".nthview-stmt p{margin:0 0 .4rem;font-weight:600}",
+    ".nthview-choice.nthview-wrong .nthview-key{background:var(--nv-bad);border-color:var(--nv-bad);color:var(--nv-surface)}",
+    ".nthview-choice.nthview-viewing{box-shadow:0 0 0 2px var(--nv-surface),0 0 0 4px var(--nv-fg)}",
+    ".nthview-owner{display:inline-flex;align-items:center;gap:var(--s2);font-size:var(--t-xs);font-weight:700;color:var(--oc);margin-top:var(--s1)}",
+    ".nthview-confirm{margin-top:var(--s5)}",
+    ".nthview-confirm p{font-size:var(--t-sm);color:var(--nv-muted);margin:0 0 var(--s3)}",
+    ".nthview-confirm .nthview-actions{margin-top:0}",
+    ".nthview-fb{margin-top:var(--s5);border-radius:var(--r2);padding:var(--s4) var(--s5) var(--s5);background:var(--nv-sunken)}",
+    ".nthview-fb-in{animation:nthview-in var(--dur) var(--ease)}",
+    ".nthview-fbhead{display:flex;align-items:center;gap:var(--s3);margin:0 0 var(--s3)}",
+    ".nthview-fbhead h3{font-size:var(--t-lg)}",
+    ".nthview-fbicon{flex:none;width:32px;height:32px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:var(--nv-surface);background:var(--nv-accent)}",
+    ".nthview-fbicon svg{width:18px;height:18px}",
+    ".nthview-fb-ok{background:var(--nv-ok-soft)}.nthview-fb-ok h3{color:var(--nv-ok)}.nthview-fb-ok .nthview-fbicon{background:var(--nv-ok)}",
+    ".nthview-fb-bad{background:var(--nv-bad-soft)}.nthview-fb-bad h3{color:var(--nv-bad)}.nthview-fb-bad .nthview-fbicon{background:var(--nv-bad)}",
+    ".nthview-fb p{max-width:var(--measure)}",
+    ".nthview-note{border-left:3px solid currentColor;padding-left:var(--s3)}",
+    ".nthview-fb .nthview-actions{margin-top:var(--s4)}",
+    ".nthview-qfoot{display:flex;justify-content:space-between;gap:var(--s3);margin-top:var(--s3)}",
+    ".nthview-stmt{border:1.5px solid var(--nv-border);border-radius:var(--r2);padding:var(--s4);margin:0 0 var(--s3)}",
+    ".nthview-stmt>p{margin:0 0 var(--s3);font-weight:600}",
     ".nthview-stmt.nthview-right{border-color:var(--nv-ok);background:var(--nv-ok-soft)}",
     ".nthview-stmt.nthview-wrong{border-color:var(--nv-bad);background:var(--nv-bad-soft)}",
-    ".nthview-stmt .nthview-chips{margin:0}",
-    ".nthview-textarea{width:100%;min-height:7rem;font:inherit;color:inherit;background:var(--nv-bg);border:1px solid var(--nv-border);border-radius:.6rem;padding:.6rem .7rem;resize:vertical}",
-    ".nthview-ticks{list-style:none;padding:0;margin:.5rem 0}",
-    ".nthview-ticks label{display:flex;gap:.6rem;align-items:flex-start;padding:.4rem 0;min-height:2.5rem}",
-    ".nthview-ticks input{width:1.2rem;height:1.2rem;margin-top:.15rem;flex:none}",
-    ".nthview-qnav{display:flex;justify-content:space-between;gap:.5rem;margin:1rem 0 0;flex-wrap:wrap}",
-    ".nthview-score{font-size:clamp(2rem,8vw,3rem);font-weight:800;color:var(--nv-accent);line-height:1}",
-    ".nthview-review{list-style:none;padding:0;margin:.5rem 0}",
-    ".nthview-review li{display:flex;gap:.6rem;align-items:flex-start;padding:.5rem 0;border-top:1px solid var(--nv-border)}",
-    ".nthview-review li button{border:0;background:none;padding:0;text-align:left;color:var(--nv-accent);text-decoration:underline;min-height:1.5rem}",
-    ".nthview-badge{flex:none;font-size:.75rem;font-weight:700;border-radius:999px;padding:.05rem .5rem;background:var(--nv-soft)}",
-    ".nthview-badge.nthview-b-ok{background:var(--nv-ok-soft);color:var(--nv-ok)}.nthview-badge.nthview-b-bad{background:var(--nv-bad-soft);color:var(--nv-bad)}",
-    ".nthview-sources{margin:.4rem 0 0;padding-left:1.2rem;font-size:.9rem}",
-    ".nthview-empty{padding:1rem;border:1px dashed var(--nv-border);border-radius:.7rem;color:var(--nv-muted)}",
-    ".nthview-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}",
-    "@media (max-width:40rem){.nthview-compare{padding:.75rem .75rem 3rem}.nthview-tabs{margin:0 -.75rem .9rem;padding:.3rem .75rem 0}.nthview-tab{padding:.5rem .55rem .6rem}.nthview-card{padding:.85rem .9rem}.nthview-head{gap:.5rem}.nthview-matrix thead th:first-child{width:7rem}.nthview-matrix th,.nthview-matrix td{padding:.5rem .55rem;hyphens:auto}}",
-    "@media (prefers-reduced-motion:reduce){.nthview-compare *{transition:none!important}}",
-    "@media print{.nthview-tabs,.nthview-restart,.nthview-controls{display:none}}"
+    ".nthview-stmt .nthview-explain{margin:var(--s3) 0 0;font-size:var(--t-sm);font-weight:400}",
+    ".nthview-verd{display:inline-flex;align-items:center;gap:var(--s1);font-weight:700}",
+    ".nthview-verd svg{width:16px;height:16px}",
+    ".nthview-stmt.nthview-right .nthview-verd{color:var(--nv-ok)}.nthview-stmt.nthview-wrong .nthview-verd{color:var(--nv-bad)}",
+    ".nthview-textarea{width:100%;min-height:8rem;font:inherit;color:inherit;background:var(--nv-bg);border:1.5px solid var(--nv-control);border-radius:var(--r2);padding:var(--s3) var(--s4);resize:vertical}",
+    ".nthview-ticks{list-style:none;padding:0;margin:var(--s2) 0 0}",
+    ".nthview-ticks label{display:flex;gap:var(--s3);align-items:flex-start;padding:var(--s2) 0;min-height:44px;cursor:pointer}",
+    ".nthview-ticks input{width:22px;height:22px;margin:2px 0 0;flex:none;accent-color:var(--nv-accent)}",
+    ".nthview-qlist{list-style:none;margin:0;padding:0}",
+    ".nthview-qlist li{border-top:1px solid var(--nv-border)}",
+    ".nthview-qlist li:first-child{border-top:0}",
+    ".nthview-qlist button{display:flex;gap:var(--s3);align-items:flex-start;width:100%;text-align:left;border:0;background:none;padding:var(--s3) var(--s1);min-height:48px;border-radius:var(--r1)}",
+    ".nthview-qlist button:hover{background:var(--nv-sunken)}",
+    ".nthview-badge{flex:none;min-width:4.5rem;text-align:center;font-size:var(--t-xs);font-weight:700;border-radius:999px;padding:2px var(--s2);background:var(--nv-sunken);color:var(--nv-muted);margin-top:2px}",
+    ".nthview-b-ok{background:var(--nv-ok-soft);color:var(--nv-ok)}.nthview-b-bad{background:var(--nv-bad-soft);color:var(--nv-bad)}.nthview-b-now{background:var(--nv-accent-soft);color:var(--nv-accent)}",
+    ".nthview-score{display:flex;align-items:baseline;gap:var(--s3);flex-wrap:wrap;margin:var(--s4) 0 0}",
+    ".nthview-score b{font-size:clamp(2.4rem,8vw,3.4rem);font-weight:800;color:var(--nv-accent);line-height:1}",
+    ".nthview-tally{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s2);margin:var(--s4) 0}",
+    ".nthview-tally div{background:var(--nv-sunken);border-radius:var(--r2);padding:var(--s3)}",
+    ".nthview-tally b{display:block;font-size:var(--t-xl);line-height:1.2}",
+    ".nthview-tally span{font-size:var(--t-xs);color:var(--nv-muted);font-weight:600}",
+    /* phones */
+    "@media (max-width:599px){.nthview-card{padding:var(--s4)}.nthview-hero{padding:var(--s5) var(--s4)}.nthview-h2{margin-top:var(--s6)}.nthview-matrix{min-width:34rem}.nthview-matrix thead th:first-child{width:8rem}.nthview-matrix th,.nthview-matrix td{padding:var(--s3);hyphens:auto}.nthview-matrix td{padding:var(--s1)}.nthview-head{padding-top:var(--s4)}.nthview-qcard h2{font-size:var(--t-lg)}}",
+    "@media (max-width:359px){.nthview-compare{padding:0 var(--s3) var(--s7)}.nthview-steps{margin:0 calc(-1 * var(--s3));padding:0}.nthview-step{font-size:11px}.nthview-seg button{padding:0 var(--s3)}}",
+    "@media (prefers-reduced-motion:reduce){.nthview-compare *,.nthview-compare *:before,.nthview-compare *:after{animation:none!important;transition:none!important}}",
+    "@media print{.nthview-steps,.nthview-restart,.nthview-toolbar,.nthview-next{display:none}}"
   ].join("\n");
 
   function injectStyles() {
@@ -1215,20 +1329,36 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
   // ---- view-specific helpers ---------------------------------------------
   var COLOURS = ["blue", "teal", "amber", "rose", "violet", "green"];
   var TABS = [
-    { id: "overview", label: "Overview" },
-    { id: "compare", label: "Compare" },
-    { id: "choose", label: "When to choose" },
-    { id: "practice", label: "Practice" },
-    { id: "recap", label: "Recap" }
+    { id: "overview", label: "Start", long: "Start", icon: "start" },
+    { id: "compare", label: "Compare", long: "Compare", icon: "grid" },
+    { id: "choose", label: "Choose", long: "When to choose", icon: "fork" },
+    { id: "practice", label: "Practise", long: "Practise", icon: "target" },
+    { id: "recap", label: "Recap", long: "Recap", icon: "list" }
   ];
   var MARK_LABEL = { yes: "Yes", partly: "Partly", no: "No", low: "Low", medium: "Medium", high: "High", na: "N/A" };
   var FEATURE = ["yes", "partly", "no"], DEGREE = ["low", "medium", "high"];
-  var KIND_LABEL = { sort: "Sort the statements", cell: "Fill the hidden cell", pick: "Which would you choose?", choice: "Choose one", explain: "In your own words" };
+  var KIND_LABEL = { sort: "Sort the statements", cell: "Fill the hidden cell", pick: "Choose for the situation", choice: "Choose one", explain: "In your own words" };
   var SVG_NS = "http://www.w3.org/2000/svg";
+  var STROKE = { fill: "none", stroke: "currentColor", "stroke-width": "2", "stroke-linecap": "round", "stroke-linejoin": "round" };
+  var PATHS = {
+    start: "M4 11.5 12 5l8 6.5V20a1 1 0 0 1-1 1h-4.5v-5.5h-5V21H5a1 1 0 0 1-1-1z",
+    grid: "M4 5h16v14H4zM4 10h16M10 5v14M15 5v14",
+    fork: "M12 21v-7M12 14 6.5 8.5M12 14l5.5-5.5M6 4v5h5M18 4v5h-5",
+    target: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM8.5 12l2.5 2.5 4.5-5",
+    list: "M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01",
+    check: "M5 12.5l4.5 4.5L19 7.5",
+    cross: "M6 6l12 12M18 6 6 18",
+    chev: "M9 6l6 6-6 6",
+    arrow: "M5 12h14M13 6l6 6-6 6",
+    clock: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7v5l3 2",
+    alike: "M7 12h10M7 8h10M7 16h10",
+    diff: "M8 7 4 12l4 5M16 7l4 5-4 5",
+    info: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 11v5M12 8h.01"
+  };
 
-  function svg(parts) {
+  function svgEl(parts, vb) {
     var s = root.document.createElementNS(SVG_NS, "svg");
-    s.setAttribute("viewBox", "0 0 16 16"); s.setAttribute("aria-hidden", "true"); s.setAttribute("focusable", "false");
+    s.setAttribute("viewBox", vb || "0 0 24 24"); s.setAttribute("aria-hidden", "true"); s.setAttribute("focusable", "false");
     parts.forEach(function (pt) {
       var n = root.document.createElementNS(SVG_NS, pt[0]);
       Object.keys(pt[1]).forEach(function (k) { n.setAttribute(k, pt[1][k]); });
@@ -1236,15 +1366,20 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     });
     return s;
   }
+  function icon(name, cls) {
+    var s = svgEl([["path", Object.assign({ d: PATHS[name] }, STROKE)]]);
+    if (cls) s.setAttribute("class", cls);
+    return s;
+  }
   function markIcon(m) {
     var line = { fill: "none", stroke: "currentColor", "stroke-width": "2.2", "stroke-linecap": "round", "stroke-linejoin": "round" };
-    if (m === "yes") return svg([["path", Object.assign({ d: "M3 8.5l3.2 3.2L13 4.8" }, line)]]);
-    if (m === "no") return svg([["path", Object.assign({ d: "M4 4l8 8M12 4l-8 8" }, line)]]);
-    if (m === "partly") return svg([["circle", { cx: "8", cy: "8", r: "5.5", fill: "none", stroke: "currentColor", "stroke-width": "1.8" }], ["path", { d: "M8 2.5a5.5 5.5 0 0 1 0 11z", fill: "currentColor" }]]);
-    if (m === "na") return svg([["path", Object.assign({ d: "M4 8h8" }, line)]]);
+    if (m === "yes") return svgEl([["path", Object.assign({ d: "M3 8.5l3.2 3.2L13 4.8" }, line)]], "0 0 16 16");
+    if (m === "no") return svgEl([["path", Object.assign({ d: "M4 4l8 8M12 4l-8 8" }, line)]], "0 0 16 16");
+    if (m === "partly") return svgEl([["circle", { cx: "8", cy: "8", r: "5.5", fill: "none", stroke: "currentColor", "stroke-width": "1.8" }], ["path", { d: "M8 2.5a5.5 5.5 0 0 1 0 11z", fill: "currentColor" }]], "0 0 16 16");
+    if (m === "na") return svgEl([["path", Object.assign({ d: "M4 8h8" }, line)]], "0 0 16 16");
     var n = m === "low" ? 1 : m === "medium" ? 2 : 3, bars = [];
-    for (var i = 0; i < 3; i++) bars.push(["rect", { x: String(2 + i * 4.6), y: String(10 - i * 3.5), width: "3.2", height: String(4 + i * 3.5), rx: "1", fill: "currentColor", opacity: i < n ? "1" : ".25" }]);
-    return svg(bars);
+    for (var i = 0; i < 3; i++) bars.push(["rect", { x: String(2 + i * 4.6), y: String(10 - i * 3.5), width: "3.2", height: String(4 + i * 3.5), rx: "1", fill: "currentColor", opacity: i < n ? "1" : ".3" }]);
+    return svgEl(bars, "0 0 16 16");
   }
   function markBadge(m) {
     if (!m) return null;
@@ -1259,10 +1394,12 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     });
     return frag;
   }
+  function plain(text) { return String(text).replace(/\*\*/g, ""); }
   function p(text, cls) { var n = el("p", cls ? { class: cls } : {}); n.appendChild(rich(text)); return n; }
   function span(text, cls) { var n = el("span", cls ? { class: cls } : {}); n.appendChild(rich(text)); return n; }
-  function btn(label, cls, onClick, attrs) {
-    var b = el("button", Object.assign({ type: "button", class: "nthview-btn" + (cls ? " " + cls : ""), text: label }, attrs || {}));
+  function btn(label, cls, onClick, attrs, iconAfter) {
+    var b = el("button", Object.assign({ type: "button", class: "nthview-btn" + (cls ? " " + cls : "") }, attrs || {}), [el("span", { text: label })]);
+    if (iconAfter) b.appendChild(icon(iconAfter));
     b.addEventListener("click", onClick); return b;
   }
   function seeded(seed) {
@@ -1279,6 +1416,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     if (a.length !== b.length) return false;
     return a.every(function (x) { return b.indexOf(x) !== -1; });
   }
+  function article(name) { return (/^[aeiou]/i.test(name) ? "an " : "a ") + name.charAt(0).toLowerCase() + name.slice(1); }
 
   // ---- view-specific rendering: data is already valid here ---------------
   function render(container, data) {
@@ -1288,11 +1426,11 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     var Q = data.questions, N = Q.length;
 
     /* ---------- lookups ---------- */
-    var opt = {}, dim = {}, cell = {};
+    var opt = {}, dim = {}, dimIndex = {}, cell = {};
     var used = data.options.map(function (o) { return o.colour; });
     var free = COLOURS.filter(function (c) { return used.indexOf(c) === -1; });
     data.options.forEach(function (o) { opt[o.id] = { o: o, colour: o.colour || free.shift(), short: o.short || o.name }; });
-    data.dimensions.forEach(function (d) { dim[d.id] = d; });
+    data.dimensions.forEach(function (d, i) { dim[d.id] = d; dimIndex[d.id] = i; });
     data.cells.forEach(function (c) { cell[c.option + "|" + c.dimension] = c; });
     function oc(id) { return "nthview-c-" + opt[id].colour; }
     function scaleOf(dimId) {
@@ -1301,106 +1439,130 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       if (ms.some(function (m) { return FEATURE.indexOf(m) !== -1; })) return FEATURE;
       return null;
     }
+    var minutes = Math.max(5, Math.round((data.cells.length * 20 + N * 60 + data.whenToChoose.length * 10) / 300) * 5);
 
     /* ---------- state ---------- */
-    var state = { tab: "overview", layout: null, filter: "all", hidden: [], cover: false, revealed: {}, q: 0, answers: {}, done: false };
+    var state = { tab: "overview", layout: null, filter: "all", hidden: [], cover: false, revealed: {}, q: 0, answers: {}, done: false, seen: {} };
     function persist() {
-      saveState(key, { tab: state.tab, layout: state.layout, filter: state.filter, hidden: state.hidden, cover: state.cover, revealed: state.revealed, q: state.q, answers: state.answers, done: state.done });
+      saveState(key, { tab: state.tab, layout: state.layout, filter: state.filter, hidden: state.hidden, cover: state.cover, revealed: state.revealed, q: state.q, answers: state.answers, done: state.done, seen: state.seen });
     }
 
-    /* ---------- frame ---------- */
-    var head = el("div", { class: "nthview-head" }, [
-      el("div", {}, [el("h1", { class: "nthview-title", text: data.title, tabindex: "-1" })].concat(data.subtitle ? [p(data.subtitle, "nthview-sub")] : [])),
-      restartButton(container, data, key)
-    ]);
-    var tabbar = el("div", { class: "nthview-tabs", role: "tablist", "aria-label": "Sections" });
-    var tabBtns = {};
-    TABS.forEach(function (t) {
-      var b = el("button", { type: "button", role: "tab", id: "nthview-tab-" + t.id, class: "nthview-tab", "aria-controls": "nthview-panel", "aria-selected": "false", tabindex: "-1" }, [el("span", { text: t.label })]);
-      if (t.id === "practice") b.appendChild(el("span", { class: "nthview-count", "aria-hidden": "true" }));
+    /* ---------- frame: header, step bar, panel ---------- */
+    var headText = el("div", {}, [el("h1", { class: "nthview-title", text: data.title })]);
+    if (data.subtitle) headText.appendChild(p(data.subtitle, "nthview-sub"));
+    var head = el("header", { class: "nthview-head" }, [headText, restartButton(container, data, key)]);
+    var steps = el("div", { class: "nthview-steps", role: "tablist", "aria-label": "Sections" });
+    var stepBtns = {};
+    TABS.forEach(function (t, i) {
+      var ic = el("span", { class: "nthview-step-ic" }, [icon(t.icon), el("span", { class: "nthview-step-badge", "aria-hidden": "true" })]);
+      var b = el("button", { type: "button", role: "tab", id: "nthview-tab-" + t.id, class: "nthview-step", "aria-controls": "nthview-panel", "aria-selected": "false", tabindex: "-1" }, [ic, el("span", { text: t.label })]);
       b.addEventListener("click", function () { go(t.id); });
       b.addEventListener("keydown", function (e) {
-        var i = TABS.indexOf(t), n = null;
+        var n = null;
         if (e.key === "ArrowRight") n = TABS[(i + 1) % TABS.length];
         else if (e.key === "ArrowLeft") n = TABS[(i + TABS.length - 1) % TABS.length];
         else if (e.key === "Home") n = TABS[0];
         else if (e.key === "End") n = TABS[TABS.length - 1];
-        if (n) { e.preventDefault(); go(n.id); tabBtns[n.id].focus(); }
+        if (n) { e.preventDefault(); go(n.id); stepBtns[n.id].focus(); }
       });
-      tabBtns[t.id] = b; tabbar.appendChild(b);
+      stepBtns[t.id] = b; steps.appendChild(b);
     });
     var notice = el("div");
-    var panel = el("div", { id: "nthview-panel", role: "tabpanel" });
-    var live = el("div", { class: "nthview-sr", "aria-live": "polite" });
-    container.appendChild(head); container.appendChild(tabbar); container.appendChild(notice); container.appendChild(panel); container.appendChild(live);
+    var panel = el("div", { id: "nthview-panel", role: "tabpanel", class: "nthview-panel" });
+    var live = el("div", { class: "nthview-sr", role: "status", "aria-live": "polite" });
+    container.appendChild(head); container.appendChild(steps); container.appendChild(notice); container.appendChild(panel); container.appendChild(live);
     function say(t) { live.textContent = ""; setTimeout(function () { live.textContent = t; }, 30); }
+    function toPanelTop() {
+      if (steps.getBoundingClientRect().top > 0) return;
+      root.scrollTo(0, Math.max(0, panel.getBoundingClientRect().top + root.scrollY - steps.offsetHeight - 8));
+    }
 
-    function go(tab, keepScroll, initial) {
+    function go(tab, opts) {
+      opts = opts || {};
       state.tab = tab;
+      state.seen[tab] = true;
+      container.classList.toggle("nthview-compact", tab !== "overview");
       TABS.forEach(function (t) {
         var on = t.id === tab;
-        tabBtns[t.id].setAttribute("aria-selected", on ? "true" : "false");
-        tabBtns[t.id].setAttribute("tabindex", on ? "0" : "-1");
+        stepBtns[t.id].setAttribute("aria-selected", on ? "true" : "false");
+        stepBtns[t.id].setAttribute("tabindex", on ? "0" : "-1");
       });
       panel.setAttribute("aria-labelledby", "nthview-tab-" + tab);
-      var tb = tabBtns[tab];
-      if (tb.offsetLeft < tabbar.scrollLeft || tb.offsetLeft + tb.offsetWidth > tabbar.scrollLeft + tabbar.clientWidth) tabbar.scrollLeft = tb.offsetLeft - 16;
-      draw();
-      if (!initial) persist();
-      if (!keepScroll && tabbar.getBoundingClientRect().top < 0) tabbar.scrollIntoView({ block: "start", behavior: reduceMotion ? "auto" : "smooth" });
+      draw(!opts.initial);
+      if (!opts.initial) { persist(); toPanelTop(); }
     }
-    function draw() {
-      panel.innerHTML = "";
+    function draw(animate) {
+      var body = el("div", { class: animate && !reduceMotion ? "nthview-enter" : "" });
+      var host = panel; panel = body;
       ({ overview: drawOverview, compare: drawCompare, choose: drawChoose, practice: drawPractice, recap: drawRecap })[state.tab]();
-      updateCount();
+      panel = host; panel.innerHTML = ""; panel.appendChild(body);
+      updateSteps();
     }
-    function updateCount() {
-      var n = Q.filter(function (q) { return isAnswered(q); }).length;
-      tabBtns.practice.querySelector(".nthview-count").textContent = n + "/" + N;
-      tabBtns.practice.setAttribute("aria-label", "Practice, " + n + " of " + N + " answered");
+    /* the step bar shows where the learner is and what is done: a check per visited section, the practice count */
+    function updateSteps() {
+      var n = answeredCount();
+      TABS.forEach(function (t) {
+        var b = stepBtns[t.id], badge = b.querySelector(".nthview-step-badge"), label = t.long;
+        if (t.id === "practice") {
+          badge.textContent = state.done ? "✓" : String(n);
+          badge.className = "nthview-step-badge" + (state.done ? " nthview-on" : "");
+          badge.style.display = n || state.done ? "" : "none";
+          label += state.done ? ", finished" : ", " + n + " of " + N + " answered";
+        } else {
+          badge.textContent = "✓"; badge.className = "nthview-step-badge nthview-on";
+          badge.style.display = state.seen[t.id] && t.id !== state.tab ? "" : "none";
+          if (state.seen[t.id] && t.id !== state.tab) label += ", visited";
+        }
+        b.setAttribute("aria-label", label);
+      });
     }
     function h2(text) { return el("h2", { class: "nthview-h2", text: text }); }
-    function optName(id, cls) {
-      return el("span", { class: "nthview-owner " + oc(id) + (cls ? " " + cls : "") }, [el("span", { class: "nthview-dot", "aria-hidden": "true" }), el("span", { text: opt[id].o.name })]);
+    function nameTag(id) { return el("span", { class: "nthview-name " + oc(id) }, [el("span", { class: "nthview-dot", "aria-hidden": "true" }), el("span", { text: opt[id].o.name })]); }
+    function owner(id) { return el("span", { class: "nthview-owner " + oc(id) }, [el("span", { class: "nthview-dot", "aria-hidden": "true" }), el("span", { text: opt[id].o.name })]); }
+    function nextBar(label, tab) {
+      panel.appendChild(el("div", { class: "nthview-next" }, [btn(label, "nthview-primary", function () { go(tab); }, {}, "arrow")]));
     }
 
-    /* ---------- overview ---------- */
+    /* ---------- start: what this is, how long, one obvious next step ---------- */
     function drawOverview() {
-      var top = el("div", { class: "nthview-card" });
-      top.appendChild(el("p", { class: "nthview-kicker", text: "Comparing " + data.options.length + " options on " + data.dimensions.length + " criteria" }));
-      if (data.focus) top.appendChild(p(data.focus, "nthview-focus"));
-      (data.intro || []).forEach(function (t) { top.appendChild(p(t)); });
-      panel.appendChild(top);
+      var hero = el("section", { class: "nthview-card nthview-hero", "aria-label": "About this comparison" });
+      hero.appendChild(el("span", { class: "nthview-kicker", text: "Compare and contrast" }));
+      if (data.focus) hero.appendChild(p(data.focus, "nthview-focus"));
+      var names = el("div", { class: "nthview-names" });
+      data.options.forEach(function (o, i) { if (i) names.appendChild(el("span", { class: "nthview-vs", "aria-hidden": "true", text: "vs" })); names.appendChild(nameTag(o.id)); });
+      hero.appendChild(names);
+      hero.appendChild(el("ul", { class: "nthview-meta", "aria-label": "At a glance" }, [
+        el("li", {}, [icon("grid"), el("span", { text: data.dimensions.length + " criteria" })]),
+        el("li", {}, [icon("target"), el("span", { text: N + " practice questions" })]),
+        el("li", {}, [icon("clock"), el("span", { text: "About " + minutes + " minutes" })])
+      ]));
+      var started = Object.keys(state.revealed).length > 0 || answeredCount() > 0;
+      var primary = started
+        ? btn("Continue where you left off", "nthview-primary", function () { go(state.done ? "recap" : answeredCount() ? "practice" : "compare"); }, {}, "arrow")
+        : btn("Predict, then compare the " + data.options.length, "nthview-primary", function () { state.cover = true; go("compare"); }, {}, "arrow");
+      hero.appendChild(el("div", { class: "nthview-actions" }, [primary, btn(started ? "Read the comparison" : "Just read the comparison", "", function () { state.cover = false; go("compare"); })]));
+      hero.appendChild(p("Guessing before you read makes it stick. You can switch between reading, predicting and practising at any time; your progress is saved in this browser.", "nthview-muted nthview-small"));
+      panel.appendChild(hero);
 
+      if (data.intro && data.intro.length) {
+        panel.appendChild(h2("Why compare them"));
+        var pr = el("div", { class: "nthview-prose" });
+        data.intro.forEach(function (t) { pr.appendChild(p(t)); });
+        panel.appendChild(pr);
+      }
       panel.appendChild(h2("The options"));
       var g = el("div", { class: "nthview-grid" });
       data.options.forEach(function (o) {
-        var c = el("div", { class: "nthview-card nthview-optcard " + oc(o.id) }, [el("h3", { text: o.name })]);
+        var c = el("article", { class: "nthview-card nthview-optcard " + oc(o.id) }, [el("h3", { text: o.name })]);
         if (o.aka) c.appendChild(el("p", { class: "nthview-aka", text: "Also called " + o.aka }));
         c.appendChild(p(o.summary));
         g.appendChild(c);
       });
       panel.appendChild(g);
-
-      panel.appendChild(h2("Compared on"));
-      var chips = el("div", { class: "nthview-chips" });
-      data.dimensions.forEach(function (d) { chips.appendChild(el("span", { class: "nthview-pill" + (d.alike ? " nthview-alike" : ""), text: d.name + (d.alike ? " · alike" : "") })); });
-      panel.appendChild(chips);
-
-      panel.appendChild(h2("Choose a way in"));
-      var ways = el("div", { class: "nthview-grid" });
-      function way(title, sub, rec, fn) {
-        var b = el("button", { type: "button", class: "nthview-way" + (rec ? " nthview-rec" : "") }, [el("b", { text: title }), el("span", { text: sub })]);
-        b.addEventListener("click", fn); ways.appendChild(b);
-      }
-      way("Predict first", "The grid is covered. Guess each cell, then reveal it. Guessing first makes the reading stick.", true, function () { state.cover = true; go("compare"); });
-      way("Read the comparison", "The full grid, one card per criterion or per option, with details on every cell.", false, function () { state.cover = false; go("compare"); });
-      way("When to choose which", "Situations matched to the option that fits them.", false, function () { go("choose"); });
-      way("Practise", N + " questions that make you tell the options apart, each explained.", false, function () { go("practice"); });
-      panel.appendChild(ways);
-
+      panel.appendChild(p("Compared on " + data.dimensions.map(function (d) { return d.name.toLowerCase(); }).join(", ") + ".", "nthview-muted nthview-small"));
+      panel.lastChild.style.marginTop = "var(--s4)";
       if (data.sources && data.sources.length) {
-        panel.appendChild(h2("Sources"));
+        var det = el("details", { class: "nthview-details" }, [el("summary", { text: "Sources (" + data.sources.length + ")" })]);
         var ul = el("ul", { class: "nthview-sources" });
         data.sources.forEach(function (s) {
           var li = el("li");
@@ -1408,124 +1570,152 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
           else li.textContent = s.label;
           ul.appendChild(li);
         });
-        panel.appendChild(ul);
+        det.appendChild(ul); panel.appendChild(det);
       }
+      nextBar("Next: compare them", "compare");
     }
 
-    /* ---------- compare ---------- */
-    function autoLayout() { return container.clientWidth < 640 ? "dimension" : "table"; }
+    /* ---------- compare: two visible controls, the rest in View options ---------- */
+    function autoLayout() { return container.clientWidth < 720 ? "dimension" : "table"; }
     function visibleOptions() { return data.options.filter(function (o) { return state.hidden.indexOf(o.id) === -1; }); }
     function visibleDims() {
       return data.dimensions.filter(function (d) { return state.filter === "all" || (state.filter === "diff" ? !d.alike : !!d.alike); });
     }
     function seg(label, items, current, onPick) {
-      var wrap = el("div", {}, [el("span", { class: "nthview-ctl-label", text: label })]);
       var s = el("div", { class: "nthview-seg", role: "group", "aria-label": label });
       items.forEach(function (it) {
         var b = el("button", { type: "button", "aria-pressed": it[0] === current ? "true" : "false", text: it[1] });
-        b.addEventListener("click", function () { onPick(it[0]); });
+        b.addEventListener("click", function () { onPick(it[0], b); });
         s.appendChild(b);
       });
-      wrap.appendChild(s); return wrap;
+      return s;
     }
     function drawCompare() {
       var layout = state.layout || autoLayout();
-      var ctl = el("div", { class: "nthview-controls" });
-      ctl.appendChild(seg("Layout", [["table", "Table"], ["dimension", "By criterion"], ["option", "By option"]], layout, function (v) { state.layout = v; redraw(); }));
-      ctl.appendChild(seg("Show", [["all", "All"], ["diff", "Differences"], ["alike", "Shared"]], state.filter, function (v) { state.filter = v; redraw(); }));
-      var sw = el("button", { type: "button", class: "nthview-switch", "aria-pressed": state.cover ? "true" : "false" }, [el("i", { "aria-hidden": "true" }), el("span", { text: "Predict mode" })]);
-      sw.addEventListener("click", function () { state.cover = !state.cover; redraw(); say(state.cover ? "Predict mode on: cells are covered." : "Predict mode off: all cells shown."); });
-      ctl.appendChild(el("div", {}, [el("span", { class: "nthview-ctl-label", text: "Self-test" }), sw]));
-      panel.appendChild(ctl);
+      var bar = el("div", { class: "nthview-toolbar" });
+      bar.appendChild(seg("Mode", [["read", "Read"], ["predict", "Predict"]], state.cover ? "predict" : "read", function (v) {
+        state.cover = v === "predict"; redraw(".nthview-seg [aria-pressed=true]"); say(state.cover ? "Predict mode: cells are covered." : "Read mode: all cells shown.");
+      }));
+      var diff = el("button", { type: "button", class: "nthview-toggle", "aria-pressed": state.filter === "diff" ? "true" : "false" }, [el("i", { "aria-hidden": "true" }), el("span", { text: "Differences only" })]);
+      diff.addEventListener("click", function () { state.filter = state.filter === "diff" ? "all" : "diff"; redraw(".nthview-toggle"); say(state.filter === "diff" ? "Showing only criteria where the options differ." : "Showing all criteria."); });
+      bar.appendChild(diff);
+      var more = btn("View options", "nthview-more-btn", function () { openViewSheet(); }, { "aria-haspopup": "dialog" });
+      bar.appendChild(more);
+      panel.appendChild(bar);
 
-      if (data.options.length > 2) {
-        var chips = el("div", { class: "nthview-chips", role: "group", "aria-label": "Options shown" });
-        data.options.forEach(function (o) {
-          var on = state.hidden.indexOf(o.id) === -1;
-          var b = el("button", { type: "button", class: "nthview-chip " + oc(o.id), "aria-pressed": on ? "true" : "false" }, [el("span", { class: "nthview-dot", "aria-hidden": "true" }), el("span", { text: opt[o.id].short })]);
-          b.addEventListener("click", function () {
-            if (on && visibleOptions().length <= 2) { say("At least two options stay in view."); return; }
-            if (on) state.hidden.push(o.id); else state.hidden = state.hidden.filter(function (x) { return x !== o.id; });
-            redraw();
-          });
-          chips.appendChild(b);
+      var actives = [];
+      if (state.filter === "alike") actives.push(["Shared criteria only", function () { state.filter = "all"; }]);
+      if (state.hidden.length) actives.push(["Only " + visibleOptions().map(function (o) { return opt[o.id].short; }).join(" and "), function () { state.hidden = []; }]);
+      if (state.layout) actives.push([{ table: "Table", dimension: "Cards by criterion", option: "Cards by option" }[state.layout], function () { state.layout = null; }]);
+      if (actives.length) {
+        var ac = el("div", { class: "nthview-active", role: "group", "aria-label": "Active view options" });
+        actives.forEach(function (a) {
+          var b = el("button", { type: "button", class: "nthview-chip", "aria-label": a[0] + ", remove" }, [el("span", { text: a[0] }), icon("cross")]);
+          b.addEventListener("click", function () { a[1](); redraw(".nthview-more-btn"); });
+          ac.appendChild(b);
         });
-        panel.appendChild(el("div", {}, [el("span", { class: "nthview-ctl-label", text: "Options shown (tap to focus on two)" }), chips]));
+        panel.appendChild(ac);
       }
 
       if (state.cover) {
         var total = data.cells.length, n = Object.keys(state.revealed).length;
-        var bar = el("div", { class: "nthview-testbar" }, [el("p", { text: n + " of " + total + " cells revealed. Tap a covered cell, predict its mark, then see the answer." })]);
-        bar.appendChild(btn("Reveal all", "", function () { data.cells.forEach(function (c) { var k = c.option + "|" + c.dimension; if (!(k in state.revealed)) state.revealed[k] = "show"; }); redraw(); }));
-        bar.appendChild(btn("Cover again", "", function () { state.revealed = {}; redraw(); }));
-        panel.appendChild(bar);
+        var m = el("div", { class: "nthview-meter" }, [el("p", { text: n + " of " + total + " cells revealed" })]);
+        m.appendChild(btn("Reveal all", "", function () { data.cells.forEach(function (c) { var k = c.option + "|" + c.dimension; if (!(k in state.revealed)) state.revealed[k] = "show"; }); redraw(".nthview-seg [aria-pressed=true]"); }));
+        if (n) m.appendChild(btn("Cover again", "", function () { state.revealed = {}; redraw(".nthview-seg [aria-pressed=true]"); }));
+        m.appendChild(el("div", { class: "nthview-bar", role: "progressbar", "aria-label": "Cells revealed", "aria-valuemin": "0", "aria-valuemax": String(total), "aria-valuenow": String(n) }, [el("i", { style: "width:" + Math.round(100 * n / total) + "%" })]));
+        panel.appendChild(m);
+        panel.appendChild(p("Select a covered cell, make your prediction, then see the answer and why.", "nthview-hint"));
+      } else {
+        panel.appendChild(p(layout === "table" ? "Select any cell for the detail and the evidence behind it." : "Each card compares the options on one criterion. Select a row for the detail behind it.", "nthview-hint"));
       }
 
       var opts = visibleOptions(), dims = visibleDims();
-      if (!dims.length) { panel.appendChild(el("p", { class: "nthview-empty", text: state.filter === "alike" ? "No criterion is marked as shared; every one shows a difference." : "Every criterion is shared." })); return; }
-      if (layout === "table") drawTable(opts, dims);
+      if (!dims.length) panel.appendChild(el("p", { class: "nthview-empty", text: state.filter === "alike" ? "No criterion is marked as shared; every one shows a difference." : "Every criterion is shared." }));
+      else if (layout === "table") drawTable(opts, dims);
       else if (layout === "dimension") drawByDimension(opts, dims);
       else drawByOption(opts, dims);
+      nextBar("Next: when to choose which", "choose");
     }
-    function redraw() {
-      var y = root.scrollY; draw(); persist(); root.scrollTo(0, y);
+    function openViewSheet() {
+      openSheet(null, "View options", null, function (body) {
+        function again(sel) { redraw(); openViewSheet(); var b = sheetOpen && sheetOpen.bg.querySelector(sel); if (b) b.focus(); }
+        var lay = el("fieldset", { class: "nthview-fieldset" }, [el("legend", { text: "Layout" })]);
+        lay.appendChild(seg("Layout", [["auto", "Auto"], ["table", "Table"], ["dimension", "By criterion"], ["option", "By option"]], state.layout || "auto", function (v) { state.layout = v === "auto" ? null : v; again('[aria-label="Layout"] [aria-pressed=true]'); }));
+        lay.appendChild(p("Auto shows a table on wide screens and one card per criterion on phones.", "nthview-muted nthview-small"));
+        body.appendChild(lay);
+        var show = el("fieldset", { class: "nthview-fieldset" }, [el("legend", { text: "Criteria" })]);
+        show.appendChild(seg("Criteria", [["all", "All"], ["diff", "Differences"], ["alike", "Shared"]], state.filter, function (v) { state.filter = v; again('[aria-label="Criteria"] [aria-pressed=true]'); }));
+        body.appendChild(show);
+        if (data.options.length > 2) {
+          var fs = el("fieldset", { class: "nthview-fieldset" }, [el("legend", { text: "Options shown" })]);
+          fs.appendChild(p("Hide one to compare a pair side by side.", "nthview-muted nthview-small"));
+          var chips = el("div", { class: "nthview-chips" });
+          data.options.forEach(function (o, i) {
+            var on = state.hidden.indexOf(o.id) === -1;
+            var b = el("button", { type: "button", class: "nthview-chip " + oc(o.id), "aria-pressed": on ? "true" : "false" }, [el("span", { text: opt[o.id].short })]);
+            b.addEventListener("click", function () {
+              if (on && visibleOptions().length <= 2) { say("At least two options stay in view."); return; }
+              if (on) state.hidden.push(o.id); else state.hidden = state.hidden.filter(function (x) { return x !== o.id; });
+              again(".nthview-fieldset:nth-of-type(3) .nthview-chip:nth-child(" + (i + 1) + ")");
+            });
+            chips.appendChild(b);
+          });
+          fs.appendChild(chips); body.appendChild(fs);
+        }
+        body.appendChild(btn("Done", "nthview-primary", closeSheet));
+      }, panel.querySelector(".nthview-more-btn"));
+    }
+    function redraw(focusSel) {
+      var y = root.scrollY; draw(false); persist(); root.scrollTo(0, y);
+      if (focusSel) { var f = panel.querySelector(focusSel); if (f) f.focus({ preventScroll: true }); }
     }
     function isCovered(c) { return state.cover && !((c.option + "|" + c.dimension) in state.revealed); }
-    function cellContent(c, withMore) {
-      var frag = doc.createDocumentFragment();
-      var m = markBadge(c.mark); if (m) { frag.appendChild(m); frag.appendChild(el("br")); }
-      frag.appendChild(span(c.text));
-      if (withMore && c.detail) frag.appendChild(el("span", { class: "nthview-more", text: "More" }));
-      return frag;
-    }
+    var justRevealed = null;
     function cellButton(c) {
-      var o = opt[c.option], d = dim[c.dimension];
+      var o = opt[c.option], d = dim[c.dimension], k = c.option + "|" + c.dimension, b;
       if (isCovered(c)) {
-        var cb = el("button", { type: "button", class: "nthview-cellbtn nthview-covered", "aria-label": "Covered: " + o.o.name + ", " + d.name + ". Predict and reveal." }, [el("span", { "aria-hidden": "true", text: "?" }), el("span", { text: "Predict" })]);
-        cb.addEventListener("click", function () { openCell(c, cb); });
-        return cb;
+        b = el("button", { type: "button", class: "nthview-cell nthview-covered", "data-k": k, "aria-label": "Covered: " + o.o.name + ", " + d.name + ". Predict, then reveal." }, [el("span", { "aria-hidden": "true", text: "?" }), el("span", { text: "Predict" })]);
+      } else {
+        b = el("button", { type: "button", class: "nthview-cell" + (justRevealed === k ? " nthview-justrevealed" : ""), "data-k": k, "aria-label": o.o.name + ", " + d.name + ": " + (c.mark ? MARK_LABEL[c.mark] + ". " : "") + plain(c.text) + ". Open the detail." });
+        var m = markBadge(c.mark); if (m) b.appendChild(m);
+        b.appendChild(span(c.text, "nthview-ctxt"));
+        b.appendChild(icon("chev", "nthview-chev"));
       }
-      var b = el("button", { type: "button", class: "nthview-cellbtn", "aria-label": o.o.name + ", " + d.name + ": " + (c.mark ? MARK_LABEL[c.mark] + ". " : "") + c.text + (c.detail ? " More detail." : "") });
-      b.appendChild(cellContent(c, true));
       b.addEventListener("click", function () { openCell(c, b); });
       return b;
     }
     function drawTable(opts, dims) {
-      var wrap = el("div", { class: "nthview-tablewrap", tabindex: "0", role: "region", "aria-label": "Comparison table, scrolls sideways when narrow" });
+      var wrap = el("div", { class: "nthview-tablewrap", tabindex: "0", role: "region", "aria-label": "Comparison table" });
       var t = el("table", { class: "nthview-matrix" });
       t.appendChild(el("caption", { class: "nthview-sr", text: data.title }));
       var hr = el("tr", {}, [el("th", { scope: "col", text: "Criterion" })]);
-      opts.forEach(function (o) { hr.appendChild(el("th", { scope: "col", class: oc(o.id), text: o.name })); });
+      opts.forEach(function (o) { hr.appendChild(el("th", { scope: "col", class: oc(o.id) }, [el("span", {}, [el("span", { class: "nthview-dot", "aria-hidden": "true" }), el("span", { text: o.name })])])); });
       t.appendChild(el("thead", {}, [hr]));
       var tb = el("tbody");
       dims.forEach(function (d) {
         var th = el("th", { scope: "row" }, [el("span", { text: d.name })]);
-        if (d.alike) th.appendChild(el("small", {}, [el("span", { class: "nthview-pill nthview-alike", text: "Alike" })]));
         if (d.why) th.appendChild(el("small", { text: d.why }));
+        if (d.alike) th.appendChild(el("span", { class: "nthview-pill nthview-alike", text: "Alike" }));
         var tr = el("tr", d.alike ? { class: "nthview-alikerow" } : {}, [th]);
         opts.forEach(function (o) { tr.appendChild(el("td", {}, [cellButton(cell[o.id + "|" + d.id])])); });
         tb.appendChild(tr);
       });
       t.appendChild(tb); wrap.appendChild(t); panel.appendChild(wrap);
       var takes = dims.filter(function (d) { return d.takeaway; });
-      if (takes.length && !state.cover) {
-        panel.appendChild(h2("In short, criterion by criterion"));
-        var ul = el("ul", { class: "nthview-list" });
-        takes.forEach(function (d) { var li = el("li"); li.appendChild(el("b", { text: d.name + ": " })); li.appendChild(rich(d.takeaway)); ul.appendChild(li); });
-        panel.appendChild(ul);
-      }
+      if (takes.length && !state.cover) { panel.appendChild(h2("In short, criterion by criterion")); panel.appendChild(critList(takes)); }
     }
     function drawByDimension(opts, dims) {
       var st = el("div", { class: "nthview-stack" });
       dims.forEach(function (d) {
-        var c = el("section", { class: "nthview-card nthview-dimcard", "aria-label": d.name });
-        var h = el("h3", {}, [el("span", { text: d.name })]);
+        var c = el("section", { class: "nthview-card", "aria-label": d.name });
+        var h = el("div", { class: "nthview-dimhead" }, [el("h3", { text: d.name })]);
         if (d.alike) h.appendChild(el("span", { class: "nthview-pill nthview-alike", text: "Alike" }));
+        h.appendChild(el("span", { class: "nthview-num", text: (dimIndex[d.id] + 1) + " of " + data.dimensions.length }));
         c.appendChild(h);
-        if (d.why) c.appendChild(p(d.why, "nthview-muted nthview-small"));
+        if (d.why) c.appendChild(p(d.why, "nthview-why"));
         var ul = el("ul", { class: "nthview-rows" });
         opts.forEach(function (o) {
-          ul.appendChild(el("li", { class: "nthview-row " + oc(o.id) }, [el("b", { text: opt[o.id].short }), el("div", {}, [cellButton(cell[o.id + "|" + d.id])])]));
+          ul.appendChild(el("li", { class: "nthview-row " + oc(o.id) }, [el("span", { class: "nthview-rowname", text: opt[o.id].short }), cellButton(cell[o.id + "|" + d.id])]));
         });
         c.appendChild(ul);
         if (d.takeaway && !state.cover) { var tk = el("p", { class: "nthview-takeaway" }, [el("b", { text: "In short: " })]); tk.appendChild(rich(d.takeaway)); c.appendChild(tk); }
@@ -1547,15 +1737,22 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       });
       panel.appendChild(g);
     }
+    function critList(dims) {
+      var dl = el("dl", { class: "nthview-crit" });
+      dims.forEach(function (d) { var dd = el("dd"); dd.appendChild(rich(d.takeaway)); dl.appendChild(el("div", {}, [el("dt", { text: d.name + (d.alike ? " (alike)" : "") }), dd])); });
+      return dl;
+    }
 
-    /* ---------- cell sheet (detail, or predict then reveal) ---------- */
+    /* ---------- sheet: cell detail, predict then reveal, view options, question list ---------- */
     var sheetOpen = null;
-    function openSheet(colourCls, title, build, returnTo) {
-      closeSheet();
+    function openSheet(colourCls, title, kicker, build, returnTo) {
+      if (sheetOpen) { if (sheetOpen.bg.parentNode) sheetOpen.bg.parentNode.removeChild(sheetOpen.bg); returnTo = returnTo || sheetOpen.returnTo; sheetOpen = null; }
       var titleId = "nthview-sheet-title";
-      var box = el("div", { class: "nthview-sheet " + (colourCls || ""), role: "dialog", "aria-modal": "true", "aria-labelledby": titleId, tabindex: "-1" });
-      var close = el("button", { type: "button", class: "nthview-close", "aria-label": "Close", text: "×" });
-      box.appendChild(el("div", { class: "nthview-sheet-head" }, [el("h2", { id: titleId, text: title }), close]));
+      var box = el("div", { class: "nthview-sheet " + (colourCls || ""), role: "dialog", "aria-modal": "true", "aria-labelledby": titleId });
+      var close = el("button", { type: "button", class: "nthview-close", "aria-label": "Close" }, [icon("cross")]);
+      var ht = el("div", {}, kicker ? [el("small", { text: kicker })] : []);
+      ht.appendChild(el("h2", { id: titleId, text: title }));
+      box.appendChild(el("div", { class: "nthview-sheet-head" }, [ht, close]));
       var body = el("div"); box.appendChild(body);
       var bg = el("div", { class: "nthview-sheetbg" }, [box]);
       sheetOpen = { bg: bg, returnTo: returnTo };
@@ -1577,111 +1774,121 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       if (!sheetOpen) return;
       var s = sheetOpen; sheetOpen = null;
       if (s.bg.parentNode) s.bg.parentNode.removeChild(s.bg);
-      var k = s.returnTo && s.returnTo.getAttribute && s.returnTo.getAttribute("data-k");
-      var target = k ? panel.querySelector('[data-k="' + k + '"]') : s.returnTo;
+      var target = s.returnTo;
+      if (target && !container.contains(target)) {
+        var k = target.getAttribute && target.getAttribute("data-k");
+        target = k ? panel.querySelector('[data-k="' + k + '"]') : target.className && panel.querySelector("." + String(target.className).split(" ").pop());
+      }
       if (target && target.focus) target.focus();
     }
     function openCell(c, from) {
       var k = c.option + "|" + c.dimension, d = dim[c.dimension], o = opt[c.option].o;
-      from.setAttribute("data-k", k);
-      openSheet(oc(c.option), o.name + " · " + d.name, function (body) {
+      openSheet(oc(c.option), d.name, o.name, function (body) {
         if (isCovered(c)) {
           var sc = scaleOf(c.dimension);
-          body.appendChild(p(d.why || "Predict before you look.", "nthview-muted nthview-small"));
-          body.appendChild(el("p", { class: "nthview-kicker", text: sc ? "Your prediction" : "Ready?" }));
-          var row = el("div", { class: "nthview-predict" });
-          (sc ? sc.concat(["na"]) : []).forEach(function (m) {
-            if (m === "na" && !data.cells.some(function (x) { return x.dimension === c.dimension && x.mark === "na"; })) return;
-            row.appendChild(btn(MARK_LABEL[m], "", function () { reveal(m); }));
-          });
-          row.appendChild(btn(sc ? "Not sure, show me" : "Reveal", sc ? "" : "nthview-primary", function () { reveal("?"); }));
-          body.appendChild(row);
+          if (d.why) body.appendChild(p(d.why, "nthview-muted nthview-small"));
+          body.appendChild(p(sc ? "What is your prediction?" : "Say your answer to yourself, then reveal it."));
+          if (sc) {
+            var row = el("div", { class: "nthview-predict", role: "group", "aria-label": "Your prediction" });
+            sc.concat(["na"]).forEach(function (m) {
+              if (m === "na" && !data.cells.some(function (x) { return x.dimension === c.dimension && x.mark === "na"; })) return;
+              var b = btn(MARK_LABEL[m], "", function () { reveal(m); });
+              b.insertBefore(markIcon(m), b.firstChild);
+              row.appendChild(b);
+            });
+            body.appendChild(row);
+          }
+          body.appendChild(el("div", { class: "nthview-actions", style: "margin-top:var(--s2)" }, [btn(sc ? "Not sure, show me" : "Reveal", sc ? "" : "nthview-primary", function () { reveal("?"); })]));
         } else showCell(body, c, state.revealed[k]);
         function reveal(pred) {
-          state.revealed[k] = pred; persist();
+          state.revealed[k] = pred; justRevealed = k; persist();
           body.innerHTML = ""; showCell(body, c, pred);
-          var b2 = body.querySelector("button"); (b2 || box()).focus();
           refreshBehind();
+          var f = body.querySelector(".nthview-primary") || body.querySelector("button"); if (f) f.focus();
+          var v = body.querySelector(".nthview-verdict"); say((v ? v.textContent + " " : "") + o.name + ", " + d.name + ": " + plain(c.text));
         }
-        function box() { return body.parentNode; }
       }, from);
     }
     function showCell(body, c, pred) {
       var d = dim[c.dimension];
       if (pred && pred !== "show" && pred !== "?" && c.mark) {
         var ok = pred === c.mark;
-        body.appendChild(el("p", { class: "nthview-verdict " + (ok ? "nthview-v-ok" : "nthview-v-bad"), role: "status", text: ok ? "Your prediction matched: " + MARK_LABEL[c.mark] + "." : "You predicted " + MARK_LABEL[pred] + "; it is " + MARK_LABEL[c.mark] + "." }));
-      } else if (pred === "?") body.appendChild(el("p", { class: "nthview-verdict nthview-v-meh", role: "status", text: "Here it is. Try predicting the next one." }));
+        body.appendChild(el("p", { class: "nthview-verdict " + (ok ? "nthview-v-ok" : "nthview-v-bad") }, [icon(ok ? "check" : "cross"), el("span", { text: ok ? "Your prediction matched." : "You predicted " + MARK_LABEL[pred] + "." })]));
+      } else if (pred === "?") body.appendChild(el("p", { class: "nthview-verdict nthview-v-meh", text: "Here it is. Try predicting the next one." }));
       var m = markBadge(c.mark); if (m) body.appendChild(m);
-      body.appendChild(p(c.text));
+      body.appendChild(p(c.text, "nthview-celltext"));
       if (c.detail) body.appendChild(p(c.detail));
       if (d.takeaway) { var t = el("p", { class: "nthview-takeaway" }, [el("b", { text: "In short: " })]); t.appendChild(rich(d.takeaway)); body.appendChild(t); }
-      if (state.cover) {
-        var next = nextCovered(c);
-        if (next) body.appendChild(el("div", { class: "nthview-checks" }, [btn("Next covered cell", "nthview-primary", function () {
-          var from = panel.querySelector('[data-k="' + c.option + "|" + c.dimension + '"]') || panel;
-          closeSheet(); var b = findCellBtn(next) || from; openCell(next, b);
-        })]));
-      }
+      var acts = el("div", { class: "nthview-actions" }), next = state.cover ? nextCovered(c) : null;
+      if (next) acts.appendChild(btn("Next covered cell", "nthview-primary", function () { openCell(next, panel.querySelector('[data-k="' + next.option + "|" + next.dimension + '"]') || sheetOpen.returnTo); }, {}, "arrow"));
+      acts.appendChild(btn("Close", next ? "" : "nthview-primary", closeSheet));
+      body.appendChild(acts);
     }
     function nextCovered(after) {
-      var opts = visibleOptions(), dims = visibleDims(), list = [];
-      dims.forEach(function (d) { opts.forEach(function (o) { list.push(cell[o.id + "|" + d.id]); }); });
+      var list = [];
+      visibleDims().forEach(function (d) { visibleOptions().forEach(function (o) { list.push(cell[o.id + "|" + d.id]); }); });
       var i = list.indexOf(after);
       for (var j = 1; j <= list.length; j++) { var c = list[(i + j) % list.length]; if (isCovered(c)) return c; }
       return null;
     }
-    function findCellBtn(c) {
-      var btns = panel.querySelectorAll(".nthview-cellbtn"), opts = visibleOptions(), dims = visibleDims(), layout = state.layout || autoLayout();
-      var di = dims.indexOf(dim[c.dimension]), oi = opts.indexOf(opt[c.option].o), idx;
-      if (layout === "option") idx = oi * dims.length + di; else idx = di * opts.length + oi;
-      return btns[idx] || null;
-    }
     function refreshBehind() {
       if (state.tab !== "compare") return;
-      var y = root.scrollY; var keep = sheetOpen; if (keep && keep.bg.parentNode) keep.bg.parentNode.removeChild(keep.bg);
-      draw(); if (keep) container.appendChild(keep.bg); root.scrollTo(0, y);
-      if (keep && keep.returnTo) { var k = keep.returnTo.getAttribute("data-k"); var nb = null; data.cells.some(function (c) { if (c.option + "|" + c.dimension === k) { nb = findCellBtn(c); return true; } return false; }); if (nb) { nb.setAttribute("data-k", k); keep.returnTo = nb; } }
+      var y = root.scrollY, keep = sheetOpen;
+      if (keep && keep.bg.parentNode) keep.bg.parentNode.removeChild(keep.bg);
+      draw(false); if (keep) container.appendChild(keep.bg); root.scrollTo(0, y);
+      justRevealed = null;
+      if (keep && keep.returnTo && keep.returnTo.getAttribute) { var k = keep.returnTo.getAttribute("data-k"); var nb = k && panel.querySelector('[data-k="' + k + '"]'); if (nb) keep.returnTo = nb; }
     }
 
     /* ---------- when to choose ---------- */
     function drawChoose() {
-      panel.appendChild(p("Each situation names the option that fits it. Practice has more of these, with the reasons why the others fall short.", "nthview-muted"));
-      var g = el("div", { class: "nthview-stack" });
+      panel.appendChild(h2("When to choose which"));
+      panel.appendChild(p("Each situation names the option that fits it, and why. Practise has more of these, with the reasons the others fall short.", "nthview-lede"));
+      var g = el("div", { class: "nthview-grid" });
       data.options.forEach(function (o) {
         var items = data.whenToChoose.filter(function (w) { return w.option === o.id; });
         if (!items.length) return;
-        var c = el("section", { class: "nthview-card nthview-sitgroup " + oc(o.id), "aria-label": "Choose " + o.name }, [el("h3", { text: "Choose " + (/^[aeiou]/i.test(o.name) ? "an " : "a ") + o.name.charAt(0).toLowerCase() + o.name.slice(1) + " when" })]);
+        var c = el("section", { class: "nthview-card nthview-sitcard " + oc(o.id), "aria-label": "Choose " + article(o.name) }, [el("h3", {}, [el("span", { class: "nthview-dot", "aria-hidden": "true" }), el("span", { text: "Choose " + article(o.name) + " when" })])]);
         var ul = el("ul", { class: "nthview-sits" });
-        items.forEach(function (w) { var li = el("li"); li.appendChild(rich(w.situation)); if (w.why) li.appendChild(span(w.why)); ul.appendChild(li); });
+        items.forEach(function (w) { var li = el("li"); var b = el("b"); b.appendChild(rich(w.situation)); li.appendChild(b); if (w.why) li.appendChild(span(w.why)); ul.appendChild(li); });
         c.appendChild(ul); g.appendChild(c);
       });
       panel.appendChild(g);
+      nextBar(state.done ? "Next: the recap" : answeredCount() ? "Continue practising" : "Next: practise telling them apart", state.done ? "recap" : "practice");
     }
 
     /* ---------- recap ---------- */
     function drawRecap() {
-      if (data.bigIdea) { var b = el("div", { class: "nthview-card nthview-big" }, [el("p", { class: "nthview-kicker", text: "The big idea" })]); b.appendChild(p(data.bigIdea)); panel.appendChild(b); }
-      if (data.similarities && data.similarities.length) { panel.appendChild(h2("How they are alike")); panel.appendChild(listOf(data.similarities)); }
-      if (data.differences && data.differences.length) { panel.appendChild(h2("How they differ")); panel.appendChild(listOf(data.differences)); }
+      panel.appendChild(h2("Recap"));
+      if (data.bigIdea) { var b = el("section", { class: "nthview-card nthview-big", "aria-label": "The big idea" }, [el("span", { class: "nthview-kicker", text: "The big idea" })]); b.appendChild(p(data.bigIdea)); panel.appendChild(b); }
+      var g = el("div", { class: "nthview-grid", style: "margin-top:var(--s4)" });
+      if (data.similarities && data.similarities.length) g.appendChild(listCard("How they are alike", data.similarities, "alike"));
+      if (data.differences && data.differences.length) g.appendChild(listCard("How they differ", data.differences, "diff"));
+      if (g.childNodes.length) panel.appendChild(g);
       var takes = data.dimensions.filter(function (d) { return d.takeaway; });
-      if (takes.length) {
-        panel.appendChild(h2("With regard to each criterion"));
-        var ul = el("ul", { class: "nthview-list" });
-        takes.forEach(function (d) { var li = el("li"); li.appendChild(el("b", { text: d.name + (d.alike ? " (alike): " : ": ") })); li.appendChild(rich(d.takeaway)); ul.appendChild(li); });
-        panel.appendChild(ul);
-      }
+      if (takes.length) { panel.appendChild(h2("Criterion by criterion")); panel.appendChild(critList(takes)); }
       if (data.misconceptions && data.misconceptions.length) {
         panel.appendChild(h2("Common mix-ups"));
-        var dl = el("dl", { class: "nthview-mix" });
-        data.misconceptions.forEach(function (m) { var dt = el("dt"); dt.appendChild(rich(m.claim)); dl.appendChild(dt); var dd = el("dd"); dd.appendChild(rich(m.truth)); dl.appendChild(dd); });
-        panel.appendChild(dl);
+        var mg = el("div", { class: "nthview-grid" });
+        data.misconceptions.forEach(function (m) {
+          var c = el("article", { class: "nthview-card nthview-myth" });
+          c.appendChild(el("p", { class: "nthview-claim" }, [icon("cross"), el("span", {}, [el("span", { class: "nthview-sr", text: "Myth: " }), rich(m.claim)])]));
+          c.appendChild(el("p", { class: "nthview-fact" }, [icon("check"), el("span", {}, [el("span", { class: "nthview-sr", text: "Fact: " }), rich(m.truth)])]));
+          mg.appendChild(c);
+        });
+        panel.appendChild(mg);
       }
-      panel.appendChild(el("div", { class: "nthview-checks" }, [btn(state.done ? "Review your practice" : "Test yourself", "nthview-primary", function () { go("practice"); }), btn("Back to the grid", "", function () { go("compare"); })]));
+      if (state.done) nextBar("Review your practice", "practice");
+      else nextBar(answeredCount() ? "Finish the practice" : "Test yourself", "practice");
     }
-    function listOf(items) { var ul = el("ul", { class: "nthview-list" }); items.forEach(function (t) { var li = el("li"); li.appendChild(rich(t)); ul.appendChild(li); }); return ul; }
+    function listCard(title, items, kind) {
+      var c = el("section", { class: "nthview-card", "aria-label": title }, [el("h3", { class: "nthview-h3", text: title })]);
+      var ul = el("ul", { class: "nthview-list" });
+      items.forEach(function (t) { var li = el("li", {}, [icon(kind, "nthview-" + kind + "-ic")]); li.appendChild(rich(t)); ul.appendChild(li); });
+      c.appendChild(ul); return c;
+    }
 
-    /* ---------- practice ---------- */
+    /* ---------- practice: question, check, feedback with why, continue ---------- */
     function isAnswered(q) {
       var a = state.answers[q.id];
       if (!a) return false;
@@ -1690,6 +1897,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       if (q.kind === "sort") return !!a.checked;
       return a.pick !== undefined && a.pick !== null;
     }
+    function answeredCount() { return Q.filter(isAnswered).length; }
     function result(q) {
       var a = state.answers[q.id];
       if (!a || a.skipped || !isAnswered(q)) return null;
@@ -1704,105 +1912,113 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     }
     function drawPractice() {
       if (state.q >= N) { drawEnd(); return; }
-      var q = Q[state.q], i = state.q;
-      var dots = el("div", { class: "nthview-qdots", role: "group", "aria-label": "Questions" });
-      Q.forEach(function (qq, j) {
-        var r = result(qq), a = state.answers[qq.id];
-        var d = el("button", { type: "button", class: "nthview-qdot" + (r === "ok" ? " nthview-q-ok" : r === "bad" ? " nthview-q-bad" : (r === "seen" || (a && a.skipped)) ? " nthview-q-seen" : ""), text: String(j + 1), "aria-label": "Question " + (j + 1) + (r === "ok" ? ", right" : r === "bad" ? ", missed" : a && a.skipped ? ", skipped" : r === "seen" ? ", done" : "") });
-        if (j === i) d.setAttribute("aria-current", "step");
-        d.addEventListener("click", function () { state.q = j; redrawQ(); });
-        dots.appendChild(d);
-      });
-      panel.appendChild(el("div", { class: "nthview-qhead" }, [el("span", { class: "nthview-kicker", text: "Question " + (i + 1) + " of " + N + " · " + KIND_LABEL[q.kind] }), dots]));
+      var q = Q[state.q], i = state.q, n = answeredCount();
+      var all = el("button", { type: "button", class: "nthview-link nthview-all", text: "All questions", "aria-haspopup": "dialog" });
+      all.addEventListener("click", function () { openSheet(null, "All questions", answeredCount() + " of " + N + " answered", function (body) { body.appendChild(reviewList(Q, true)); }, all); });
+      panel.appendChild(el("div", { class: "nthview-qtop" }, [
+        el("span", { class: "nthview-qcount", text: "Question " + (i + 1) + " of " + N }),
+        el("span", { class: "nthview-pill", text: KIND_LABEL[q.kind] }),
+        all,
+        el("div", { class: "nthview-bar", role: "progressbar", "aria-label": "Questions answered", "aria-valuemin": "0", "aria-valuemax": String(N), "aria-valuenow": String(n) }, [el("i", { style: "width:" + Math.round(100 * n / N) + "%" })])
+      ]));
       var card = el("section", { class: "nthview-card nthview-qcard", "aria-label": "Question " + (i + 1) });
       ({ sort: qSort, cell: qCell, pick: qPick, choice: qChoice, explain: qExplain })[q.kind](card, q, state.answers[q.id] || {});
       panel.appendChild(card);
       var done = isAnswered(q) && !(state.answers[q.id] || {}).skipped;
-      var nav = el("div", { class: "nthview-qnav" });
-      nav.appendChild(btn("Previous", "", function () { state.q = i - 1; redrawQ(); }, i === 0 ? { disabled: "disabled" } : {}));
-      var right = el("div", { class: "nthview-checks", style: "margin:0" });
-      if (!done) right.appendChild(btn("Skip", "", function () { state.answers[q.id] = { skipped: true }; advance(); }));
-      right.appendChild(btn(i === N - 1 ? "Finish" : "Next", done ? "nthview-primary" : "", function () { advance(); }));
-      nav.appendChild(right);
-      panel.appendChild(nav);
+      var foot = el("div", { class: "nthview-qfoot" });
+      var prev = el("button", { type: "button", class: "nthview-link", text: "Previous question" });
+      if (i === 0) prev.style.visibility = "hidden";
+      prev.addEventListener("click", function () { state.q = i - 1; redrawQ(); });
+      foot.appendChild(prev);
+      if (!done) { var sk = el("button", { type: "button", class: "nthview-link", text: "Skip for now" }); sk.addEventListener("click", function () { state.answers[q.id] = { skipped: true }; advance(); }); foot.appendChild(sk); }
+      else if (i < N - 1) { var nx = el("button", { type: "button", class: "nthview-link", text: "Next question" }); nx.addEventListener("click", advance); foot.appendChild(nx); }
+      panel.appendChild(foot);
     }
-    function advance() { state.q = Math.min(N, state.q + 1); redrawQ(true); }
-    function redrawQ(focusTop) {
-      draw(); persist();
+    function advance() { state.q = Math.min(N, state.q + 1); redrawQ(); }
+    function redrawQ() {
+      closeSheet();
+      draw(true); persist(); toPanelTop();
       var t = panel.querySelector(".nthview-qcard h2, .nthview-end h2");
       if (t) { t.setAttribute("tabindex", "-1"); t.focus({ preventScroll: true }); }
-      if (focusTop && tabbar.getBoundingClientRect().top < 0) tabbar.scrollIntoView({ block: "start", behavior: reduceMotion ? "auto" : "smooth" });
     }
     function answer(q, fields) {
       var a = state.answers[q.id] && !state.answers[q.id].skipped ? state.answers[q.id] : {};
       Object.keys(fields).forEach(function (k) { a[k] = fields[k]; });
       state.answers[q.id] = a; persist();
     }
+    var justChecked = false;
+    function afterCheck(msg) {
+      justChecked = true; draw(false); justChecked = false;
+      var c = panel.querySelector(".nthview-fb .nthview-primary"); if (c) c.focus();
+      say(msg);
+    }
     function qTitle(card, text) { var h = el("h2"); h.appendChild(rich(text)); card.appendChild(h); }
-    function checkButtons(card, ready, onCheck) {
-      var row = el("div", { class: "nthview-checks" });
+    function confirmRow(card, ready, onCheck, hint) {
+      var row = el("div", { class: "nthview-confirm" }, [p(hint || "How sure are you? Confident mistakes get extra attention in your review.")]);
       var a1 = btn("Check, I'm sure", "nthview-primary", function () { onCheck(true); }), a2 = btn("Check, not sure", "", function () { onCheck(false); });
       if (!ready) { a1.setAttribute("disabled", "disabled"); a2.setAttribute("disabled", "disabled"); }
-      row.appendChild(a1); row.appendChild(a2); card.appendChild(row);
+      row.appendChild(el("div", { class: "nthview-actions" }, [a1, a2]));
+      card.appendChild(row);
     }
-    function feedback(card, ok, sure, heading, bodyNodes) {
-      var fb = el("div", { class: "nthview-fb " + (ok ? "nthview-fb-ok" : "nthview-fb-bad"), role: "status" });
-      fb.appendChild(el("h3", { text: heading }));
-      if (!ok && sure === true) fb.appendChild(el("p", { class: "nthview-sure", text: "You were sure, which makes this one worth a second look: confident mistakes are the ones feedback fixes best." }));
-      if (ok && sure === false) fb.appendChild(el("p", { class: "nthview-sure", text: "Right, even though you were unsure. Read why, so next time you know it." }));
-      bodyNodes.forEach(function (n) { fb.appendChild(n); });
+    function feedback(card, ok, sure, heading, nodes) {
+      var fb = el("div", { class: "nthview-fb" + (justChecked ? " nthview-fb-in" : "") + (ok === true ? " nthview-fb-ok" : ok === false ? " nthview-fb-bad" : "") });
+      fb.appendChild(el("div", { class: "nthview-fbhead" }, [el("span", { class: "nthview-fbicon", "aria-hidden": "true" }, [icon(ok === false ? "cross" : "check")]), el("h3", { text: heading })]));
+      if (ok === false && sure === true) fb.appendChild(el("p", { class: "nthview-note" }, [el("b", { text: "You were sure. " }), doc.createTextNode("Confident mistakes are the ones feedback fixes best, so this one is on your review list.")]));
+      if (ok === true && sure === false) fb.appendChild(el("p", { class: "nthview-note" }, [el("b", { text: "Right, though you were unsure. " }), doc.createTextNode("Read why, so next time you know.")]));
+      nodes.forEach(function (n) { fb.appendChild(n); });
+      fb.appendChild(el("div", { class: "nthview-actions" }, [btn(state.q === N - 1 ? "See your results" : "Continue", "nthview-primary", advance, {}, "arrow")]));
       card.appendChild(fb);
     }
-    /* one list of choices: before answering, tap to select; after, tap to read why */
-    function choiceList(card, q, a, items, rightIndex, whyOf, after) {
+    /* one list of choices: before checking, select one; after, select any to read why */
+    function choiceList(card, q, a, items, rightIndex, whyOf) {
       var answered = a.pick !== undefined && a.pick !== null;
       var sel = answered ? null : a.sel;
-      var list = el("div", { class: "nthview-choices", role: "group", "aria-label": "Choices" });
+      var list = el("div", { class: "nthview-choices", role: "group", "aria-label": answered ? "Choices; select one to read why" : "Choices" });
       items.forEach(function (it, j) {
         var cls = "nthview-choice" + (it.colour ? " " + it.colour : "");
-        if (answered) {
-          if (j === rightIndex) cls += " nthview-right";
-          else if (it.value === a.pick) cls += " nthview-wrong";
-          if (a.viewing === it.value) cls += " nthview-viewing";
-        }
-        var b = el("button", { type: "button", class: cls, "aria-pressed": !answered && sel === it.value ? "true" : "false" }, [el("span", { class: "nthview-key", "aria-hidden": "true", text: String(j + 1) })]);
+        var keyNode = el("span", { class: "nthview-key", "aria-hidden": "true", text: String(j + 1) });
+        if (answered && j === rightIndex) { cls += " nthview-right"; keyNode.textContent = ""; keyNode.appendChild(icon("check")); }
+        else if (answered && it.value === a.pick) { cls += " nthview-wrong"; keyNode.textContent = ""; keyNode.appendChild(icon("cross")); }
+        if (answered && a.viewing === it.value) cls += " nthview-viewing";
+        var b = el("button", { type: "button", class: cls, "aria-pressed": (answered ? a.viewing : sel) === it.value ? "true" : "false" }, [keyNode]);
         var tx = el("span", { class: "nthview-ctext" }); tx.appendChild(rich(it.text));
-        if (it.sub) tx.appendChild(el("small", { text: it.sub }));
-        if (answered && it.owner) tx.appendChild(optName(it.owner));
+        if (answered && it.owner) tx.appendChild(owner(it.owner));
         b.appendChild(tx);
-        if (answered) b.setAttribute("aria-label", it.text + (j === rightIndex ? ", the right answer" : it.value === a.pick ? ", your answer" : "") + ". Show why.");
+        if (answered) b.setAttribute("aria-label", plain(it.text) + (j === rightIndex ? ", the right answer" : it.value === a.pick ? ", your answer" : "") + ". Show why.");
         b.addEventListener("click", function () {
-          if (answered) { answer(q, { viewing: it.value }); redrawQ(); return; }
-          answer(q, { sel: it.value }); draw();
+          answer(q, answered ? { viewing: it.value } : { sel: it.value }); draw(false);
           var again = panel.querySelectorAll(".nthview-choice")[j]; if (again) again.focus();
+          if (answered) say("Now explaining: " + plain(it.text));
         });
         list.appendChild(b);
       });
       card.appendChild(list);
       if (!answered) {
-        checkButtons(card, sel !== undefined && sel !== null, function (sure) { answer(q, { pick: sel, sure: sure, viewing: sel }); delete state.answers[q.id].sel; persist(); redrawQ(); say(isRight(q, sel) ? "Right." : "Not quite."); });
+        confirmRow(card, sel !== undefined && sel !== null, function (sure) {
+          answer(q, { pick: sel, sure: sure, viewing: sel }); delete state.answers[q.id].sel; persist();
+          afterCheck(isRight(q, sel) ? "Right. " + plain(whyOf(rightIndex) || "") : "Not quite. The answer is " + plain(items[rightIndex].text) + ".");
+        });
         return;
       }
       var ok = isRight(q, a.pick), view = a.viewing !== undefined ? a.viewing : a.pick;
       var vi = items.map(function (x) { return x.value; }).indexOf(view);
       var nodes = [];
       if (vi !== -1 && vi !== rightIndex) {
-        nodes.push(el("p", {}, [el("b", { text: (view === a.pick ? "Your answer: " : "About this one: ") })].concat([rich(items[vi].text)])));
+        var yours = el("p", {}, [el("b", { text: view === a.pick ? "Your answer: " : "About this choice: " })]); yours.appendChild(rich(items[vi].text)); nodes.push(yours);
         var w = whyOf(vi); if (w) nodes.push(p(w));
-        nodes.push(el("p", {}, [el("b", { text: "The answer: " }), rich(items[rightIndex].text)]));
+        var ans = el("p", {}, [el("b", { text: "The answer: " })]); ans.appendChild(rich(items[rightIndex].text)); nodes.push(ans);
       }
       var rw = whyOf(rightIndex); if (rw) nodes.push(p(rw));
-      (after || []).forEach(function (n) { nodes.push(n); });
-      nodes.push(p("Tap any choice to read about it.", "nthview-muted nthview-small"));
+      if (items.length > 2) nodes.push(p("Select any other choice above to read why it is right or wrong.", "nthview-muted nthview-small"));
       feedback(card, ok, a.sure, ok ? "Right" : "Not quite", nodes);
     }
     function qCell(card, q, a) {
       var o = opt[q.option].o, d = dim[q.dimension];
-      card.appendChild(optName(q.option));
-      qTitle(card, q.prompt || o.name + ": " + d.name + "?");
-      if (d.why) card.appendChild(p(d.why, "nthview-muted nthview-small"));
+      card.appendChild(owner(q.option));
+      qTitle(card, q.prompt || o.name + ": " + d.name.charAt(0).toLowerCase() + d.name.slice(1) + "?");
+      if (d.why) card.appendChild(p(d.why, "nthview-why"));
       var order = shuffled(data.options.map(function (x) { return x.id; }), q.id);
-      var items = order.map(function (id) { var c = cell[id + "|" + q.dimension]; return { value: id, text: c.text, owner: id }; });
+      var items = order.map(function (id) { return { value: id, text: cell[id + "|" + q.dimension].text, owner: id }; });
       var c = cell[q.option + "|" + q.dimension];
       choiceList(card, q, a, items, order.indexOf(q.option), function (j) {
         if (j === order.indexOf(q.option)) return q.why || c.detail || d.takeaway || null;
@@ -1811,15 +2027,14 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       });
     }
     function qPick(card, q, a) {
-      card.appendChild(el("p", { class: "nthview-kicker", text: "Situation" }));
+      card.appendChild(el("span", { class: "nthview-kicker", text: "The situation" }));
       var s = el("div", { class: "nthview-situation" }); s.appendChild(rich(q.situation)); card.appendChild(s);
       qTitle(card, q.prompt || "Which would you choose?");
       var items = data.options.map(function (o) { return { value: o.id, text: o.name, colour: oc(o.id) }; });
       var ri = data.options.map(function (o) { return o.id; }).indexOf(q.answer);
       choiceList(card, q, a, items, ri, function (j) {
         if (j === ri) return q.why;
-        var id = data.options[j].id;
-        return (q.notes && q.notes[id]) || null;
+        return (q.notes && q.notes[data.options[j].id]) || null;
       });
     }
     function qChoice(card, q, a) {
@@ -1830,17 +2045,17 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
     }
     function qSort(card, q, a) {
       qTitle(card, q.prompt || "Which does each statement describe?");
-      card.appendChild(p("Mark every option a statement is true of; choose None if it fits none of them.", "nthview-muted nthview-small"));
+      card.appendChild(p("Select every option a statement is true of. Choose None if it fits none of them.", "nthview-why"));
       var sel = (a.sel || []).slice(), checked = !!a.checked;
       q.statements.forEach(function (s, i) {
         var mine = sel[i] || null;
         var ok = checked && sameSet(mine || [], s.answer);
-        var box = el("div", { class: "nthview-stmt" + (checked ? (ok ? " nthview-right" : " nthview-wrong") : ""), role: "group", "aria-label": "Statement " + (i + 1) });
+        var box = el("div", { class: "nthview-stmt" + (checked ? (ok ? " nthview-right" : " nthview-wrong") : ""), role: "group", "aria-label": "Statement " + (i + 1) + (checked ? (ok ? ", right" : ", not quite") : "") });
         var pp = el("p"); pp.appendChild(rich(s.text)); box.appendChild(pp);
         var chips = el("div", { class: "nthview-chips" });
         data.options.forEach(function (o) {
           var on = !!mine && mine.indexOf(o.id) !== -1;
-          var b = el("button", { type: "button", class: "nthview-chip " + oc(o.id), "aria-pressed": on ? "true" : "false" }, [el("span", { class: "nthview-dot", "aria-hidden": "true" }), el("span", { text: opt[o.id].short })]);
+          var b = el("button", { type: "button", class: "nthview-chip " + oc(o.id), "aria-pressed": on ? "true" : "false" }, [el("span", { text: opt[o.id].short })]);
           if (checked) b.setAttribute("disabled", "disabled");
           b.addEventListener("click", function () { var m = (mine || []).filter(function (x) { return x !== o.id; }); if (!on) m.push(o.id); setSel(i, m, b); });
           chips.appendChild(b);
@@ -1852,8 +2067,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         box.appendChild(chips);
         if (checked) {
           var ans = s.answer.length === 0 ? "none of them" : s.answer.length === data.options.length ? "all of them" : s.answer.map(function (id) { return opt[id].o.name; }).join(" and ");
-          var f = el("p", { class: "nthview-small", style: "margin-top:.5rem;font-weight:400" }, [el("b", { text: (ok ? "Right: " : "It is true of ") + (ok ? "" : ans + ". ") })]);
-          if (ok) f.firstChild.textContent = "Right, " + ans + ". ";
+          var f = el("p", { class: "nthview-explain" }, [el("span", { class: "nthview-verd" }, [icon(ok ? "check" : "cross"), el("span", { text: ok ? "Right: " + ans + "." : "It is true of " + ans + "." })]), doc.createTextNode(" ")]);
           f.appendChild(rich(s.why)); box.appendChild(f);
         }
         card.appendChild(box);
@@ -1861,35 +2075,38 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       function setSel(i, v, from) {
         sel[i] = v; answer(q, { sel: sel });
         var chipIndex = Array.prototype.indexOf.call(from.parentNode.children, from);
-        draw();
+        draw(false);
         var nb = panel.querySelectorAll(".nthview-stmt")[i]; if (nb) { var c = nb.querySelectorAll(".nthview-chip")[chipIndex]; if (c) c.focus(); }
       }
       if (!checked) {
-        var ready = q.statements.every(function (s, i) { return sel[i] !== null && sel[i] !== undefined; });
-        checkButtons(card, ready, function (sure) { answer(q, { checked: true, sure: sure }); redrawQ(); var r = result(q); say(r === "ok" ? "All right." : "Some statements need another look."); });
-        if (!ready) card.appendChild(p("Sort every statement to check.", "nthview-muted nthview-small"));
+        var done = q.statements.filter(function (s, i) { return sel[i] !== null && sel[i] !== undefined; }).length;
+        confirmRow(card, done === q.statements.length, function (sure) {
+          answer(q, { checked: true, sure: sure });
+          var n2 = q.statements.filter(function (s, i) { return sameSet(sel[i] || [], s.answer); }).length;
+          afterCheck(n2 + " of " + q.statements.length + " sorted right.");
+        }, done === q.statements.length ? null : done + " of " + q.statements.length + " sorted. Sort every statement to check.");
       } else {
         var n = q.statements.filter(function (s, i) { return sameSet(sel[i] || [], s.answer); }).length;
-        feedback(card, n === q.statements.length, a.sure, n + " of " + q.statements.length + " sorted right", []);
+        feedback(card, n === q.statements.length, a.sure, n + " of " + q.statements.length + " sorted right", [p("Each statement above now says which options it is true of, and why.", "nthview-muted nthview-small")]);
       }
     }
     function qExplain(card, q, a) {
       qTitle(card, q.prompt);
       var id = "nthview-ex-" + q.id;
-      card.appendChild(el("label", { for: id, class: "nthview-small nthview-muted", text: "Write your answer first; nobody grades it. Then compare." }));
+      card.appendChild(el("label", { for: id, class: "nthview-why", style: "display:block", text: "Write your answer first. Nobody grades it; putting it in your own words is the practice." }));
       var ta = el("textarea", { id: id, class: "nthview-textarea", maxlength: "2000" });
       ta.value = a.text || "";
       var t = null;
-      ta.addEventListener("input", function () { clearTimeout(t); t = setTimeout(function () { answer(q, { text: ta.value }); updateCount(); }, 300); });
+      ta.addEventListener("input", function () { clearTimeout(t); t = setTimeout(function () { answer(q, { text: ta.value }); }, 300); });
       ta.addEventListener("blur", function () { answer(q, { text: ta.value }); });
       card.appendChild(ta);
       if (!a.shown) {
-        card.appendChild(el("div", { class: "nthview-checks" }, [btn("Compare with a model answer", "nthview-primary", function () { answer(q, { text: ta.value, shown: true, ticks: [] }); redrawQ(); })]));
+        card.appendChild(el("div", { class: "nthview-actions" }, [btn("Compare with a model answer", "nthview-primary", function () {
+          answer(q, { text: ta.value, shown: true, ticks: [] });
+          draw(false); var f = panel.querySelector(".nthview-ticks input"); if (f) f.focus(); say("Model answer shown. Tick the points you covered.");
+        })]));
         return;
       }
-      var fb = el("div", { class: "nthview-fb" }, [el("h3", { text: "A model answer" })]);
-      fb.appendChild(p(q.model));
-      fb.appendChild(el("p", { class: "nthview-kicker", style: "margin-top:.8rem", text: "Tick the points your answer covered" }));
       var ul = el("ul", { class: "nthview-ticks" }), ticks = (a.ticks || []).slice();
       q.points.forEach(function (pt, j) {
         var cb = el("input", { type: "checkbox", id: id + "-" + j });
@@ -1897,8 +2114,7 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
         cb.addEventListener("change", function () { ticks = ticks.filter(function (x) { return x !== j; }); if (cb.checked) ticks.push(j); answer(q, { ticks: ticks }); say(ticks.length + " of " + q.points.length + " points covered."); });
         var lab = el("label", { for: id + "-" + j }, [cb]); lab.appendChild(span(pt)); ul.appendChild(el("li", {}, [lab]));
       });
-      fb.appendChild(ul);
-      card.appendChild(fb);
+      feedback(card, null, null, "A model answer", [p(q.model), el("span", { class: "nthview-kicker", style: "margin-top:var(--s4)", text: "Tick the points your answer covered" }), ul]);
     }
 
     /* ---------- end of practice: the view's end (§5.5 rule 8) ---------- */
@@ -1906,43 +2122,48 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       state.done = true;
       var scored = Q.filter(function (q) { return q.kind !== "explain"; });
       var ok = scored.filter(function (q) { return result(q) === "ok"; }).length;
+      var missed = scored.filter(function (q) { return result(q) === "bad"; });
       var skipped = Q.filter(function (q) { return (state.answers[q.id] || {}).skipped; }).length;
-      var confident = Q.filter(function (q) { return result(q) === "bad" && state.answers[q.id].sure === true; });
+      var confident = missed.filter(function (q) { return state.answers[q.id].sure === true; });
       var wrap = el("div", { class: "nthview-end nthview-stack" });
-      var top = el("div", { class: "nthview-card" }, [el("p", { class: "nthview-kicker", text: "Practice complete" }), el("h2", { text: "You have compared them from every side" })]);
-      if (scored.length) top.appendChild(el("p", {}, [el("span", { class: "nthview-score", text: ok + "/" + scored.length }), doc.createTextNode(" right first time" + (skipped ? ", " + skipped + " skipped" : "") + ".")]));
-      top.appendChild(p("Nothing here is graded against you; the review shows where the options still blur.", "nthview-muted"));
+      var top = el("section", { class: "nthview-card nthview-hero", "aria-label": "Your results" }, [el("span", { class: "nthview-kicker", text: "Practice complete" }), el("h2", { text: "You have compared them from every side", style: "font-size:var(--t-xl)" })]);
+      if (scored.length) top.appendChild(el("div", { class: "nthview-score" }, [el("b", { text: ok + "/" + scored.length }), el("span", { class: "nthview-muted", text: "right first time" })]));
+      top.appendChild(el("div", { class: "nthview-tally" }, [tally(ok, "right"), tally(missed.length, "to revisit"), tally(skipped, "skipped")]));
+      top.appendChild(p("Nothing here is graded against you. The list below shows where the options still blur.", "nthview-muted nthview-small"));
       wrap.appendChild(top);
-      if (data.bigIdea) { var b = el("div", { class: "nthview-card nthview-big" }, [el("p", { class: "nthview-kicker", text: "The big idea" })]); b.appendChild(p(data.bigIdea)); wrap.appendChild(b); }
-      if (confident.length) {
-        var cc = el("div", { class: "nthview-card" }, [el("h3", { text: "Worth another look: you were sure, and it was not so" })]);
-        cc.appendChild(reviewList(confident)); wrap.appendChild(cc);
+      if (data.bigIdea) { var b = el("section", { class: "nthview-card nthview-big", "aria-label": "The big idea" }, [el("span", { class: "nthview-kicker", text: "The big idea" })]); b.appendChild(p(data.bigIdea)); wrap.appendChild(b); }
+      var revisit = confident.concat(missed.filter(function (q) { return confident.indexOf(q) === -1; }));
+      if (revisit.length) {
+        var cc = el("section", { class: "nthview-card" }, [el("h3", { class: "nthview-h3", text: "Revisit these first" }), p(confident.length ? "Confident mistakes come first: you were sure, and it was not so." : "Open each one to read why again.", "nthview-muted nthview-small")]);
+        cc.appendChild(reviewList(revisit)); wrap.appendChild(cc);
       }
-      var all = el("div", { class: "nthview-card" }, [el("h3", { text: "Every question" })]);
+      var all = el("details", { class: "nthview-card" }, [el("summary", { class: "nthview-h3", style: "cursor:pointer;min-height:44px;display:flex;align-items:center;margin:0", text: "Show every question (" + N + ")" })]);
       all.appendChild(reviewList(Q)); wrap.appendChild(all);
-      wrap.appendChild(el("div", { class: "nthview-checks" }, [
-        btn("Read the recap", "nthview-primary", function () { go("recap"); }),
+      wrap.appendChild(el("div", { class: "nthview-actions" }, [
+        btn("Read the recap", "nthview-primary", function () { go("recap"); }, {}, "arrow"),
         btn("Practise again", "", function () {
           clearState(key);
-          state.answers = {}; state.q = 0; state.done = false; redrawQ(true);
+          state.answers = {}; state.q = 0; state.done = false; redrawQ();
         })
       ]));
       panel.appendChild(wrap);
     }
-    function reviewList(qs) {
-      var ul = el("ul", { class: "nthview-review" });
+    function tally(n, label) { return el("div", {}, [el("b", { text: String(n) }), el("span", { text: label })]); }
+    function reviewList(qs, current) {
+      var ul = el("ul", { class: "nthview-qlist" });
       qs.forEach(function (q) {
         var j = Q.indexOf(q), r = result(q), a = state.answers[q.id];
-        var label = r === "ok" ? "Right" : r === "bad" ? "Missed" : r === "seen" ? "Done" : a && a.skipped ? "Skipped" : "Open";
-        var b = el("button", { type: "button", text: (j + 1) + ". " + shortTitle(q) });
-        b.addEventListener("click", function () { state.q = j; redrawQ(true); });
-        ul.appendChild(el("li", {}, [el("span", { class: "nthview-badge" + (r === "ok" ? " nthview-b-ok" : r === "bad" ? " nthview-b-bad" : ""), text: label }), b]));
+        var now = current && j === state.q;
+        var label = now ? "Current" : r === "ok" ? "Right" : r === "bad" ? (a.sure ? "Sure, missed" : "Missed") : r === "seen" ? "Done" : a && a.skipped ? "Skipped" : "Open";
+        var b = el("button", { type: "button" }, [el("span", { class: "nthview-badge" + (now ? " nthview-b-now" : r === "ok" ? " nthview-b-ok" : r === "bad" ? " nthview-b-bad" : ""), text: label }), el("span", { text: (j + 1) + ". " + shortTitle(q) })]);
+        if (now) b.setAttribute("aria-current", "step");
+        b.addEventListener("click", function () { state.q = j; redrawQ(); });
+        ul.appendChild(el("li", {}, [b]));
       });
       return ul;
     }
     function shortTitle(q) {
-      var t = q.kind === "pick" ? q.situation : q.kind === "cell" ? (q.prompt || opt[q.option].o.name + ": " + dim[q.dimension].name + "?") : (q.prompt || KIND_LABEL[q.kind]);
-      t = t.replace(/\*\*/g, "");
+      var t = plain(q.kind === "pick" ? q.situation : q.kind === "cell" ? (q.prompt || opt[q.option].o.name + ": " + dim[q.dimension].name + "?") : (q.prompt || KIND_LABEL[q.kind]));
       return t.length > 90 ? t.slice(0, 88) + "…" : t;
     }
 
@@ -1970,9 +2191,10 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       if (saved.revealed && typeof saved.revealed === "object") Object.keys(saved.revealed).forEach(function (k) { if (cell[k] && typeof saved.revealed[k] === "string") state.revealed[k] = saved.revealed[k]; });
       if (saved.answers && typeof saved.answers === "object") Q.forEach(function (q) { var a = restoreAnswer(q, saved.answers[q.id]); if (a) state.answers[q.id] = a; });
       if (Number.isInteger(saved.q) && saved.q >= 0 && saved.q <= N) state.q = saved.q;
+      if (saved.seen && typeof saved.seen === "object") TABS.forEach(function (t) { if (saved.seen[t.id] === true) state.seen[t.id] = true; });
       state.done = saved.done === true;
-      var where = state.tab === "practice" ? (state.q < N ? "practice, question " + (state.q + 1) + " of " + N : "the end of practice") : TABS.filter(function (t) { return t.id === state.tab; })[0].label.toLowerCase();
-      resumeText = "Welcome back, continuing from " + (state.tab === "practice" ? where : "the " + where + " section") + ".";
+      var lbl = TABS.filter(function (t) { return t.id === state.tab; })[0].long;
+      resumeText = "Welcome back, continuing in " + (state.tab === "practice" ? (state.q < N ? "Practise at question " + (state.q + 1) + " of " + N : "your practice results") : lbl) + ".";
     }
     function restoreAnswer(q, a) {
       if (!a || typeof a !== "object") return null;
@@ -1998,9 +2220,9 @@ if (typeof require !== "undefined" && typeof module !== "undefined" && require.m
       return r;
     }
 
-    go(state.tab, true, true); /* opening saves nothing; the first action does */
+    go(state.tab, { initial: true }); /* opening saves nothing; the first action does */
     if (resumeText) {
-      var n = el("div", { class: "nthview-resume", role: "status", text: resumeText });
+      var n = el("div", { class: "nthview-resume", role: "status" }, [icon("info"), el("span", { text: resumeText })]);
       notice.appendChild(n);
       var hide = function () {
         container.removeEventListener("pointerdown", hide, true); container.removeEventListener("keydown", hide, true);
