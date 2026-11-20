@@ -440,7 +440,7 @@ function oneFileLesson(m, chapters) {
   var libs = [];
   chapters.forEach(function (x) {
     x.libs.forEach(function (l) {
-      if (l.kind !== "script" || libs.some(function (k) { return k.src === l.src; })) return;
+      if (l.kind !== "script" || l.lazy || libs.some(function (k) { return k.src === l.src; })) return;   /* on-demand entries stay CDN links */
       var code = embeddedLib(l.src);
       if (code !== null) libs.push({ src: l.src, code: code });
     });

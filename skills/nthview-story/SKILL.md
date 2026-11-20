@@ -18,11 +18,24 @@ landscape on phones. After each chapter it holds still for a "pause to
 think" prompt and the key takeaways; the end card recaps the whole story.
 It asks no questions: its only job is to explain well.
 
+Read aloud, it is told like a story: a narrator in a warm voice and every
+character in a voice of their own, with the device's best voices ranked
+and cast. An opt-in "Natural voice" runs a neural voice (Kokoro-82M) on the
+learner's device after a one-time download: about 330 MB where a graphics
+chip can run it (WebGPU, faster than speech), or about 98 MB otherwise
+(WASM, about as fast as speech). "Download as
+MP4" renders the whole story into a video file, with the captions and
+bubbles burned in and, with the natural voice, with sound.
+
 The output is one self-contained HTML file. It loads three.js r128 from
 cdnjs and two typefaces from Google Fonts, so it needs internet access the
 first time it opens (offline it shows an error panel; the fonts fall back).
-Progress (chapter, beat, speed, narration and auto-play settings) is saved in
-the browser and resumed on reopening; Restart erases it.
+Only when the learner asks for them does it load `mp4-muxer` (32 KB, from
+jsdelivr) to export, or `kokoro-js` (from jsdelivr) and the model weights
+(from huggingface.co) for the natural voice; offline, those features say
+so and the story plays on. Progress (chapter, beat, speed, narration,
+voice and auto-play settings) is saved in the browser and resumed on
+reopening; Restart erases it.
 
 ## When to use
 - A system or process whose parts can act: requests and servers, cells and
@@ -92,8 +105,13 @@ over and frames the camera.
   (`close-up` on a prop, `low` for menace or triumph, `crane-up` to pull back
   at a moment of consequence, `aerial` for the whole town).
 - **Caption** is the one idea of the beat in at most 22 words, plain and
-  concrete. `say` is optional, fuller narration read aloud instead of the
-  caption when the learner turns the voice on.
+  concrete, for the eye. **`say`** is the same idea for the ear, read aloud
+  instead of the caption (see "Write for the ear" below); give every beat
+  one. Add a `tone` (`calm`, `warm`, `urgent`, `wry`, `whisper`, `excited`,
+  `serious`, `sad`) where the delivery should change, set `narrator` once
+  (`voice`, default `tone`), and give actors a `voice` (`female` or `male`)
+  so the cast sounds like a cast. Lines take a `tone` too; by default it
+  follows their `mood`.
 - **Chapters** end with a `takeaway`: an optional `think` prompt (a pause
   for reflection, never a question to answer) and two to four `points`.
   End the story with `recap` and list `sources`.
@@ -146,8 +164,9 @@ beyond that template, so the result is identical.
 ### 5. Deliver
 Hand the user the single file. Say that it needs internet access the first
 time it opens (three.js and fonts load from public CDNs), that on a phone
-"Play full screen" turns it sideways, and that the voice button reads it
-aloud with the device's own voice. Build no other view unless asked.
+"Play full screen" turns it sideways, that the voice button reads it
+aloud (Settings offers the optional natural voice, a one-time download of
+about 98 or 330 MB), and that Settings or the end card offers "Download as MP4". Build no other view unless asked.
 
 ## Content guidance
 - **One idea per beat.** A beat shows one change and says it in one
@@ -178,6 +197,27 @@ aloud with the device's own voice. Build no other view unless asked.
 - **Use example names.** Fictional people and `.example` domains; never real
   companies or private details.
 
+### Write for the ear
+Captions are read; `say` is heard once, at the speed of speech, so write
+it the way a good storyteller talks:
+- **Short sentences**, one breath each (under about 15 words, never over
+  25). One idea per sentence.
+- **Contractions and plain words**: "it's", "doesn't", "here's"; spell out
+  numbers as spoken ("twenty-four hours").
+- **Talk to the listener**: "you", "notice something", "look again".
+- **A hook, then the point**: start with the surprise or the question, end
+  on the word that matters ("...and the password was right").
+- **Let pauses land**: `...` holds a beat before a reveal; a question mark
+  lifts the voice.
+- **Don't read the caption out**: the ear and the eye get the same idea,
+  not the same words.
+
+Before (a caption read aloud): "With a password alone, the bank can't tell
+Sam from Mallory. The account opens."
+
+After (for the ear): "The password matches. The door opens. Why wouldn't
+it?"
+
 ## Common mistakes
 - Coordinates or positions in the data → there are none; use `with`, marks
   (`left`, `center`, `right`, `back-left`, `back-right`, `door`, `post`) and
@@ -188,6 +228,8 @@ aloud with the device's own voice. Build no other view unless asked.
 - Someone speaks or acts in a place they are not in → add them to `with`;
   the player brings them in anyway, with a warning.
 - Long captions → move the extra to `say`, or split the beat.
+- `say` that is just the caption again, or one long written sentence → rewrite
+  it for the ear (see above).
 - A chapter that ends without `takeaway` → add two to four points, and a
   `think` prompt where reflection helps.
 - Hand-editing the HTML → change the JSON, re-validate, rebuild.
@@ -196,5 +238,5 @@ aloud with the device's own voice. Build no other view unless asked.
 - `references/schema.md` — the JSON format (single source of truth)
 - `references/complete-example.md` — a complete valid example; open only when needed
 - `scripts/validate.js` — `NthView.validate(data)`, Node CLI and browser; run it, never read it
-- `assets/view.js` — `NthView.build(container, data)`; three.js and fonts declared in `NthView.libs`; the build tool copies it, never read it
+- `assets/view.js` — `NthView.build(container, data)`; three.js and fonts declared in `NthView.libs`, plus the on-demand `mp4-muxer` and `kokoro-js`; the build tool copies it, never read it
 - `examples/example.html` — how a phishing email steals a password and how MFA and passkeys stop it, a working standalone sample built from the complete example

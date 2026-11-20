@@ -35,6 +35,10 @@ var REQUIRED_VIEW_FILES = [
   "examples/example.html"
 ];
 var FORBIDDEN_CALLS = /fetch\(|XMLHttpRequest|\bimport\b/;
+/* AGENTS.md §5.4 rule 8: the only allowed import is import(<entry>.src) of a declared module entry */
+var MODULE_IMPORT = /\bimport\(\s*[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*\.src\s*\)/g;
+/* §5.4 rule 9: model weights of a module entry, declared on its `weights:` line */
+var WEIGHT_HOSTS = ["huggingface.co"];
 var CDN_HOSTS = ["cdnjs.cloudflare.com", "cdn.jsdelivr.net", "unpkg.com", "fonts.googleapis.com", "fonts.gstatic.com"];
 var URL_RE = /https?:\/\/[a-z0-9.-]+\.[a-z]{2,}[^\s"'`)<>]*/gi;
 var ATTR_RE = /(?:src|href)=["']([^"']+)["']|url\(["']?([^"')]+)["']?\)/g;
@@ -100,12 +104,20 @@ if (fs.existsSync(skillsDir)) {
         if (!fs.existsSync(p)) return;
         var text = fs.readFileSync(p, "utf8");
         if (f === "examples/example.html") text = stripDataBlock(text);
+        var declaresModule = /kind:\s*"module"/.test(text);
         text.split(/\r?\n/).forEach(function (line, i) {
           var where = rel(p) + ":" + (i + 1), m;
-          if (FORBIDDEN_CALLS.test(line)) error(where, "forbidden runtime call or import: " + line.trim().slice(0, 80));
+          var probe = line;
+          if (MODULE_IMPORT.test(line)) {
+            if (!declaresModule) error(where, "dynamic import without a kind: \"module\" entry in NthView.libs: " + line.trim().slice(0, 80));
+            probe = line.replace(MODULE_IMPORT, "");
+          }
+          MODULE_IMPORT.lastIndex = 0;
+          if (FORBIDDEN_CALLS.test(probe)) error(where, "forbidden runtime call or import: " + line.trim().slice(0, 80));
           URL_RE.lastIndex = 0;
           while ((m = URL_RE.exec(line))) {
-            if (!allowedUrl(m[0])) error(where, "URL is not on an allowed CDN host (" + CDN_HOSTS.join(", ") + "): " + m[0]);
+            var weight = /\bweights:/.test(line) && WEIGHT_HOSTS.indexOf((m[0].match(/^https:\/\/([^\/]+)\//) || [])[1]) !== -1;
+            if (!allowedUrl(m[0]) && !weight) error(where, "URL is not on an allowed CDN host (" + CDN_HOSTS.join(", ") + "): " + m[0]);
           }
           if (f === "examples/example.html") {
             ATTR_RE.lastIndex = 0;

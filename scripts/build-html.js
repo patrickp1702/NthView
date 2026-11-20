@@ -56,7 +56,7 @@ function assemble(viewDir, data, opts) {
   global.NthView = { validate: validateApi.validate };
   require(view.files.view);
   var libs = (global.NthView && global.NthView.libs) || [];
-  var libTags = libs.map(function (l) {
+  var libTags = libs.filter(function (l) { return !l.lazy && l.kind !== "module"; }).map(function (l) {   /* on-demand entries get no tag (AGENTS.md §5.4) */
     if (l.kind === "style") return '  <link rel="stylesheet" href="' + l.href + '">';
     return '  <script src="' + l.src + '"></script>';
   }).join("\n");
