@@ -68,13 +68,14 @@ import, read or depend on another view folder.
 
 ### What exists today
 
-Sixteen views live under `skills/` and are listed in `registry.js` and the
+Seventeen views live under `skills/` and are listed in `registry.js` and the
 gallery: `nthview-island-quest`, `nthview-scenario-quiz`,
 `nthview-explorable`, `nthview-detective`, `nthview-concept-map`,
 `nthview-zoom-map`, `nthview-courier`, `nthview-temple-run`,
 `nthview-sequence`, `nthview-highlights`, `nthview-hunter`,
 `nthview-dataflow`, `nthview-mechanism`, `nthview-timeline`,
-`nthview-compare`, `nthview-code-walkthrough`, plus the parent skill `nthview`
+`nthview-compare`, `nthview-code-walkthrough`, `nthview-story`, plus the parent
+skill `nthview`
 (§10). New views are added one at a time following §11.
 
 ---
