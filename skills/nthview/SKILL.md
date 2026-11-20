@@ -116,12 +116,13 @@ Minimal guidance only; each view's `SKILL.md` has the detail.
 | A protocol, handshake, workflow or any exchange between parties, step by step | Sequence | Dataflow |
 | A whole protocol, API or process explained topic by topic with real payloads, diagrams and version history | Dataflow | Sequence |
 | Rules that change quantities over time (rate limits, lockouts, decay, queues, budgets), watched tick by tick across scenarios | Mechanism | Explorable Lab |
+| A function, snippet, bug or fix to read line by line, with tracing and code questions | Code Walkthrough | Zoom Map |
 
 Skill names: `nthview-concept-map`, `nthview-explorable`,
 `nthview-scenario-quiz`, `nthview-detective`, `nthview-island-quest`,
 `nthview-zoom-map`, `nthview-courier`, `nthview-temple-run`,
 `nthview-sequence`, `nthview-highlights`, `nthview-hunter`, `nthview-dataflow`,
-`nthview-mechanism`.
+`nthview-mechanism`, `nthview-code-walkthrough`.
 
 Views that have a `strictMode` (Temple Run, Hunter) keep it off by default; turn it
 on only when the user says quiz, test, exam, evaluate or grade.
@@ -156,4 +157,4 @@ on only when the user says quiz, test, exam, evaluate or grade.
 
 ## Files
 - `references/lesson-format.md` — the `lesson.json` format, folder layout and build commands
-- `../nthview-concept-map/SKILL.md`, `../nthview-explorable/SKILL.md`, `../nthview-scenario-quiz/SKILL.md`, `../nthview-detective/SKILL.md`, `../nthview-island-quest/SKILL.md`, `../nthview-zoom-map/SKILL.md`, `../nthview-courier/SKILL.md`, `../nthview-temple-run/SKILL.md`, `../nthview-sequence/SKILL.md`, `../nthview-highlights/SKILL.md`, `../nthview-hunter/SKILL.md`, `../nthview-dataflow/SKILL.md`, `../nthview-mechanism/SKILL.md` — the view skills this one hands off to
+- `../nthview-concept-map/SKILL.md`, `../nthview-explorable/SKILL.md`, `../nthview-scenario-quiz/SKILL.md`, `../nthview-detective/SKILL.md`, `../nthview-island-quest/SKILL.md`, `../nthview-zoom-map/SKILL.md`, `../nthview-courier/SKILL.md`, `../nthview-temple-run/SKILL.md`, `../nthview-sequence/SKILL.md`, `../nthview-highlights/SKILL.md`, `../nthview-hunter/SKILL.md`, `../nthview-dataflow/SKILL.md`, `../nthview-mechanism/SKILL.md`, `../nthview-code-walkthrough/SKILL.md` — the view skills this one hands off to

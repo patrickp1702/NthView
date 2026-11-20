@@ -77,6 +77,7 @@ One concept, many dimensions, one view at a time.
   chapters move the clock as you scroll, and scenarios, parameters and a "what is
   calculated now" view show how it behaves over time.
   Demo: `skills/nthview-mechanism/examples/example.html`.
+- **Code Walkthrough** (`skills/nthview-code-walkthrough`) — read real code line by line: focused lines, notes, subgoals and a value trace, with tap-the-line, predict, fill-the-blank, ordering and choice questions; the demo walks through Heartbleed and its fix. Demo: `skills/nthview-code-walkthrough/examples/example.html`.
 
 Open `index.html` for the gallery of all views, or visit the hosted copy at
 https://patrickp1702.github.io/NthView/ (served by GitHub Pages straight from
