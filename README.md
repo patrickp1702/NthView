@@ -77,6 +77,10 @@ One concept, many dimensions, one view at a time.
   chapters move the clock as you scroll, and scenarios, parameters and a "what is
   calculated now" view show how it behaves over time.
   Demo: `skills/nthview-mechanism/examples/example.html`.
+- **Timeline** (`skills/nthview-timeline`) — a dated story on one vertical
+  line: events, eras, lanes such as attacker and defender, cause and effect
+  links and the time between events, with six kinds of question mixed in,
+  each explained. Demo: `skills/nthview-timeline/examples/example.html`.
 
 Open `index.html` for the gallery of all views, or visit the hosted copy at
 https://patrickp1702.github.io/NthView/ (served by GitHub Pages straight from

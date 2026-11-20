@@ -48,8 +48,9 @@ Do not use when:
 - The content is a flat list of facts or definitions (a quiz or flashcard
   view fits better)
 - It is mainly about judgement calls in situations (use `nthview-scenario-quiz`)
-- It is one linear story or a single process with nothing nested (a timeline
-  or step view fits better)
+- It is one linear story or a single process with nothing nested
+  (`nthview-timeline` for a dated story, `nthview-sequence` for steps between
+  parties)
 - The meaning lives in a web of causal relations rather than in containment
   (use `nthview-concept-map`)
 - There are fewer than about eight meaningful parts: the overview would show
