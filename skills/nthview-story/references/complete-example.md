@@ -1,6 +1,6 @@
 # Story complete example
 
-A complete, valid object that exercises the schema: five chapters on how a phishing email steals a password and how multi-factor authentication, and then a passkey, stops it. It is the exact data in `examples/example.html`.
+A complete, valid object that exercises the schema: five chapters on how a phishing email steals a password and how multi-factor authentication, and then a passkey, stops it, with narration written for the ear. It is the exact data in `examples/example.html`.
 
 ```json
 {
@@ -11,6 +11,10 @@ A complete, valid object that exercises the schema: five chapters on how a phish
   "audience": "Anyone with an email or bank account",
   "lang": "en",
   "world": "day",
+  "narrator": {
+    "voice": "female",
+    "tone": "warm"
+  },
   "pace": "chapter",
   "cast": [
     {
@@ -18,14 +22,16 @@ A complete, valid object that exercises the schema: five chapters on how a phish
       "name": "Sam",
       "role": "the account owner",
       "preset": "citizen",
-      "stands": "You, or anyone who signs in to email or a bank online"
+      "stands": "You, or anyone who signs in to email or a bank online",
+      "voice": "female"
     },
     {
       "id": "pip",
       "name": "Pip",
       "role": "email delivery",
       "preset": "courier",
-      "stands": "The mail system: it delivers every message, honest or not"
+      "stands": "The mail system: it delivers every message, honest or not",
+      "voice": "male"
     },
     {
       "id": "mallory",
@@ -33,7 +39,8 @@ A complete, valid object that exercises the schema: five chapters on how a phish
       "role": "the phisher",
       "preset": "crook",
       "post": "fake",
-      "stands": "An attacker who builds a fake sign-in page to collect what people type"
+      "stands": "An attacker who builds a fake sign-in page to collect what people type",
+      "voice": "male"
     },
     {
       "id": "ward",
@@ -41,7 +48,8 @@ A complete, valid object that exercises the schema: five chapters on how a phish
       "role": "the bank's sign-in check",
       "preset": "guard",
       "post": "real",
-      "stands": "The real site's login: it checks the password and the second factor"
+      "stands": "The real site's login: it checks the password and the second factor",
+      "voice": "female"
     },
     {
       "id": "kiro",
@@ -49,7 +57,8 @@ A complete, valid object that exercises the schema: five chapters on how a phish
       "role": "a passkey",
       "preset": "robot",
       "color": "#5aa9e6",
-      "stands": "A passkey on Sam's phone: a key made for one website and no other"
+      "stands": "A passkey on Sam's phone: a key made for one website and no other",
+      "voice": "male"
     }
   ],
   "props": [
@@ -198,6 +207,7 @@ A complete, valid object that exercises the schema: five chapters on how a phish
           "shot": "establishing",
           "caption": "Meet Sam. Sam banks online, signing in with a password.",
           "say": "Meet Sam. Like most of us, Sam banks online and signs in with a password.",
+          "tone": "warm",
           "do": [
             {
               "act": "react",
@@ -212,6 +222,8 @@ A complete, valid object that exercises the schema: five chapters on how a phish
             "pip"
           ],
           "caption": "An email arrives. It looks like it comes from Sam's bank.",
+          "say": "One morning, an email lands. It looks like it's from Sam's bank.",
+          "tone": "warm",
           "lines": [
             {
               "who": "pip",
@@ -235,6 +247,8 @@ A complete, valid object that exercises the schema: five chapters on how a phish
         },
         {
           "caption": "It threatens to close the account and gives a deadline. Pressure makes people skip checks.",
+          "say": "Your account is locked. Fix it in twenty-four hours... or lose it. That's the hook. Panic makes you skip the checks.",
+          "tone": "urgent",
           "do": [
             {
               "act": "open",
@@ -270,6 +284,7 @@ A complete, valid object that exercises the schema: five chapters on how a phish
           ],
           "caption": "Three red flags: a threat, a rush, and a link that isn't quite the bank's address.",
           "say": "Slow down and count the red flags. A threat. A rush. And a link that isn't quite the bank's address.",
+          "tone": "calm",
           "do": [
             {
               "act": "set",
@@ -295,6 +310,8 @@ A complete, valid object that exercises the schema: five chapters on how a phish
         },
         {
           "caption": "Look closely: r-n-y-bank, not m-y-bank. Look-alike names are built to pass a quick glance.",
+          "say": "Look again. It's r, n, y bank. Not m, y bank. Squint, and the r and the n become an m. That's the trick.",
+          "tone": "wry",
           "do": [
             {
               "act": "point",
@@ -334,11 +351,14 @@ A complete, valid object that exercises the schema: five chapters on how a phish
           ],
           "shot": "establishing",
           "caption": "Sam clicks the link anyway. The page looks exactly like the bank's sign-in.",
+          "say": "Sam clicks anyway. And here's the thing... the page looks exactly like the bank's.",
+          "tone": "serious",
           "lines": [
             {
               "who": "mallory",
               "text": "Welcome back! Just sign in as usual.",
-              "mood": "smug"
+              "mood": "smug",
+              "tone": "wry"
             }
           ],
           "do": [
@@ -354,6 +374,8 @@ A complete, valid object that exercises the schema: five chapters on how a phish
         },
         {
           "caption": "Sam types the password. A copy lands with Mallory, who runs the fake site.",
+          "say": "Sam types the password. And a copy lands right in Mallory's hands.",
+          "tone": "serious",
           "do": [
             {
               "act": "show",
@@ -380,6 +402,8 @@ A complete, valid object that exercises the schema: five chapters on how a phish
             "mallory"
           ],
           "caption": "Mallory takes the password to the real bank and signs in as Sam.",
+          "say": "Mallory walks it straight over to the real bank. And signs in as Sam.",
+          "tone": "serious",
           "do": [
             {
               "act": "walk",
@@ -401,6 +425,8 @@ A complete, valid object that exercises the schema: five chapters on how a phish
         },
         {
           "caption": "With a password alone, the bank can't tell Sam from Mallory. The account opens.",
+          "say": "The password matches. The door opens. Why wouldn't it?",
+          "tone": "wry",
           "do": [
             {
               "act": "open",
@@ -438,6 +464,8 @@ A complete, valid object that exercises the schema: five chapters on how a phish
             "rule"
           ],
           "caption": "The bank did nothing wrong. It checked the password, and the password was right.",
+          "say": "Notice something. The bank didn't make a mistake. It checked the password... and the password was right.",
+          "tone": "calm",
           "focus": "rule",
           "shot": "medium",
           "do": [
@@ -469,6 +497,8 @@ A complete, valid object that exercises the schema: five chapters on how a phish
             "account"
           ],
           "caption": "Sam spots the break-in. The bank locks Mallory out and Sam picks a new password.",
+          "say": "Sam spots the break-in. The bank locks Mallory out, and Sam picks a new password.",
+          "tone": "warm",
           "do": [
             {
               "act": "close",
@@ -487,6 +517,7 @@ A complete, valid object that exercises the schema: five chapters on how a phish
           "shot": "establishing",
           "caption": "Sam turns on multi-factor authentication: sign-in now also needs a code from an app.",
           "say": "This time Sam turns on multi-factor authentication, or MFA. Signing in now also needs a code from an app on Sam's phone.",
+          "tone": "warm",
           "do": [
             {
               "act": "take",
@@ -507,6 +538,8 @@ A complete, valid object that exercises the schema: five chapters on how a phish
             "timer"
           ],
           "caption": "The code changes every 30 seconds and lives only on Sam's phone.",
+          "say": "The code changes every thirty seconds. And it only lives on that phone.",
+          "tone": "calm",
           "focus": [
             "phone",
             "timer"
@@ -528,6 +561,8 @@ A complete, valid object that exercises the schema: five chapters on how a phish
             "account"
           ],
           "caption": "Mallory phishes the new password the same way. But now the bank asks for the code too.",
+          "say": "Mallory phishes the new password. Same trick as before. But now the bank wants the code too.",
+          "tone": "serious",
           "do": [
             {
               "act": "walk",
@@ -539,7 +574,8 @@ A complete, valid object that exercises the schema: five chapters on how a phish
             {
               "who": "ward",
               "text": "Password's fine. Now the code from your phone?",
-              "mood": "suspicious"
+              "mood": "suspicious",
+              "tone": "serious"
             },
             {
               "who": "mallory",
@@ -555,6 +591,8 @@ A complete, valid object that exercises the schema: five chapters on how a phish
         },
         {
           "caption": "No phone, no code, no entry. A stolen password alone is no longer enough.",
+          "say": "No phone. No code. No way in.",
+          "tone": "excited",
           "do": [
             {
               "act": "reject",
@@ -572,6 +610,8 @@ A complete, valid object that exercises the schema: five chapters on how a phish
         },
         {
           "caption": "Attacks that reuse leaked or guessed passwords, even by the thousand, stop here.",
+          "say": "And that's a big deal. Attackers who reuse leaked or guessed passwords, even thousands at a time... stop right here.",
+          "tone": "excited",
           "do": [
             {
               "act": "crowd",
@@ -618,6 +658,7 @@ A complete, valid object that exercises the schema: five chapters on how a phish
           "shot": "establishing",
           "caption": "Phishers adapt. Mallory's new fake site forwards everything to the real bank, live.",
           "say": "But phishers adapt. Mallory's new fake site forwards everything to the real bank as it happens. This is called an adversary-in-the-middle attack.",
+          "tone": "serious",
           "do": [
             {
               "act": "link",
@@ -631,7 +672,8 @@ A complete, valid object that exercises the schema: five chapters on how a phish
             {
               "who": "mallory",
               "text": "Let them type. I'll pass it all along.",
-              "mood": "smug"
+              "mood": "smug",
+              "tone": "wry"
             }
           ]
         },
@@ -641,6 +683,8 @@ A complete, valid object that exercises the schema: five chapters on how a phish
             "sam"
           ],
           "caption": "Sam signs in on the fake site. It asks for the password, then the code, just like the real one.",
+          "say": "Sam signs in. The password... then the code from the phone. Just like always.",
+          "tone": "warm",
           "do": [
             {
               "act": "set",
@@ -674,6 +718,8 @@ A complete, valid object that exercises the schema: five chapters on how a phish
             "timer"
           ],
           "caption": "Mallory replays both at the real bank within seconds, while the code is still valid.",
+          "say": "Mallory replays both at the real bank, within seconds. The code's still fresh. So it works.",
+          "tone": "urgent",
           "do": [
             {
               "act": "walk",
@@ -701,6 +747,8 @@ A complete, valid object that exercises the schema: five chapters on how a phish
         },
         {
           "caption": "The bank hands back a session cookie. Mallory is now signed in as Sam, MFA and all.",
+          "say": "The bank hands back a session cookie. That's a pass that says, you're signed in. Now Mallory is Sam... MFA and all.",
+          "tone": "serious",
           "do": [
             {
               "act": "show",
@@ -733,6 +781,7 @@ A complete, valid object that exercises the schema: five chapters on how a phish
           ],
           "caption": "A typed code can be typed anywhere, including on a fake site. Push prompts can be relayed too.",
           "say": "A code you type can be typed anywhere, including on a fake site. Approve-or-deny push prompts can be relayed the same way, so standards such as NIST's don't count either as phishing-resistant.",
+          "tone": "calm",
           "focus": "nist",
           "shot": "medium",
           "do": [
@@ -765,6 +814,8 @@ A complete, valid object that exercises the schema: five chapters on how a phish
           ],
           "shot": "establishing",
           "caption": "Sam switches to a passkey: a key kept on the phone and made for mybank.example only.",
+          "say": "So Sam tries something different. A passkey. It lives on the phone... and it's made for one site only.",
+          "tone": "warm",
           "lines": [
             {
               "who": "kiro",
@@ -801,6 +852,8 @@ A complete, valid object that exercises the schema: five chapters on how a phish
             "mallory"
           ],
           "caption": "On the fake site the browser checks the address. No passkey matches, so nothing is offered.",
+          "say": "Back on the fake site, the browser checks the address itself. No match? Then there's simply nothing to hand over.",
+          "tone": "wry",
           "do": [
             {
               "act": "walk",
@@ -817,7 +870,8 @@ A complete, valid object that exercises the schema: five chapters on how a phish
             {
               "who": "kiro",
               "text": "You're rnybank, not mybank. I have nothing for you.",
-              "mood": "suspicious"
+              "mood": "suspicious",
+              "tone": "serious"
             },
             {
               "who": "mallory",
@@ -839,6 +893,8 @@ A complete, valid object that exercises the schema: five chapters on how a phish
             "webauthn"
           ],
           "caption": "In code: the site names itself, and the browser, not the person, enforces the match.",
+          "say": "Here's what that looks like in code. The site says who it is. And the browser, not you, makes sure that's true.",
+          "tone": "calm",
           "focus": "webauthn",
           "shot": "medium",
           "hold": 2
@@ -852,6 +908,8 @@ A complete, valid object that exercises the schema: five chapters on how a phish
             "account"
           ],
           "caption": "On the real site the passkey signs a fresh challenge. Sam is in, with no code to type.",
+          "say": "On the real site, the passkey signs a fresh challenge. Sam's in. No code to type.",
+          "tone": "excited",
           "do": [
             {
               "act": "walk",
@@ -880,6 +938,8 @@ A complete, valid object that exercises the schema: five chapters on how a phish
             "relay"
           ],
           "caption": "Mallory's relay gets nothing reusable: the answer is tied to the real site and to this one sign-in.",
+          "say": "And Mallory's relay? It gets nothing it can reuse. The answer only works for the real site, and only this once.",
+          "tone": "wry",
           "do": [
             {
               "act": "set",
@@ -905,6 +965,8 @@ A complete, valid object that exercises the schema: five chapters on how a phish
             "shield"
           ],
           "caption": "That is phishing-resistant MFA: passkeys and security keys, built on FIDO2 and WebAuthn.",
+          "say": "That's phishing-resistant MFA. Passkeys and security keys, built on FIDO2 and WebAuthn.",
+          "tone": "warm",
           "do": [
             {
               "act": "show",

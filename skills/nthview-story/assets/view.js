@@ -178,6 +178,14 @@
     ".nthview-full.nthview-idle .nthview-bar{opacity:0;pointer-events:none}",
     ".nthview-full.nthview-idle .nthview-stage{cursor:none}",
     ".nthview-full .nthview-below{width:100%;padding:0 .6rem;color:#fff}",
+    ".nthview-vchip{top:auto;bottom:calc(var(--u)*17)}",
+    ".nthview-vchip[hidden]{display:none}",
+    ".nthview-vprog,.nthview-eprog{display:block;width:100%;height:10px;margin:.5rem 0 .2rem;accent-color:var(--nv-accent)}",
+    ".nthview-vprog[hidden],.nthview-eprog[hidden]{display:none}",
+    ".nthview-set .nthview-row{margin:.2rem 0 .8rem}",
+    ".nthview-exporting *{transition:none!important;animation:none!important}",
+    ".nthview-exporting .nthview-stage .nthview-row,.nthview-exporting .nthview-stage .nthview-hint,.nthview-exporting .nthview-stage details,.nthview-exporting .nthview-bigplay,.nthview-exporting .nthview-resume{display:none!important}",
+    ".nthview-exporting .nthview-cap{bottom:calc(var(--u)*3.5)!important}",
     "@media (prefers-reduced-motion:reduce){.nthview-story *{transition:none!important;animation:none!important}}"
   ].join("\n");
 
@@ -251,7 +259,8 @@
     pin: ["M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11zM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z", 0],
     phone: ["M8 2.5h8a1.5 1.5 0 0 1 1.5 1.5v16a1.5 1.5 0 0 1-1.5 1.5H8A1.5 1.5 0 0 1 6.5 20V4A1.5 1.5 0 0 1 8 2.5zM11 18.5h2", 0],
     turn: ["M3 12a9 9 0 0 1 15.5-6.2M21 12a9 9 0 0 1-15.5 6.2M18.5 2v4h-4M5.5 22v-4h4", 0],
-    close: ["M6 6l12 12M18 6L6 18", 0]
+    close: ["M6 6l12 12M18 6L6 18", 0],
+    download: ["M12 4v11M7 10l5 5 5-5M5 20h14", 0]
   };
   function icon(name) {
     var spec = ICONS[name], s = root.document.createElementNS(SVGNS, "svg"), p = root.document.createElementNS(SVGNS, "path");
@@ -642,7 +651,7 @@
       (b.lines || []).forEach(function (ln) {
         LT = enter(ln.who, LT);
         var d = 1.3 + .34 * words(ln.text);
-        lines.push({ who: ln.who, text: ln.text, t0: LT, t1: LT + d });
+        lines.push({ who: ln.who, text: ln.text, t0: LT, t1: LT + d, tone: ln.tone, mood: ln.mood });
         if (ln.mood) { segs.push({ k: "md", id: ln.who, m: ln.mood, t0: LT, t1: LT }); A(ln.who).mood = ln.mood; }
         subj(ln.who);
         LT += d + .25;
@@ -1213,6 +1222,266 @@
       linkMesh: linkMesh, linkPool: linkPool, confetti: confetti, tool: tool, G: G, toon: toon };
   }
 
+  /* ---------- voices: the device's own (ranked and cast) or an opt-in neural voice ---------- */
+  var TONE_SET = {   /* rate, pitch, loudness, pause factor */
+    calm: [.93, 1, 1, 1.25], warm: [.97, 1.02, 1, 1.05], urgent: [1.1, 1.04, 1, .7], wry: [.98, .97, 1, 1.15],
+    whisper: [.9, .96, .55, 1.2], excited: [1.1, 1.08, 1, .8], serious: [.92, .95, 1, 1.15], sad: [.88, .93, .9, 1.35]
+  };
+  var MOOD_TONE = { happy: "excited", sad: "sad", worried: "urgent", scared: "whisper", smug: "wry", suspicious: "serious", surprised: "excited", angry: "urgent", thinking: "calm" };
+  var FEMALE = /\b(google us english|samantha|karen|moira|tessa|veena|fiona|victoria|allison|ava|susan|zoe|kate|serena|nicky|joelle|noelle|evelyn|catherine|ellen|aria|jenny|michelle|libby|sonia|natasha|clara|emma|ashley|cora|elizabeth|jane|nancy|sara|sarah|hazel|zira|heera|linda|monica|paulina|amelie|anna|alice|female|woman|ana|emily|isabella|olivia|sophia|maisie|molly|hannah|shelley|sandy|grandma|flo|kathy|princess|vicki|agnes)\b/i;
+  var MALE = /\b(daniel|alex|aaron|arthur|fred|gordon|lee|oliver|rishi|thomas|tom|evan|nathan|reed|rocko|guy|davis|ryan|christopher|eric|roger|steffan|andrew|brian|jason|tony|william|liam|mark|david|george|james|richard|sean|jorge|diego|luca|xander|male|man|grandpa|eddy|ralph|junior|albert|bruce|jacques|thierry)\b/i;
+  var NOVELTY = /^(albert|bad news|bahh|bells|boing|bubbles|cellos|good news|jester|organ|superstar|trinoids|whisper|wobble|zarvox|junior|ralph|fred|kathy|princess|deranged|hysterical|pipe organ|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley)\b/i;
+  /* Kokoro voices, best first by the model card's grades; the narrator takes the head of its list */
+  var KOKORO = { female: ["af_heart", "af_bella", "bf_emma", "af_nicole", "af_sarah", "af_kore", "af_aoede", "bf_isabella"],
+    male: ["am_michael", "am_fenrir", "am_puck", "bm_george", "bm_fable", "am_echo", "bm_lewis", "am_eric"] };
+  var KOKORO_MODEL = "onnx-community/Kokoro-82M-v1.0-ONNX";
+
+  /* phrases with the silence after each: sentence ends breathe, "..." holds longer */
+  function phrases(text) {
+    var out = [], re = /([^.!?…]+(?:\.\.\.|…|[.!?]+)?)\s*/g, m;
+    while ((m = re.exec(text))) {
+      var p = m[1].trim();
+      if (!p) continue;
+      var gap = /(\.\.\.|…)$/.test(p) ? .7 : /\?$/.test(p) ? .42 : /[.!]$/.test(p) ? .34 : .2;
+      out.push({ text: p.replace(/(\.\.\.|…)$/, ","), gap: gap });
+    }
+    if (out.length) out[out.length - 1].gap = 0;
+    return out;
+  }
+  function rankVoices(list, lang) {
+    var base = lang.split("-")[0], nav = ((root.navigator && root.navigator.language) || "").toLowerCase();
+    var scored = list.map(function (v) {
+      var l = (v.lang || "").toLowerCase().replace("_", "-"), n = v.name || "", s = 0;
+      if (l === lang) s += 30; else if (l.split("-")[0] === base) s += 20; else s -= 100;
+      if (l === nav) s += 4; else if (lang === base && l === base + "-us") s += 2;   /* the reader's own accent, else the widest one */
+      if (/^(samantha|daniel|alex|ava|allison|susan|tom|serena|karen|moira|aria|jenny|guy|libby|sonia|ryan)\b/i.test(n.replace(/^(microsoft|google)\s+/i, ""))) s += 3;
+      if (/online \(natural\)|natural/i.test(n)) s += 12;
+      if (/neural/i.test(n)) s += 11;
+      if (/premium/i.test(n)) s += 10;
+      if (/enhanced/i.test(n)) s += 8;
+      if (/siri/i.test(n)) s += 7;
+      if (/^google/i.test(n)) s += 6;
+      if (/compact|espeak/i.test(n)) s -= 4;
+      if (NOVELTY.test(n.replace(/^microsoft\s+/i, ""))) s -= 200;
+      if (v["default"]) s += 1;
+      var g = FEMALE.test(n) ? "female" : MALE.test(n) ? "male" : "";
+      return { v: v, s: s, g: g };
+    }).filter(function (x) { return x.s > -50; });
+    scored.sort(function (a, b) { return b.s - a.s; });
+    return scored;
+  }
+
+  function makeVoice(data, actors, coarse, onStatus) {
+    var synth = root.speechSynthesis && root.SpeechSynthesisUtterance ? root.speechSynthesis : null;
+    var lang = (data.lang || "en").toLowerCase(), english = lang.split("-")[0] === "en";
+    var nar = data.narrator || {}, narGender = nar.voice || "female", narTone = nar.tone || "warm";
+    var V = { kind: "system", speed: 1, system: !!synth, english: english, status: "", progress: 0, ready: false, cached: false, names: {} };
+    var tok = 0, busyUntil = 0, pending = 0, lastWho = "", lastEnd = 0, timer = 0;
+    function now() { return (root.performance ? root.performance.now() : Date.now()) / 1000; }
+    function gendersFor() {   /* each actor's kind of voice: as written, else alternating, starting opposite the narrator */
+      var g = {}, k = 0;
+      actors.forEach(function (a) { g[a.id] = a.voice || ((k++ % 2 === 0) === (narGender === "female") ? "male" : "female"); });
+      return g;
+    }
+    /* --- the device's voices --- */
+    var cast = {}, sysList = [];
+    function castSystem() {
+      if (!synth) return;
+      var ranked = rankVoices(synth.getVoices() || [], lang), used = {}, gs = gendersFor();
+      sysList = ranked;
+      if (!ranked.length) return;
+      function pick(g, avoid) {
+        var best = null;
+        ranked.forEach(function (r) { if (!best && !used[r.v.name] && (r.g === g || !r.g) && r.v !== avoid) best = r; });
+        if (!best) ranked.forEach(function (r) { if (!best && (r.g === g || !r.g)) best = r; });
+        return best || ranked[0];
+      }
+      var n = pick(narGender); used[n.v.name] = 1; cast[""] = { v: n.v, pitch: 1 };
+      actors.forEach(function (a, i) {
+        var r = pick(gs[a.id], n.v); used[r.v.name] = 1;
+        var reuse = Object.keys(cast).some(function (k) { return cast[k].v === r.v; });
+        cast[a.id] = { v: r.v, pitch: Math.max(.6, Math.min(1.5, (PRESETS[a.preset].pitch || 1) * (reuse ? 1 + ((i % 3) - 1) * .08 : 1))) };
+      });
+      V.names = {}; Object.keys(cast).forEach(function (k) { V.names[k] = cast[k].v.name; });
+    }
+    if (synth) { castSystem(); try { synth.onvoiceschanged = castSystem; } catch (e) {} }
+
+    function sysSay(item, t) {
+      var c = cast[item.who || ""] || { v: null, pitch: 1 }, tn = TONE_SET[item.tone] || TONE_SET.warm, list = phrases(item.text), k = 0;
+      var my = ++tok;
+      busyUntil = now() + 3 + words(item.text) / 2.4 / (tn[0] * V.speed);
+      function next() {
+        if (my !== tok) return;
+        if (k >= list.length) { busyUntil = 0; return; }
+        var ph = list[k++], u = new root.SpeechSynthesisUtterance(ph.text);
+        if (c.v) { u.voice = c.v; u.lang = c.v.lang; } else u.lang = lang;
+        u.rate = Math.min(1.8, tn[0] * V.speed); u.pitch = Math.min(2, c.pitch * tn[1]); u.volume = tn[2];
+        u.onend = u.onerror = function () { if (my !== tok) return; timer = root.setTimeout(next, ph.gap * tn[3] * 1000 / V.speed); };
+        busyUntil = Math.max(busyUntil, now() + 2 + words(ph.text) / 2 / u.rate);
+        try { synth.speak(u); } catch (e) { busyUntil = 0; }
+      }
+      timer = root.setTimeout(next, t * 1000);
+    }
+
+    /* --- the neural voice: Kokoro in a worker, PCM played through Web Audio --- */
+    var worker = null, ctx = null, jobs = [], working = null, made = {}, kCast = {}, sources = [], loadP = null, gain = null;
+    function audio() {
+      if (!ctx) { var AC = root.AudioContext || root.webkitAudioContext; if (!AC) return null; ctx = new AC(); gain = ctx.createGain(); gain.connect(ctx.destination); }
+      if (ctx.state === "suspended") { try { ctx.resume(); } catch (e) {} }
+      return ctx;
+    }
+    V.unlock = function () { if (V.kind === "natural") audio(); };
+    function castKokoro() {
+      var gs = gendersFor(), used = {}, n = KOKORO[narGender][0];
+      used[n] = 1; kCast[""] = { voice: n, rate: 1 };
+      actors.forEach(function (a) {
+        var pool = KOKORO[gs[a.id]], v = null;
+        pool.forEach(function (x) { if (!v && !used[x]) v = x; });
+        v = v || pool[1]; used[v] = 1;
+        var p = PRESETS[a.preset].pitch || 1;
+        kCast[a.id] = { voice: v, rate: Math.max(.94, Math.min(1.07, 1 + (p - 1) * .15)) };
+      });
+    }
+    castKokoro();
+    V.kokoroCast = kCast;
+    V.lib = null;
+    V.gpu = null; V.useGpu = true;
+    V.sizeText = function () { return V.gpu && V.useGpu ? "about 330 MB" : "about 98 MB"; };
+    try {
+      if (root.navigator && root.navigator.gpu) root.navigator.gpu.requestAdapter().then(function (a) { V.gpu = !!a; onStatus(); }, function () { V.gpu = false; });
+      else V.gpu = false;
+    } catch (e) { V.gpu = false; }
+    V.checkCache = function (cb) {
+      try {
+        root.caches.open("transformers-cache").then(function (c) { return c.keys(); }).then(function (ks) {
+          var file = V.gpu && V.useGpu ? /\/onnx\/model\.onnx$/ : /\/onnx\/model_quantized\.onnx$/;
+          V.cached = ks.some(function (r) { return /Kokoro-82M/.test(r.url) && file.test(r.url); });
+          cb(V.cached);
+        }, function () { cb(false); });
+      } catch (e) { cb(false); }
+    };
+    V.load = function () {
+      if (loadP) return loadP;
+      loadP = new Promise(function (resolve, reject) {
+        if (!english) return reject(new Error("the natural voice speaks English only"));
+        if (!root.Worker || !root.Blob || !root.URL) return reject(new Error("this browser cannot run it"));
+        var files = {};
+        var code = [
+          "var tts = null;",
+          "onmessage = function (e) {",
+          "  var d = e.data;",
+          "  if (d.type === 'load') {",
+          "    import(d.src).then(function (m) {",
+          "      try { m.env.backends.onnx.logLevel = 'error'; } catch (e) {}",
+          "      return m.KokoroTTS.from_pretrained(d.model, { dtype: d.dtype, device: d.device, progress_callback: function (p) { postMessage({ type: 'progress', p: { file: p.file, loaded: p.loaded, total: p.total, status: p.status } }); } });",
+          "    }).then(function (t) { tts = t; postMessage({ type: 'ready' }); }, function (err) { postMessage({ type: 'fail', message: String(err && err.message || err) }); });",
+          "  } else if (d.type === 'gen') {",
+          "    tts.generate(d.text, { voice: d.voice, speed: d.speed }).then(function (a) {",
+          "      postMessage({ type: 'audio', id: d.id, pcm: a.audio, rate: a.sampling_rate }, [a.audio.buffer]);",
+          "    }, function (err) { postMessage({ type: 'error', id: d.id, message: String(err && err.message || err) }); });",
+          "  }",
+          "};"].join("\n");
+        try { worker = new root.Worker(root.URL.createObjectURL(new root.Blob([code], { type: "text/javascript" }))); }
+        catch (e) { return reject(e); }
+        worker.onerror = function (e) { reject(new Error(e.message || "the voice worker stopped")); };
+        worker.onmessage = function (e) {
+          var d = e.data;
+          if (d.type === "progress") {
+            if (d.p.file && d.p.total) files[d.p.file] = [d.p.loaded || 0, d.p.total];
+            var l = 0, tt = 0; Object.keys(files).forEach(function (f) { l += files[f][0]; tt += files[f][1]; });
+            V.progress = tt ? l / tt : 0; onStatus();
+          } else if (d.type === "ready") { V.ready = true; V.cached = true; V.progress = 1; onStatus(); resolve(); pump(); }
+          else if (d.type === "fail") reject(new Error(d.message));
+          else if (d.type === "audio" || d.type === "error") {
+            var j = working; working = null;
+            if (j) { if (d.type === "audio") j.done({ pcm: d.pcm, rate: d.rate }); else j.fail(new Error(d.message)); }
+            pump();
+          }
+        };
+        var g = V.gpu && V.useGpu;   /* the graphics chip runs fp32 about ten times faster than speech; WASM runs the small q8 model at about speech speed */
+        V.device = g ? "webgpu" : "wasm";
+        worker.postMessage({ type: "load", src: V.lib.src, model: KOKORO_MODEL, device: V.device, dtype: g ? "fp32" : "q8" });
+      });
+      loadP.then(null, function () { loadP = null; if (worker) { worker.terminate(); worker = null; } });
+      return loadP;
+    };
+    var batch = 0, order = 0;
+    function pump() {
+      if (working || !V.ready || !jobs.length) return;
+      jobs.sort(function (a, b) { return a.pri - b.pri; });
+      working = jobs.shift();
+      worker.postMessage({ type: "gen", id: 1, text: working.text, voice: working.voice, speed: working.speed });
+    }
+    /* one PCM clip per phrase, cached; urgent requests jump the queue */
+    function clip(text, who, tone, urgent) {   /* urgent: in this batch's order, ahead of everything queued before */
+      var c = kCast[who || ""] || kCast[""], tn = TONE_SET[tone] || TONE_SET.warm, speed = Math.round(tn[0] * V.speed * 100) / 100;
+      var key = c.voice + "|" + speed + "|" + text, pri = urgent ? -1e9 - batch * 1000 + (order++) : (order++);
+      if (made[key]) { if (made[key].job && pri < made[key].job.pri) made[key].job.pri = pri; return made[key].p; }
+      var job = { text: text, voice: c.voice, speed: speed, pri: pri };
+      var p = new Promise(function (res, rej) { job.done = res; job.fail = rej; });
+      made[key] = { p: p, job: job };
+      p.then(function () { made[key].job = null; }, function () { delete made[key]; });
+      jobs.push(job);
+      pump();
+      return p;
+    }
+    V.clip = clip;
+    function natSay(item, t) {
+      var my = ++tok, c = kCast[item.who || ""] || kCast[""], tn = TONE_SET[item.tone] || TONE_SET.warm, list = phrases(item.text);
+      pending++;
+      var ac = audio(); if (!ac) { pending--; return; }
+      var at = Math.max(ac.currentTime + .05, lastEnd) + t;
+      batch++; order = 0;
+      var ps = list.map(function (ph) { return clip(ph.text, item.who, item.tone, true); });
+      var k = 0;
+      function next() {
+        if (my !== tok) { pending = Math.max(0, pending - 1); return; }
+        if (k >= ps.length) { pending = Math.max(0, pending - 1); return; }
+        var ph = list[k], pr = ps[k++];
+        pr.then(function (a) {
+          if (my !== tok) { pending = Math.max(0, pending - 1); return; }
+          var buf = ac.createBuffer(1, a.pcm.length, a.rate); buf.copyToChannel ? buf.copyToChannel(a.pcm, 0) : buf.getChannelData(0).set(a.pcm);
+          var src = ac.createBufferSource(), g = ac.createGain(); src.buffer = buf; src.playbackRate.value = c.rate; g.gain.value = tn[2];
+          src.connect(g); g.connect(gain);
+          var start = Math.max(at, ac.currentTime + .02); src.start(start); sources.push(src);
+          at = start + a.pcm.length / a.rate / c.rate + ph.gap * tn[3] / V.speed; lastEnd = at;
+          next();
+        }, function () { next(); });
+      }
+      next();
+    }
+    /* --- the shared surface --- */
+    V.say = function (item) {
+      var t = item.who !== lastWho && lastWho !== null ? .35 : .1;
+      lastWho = item.who || "";
+      if (V.kind === "natural" && V.ready) natSay(item, t);
+      else if (synth) sysSay(item, t);
+    };
+    V.ahead = function (items) {
+      if (V.kind !== "natural" || !V.ready) return;
+      items.forEach(function (it) { phrases(it.text).forEach(function (ph) { clip(ph.text, it.who, it.tone, false); }); });
+    };
+    V.queued = function () { return jobs.length + (working ? 1 : 0); };
+    V.batch = function () { batch++; order = 0; };
+    V.busy = function () {
+      if (V.kind === "natural" && V.ready) return pending > 0 || (ctx && ctx.currentTime < lastEnd - .05);
+      if (busyUntil && now() > busyUntil) busyUntil = 0;
+      return busyUntil > 0;
+    };
+    V.hush = function () {
+      tok++; root.clearTimeout(timer); busyUntil = 0; pending = 0; lastWho = null;
+      if (synth) try { synth.cancel(); } catch (e) {}
+      sources.forEach(function (s) { try { s.stop(); } catch (e) {} }); sources = [];
+      if (ctx) lastEnd = ctx.currentTime;
+    };
+    V.narratorTone = narTone;
+    V.phrases = phrases;
+    V.TONE_SET = TONE_SET;
+    V.dispose = function () { V.hush(); if (worker) worker.terminate(); worker = null; if (ctx) try { ctx.close(); } catch (e) {} ctx = null; };
+    V.coarse = coarse;
+    return V;
+  }
+
   /* ---------- the player ---------- */
   var SPEEDS = [.75, 1, 1.25, 1.5];
   var PACES = ["chapter", "flow", "beat"];
@@ -1225,12 +1494,13 @@
     var C = compile(data), beats = C.beats, NB = beats.length, chapters = data.chapters;
     var mq = root.matchMedia ? root.matchMedia("(prefers-reduced-motion: reduce)") : null;
     var coarse = !!(root.matchMedia && root.matchMedia("(pointer: coarse)").matches);
-    var synth = root.speechSynthesis && root.SpeechSynthesisUtterance ? root.speechSynthesis : null;
     var st = { phase: "intro", i: 0, t: 0, playing: false, speed: 1, voice: false, pace: data.pace || "chapter", rm: !!(mq && mq.matches),
-      seen: [], done: false, wt: 0, wstage: "think", atEnd: false };
+      seen: [], done: false, wt: 0, wstage: "think", atEnd: false, voiceKind: "system" };
     if (saved) {
       if (SPEEDS.indexOf(saved.speed) !== -1) st.speed = saved.speed;
-      if (saved.voice === true && synth) st.voice = true;
+      if (saved.voice === true) st.voice = true;
+      if (typeof saved.gpu === "boolean") st.gpu = saved.gpu;
+      if (saved.voiceKind === "natural" || saved.voiceKind === "system") st.voiceKind = saved.voiceKind;
       if (PACES.indexOf(saved.pace) !== -1) st.pace = saved.pace;
       if (typeof saved.rm === "boolean") st.rm = saved.rm;
       if (Array.isArray(saved.seen)) st.seen = saved.seen.filter(function (n) { return typeof n === "number" && n >= 0 && n < NB && Math.floor(n) === n; });
@@ -1243,7 +1513,7 @@
     }
     var resumed = !!saved && st.phase !== "intro";
     function persist() {
-      saveState(key, { phase: st.phase, i: st.i, speed: st.speed, voice: st.voice, pace: st.pace, rm: st.rm, seen: st.seen, done: st.done });
+      saveState(key, { phase: st.phase, i: st.i, speed: st.speed, voice: st.voice, voiceKind: st.voiceKind, gpu: st.gpu, pace: st.pace, rm: st.rm, seen: st.seen, done: st.done });
     }
 
     /* ---------- DOM ---------- */
@@ -1848,36 +2118,59 @@
     }
 
     /* ---------- narration (optional, off by default) ---------- */
-    var voiceObj = null, speech = { tok: 0, busy: false, until: 0, cur: null, curDone: true, lines: {} };
-    function chooseVoice() {
-      if (!synth) return;
-      var vs = synth.getVoices() || [], lang = (data.lang || "en").toLowerCase(), base = lang.split("-")[0], best = null, bs = -1;
-      vs.forEach(function (v) {
-        var l = (v.lang || "").toLowerCase().replace("_", "-"), s = 0;
-        if (l === lang) s += 6; else if (l.split("-")[0] === base) s += 4; else return;
-        if (/natural|neural|premium|enhanced|google|samantha|daniel|serena|aria|jenny|libby|sonia/i.test(v.name)) s += 3;
-        if (v.localService) s += 1;
-        if (s > bs) { bs = s; best = v; }
-      });
-      voiceObj = best;
+    var speech = { lines: {}, last: null, cut: null };
+    var VO = makeVoice(data, data.cast, coarse, function () { voiceStatus(); });
+    VO.lib = (NthView.libs || []).filter(function (l) { return l.kind === "module"; })[0];
+    VO.speed = st.speed;
+    if (st.gpu === false) VO.useGpu = false;
+    if (st.voiceKind === "natural" && VO.english) VO.kind = "natural";
+    var synth = VO.system || VO.english ? true : null;
+    function itemsOf(i) {
+      var B = beats[i], out = [{ key: "n" + i, text: B.b.say || B.b.caption, who: "", tone: B.b.tone || VO.narratorTone }];
+      B.lines.forEach(function (ln, k) { out.push({ key: "l" + i + "-" + k, text: ln.text, who: ln.who, tone: ln.tone || MOOD_TONE[ln.mood] || "warm" }); });
+      return out;
     }
-    if (synth) { chooseVoice(); try { synth.onvoiceschanged = chooseVoice; } catch (e) {} }
-    function say(text, pitch) {
-      if (!synth || !text) return;
-      var tok = ++speech.tok, parts = text.match(/[^.!?]+[.!?]*\s*/g) || [text], rate = Math.min(1.7, .96 * st.speed);
-      speech.busy = true; speech.until = clock + words(text) / 2.5 / rate + 3; speech.cur = { text: text, pitch: pitch }; speech.curDone = false;
-      parts.forEach(function (p, k) {
-        var u = new root.SpeechSynthesisUtterance(p.trim());
-        if (voiceObj) u.voice = voiceObj;
-        u.lang = data.lang || "en"; u.rate = rate; u.pitch = pitch || 1;
-        if (k === parts.length - 1) u.onend = u.onerror = function () { if (speech.tok === tok) { speech.busy = false; speech.curDone = true; } };
-        try { synth.speak(u); } catch (e) { speech.busy = false; }
-      });
+    function wrapItems(ci) {
+      var tk = chapters[ci].takeaway; if (!tk) return [];
+      var o = [];
+      if (tk.think) o.push({ key: "t" + ci, text: "Pause to think. ... " + tk.think, who: "", tone: "calm" });
+      o.push({ key: "p" + ci, text: "Here's what to take away. ... " + tk.points.join(" ... "), who: "", tone: "calm" });
+      return o;
     }
-    function busy() { if (speech.busy && clock > speech.until) speech.busy = false; return st.voice && speech.busy; }
-    function hush() { speech.tok++; speech.busy = false; if (synth) try { synth.cancel(); } catch (e) {} }
-    function pitchOf(id) { return (PRESETS[ACT[id].a.preset].pitch || 1) * (1 + ((ACT[id].idx * 37) % 9 - 4) * .015); }
-    function speakBeat() { var B = beats[st.i]; speech.lines = {}; say(B.b.say || B.b.caption, 1); }
+    function endItems() { var rc = data.recap; return rc ? [{ key: "r", text: "So, to sum up. ... " + rc.points.join(" ... "), who: "", tone: "warm" }] : []; }
+    function say(item) { if (!st.voice) return; ensureNatural(); speech.last = item; VO.say(item); }
+    function busy() { if (!st.voice) return false; if (VO.kind === "natural" && !VO.ready && naturalLoading) return true; return VO.busy(); }
+    function hush() { speech.cut = busy() ? speech.last : null; VO.hush(); }
+    var aheadI = 0;
+    function speakBeat() { speech.lines = {}; var it = itemsOf(st.i); say(it[0]); VO.ahead(it.slice(1)); aheadI = st.i; keepAhead(); }
+    function keepAhead() {   /* the neural voice keeps a few beats generated ahead of the picture */
+      if (VO.kind !== "natural" || !VO.ready || !st.voice) return;
+      while (VO.queued() < 2 && aheadI < Math.min(NB - 1, st.i + 4)) {
+        aheadI++;
+        VO.ahead(itemsOf(aheadI).concat(lastOfChapter(aheadI - 1) ? wrapItems(beats[aheadI - 1].ci) : []));
+      }
+    }
+    var naturalLoading = false, naturalError = "", sampleNext = false;
+    function ensureNatural() {
+      if (VO.kind !== "natural" || VO.ready || naturalLoading) return;
+      if (!VO.lib) { naturalFail(new Error("no voice library is declared")); return; }
+      naturalLoading = true; naturalError = ""; voiceStatus();
+      VO.load().then(function () {
+        naturalLoading = false; voiceStatus();
+        root.setTimeout(function () { VO.cached = false; VO.checkCache(function (ok) { if (!ok) { naturalError = "Ready. This browser could not keep the voice files, so it downloads them again next time" + (VO.device === "webgpu" ? "; switching off the graphics chip uses the smaller 98 MB voice, which browsers keep more easily." : "."); voiceStatus(); } }); }, 4000); if (sampleNext && !st.playing) { sampleNext = false; say({ text: "This is the natural voice. And every character gets their own.", who: "", tone: "warm" }); } if (st.playing && st.phase === "beat" && !speech.lines.started) { VO.hush(); speakBeat(); } }, naturalFail);
+    }
+    function naturalFail(err) {
+      naturalLoading = false; naturalError = "The natural voice could not load (" + (err && err.message || err) + "). Using the device voice instead.";
+      VO.kind = "system"; st.voiceKind = "system"; persist(); voiceStatus();
+    }
+    var vchip = el("div", { class: "nthview-resume nthview-vchip", role: "status", hidden: "" });
+    stage.appendChild(vchip);
+    var voiceUI = null;
+    function voiceStatus() {
+      var txt = naturalLoading ? "Loading the natural voice… " + Math.round(VO.progress * 100) + "%" : "";
+      vchip.hidden = !txt || !st.voice; vchip.textContent = txt;
+      if (voiceUI) voiceUI();
+    }
 
     /* ---------- playback ---------- */
     function chapterOf(i) { return beats[i].ci; }
@@ -1885,7 +2178,7 @@
     function markSeen(i) { if (st.seen.indexOf(i) === -1) st.seen.push(i); }
     function gotoBeat(i, cut) {
       hush();
-      st.phase = "beat"; st.i = Math.max(0, Math.min(NB - 1, i)); st.t = 0; st.atEnd = false; speech.lines = {};
+      st.phase = "beat"; st.i = Math.max(0, Math.min(NB - 1, i)); st.t = 0; st.atEnd = false; speech.lines = {}; speech.cut = null;
       hideOverlay();
       startTransition(beats[st.i], cut);
       beatDom();
@@ -1907,14 +2200,14 @@
       var tk = chapters[beats[st.i].ci].takeaway;
       st.phase = "wrap"; st.wt = 0; st.wstage = tk.think ? "think" : "points";
       showWrap();
-      if (st.voice && st.playing) say(tk.think ? "Pause to think. " + tk.think : "Key takeaways. " + tk.points.join(" "), 1);
+      if (st.voice && st.playing) { var wi = wrapItems(beats[st.i].ci); say(wi[0]); VO.ahead(wi.slice(1)); }
       ui(); persist();
     }
     function revealPoints() {
       var tk = chapters[beats[st.i].ci].takeaway;
       st.wstage = "points"; st.wt = 0;
       showWrap();
-      if (st.voice) say("Key takeaways. " + tk.points.join(" "), 1);
+      if (st.voice) { var wi2 = wrapItems(beats[st.i].ci); say(wi2[wi2.length - 1]); }
       if (st.pace !== "flow") { st.playing = false; }
       ui(); persist();
     }
@@ -1928,7 +2221,7 @@
       markSeen(st.i);
       st.phase = "end"; st.playing = false; st.done = true; st.i = NB - 1;
       showEnd();
-      if (st.voice) { var rc = data.recap; if (rc) say((rc.title || "Key takeaways") + ". " + rc.points.join(" "), 1); }
+      if (st.voice && endItems().length) say(endItems()[0]);
       ui(); persist();
     }
     function play() {
@@ -1941,7 +2234,8 @@
       }
       if (st.atEnd) { st.playing = true; st.atEnd = false; var B = beats[st.i]; if (lastOfChapter(st.i) && !chapters[B.ci].takeaway && st.i === NB - 1) return enterEnd(); gotoBeat(st.i + 1, false); return; }
       st.playing = true;
-      if (st.voice) { if (!speech.curDone && speech.cur) say(speech.cur.text, speech.cur.pitch); else if (st.t < .3) speakBeat(); }
+      VO.unlock();
+      if (st.voice) { if (speech.cut) { var c2 = speech.cut; speech.cut = null; say(c2); } else if (st.t < .3) speakBeat(); }
       ui();
     }
     function pause() { st.playing = false; hush(); if (st.phase === "wrap" && st.wstage === "think") showWrap(); ui(); }
@@ -1971,8 +2265,9 @@
           for (var k = 0; k < B.lines.length; k++) if (!speech.lines[k] && B.lines[k].t0 > st.t - 1e-6) { gate = B.lines[k].t0; break; }
           if (nt >= gate) nt = Math.max(st.t, gate - .001);
         }
-        B.lines.forEach(function (ln, k) { if (!speech.lines[k] && nt >= ln.t0) { speech.lines[k] = 1; if (st.voice) say(ln.text, pitchOf(ln.who)); sr.textContent = ACT[ln.who].a.name + ": " + ln.text; } });
+        B.lines.forEach(function (ln, k) { if (!speech.lines[k] && nt >= ln.t0) { speech.lines[k] = 1; say(itemsOf(st.i)[k + 1]); sr.textContent = ACT[ln.who].a.name + ": " + ln.text; } });
         st.t = nt;
+        keepAhead();
         if (st.t >= B.dur && !busy()) endOfBeat();
       } else if (st.phase === "wrap") {
         var tk = chapters[beats[st.i].ci].takeaway;
@@ -2043,7 +2338,8 @@
       }
       kids.push(el("div", { class: "nthview-row" }, [
         cta("Watch again", "replay", function () { clearState(key); NthView.build(container, data); }),
-        cta("Chapters", "list", function (e) { openList(e.currentTarget); }, true), cta("Who's who", "cast", function (e) { openCast(e.currentTarget); }, true)]));
+        cta("Chapters", "list", function (e) { openList(e.currentTarget); }, true), cta("Who's who", "cast", function (e) { openCast(e.currentTarget); }, true),
+        cta("Download as MP4…", "download", function (e) { openExport(e.currentTarget); }, true)]));
       card(kids);
       sr.textContent = "The end. " + pts.join(" ");
     }
@@ -2058,6 +2354,7 @@
     }
     function closeDlg(resume) {
       if (dlg.hidden) return;
+      if (exporting) { exporting.cancel = true; return; }
       dlg.hidden = true;
       if (lastFocus && lastFocus.focus && doc.contains(lastFocus)) lastFocus.focus();
       if (resume !== false && resumeAfter) play();
@@ -2127,21 +2424,57 @@
         radio("nv-pace", "beat", st.pace, "Step by step", "Stops after every beat; press Play or → for the next one.", setPace)]);
       var f2 = el("fieldset", {}, [el("legend", { text: "Speed" })].concat(SPEEDS.map(function (s) { return radio("nv-speed", s, st.speed, s + "×", s === 1 ? "Normal" : "", setSpeed); })));
       var f3 = el("fieldset", {}, [el("legend", { text: "Sound and motion" }),
-        check(st.voice, "Read aloud", synth ? "Uses your device's own voice; the picture waits for the voice." : "This browser has no speech voice.", function (v) { setVoice(v); }, !synth),
         check(st.rm, "Reduce motion", "Cuts instead of camera moves; no drifting, bobbing or confetti.", function (v) { st.rm = v; persist(); })]);
       var keys = [["Space", "Play or pause"], ["← →", "Previous or next beat"], ["Shift + ← →", "Previous or next chapter"], ["R", "Replay this beat"], ["F", "Full screen"], ["V", "Read aloud on or off"], ["C", "Who's who"], ["T", "Chapters and transcript"], ["+ −", "Faster or slower"], ["Esc", "Close or leave full screen"]];
       var dl = el("dl", { class: "nthview-keys" });
       keys.forEach(function (k) { dl.appendChild(el("dt", {}, [el("kbd", { text: k[0] })])); dl.appendChild(el("dd", { text: k[1] })); });
       var f4 = el("fieldset", {}, [el("legend", { text: "Keyboard" }), dl]);
-      openDlg("Settings", el("div", { class: "nthview-set" }, [f1, f2, f3, f4]), opener);
+      openDlg("Settings", el("div", { class: "nthview-set" }, [exportRow(), voiceFieldset(), f1, f2, f3, f4]), opener);
     }
     function setPace(v) { st.pace = v; persist(); }
-    function setSpeed(v) { st.speed = v; bSpeed.textContent = String(v).replace(/^0/, "") + "×"; persist(); }
+    function setSpeed(v) { st.speed = v; VO.speed = v; bSpeed.textContent = String(v).replace(/^0/, "") + "×"; persist(); }
     function setVoice(v) {
       st.voice = !!v && !!synth;
-      if (st.voice) { chooseVoice(); if (st.playing && st.phase === "beat") speakBeat(); else say("Read aloud is on.", 1); }
-      else hush();
-      ui(); persist();
+      VO.unlock();
+      if (st.voice) { if (st.playing && st.phase === "beat") { VO.hush(); speakBeat(); } else say({ text: "Read aloud is on.", who: "", tone: "warm" }); }
+      else VO.hush();
+      voiceStatus(); ui(); persist();
+    }
+    function setVoiceKind(k) {
+      VO.hush(); sampleNext = k === "natural" && !VO.ready;
+      st.voiceKind = k; VO.kind = k; naturalError = "";
+      if (k === "natural") { st.voice = true; VO.unlock(); ensureNatural(); if (VO.ready) say({ text: "This is the natural voice. Each character gets their own.", who: "", tone: "warm" }); }
+      voiceStatus(); ui(); persist();
+    }
+    function voiceFieldset() {
+      var narName = VO.names[""] ? " (" + VO.names[""] + ")" : "";
+      function natNote() {
+        var size = VO.sizeText(); return !VO.english ? "Speaks English only, so it is not available for this story." : VO.ready ? "Loaded. Each character speaks with their own voice." : VO.cached ? "Already downloaded on this device; loads in a few seconds." : "A neural voice that runs on this device. Downloads " + size + " once, the first time, then works from the browser's cache." + (coarse ? " Heavy on a phone: slow to load and to speak." : ""); }
+      var bar = el("progress", { max: "1", value: String(VO.progress), class: "nthview-vprog" });
+      var stat = el("p", { class: "nthview-hint", role: "status" });
+      var f = el("fieldset", {}, [el("legend", { text: "Voice" }),
+        check(st.voice, "Read the story aloud", "The picture waits for the voice, and every character speaks.", function (v) { setVoice(v); }, !VO.system && !(VO.kind === "natural")),
+        radio("nv-vk", "system", st.voiceKind, "Device voice" + narName, VO.system ? "Built into this device. Nothing to download." : "This browser has no built-in voice.", setVoiceKind),
+        radio("nv-vk", "natural", st.voiceKind, "Natural voice (Kokoro)", natNote(), function (k) { setVoiceKind(k); }),
+        bar, stat]);
+      var gpuRow = check(VO.useGpu, "Use the graphics chip", "About ten times faster than speech, but a 330 MB download. Off: 98 MB, about as fast as speech, so the picture sometimes waits.", function (v) {
+        VO.useGpu = v; st.gpu = v; VO.cached = false; persist(); VO.checkCache(function () { if (voiceUI) voiceUI(); }); if (voiceUI) voiceUI();
+      }, VO.ready);
+      f.insertBefore(gpuRow, bar);
+      if (!VO.english) f.querySelectorAll("input[type=radio]")[1].disabled = true;
+      var noteEl = f.querySelectorAll("label small")[2];
+      voiceUI = function () {
+        if (!doc.contains(f) && f._live) { voiceUI = null; return; }
+        if (doc.contains(f)) f._live = true;
+        if (noteEl) noteEl.textContent = natNote();
+        Array.prototype.forEach.call(f.querySelectorAll("input[name=nv-vk]"), function (r) { r.checked = r.value === st.voiceKind; });
+        gpuRow.hidden = !VO.gpu || !VO.english; gpuRow.querySelector("input").disabled = VO.ready || naturalLoading;
+        bar.hidden = !naturalLoading; bar.value = VO.progress;
+        stat.textContent = naturalError || (naturalLoading ? "Downloading and starting the natural voice… " + Math.round(VO.progress * 100) + "%" : VO.ready && st.voiceKind === "natural" ? "Natural voice ready." : "");
+      };
+      voiceUI();
+      if (!VO.cached && VO.english) VO.checkCache(function () { if (voiceUI) voiceUI(); });
+      return f;
     }
     function trap(e) {
       var f = Array.prototype.filter.call(dlg.querySelectorAll("button,input,a[href],summary,[tabindex='0']"), function (n) { return !n.disabled && n.offsetParent !== null; });
@@ -2149,6 +2482,319 @@
       var i = f.indexOf(doc.activeElement);
       if (e.shiftKey && (i <= 0)) { e.preventDefault(); f[f.length - 1].focus(); }
       else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); f[0].focus(); }
+    }
+
+    /* ---------- download as MP4: rendered offline, frame by frame ---------- */
+    var exporting = null, exportSize = null;
+    function exportRow() {
+      var b = cta("Download as MP4…", "download", function () { openExport(b); }, true);
+      return el("div", { class: "nthview-row nthview-exprow" }, [b]);
+    }
+    function slug() { return (data.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60).replace(/-+$/, "")) || "story"; }
+    function storyMinutes() { return Math.max(1, Math.round(totalMin)); }
+    function openExport(opener) {
+      var webc = !!(root.VideoEncoder && root.VideoFrame), mrec = !!(root.MediaRecorder && root.HTMLCanvasElement && root.HTMLCanvasElement.prototype.captureStream);
+      var natural = st.voiceKind === "natural" && VO.english;
+      var size = coarse ? 720 : 720, wrap = el("div", { class: "nthview-set" });
+      wrap.appendChild(el("p", { text: webc ? "The whole story, about " + storyMinutes() + " min, rendered frame by frame into one video file. It usually takes less time than watching it." : "This browser has no WebCodecs, so the video is recorded in real time: it takes the story's full length, about " + storyMinutes() + " min, and keeps this tab busy." }));
+      if (!webc && !mrec) wrap.appendChild(el("p", { class: "nthview-hint", text: "This browser can neither encode nor record video, so there is no download here. Try a recent Chrome, Edge, Firefox or Safari." }));
+      var f1 = el("fieldset", {}, [el("legend", { text: "Size" }),
+        radio("nv-res", 720, size, "720p (1280 × 720)", "Smaller file, faster.", function (v) { size = v; }),
+        radio("nv-res", 1080, size, "1080p (1920 × 1080)", coarse ? "Slow on a phone." : "Sharper, about twice as slow.", function (v) { size = v; })]);
+      wrap.appendChild(f1);
+      var f2 = el("fieldset", {}, [el("legend", { text: "Sound" })]);
+      if (natural) f2.appendChild(el("p", { text: "With sound: the natural voice narrates and every character speaks." + (VO.ready ? "" : VO.cached ? " It starts first; it is already downloaded." : " It loads first (" + VO.sizeText() + " the first time).") }));
+      else {
+        f2.appendChild(el("p", { text: "Silent, with the captions and speech bubbles burned in. The browser cannot record the device's built-in voice." }));
+        if (VO.english && VO.lib) f2.appendChild(cta("Use the natural voice for sound", "voice", function () { setVoiceKind("natural"); openExport(opener); }, true));
+      }
+      wrap.appendChild(f2);
+      if (coarse) wrap.appendChild(el("p", { class: "nthview-hint", text: "On a phone, exporting is slow and drains the battery; 720p is the better choice." }));
+      var prog = el("progress", { max: "1", value: "0", class: "nthview-eprog", hidden: "" }), stat = el("p", { role: "status", class: "nthview-hint" });
+      var go = cta("Make the video", "download", function () {
+        go.disabled = true; prog.hidden = false;
+        runExport({ h: size, audio: natural, webc: webc }, function (p, msg) { prog.value = p; stat.textContent = msg; }).then(function (r) {
+          stat.textContent = r; go.disabled = false; prog.hidden = true;
+        }, function (err) { stat.textContent = "The export stopped: " + (err && err.message || err); go.disabled = false; prog.hidden = true; });
+      });
+      if (!webc && !mrec) go.disabled = true;
+      var stop = cta("Cancel", "close", function () { if (exporting) exporting.cancel = true; }, true);
+      wrap.appendChild(el("div", { class: "nthview-row nthview-erow" }, [go, stop]));
+      wrap.appendChild(prog); wrap.appendChild(stat);
+      openDlg("Download as MP4", wrap, opener);
+    }
+    function loadLazy(entry) {
+      return new Promise(function (resolve, reject) {
+        if (!entry) return reject(new Error("no exporter library is declared"));
+        if (root[entry.global]) return resolve(root[entry.global]);
+        var s = el("script", { src: entry.src }), t = root.setTimeout(function () { reject(new Error(entry.name + " did not load from " + entry.src + "; it needs internet access")); }, 25000);
+        s.onload = function () { root.clearTimeout(t); if (root[entry.global]) resolve(root[entry.global]); else reject(new Error(entry.name + " did not start")); };
+        s.onerror = function () { root.clearTimeout(t); reject(new Error(entry.name + " did not load from " + entry.src + "; it needs internet access")); };
+        doc.head.appendChild(s);
+      });
+    }
+    function yieldUI() { return new Promise(function (r) { root.setTimeout(r, 0); }); }
+    /* the export timeline: every beat, with holds where the voice runs past the picture, every takeaway card and the recap */
+    function exportPlan(len) {
+      var segs = [], T = 0;
+      beats.forEach(function (B, i) {
+        var items = itemsOf(i), aud = [], holds = [], e = 0, v = 0, free = 0, end;
+        if (len) {
+          aud.push({ item: items[0], at: .1 }); free = .1 + len(items[0]);
+          B.lines.forEach(function (ln, k) {
+            var reach = e + (ln.t0 - v), start = Math.max(reach, free + .35);
+            if (start > reach + .001) holds.push({ v: ln.t0, h: start - reach });
+            aud.push({ item: items[k + 1], at: start }); e = start; v = ln.t0; free = start + len(items[k + 1]);
+          });
+          var reachEnd = e + (B.dur - v); end = Math.max(reachEnd, free + .45);
+          if (end > reachEnd + .001) holds.push({ v: B.dur, h: end - reachEnd });
+        } else end = B.dur;
+        segs.push({ k: "beat", i: i, t0: T, len: end, holds: holds, aud: aud }); T += end;
+        if (lastOfChapter(i) && chapters[B.ci].takeaway) {
+          var tk = chapters[B.ci].takeaway, wi = wrapItems(B.ci), th = 0, pt;
+          if (tk.think) th = Math.max(tk.seconds || 8, len ? len(wi[0]) + .8 : 0);
+          pt = Math.max(3 + words(tk.points.join(" ")) * .3, len ? len(wi[wi.length - 1]) + 1 : 0);
+          var wa = len ? (tk.think ? [{ item: wi[0], at: .3 }, { item: wi[1], at: th + .2 }] : [{ item: wi[0], at: .2 }]) : [];
+          segs.push({ k: "wrap", i: i, t0: T, len: th + pt, think: th, aud: wa }); T += th + pt;
+        }
+      });
+      var ei = endItems(), el2 = Math.max(7, len && ei.length ? len(ei[0]) + 1.5 : 0);
+      segs.push({ k: "end", i: NB - 1, t0: T, len: el2, aud: len && ei.length ? [{ item: ei[0], at: .4 }] : [] }); T += el2;
+      return { segs: segs, total: T };
+    }
+    function visualAt(sg, e) {
+      var acc = 0, vp = 0;
+      for (var k = 0; k < sg.holds.length; k++) {
+        var hd = sg.holds[k];
+        if (e < acc + (hd.v - vp)) return vp + (e - acc);
+        acc += hd.v - vp; vp = hd.v;
+        if (e < acc + hd.h) return hd.v;
+        acc += hd.h;
+      }
+      return Math.min(beats[sg.i].dur, vp + (e - acc));
+    }
+    /* paint the stage into a 2D canvas: the WebGL frame, the spotlight, then every overlay as laid out */
+    var rangeP = null;
+    function rrect(cx, x, y, w, h, r) { cx.beginPath(); cx.moveTo(x + r, y); cx.arcTo(x + w, y, x + w, y + h, r); cx.arcTo(x + w, y + h, x, y + h, r); cx.arcTo(x, y + h, x, y, r); cx.arcTo(x, y, x + w, y, r); cx.closePath(); }
+    function paintText(cx, t, ox, oy, a) {
+      var s = t.nodeValue;
+      if (!s || !/\S/.test(s)) return;
+      var cs = root.getComputedStyle(t.parentNode), up = cs.textTransform === "uppercase", re = /\S+/g, m;
+      cx.globalAlpha = a; cx.font = cs.fontStyle + " " + cs.fontWeight + " " + cs.fontSize + " " + cs.fontFamily;
+      if ("letterSpacing" in cx) cx.letterSpacing = cs.letterSpacing === "normal" ? "0px" : cs.letterSpacing;
+      cx.fillStyle = cs.color; cx.textBaseline = "middle";
+      rangeP = rangeP || doc.createRange();
+      while ((m = re.exec(s))) {
+        rangeP.setStart(t, m.index); rangeP.setEnd(t, m.index + m[0].length);
+        var q = rangeP.getClientRects()[0];
+        if (q) cx.fillText(up ? m[0].toUpperCase() : m[0], q.left - ox, q.top - oy + q.height * .54);
+      }
+    }
+    function paintNode(cx, n, ox, oy, a) {
+      if (n.nodeType === 3) return paintText(cx, n, ox, oy, a);
+      if (n.nodeType !== 1) return;
+      var cs = root.getComputedStyle(n), tag = n.tagName.toLowerCase();
+      if (cs.display === "none" || cs.visibility === "hidden" || tag === "button" || tag === "details" || tag === "progress") return;
+      var al = a * parseFloat(cs.opacity || "1");
+      if (al < .02) return;
+      var r = n.getBoundingClientRect(), x = r.left - ox, y = r.top - oy, w = r.width, h = r.height;
+      if (tag === "svg") {
+        if (n.getAttribute("class") === "nthview-ring") {
+          var fg = n.lastChild, off = parseFloat(fg.style.strokeDashoffset || "0") || 0, f = 1 - off / 113.1, cxx = x + w / 2, cyy = y + h / 2, rr = w * 18 / 44;
+          cx.globalAlpha = al; cx.lineWidth = w * 4 / 44; cx.lineCap = "round";
+          cx.strokeStyle = "rgba(128,128,128,.25)"; cx.beginPath(); cx.arc(cxx, cyy, rr, 0, Math.PI * 2); cx.stroke();
+          cx.strokeStyle = root.getComputedStyle(container).getPropertyValue("--nv-accent").trim() || "#6a4dd6";
+          if (f > .005) { cx.beginPath(); cx.arc(cxx, cyy, rr, -Math.PI / 2, -Math.PI / 2 + f * Math.PI * 2); cx.stroke(); }
+        }
+        return;
+      }
+      cx.globalAlpha = al;
+      var rad = Math.min(parseFloat(cs.borderTopLeftRadius) || 0, h / 2, w / 2), bg = cs.backgroundColor;
+      if (n === tcard) {
+        var g = cx.createRadialGradient(x + w / 2, y + h / 2, 0, x + w / 2, y + h / 2, Math.max(w, h) * .5);
+        g.addColorStop(0, "rgba(16,14,28,.62)"); g.addColorStop(.72, "rgba(16,14,28,0)"); cx.fillStyle = g; cx.fillRect(x, y, w, h);
+      } else if (bg && bg !== "transparent" && !/rgba\(0, 0, 0, 0\)/.test(bg)) { cx.fillStyle = bg; rrect(cx, x, y, w, h, rad); cx.fill(); }
+      var bw = parseFloat(cs.borderTopWidth) || 0;
+      if (bw > 0 && cs.borderTopStyle !== "none") {
+        cx.lineWidth = bw; cx.strokeStyle = cs.borderTopColor; cx.setLineDash(cs.borderTopStyle === "dashed" ? [bw * 3, bw * 2] : []);
+        rrect(cx, x + bw / 2, y + bw / 2, w - bw, h - bw, Math.max(0, rad - bw / 2)); cx.stroke(); cx.setLineDash([]);
+      }
+      if (n.classList.contains("is-hl")) { cx.fillStyle = "#ffd666"; cx.fillRect(x, y, 3, h); }
+      if (n.classList.contains("nthview-bubble")) {
+        var tl = x + w * (parseFloat(n.style.getPropertyValue("--tail")) || 50) / 100;
+        cx.fillStyle = "#fff"; cx.beginPath(); cx.moveTo(tl - 9, y + h - 1); cx.lineTo(tl + 9, y + h - 1); cx.lineTo(tl, y + h + 9); cx.closePath(); cx.fill();
+      }
+      if (tag === "img") {
+        if (n.complete && n.naturalWidth) { cx.save(); if (rad >= w / 2 - 1) { cx.beginPath(); cx.arc(x + w / 2, y + h / 2, w / 2, 0, Math.PI * 2); cx.clip(); } cx.drawImage(n, x, y, w, h); cx.restore(); }
+        return;
+      }
+      if (tag === "li" && n.parentNode.classList.contains("nthview-points")) {
+        var fs = parseFloat(cs.fontSize), lh = parseFloat(cs.lineHeight) || fs * 1.5;
+        cx.font = cs.fontWeight + " " + cs.fontSize + " " + cs.fontFamily; cx.fillStyle = cs.color; cx.textBaseline = "middle"; cx.textAlign = "right";
+        cx.fillText(n.parentNode.tagName === "OL" ? (Array.prototype.indexOf.call(n.parentNode.children, n) + 1) + "." : "•", x - fs * .35, y + lh / 2);
+        cx.textAlign = "left";
+      }
+      for (var c = n.firstChild; c; c = c.nextSibling) paintNode(cx, c, ox, oy, al);
+      cx.globalAlpha = 1;
+    }
+    function paintStage(cx, W, H) {
+      var o = stage.getBoundingClientRect();
+      cx.globalAlpha = 1; cx.drawImage(canvas, 0, 0, W, H);
+      if (spot.classList.contains("is-on")) {
+        var sx = parseFloat(spot.style.getPropertyValue("--sx")) || W / 2, sy = parseFloat(spot.style.getPropertyValue("--sy")) || H / 2, sr2 = parseFloat(spot.style.getPropertyValue("--sr")) || 120;
+        var g = cx.createRadialGradient(sx, sy, sr2, sx, sy, sr2 * 1.9); g.addColorStop(0, "rgba(12,10,28,0)"); g.addColorStop(1, "rgba(12,10,28,.42)");
+        cx.fillStyle = g; cx.fillRect(0, 0, W, H);
+      }
+      [layer, chip, meetEl, tcard, cap, ov].forEach(function (n) { paintNode(cx, n, o.left, o.top, 1); });
+      cx.globalAlpha = 1;
+    }
+    function exportFrame(plan, et, dt, seen) {
+      var sg = null;
+      for (var k = 0; k < plan.segs.length; k++) { var q = plan.segs[k]; if (et < q.t0 + q.len || k === plan.segs.length - 1) { sg = q; break; } }
+      var e = et - sg.t0;
+      if (sg.k === "beat") {
+        if (seen.seg !== sg) { seen.seg = sg; st.phase = "beat"; st.i = sg.i; hideOverlay(); startTransition(beats[sg.i], seen.first || beats[sg.i].cut); seen.first = false; beatDom(); }
+        st.t = visualAt(sg, e);
+      } else if (sg.k === "wrap") {
+        var stage2 = sg.think && e < sg.think ? "think" : "points";
+        if (seen.seg !== sg || seen.ws !== stage2) { seen.seg = sg; seen.ws = stage2; st.phase = "wrap"; st.i = sg.i; st.wstage = stage2; showWrap(); }
+        if (stage2 === "think") updateRing(1 - e / sg.think);
+      } else if (seen.seg !== sg) { seen.seg = sg; st.phase = "end"; st.i = NB - 1; showEnd(); }
+      clock = et;
+      draw(dt);
+    }
+    async function runExport(o, report) {
+      if (exporting) throw new Error("an export is already running");
+      var job = exporting = { cancel: false }, W = o.h === 1080 ? 1920 : 1280, H = o.h === 1080 ? 1080 : 720, FPS = 30;
+      var keep = { phase: st.phase, i: st.i, t: st.t, wstage: st.wstage, speed: VO.speed };
+      var len = null, clips = {};
+      try {
+        var Mux = null;
+        if (o.webc) { report(0, "Loading the encoder…"); Mux = await loadLazy((NthView.libs || []).filter(function (l) { return l.lazy && l.global === "Mp4Muxer"; })[0]); }
+        if (o.audio) {
+          report(0, "Loading the natural voice…");
+          ensureNatural(); await VO.load();
+          var all = [];
+          beats.forEach(function (B, i) { all = all.concat(itemsOf(i)); if (lastOfChapter(i)) all = all.concat(wrapItems(B.ci)); });
+          all = all.concat(endItems());
+          VO.speed = 1;
+          for (var a = 0; a < all.length; a++) {
+            if (job.cancel) throw new Error("cancelled");
+            report(a / all.length * .35, "Preparing the voices: " + (a + 1) + " of " + all.length);
+            var it = all[a], ps = VO.phrases(it.text), tn = VO.TONE_SET[it.tone] || VO.TONE_SET.warm, c = VO.kokoroCast[it.who || ""] || VO.kokoroCast[""], parts = [], d = 0;
+            for (var p = 0; p < ps.length; p++) { var cl = await VO.clip(ps[p].text, it.who, it.tone, true); parts.push({ pcm: cl.pcm, rate: cl.rate, at: d }); d += cl.pcm.length / cl.rate / c.rate + ps[p].gap * tn[3]; }
+            clips[it.key] = { parts: parts, len: d, crate: c.rate, gain: tn[2] };
+          }
+          len = function (item) { return clips[item.key] ? clips[item.key].len : 0; };
+        }
+        var plan = exportPlan(len), frames = Math.ceil(plan.total * FPS), base = o.audio ? .35 : 0;
+        hush(); exportSize = { w: W, h: H }; container.classList.add("nthview-exporting"); layout();
+        var cv = el("canvas"); cv.width = W; cv.height = H;
+        var cx = cv.getContext("2d"), seen = { first: true };
+        var out = { video: 0 }, blob, ext = "mp4";
+        if (o.webc) {
+          var vcfg = null, cands = ["avc1.640028", "avc1.4d0028", "avc1.42e01f", "avc1.42001f"];
+          for (var ci2 = 0; ci2 < cands.length && !vcfg; ci2++) {
+            var cfg = { codec: cands[ci2], width: W, height: H, bitrate: H >= 1080 ? 3.5e6 : 1.6e6, framerate: FPS, avc: { format: "avc" } };
+            try { if ((await root.VideoEncoder.isConfigSupported(cfg)).supported) vcfg = cfg; } catch (er) {}
+          }
+          if (!vcfg) throw new Error("this browser cannot encode H.264 video");
+          var acfg = null, acodec = "aac";
+          if (o.audio && root.AudioEncoder) {
+            var aa = { codec: "mp4a.40.2", sampleRate: 48000, numberOfChannels: 1, bitrate: 128000 }, ob = { codec: "opus", sampleRate: 48000, numberOfChannels: 1, bitrate: 96000 };
+            try { if ((await root.AudioEncoder.isConfigSupported(aa)).supported) acfg = aa; } catch (er) {}
+            if (!acfg) { try { if ((await root.AudioEncoder.isConfigSupported(ob)).supported) { acfg = ob; acodec = "opus"; } } catch (er) {} }
+          }
+          var muxer = new Mux.Muxer({ target: new Mux.ArrayBufferTarget(), video: { codec: "avc", width: W, height: H, frameRate: FPS },
+            audio: acfg ? { codec: acodec, numberOfChannels: 1, sampleRate: 48000 } : undefined, fastStart: "in-memory", firstTimestampBehavior: "offset" });
+          var failed = null;
+          var venc = new root.VideoEncoder({ output: function (ch, meta) { muxer.addVideoChunk(ch, meta); }, error: function (er) { failed = er; } });
+          venc.configure(vcfg);
+          var t0 = Date.now();
+          for (var f = 0; f < frames; f++) {
+            if (job.cancel) throw new Error("cancelled");
+            if (failed) throw failed;
+            exportFrame(plan, f / FPS, 1 / FPS, seen);
+            paintStage(cx, W, H);
+            var vf = new root.VideoFrame(cv, { timestamp: Math.round(f * 1e6 / FPS), duration: Math.round(1e6 / FPS) });
+            venc.encode(vf, { keyFrame: f % (FPS * 2) === 0 }); vf.close();
+            while (venc.encodeQueueSize > 6) await new Promise(function (r) { root.setTimeout(r, 4); });
+            if (f % 6 === 0) { var el3 = (Date.now() - t0) / 1000, left = f ? el3 / f * (frames - f) : 0; report(base + (1 - base) * .95 * f / frames, "Rendering: " + Math.round(f / FPS) + " of " + Math.round(plan.total) + " s" + (f > 30 ? ", about " + Math.ceil(left) + " s left" : "")); await yieldUI(); }
+          }
+          await venc.flush(); venc.close();
+          if (failed) throw failed;
+          if (acfg) {
+            report(.97, "Encoding the sound…");
+            var SR = 48000, mix = new Float32Array(Math.ceil(plan.total * SR));
+            plan.segs.forEach(function (sg) {
+              sg.aud.forEach(function (au) {
+                var c2 = clips[au.item.key]; if (!c2) return;
+                c2.parts.forEach(function (pt) {
+                  var start = (sg.t0 + au.at + pt.at) * SR, step = pt.rate / SR * c2.crate, n = Math.floor(pt.pcm.length / step);
+                  for (var j = 0; j < n; j++) { var sp = j * step, i0 = Math.floor(sp), fr = sp - i0, v = pt.pcm[i0] * (1 - fr) + (pt.pcm[i0 + 1] || 0) * fr, di = Math.floor(start) + j; if (di < mix.length) mix[di] += v * c2.gain; }
+                });
+              });
+            });
+            var aerr = null, aenc = new root.AudioEncoder({ output: function (ch, meta) { muxer.addAudioChunk(ch, meta); }, error: function (er) { aerr = er; } });
+            aenc.configure(acfg);
+            for (var s0 = 0; s0 < mix.length; s0 += 4800) {
+              var nfr = Math.min(4800, mix.length - s0);
+              var ad = new root.AudioData({ format: "f32-planar", sampleRate: SR, numberOfFrames: nfr, numberOfChannels: 1, timestamp: Math.round(s0 * 1e6 / SR), data: mix.subarray(s0, s0 + nfr) });
+              aenc.encode(ad); ad.close();
+              if (aenc.encodeQueueSize > 20) await new Promise(function (r) { root.setTimeout(r, 2); });
+            }
+            await aenc.flush(); aenc.close();
+            if (aerr) throw aerr;
+          }
+          muxer.finalize();
+          blob = new Blob([muxer.target.buffer], { type: "video/mp4" });
+        } else {
+          blob = await recordRealtime(plan, cv, cx, W, H, FPS, clips, o.audio, job, report, seen);
+          ext = /mp4/.test(blob.type) ? "mp4" : "webm";
+        }
+        var url = root.URL.createObjectURL(blob), aEl = el("a", { href: url, download: slug() + "." + ext });
+        container.appendChild(aEl); aEl.click(); aEl.remove();
+        root.setTimeout(function () { root.URL.revokeObjectURL(url); }, 120000);
+        report(1, "");
+        return "Saved " + slug() + "." + ext + " (" + (blob.size / 1048576).toFixed(1) + " MB, " + Math.round(plan.total) + " s" + (o.audio ? ", with sound" : ", silent with captions") + ").";
+      } finally {
+        exporting = null; exportSize = null; VO.speed = keep.speed;
+        container.classList.remove("nthview-exporting");
+        st.phase = keep.phase; st.i = keep.i; st.t = keep.t; st.wstage = keep.wstage; st.playing = false;
+        hideOverlay();
+        if (st.phase === "beat") { beatDom(); startTransition(beats[st.i], true); }
+        else if (st.phase === "wrap") showWrap(); else if (st.phase === "end") showEnd(); else showIntro();
+        layout(); ui();
+      }
+    }
+    /* without WebCodecs: play it in real time into MediaRecorder */
+    function recordRealtime(plan, cv, cx, W, H, FPS, clips, withAudio, job, report, seen) {
+      return new Promise(function (resolve, reject) {
+        var stream = cv.captureStream(FPS), ac = null;
+        if (withAudio) {
+          var AC = root.AudioContext || root.webkitAudioContext; ac = new AC(); var dest = ac.createMediaStreamDestination();
+          dest.stream.getAudioTracks().forEach(function (tr) { stream.addTrack(tr); });
+          var at0 = ac.currentTime + .3;
+          plan.segs.forEach(function (sg) { sg.aud.forEach(function (au) { var c2 = clips[au.item.key]; if (!c2) return; c2.parts.forEach(function (pt) {
+            var b = ac.createBuffer(1, pt.pcm.length, pt.rate); b.getChannelData(0).set(pt.pcm);
+            var s = ac.createBufferSource(), g = ac.createGain(); s.buffer = b; s.playbackRate.value = c2.crate; g.gain.value = c2.gain; s.connect(g); g.connect(dest); s.start(at0 + sg.t0 + au.at + pt.at);
+          }); }); });
+        }
+        var mime = ["video/mp4;codecs=avc1.42E01E,mp4a.40.2", "video/mp4", "video/webm;codecs=vp9,opus", "video/webm"].filter(function (m) { return root.MediaRecorder.isTypeSupported(m); })[0] || "";
+        var rec = new root.MediaRecorder(stream, mime ? { mimeType: mime, videoBitsPerSecond: H >= 1080 ? 8e6 : 5e6 } : {}), parts = [];
+        rec.ondataavailable = function (e) { if (e.data && e.data.size) parts.push(e.data); };
+        rec.onstop = function () { if (ac) ac.close(); if (job.cancel) reject(new Error("cancelled")); else resolve(new Blob(parts, { type: (mime || "video/webm").split(";")[0] })); };
+        var start = (root.performance.now() / 1000) + .3, last = start;
+        rec.start(1000);
+        (function tick() {
+          var now = root.performance.now() / 1000, et = Math.max(0, now - start);
+          if (job.cancel || et >= plan.total) { rec.stop(); return; }
+          exportFrame(plan, et, Math.min(.1, now - last), seen); last = now;
+          paintStage(cx, W, H);
+          report(et / plan.total, "Recording in real time: " + Math.round(et) + " of " + Math.round(plan.total) + " s");
+          root.setTimeout(tick, 1000 / FPS);
+        })();
+      });
     }
 
     /* ---------- full screen: the real thing where allowed, a viewport fill where not (iPhone) ---------- */
@@ -2188,7 +2834,8 @@
       var full = isFull(), vw = root.innerWidth, vh = root.innerHeight, land = vw >= vh, sw, sh;
       container.classList.toggle("nthview-full", full);
       container.classList.toggle("nthview-land", full && land);
-      if (full) { sw = land ? Math.min(vw, vh * 16 / 9) : vw; }
+      if (exportSize) sw = exportSize.w;
+      else if (full) { sw = land ? Math.min(vw, vh * 16 / 9) : vw; }
       else {
         var cs = root.getComputedStyle(container), cw = container.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
         sw = Math.min(cw, Math.max(300, (vh - 160) * 16 / 9));
@@ -2197,13 +2844,13 @@
       SW = sw; SH = sh;
       stage.style.width = sw + "px"; stage.style.height = sh + "px"; player.style.width = sw + "px";
       stage.style.setProperty("--u", (sh / 100).toFixed(2) + "px");
-      compact = sh < 300;
+      compact = sh < 300 && !exportSize;
       container.classList.toggle("nthview-compact", compact);
       container.classList.toggle("nthview-narrow", sw < 680);
       below.hidden = !compact;
       var host = compact ? below : stage;
       if (ov.parentNode !== host) { if (compact) below.insertBefore(ov, below.firstChild); else stage.insertBefore(ov, sr); }
-      renderer.setPixelRatio(Math.min(root.devicePixelRatio || 1, sh < 520 ? 1.5 : 2));
+      renderer.setPixelRatio(exportSize ? 1 : Math.min(root.devicePixelRatio || 1, sh < 520 ? 1.5 : 2));
       renderer.setSize(sw, sh, false);
       camera.aspect = sw / sh; camera.updateProjectionMatrix();
       container.style.setProperty("--barh", bar.offsetHeight + "px");
@@ -2351,8 +2998,12 @@
       raf = root.requestAnimationFrame(frame);
       var dt = lastNow ? Math.min(.1, Math.max(0, (now - lastNow) / 1000)) : 0; lastNow = now;
       if (doc.hidden) return;
+      if (exporting) return;
       clock += dt;
       step(dt);
+      draw(dt);
+    }
+    function draw(dt) {
       var B = beats[st.i], t = st.phase === "beat" ? st.t : st.phase === "intro" ? Math.min(B.dur, B.T0 + 1.6) : B.dur;
       evaluate(st.i, t);
       var info = overlays();
@@ -2377,6 +3028,8 @@
       if (ro) ro.disconnect();
       if (pseudo) doc.documentElement.style.overflow = "";
       container.classList.remove("nthview-full", "nthview-land", "nthview-idle", "nthview-compact", "nthview-narrow");
+      if (exporting) exporting.cancel = true;
+      VO.dispose();
       try { renderer.dispose(); } catch (e) {}
     };
 
@@ -2421,7 +3074,7 @@
       renderErrorPanel(container, result);
       return result;
     }
-    var missing = (NthView.libs || []).filter(function (l) { return l.kind === "script" && !root[l.global]; });
+    var missing = (NthView.libs || []).filter(function (l) { return l.kind === "script" && !l.lazy && !root[l.global]; });
     if (missing.length) {
       var errs = missing.map(function (l) { return { path: "$", message: l.name + " did not load from " + l.src + ". This file needs internet access the first time it opens." }; });
       renderErrorPanel(container, { errors: errs });
@@ -2433,6 +3086,10 @@
 
   NthView.libs = [
     { kind: "script", src: "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js", global: "THREE", name: "three.js r128" },
-    { kind: "style", href: "https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Fredoka:wght@500;600&display=swap", name: "Google Fonts (Atkinson Hyperlegible, Fredoka)" }
+    { kind: "style", href: "https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Fredoka:wght@500;600&display=swap", name: "Google Fonts (Atkinson Hyperlegible, Fredoka)" },
+    /* on demand only (AGENTS.md §5.4 rules 7-11): the MP4 muxer when the learner exports, the neural voice when they pick it */
+    { kind: "script", lazy: true, src: "https://cdn.jsdelivr.net/npm/mp4-muxer@5.2.2/build/mp4-muxer.js", global: "Mp4Muxer", name: "mp4-muxer 5.2.2" },
+    { kind: "module", src: "https://cdn.jsdelivr.net/npm/kokoro-js@1.2.1/dist/kokoro.web.js", name: "kokoro-js 1.2.1 (Kokoro-82M, q8)",
+      weights: "https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX", size: "about 98 MB (q8, WASM) or 330 MB (fp32, WebGPU)" }
   ];
 })(typeof globalThis !== "undefined" ? globalThis : window);

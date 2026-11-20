@@ -28,6 +28,8 @@
   var MOODS = ["neutral", "happy", "sad", "worried", "smug", "suspicious", "surprised", "angry", "thinking", "scared"];
   var MARKS = ["left", "center", "right", "back-left", "back-right", "door", "post"];
   var TONES = ["good", "bad", "info"];
+  var VOICE_TONES = ["calm", "warm", "urgent", "wry", "whisper", "excited", "serious", "sad"];
+  var VOICES = ["female", "male"];
   /* what each prop kind takes (schema.md "Kinds, and what they take") */
   var VALUE_NUM = ["gauge"];
   var VALUE_STR = ["counter", "clock", "phone", "laptop", "coin", "ticket", "server", "number"];
@@ -98,6 +100,10 @@
     }
     optionalEnum(data, "world", "$", WORLDS, error);
     optionalEnum(data, "pace", "$", PACES, error);
+    if (data.narrator !== undefined && isObject(data.narrator, "narrator", error)) {
+      optionalEnum(data.narrator, "voice", "narrator", VOICES, error);
+      optionalEnum(data.narrator, "tone", "narrator", VOICE_TONES, error);
+    }
 
     var actors = {}, props = {}, places = {}, chapterIds = {};
     var names = {};   /* actor + prop namespace */
@@ -133,6 +139,7 @@
         optionalString(a, "stands", path, 160, error);
         if (a.stands === undefined) warn(path + ".stands", "is missing, so the \"Who's who\" card cannot say what this actor stands for");
         optionalColor(a, "color", path, error);
+        optionalEnum(a, "voice", path, VOICES, error);
         if (a.post !== undefined && optionalString(a, "post", path, 40, error) && !places[a.post]) {
           error(path + ".post", "place id \"" + a.post + "\" is not defined in places");
         }
@@ -224,9 +231,14 @@
           if (requireString(b, "caption", path, 1, 160, error) && words(b.caption) > 22) {
             warn(path + ".caption", "has " + words(b.caption) + " words; keep it under 22 so it can be read while watching");
           }
-          if (optionalString(b, "say", path, 400, error) && b.say !== undefined && words(b.say) > 70) {
-            warn(path + ".say", "has " + words(b.say) + " words; keep narration under 70 per beat");
+          if (optionalString(b, "say", path, 400, error) && b.say !== undefined) {
+            if (words(b.say) > 70) warn(path + ".say", "has " + words(b.say) + " words; keep narration under 70 per beat");
+            if (b.say.trim() === String(b.caption || "").trim()) warn(path + ".say", "repeats the caption; write it for the ear (short sentences, contractions, \"you\") or leave it out");
+            (b.say.match(/[^.!?…]+[.!?…]*/g) || []).forEach(function (sn) {
+              if (words(sn) > 25) warn(path + ".say", "has a sentence of " + words(sn) + " words; keep spoken sentences under 25 so they fit in one breath");
+            });
           }
+          optionalEnum(b, "tone", path, VOICE_TONES, error);
           if (b.at !== undefined && optionalString(b, "at", path, 40, error)) {
             if (!places[b.at]) error(path + ".at", "place id \"" + b.at + "\" is not defined in places");
             else place = b.at;
@@ -272,6 +284,7 @@
               else present(ln.who, lp + ".who");
               if (requireString(ln, "text", lp, 1, 120, error)) lineWords += words(ln.text);
               if (ln.mood !== undefined) optionalEnum(ln, "mood", lp, MOODS, error);
+              optionalEnum(ln, "tone", lp, VOICE_TONES, error);
             });
           }
           /* actions */

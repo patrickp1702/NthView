@@ -94,7 +94,9 @@ One concept, many dimensions, one view at a time.
 - **Story** (`skills/nthview-story`) — a 3D animated story that plays like a
   video: cartoon characters personify the parts, props stand for the things, and
   short captioned beats, a cast card, think pauses and recaps teach the idea; no
-  questions. Demo: `skills/nthview-story/examples/example.html`.
+  questions. It can be read aloud by a cast of voices (an opt-in neural voice
+  runs on the device) and downloaded as an MP4. Demo:
+  `skills/nthview-story/examples/example.html`.
 
 Open `index.html` for the gallery of all views, or visit the hosted copy at
 https://patrickp1702.github.io/NthView/ (served by GitHub Pages straight from

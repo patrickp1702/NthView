@@ -26,6 +26,7 @@ mark name (`left`, `center`, `right`, `back-left`, `back-right`, `door`,
 | `audience` | string | no | ≤80 chars | Shown on the start screen, e.g. "Anyone with an email account" |
 | `lang` | string | no | BCP 47 tag, ≤20 chars, default `en` | Language of the text; picks the narration voice |
 | `world` | string | no | `day` (default), `dusk`, `night`, `studio` | Light and sky; `studio` is a soft abstract backdrop for non-physical topics |
+| `narrator` | object | no | Narrator object | The storyteller's voice |
 | `pace` | string | no | `chapter` (default), `flow`, `beat` | Default auto-play: `chapter` pauses after each chapter's takeaways, `flow` only holds for the think pause, `beat` stops after every beat. The learner can change it |
 | `cast` | array | yes | 1–10 Actor objects | Who is who |
 | `props` | array | no | 0–30 Prop objects | Things and their metaphors |
@@ -46,6 +47,7 @@ mark name (`left`, `center`, `right`, `back-left`, `back-right`, `door`,
 | `stands` | string | no | ≤160 chars | What it stands for, shown on the "Who's who" card |
 | `color` | string | no | `#rrggbb` | Overrides the preset's body colour |
 | `post` | string | no | a place id | The actor works there and stands at its post (behind the counter, by the gate) |
+| `voice` | string | no | `female` or `male` | Kind of voice the actor speaks with when the story is read aloud; each actor gets its own voice, distinct from the narrator |
 
 Presets: `courier` (orange, cap, satchel), `guard` (navy, peaked cap,
 clipboard), `clerk` (green, apron), `crook` (plum, top hat, eye mask),
@@ -55,6 +57,17 @@ red tie), `messenger` (red, winged cap, scroll), `teacher` (brown, glasses),
 `student` (teal, backpack), `citizen` (pink, plain), `knight` (steel,
 plumed helmet), `royal` (purple robe, crown), `blob` (a round cell-like
 creature that hops) and `spiky` (a spiky blob: a germ, a bug, a threat).
+
+## Narrator object
+
+| Field | Type | Required | Constraints | Description |
+| :- | :- | :- | :- | :- |
+| `voice` | string | no | `female` or `male`, default `female` | Kind of narrator voice |
+| `tone` | string | no | a tone, default `warm` | Default tone of the narration |
+
+Tones: `calm`, `warm`, `urgent`, `wry`, `whisper`, `excited`, `serious`,
+`sad`. Each sets the speaking rate, pitch, loudness and the length of the
+pauses.
 
 ## Prop object
 
@@ -133,7 +146,8 @@ street; each has a post, five standing marks and spots for props.
 | `with` | string[] | no | 0–12 unique actor or prop ids; ≤6 actors, ≤4 standing props, ≤2 windows | Exactly who and what is at the place now: others there walk off or vanish, newcomers walk in. Omit to keep the scene as it is |
 | `do` | array | no | 0–6 Action objects | Played one after another |
 | `lines` | array | no | 0–3 Line objects | Speech bubbles, in order |
-| `say` | string | no | ≤400 chars | Narration read aloud instead of `caption` when voice is on; may be fuller and conversational |
+| `say` | string | no | ≤400 chars | The narration, written for the ear and read aloud instead of `caption` when voice is on: short sentences, contractions, "you". `...` or `…` makes a longer pause |
+| `tone` | string | no | a tone | How this beat's narration is spoken; default the narrator's tone |
 | `focus` | string or string[] | no | 1–3 actor or prop ids | What the camera frames and the spotlight picks out; default: the subjects of the actions, else everyone |
 | `shot` | string | no | a shot below, default `auto` | Camera shot |
 | `cut` | boolean | no | default `false` | A hard cut instead of a camera move |
@@ -152,6 +166,7 @@ first focus) and `low` (looks up at the focus: menace or triumph).
 | `who` | string | yes | an actor id | Speaker; the bubble points at them |
 | `text` | string | yes | 1–120 chars | In first person and conversational |
 | `mood` | string | no | a mood | The face while speaking, kept afterwards |
+| `tone` | string | no | a tone | How the line is spoken; default from the mood |
 
 Moods: `neutral`, `happy`, `sad`, `worried`, `smug`, `suspicious`,
 `surprised`, `angry`, `thinking`, `scared`.
@@ -230,10 +245,14 @@ Marks for `to`: `left`, `center`, `right`, `back-left`, `back-right`,
   field; `code` and `highlight` appear only on `code` props, `highlight`
   within its line count.
 - `stamp` has `text`; `react` has `mood`; `crowd` has `count`.
+- `tone` on the narrator, a beat or a line is one of the tones; `voice` on an
+  actor or the narrator is `female` or `male`.
 
 ## Warnings (non-blocking)
 - A caption longer than 22 words, or `say` longer than 70 words (one idea per
   beat; long text vanishes before it is read).
+- `say` identical to the caption (write it for the ear instead), or a `say`
+  sentence longer than 25 words (too long to say in one breath).
 - A chapter with more than 8 beats, or without a `takeaway`.
 - No `recap`.
 - An estimated running time over 8 minutes.
