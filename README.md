@@ -86,6 +86,11 @@ One concept, many dimensions, one view at a time.
   grid, "when to choose which", a recap of shared and distinctive traits, and
   five kinds of question that make you tell them apart.
   Demo: `skills/nthview-compare/examples/example.html`.
+- **Code Walkthrough** (`skills/nthview-code-walkthrough`) — read real code
+  line by line: focused lines, notes, subgoals and a value trace, with
+  tap-the-line, predict, fill-the-blank, ordering and choice questions; the
+  demo walks through Heartbleed and its fix. Demo:
+  `skills/nthview-code-walkthrough/examples/example.html`.
 
 Open `index.html` for the gallery of all views, or visit the hosted copy at
 https://patrickp1702.github.io/NthView/ (served by GitHub Pages straight from

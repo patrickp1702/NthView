@@ -52,8 +52,9 @@ that saved progress and reopens the case from scratch.
 Do not use when:
 - The content is a list of facts or definitions to memorise (a flashcard or
   quiz view fits better)
-- The goal is to follow a procedure step by step (a guided walkthrough fits
-  better)
+- The goal is to follow a procedure step by step (`nthview-sequence` for an
+  exchange between parties, `nthview-code-walkthrough` for code read line
+  by line)
 - There is no single explanation to arrive at and no wrong ones worth
   confronting; `nthview-scenario-quiz` suits concepts that are a series of
   separate judgement calls
