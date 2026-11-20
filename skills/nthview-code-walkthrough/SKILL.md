@@ -6,15 +6,19 @@ description: Produces a guided, line-by-line code walkthrough: the learner steps
 # NthView — Code Walkthrough
 
 ## Overview
-The learner reads real code one step at a time: the lines in focus light up,
-the rest dims, and a note explains them beside the code (below it on a
-phone, with the code pinned on top). Steps are grouped under short subgoal
-labels, a small table traces the values that matter, and questions attached
-to steps ask the learner to choose, tap a line, predict a value, fill a
-blank or order lines, each with an explanation. Nothing forces one path:
-the Code tab shows the whole snippet with every step marked, and the
-Questions tab lists every question. It is one self-contained HTML file with
-no libraries; progress is saved in the browser and Restart clears it.
+The learner reads real code one step at a time: the lines in focus light up
+and move to the middle of the code box, the rest is muted, and a note
+explains them beside the code (below it on a phone, with the code pinned on
+top). Previous, "Step n of m" and Next sit in the same place on every step,
+above the code. Steps are grouped under short subgoal labels, a small table
+traces the values that matter, and questions attached to steps ask the
+learner to choose, tap a line, predict a value, fill a blank or order lines,
+each answered with an explanation of why. Nothing forces one path: the
+overview gives the route and a warm-up prediction, the Code tab shows the
+whole snippet with every step marked, the Questions tab lists every
+question, and the wrap-up recaps the key points and the questions worth
+another look. It is one self-contained HTML file with no libraries;
+progress is saved in the browser and Restart clears it.
 
 ## When to use
 - One function, a short file, an algorithm or a few related snippets of
