@@ -6,18 +6,22 @@ description: Turns a dated story (an incident, a history, a project, a scientifi
 # NthView — Timeline
 
 ## Overview
-The learner scrolls down one vertical timeline: dated event cards on a line,
-eras that label stretches of time, up to three coloured lanes (with two, wide
-screens put one on each side), and the elapsed time between neighbours ("4
-months later"). Every event can say what caused it and what it led to, so the
-learner can follow a chain back and forth. Questions sit between the events
-where the author puts them; in the default `step` mode the rest of the story
-stays hidden until the learner answers or skips, so recall and prediction come
-before the reveal. Every answer is explained, right or wrong.
+The first screen says what the timeline covers, how long it takes and offers
+one "Start" button. The learner then scrolls down one vertical line: dated
+event cards (the date sits in a left gutter on wide screens), numbered parts
+for the eras, up to three labelled, coloured lanes, and the elapsed time
+between neighbours ("4 months later"). Every event says why it happened and
+what it led to, so the learner can follow a chain back and forth. Questions
+are numbered checkpoints on the same line: pick an answer, press Check, read
+why each option is right or wrong, then Continue. In the default `step` mode
+the rest of the story stays locked until the learner answers or skips, so
+recall and prediction come before the reveal. The end card recaps the story:
+takeaways, the turning points and every answer.
 
-A sticky bar shows the title, how many questions are answered, a proportional
-mini-map of when each event really happened (clusters and long gaps show at a
-glance) and the Restart button. Progress is saved in the browser after every
+A slim sticky bar shows the current part and date, how many questions are
+answered with a progress line, a Contents button (progress, a proportional map
+of when each event really happened, a lane filter and a list of every event
+to jump to) and the Restart button. Progress is saved in the browser after every
 answer, move, toggle and scroll position, so reopening the file resumes at the
 same place; Restart erases it. The output is one self-contained HTML file; it
 loads two typefaces from Google Fonts and falls back to system fonts offline.
