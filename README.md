@@ -91,6 +91,10 @@ One concept, many dimensions, one view at a time.
   tap-the-line, predict, fill-the-blank, ordering and choice questions; the
   demo walks through Heartbleed and its fix. Demo:
   `skills/nthview-code-walkthrough/examples/example.html`.
+- **Story** (`skills/nthview-story`) — a 3D animated story that plays like a
+  video: cartoon characters personify the parts, props stand for the things, and
+  short captioned beats, a cast card, think pauses and recaps teach the idea; no
+  questions. Demo: `skills/nthview-story/examples/example.html`.
 
 Open `index.html` for the gallery of all views, or visit the hosted copy at
 https://patrickp1702.github.io/NthView/ (served by GitHub Pages straight from
