@@ -120,13 +120,14 @@ Minimal guidance only; each view's `SKILL.md` has the detail.
 | Two to four similar things to tell apart, "X vs Y", "which should I use when" | Compare | Concept Map |
 | A function, snippet, bug or fix to read line by line, with tracing and code questions | Code Walkthrough | Zoom Map |
 | Watch it explained like a short animated video, with parts personified as cartoon characters; no questions | Story | Courier |
+| A system that changes shape step by step under pressure (scaling, defences, a ward or supply chain), with live numbers for every change and its cost; components and metrics, not message payloads (Dataflow) or tick-by-tick rules (Mechanism) | System Evolution | Dataflow |
 
 Skill names: `nthview-concept-map`, `nthview-explorable`,
 `nthview-scenario-quiz`, `nthview-detective`, `nthview-island-quest`,
 `nthview-zoom-map`, `nthview-courier`, `nthview-temple-run`,
 `nthview-sequence`, `nthview-highlights`, `nthview-hunter`, `nthview-dataflow`,
 `nthview-mechanism`, `nthview-timeline`, `nthview-compare`,
-`nthview-code-walkthrough`, `nthview-story`.
+`nthview-code-walkthrough`, `nthview-story`, `nthview-system-evolution`.
 
 Views that have a `strictMode` (Temple Run, Hunter) keep it off by default; turn it
 on only when the user says quiz, test, exam, evaluate or grade.
@@ -161,4 +162,4 @@ on only when the user says quiz, test, exam, evaluate or grade.
 
 ## Files
 - `references/lesson-format.md` — the `lesson.json` format, folder layout and build commands
-- `../nthview-concept-map/SKILL.md`, `../nthview-explorable/SKILL.md`, `../nthview-scenario-quiz/SKILL.md`, `../nthview-detective/SKILL.md`, `../nthview-island-quest/SKILL.md`, `../nthview-zoom-map/SKILL.md`, `../nthview-courier/SKILL.md`, `../nthview-temple-run/SKILL.md`, `../nthview-sequence/SKILL.md`, `../nthview-highlights/SKILL.md`, `../nthview-hunter/SKILL.md`, `../nthview-dataflow/SKILL.md`, `../nthview-mechanism/SKILL.md`, `../nthview-timeline/SKILL.md`, `../nthview-compare/SKILL.md`, `../nthview-code-walkthrough/SKILL.md`, `../nthview-story/SKILL.md` — the view skills this one hands off to
+- `../nthview-concept-map/SKILL.md`, `../nthview-explorable/SKILL.md`, `../nthview-scenario-quiz/SKILL.md`, `../nthview-detective/SKILL.md`, `../nthview-island-quest/SKILL.md`, `../nthview-zoom-map/SKILL.md`, `../nthview-courier/SKILL.md`, `../nthview-temple-run/SKILL.md`, `../nthview-sequence/SKILL.md`, `../nthview-highlights/SKILL.md`, `../nthview-hunter/SKILL.md`, `../nthview-dataflow/SKILL.md`, `../nthview-mechanism/SKILL.md`, `../nthview-timeline/SKILL.md`, `../nthview-compare/SKILL.md`, `../nthview-code-walkthrough/SKILL.md`, `../nthview-story/SKILL.md`, `../nthview-system-evolution/SKILL.md` — the view skills this one hands off to

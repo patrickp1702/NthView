@@ -113,8 +113,8 @@ duration. Follow `skills/nthview-highlights/SKILL.md` for the cards.
 | Role | Meaning | Views that serve it |
 | :- | :- | :- |
 | `preview` | Hook, objectives, what is coming (always chapter 00) | Highlights, Story |
-| `structure` | The map of parts and relations, an advance organiser | Concept Map, Zoom Map, Timeline |
-| `demonstrate` | A worked example or a model to predict and tinker with | Sequence, Explorable Lab, Detective Case, Timeline, Code Walkthrough, Story |
+| `structure` | The map of parts and relations, an advance organiser | Concept Map, Zoom Map, Timeline, System Evolution |
+| `demonstrate` | A worked example or a model to predict and tinker with | Sequence, Explorable Lab, Detective Case, Timeline, Code Walkthrough, Story, System Evolution |
 | `apply` | Use the ideas with explanatory feedback | Scenario Quiz, Courier, Explorable Lab, Code Walkthrough |
 | `confront` | Meet and rule out the tempting wrong model | Detective Case, Compare |
 | `consolidate` | Interleaved practice over everything so far | Island Quest, Temple Run, Hunter, Compare |

@@ -97,6 +97,11 @@ One concept, many dimensions, one view at a time.
   questions. It can be read aloud by a cast of voices (an opt-in neural voice
   runs on the device) and downloaded as an MP4. Demo:
   `skills/nthview-story/examples/example.html`.
+- **System Evolution** (`skills/nthview-system-evolution`) — an isometric system
+  that changes shape step by step under pressure, with packets on the links, a
+  live metric strip, problem, technique and trade-off steps and a recap that adds
+  up; the demo defends a login against credential stuffing. Demo:
+  `skills/nthview-system-evolution/examples/example.html`.
 
 Open `index.html` for the gallery of all views, or visit the hosted copy at
 https://patrickp1702.github.io/NthView/ (served by GitHub Pages straight from
