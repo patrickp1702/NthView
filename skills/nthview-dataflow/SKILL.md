@@ -1,6 +1,6 @@
 ---
 name: nthview-dataflow
-description: Explains any flow of data or work between parties as an interactive explainer in the style of a protocol site: a hero definition, a sidebar of topics and numbered steps, a network diagram of entities in zones and a sequence diagram, a message-flow table the learner plays message by message with the exact payload and a note on every field, an article per topic, light prediction checks, and an optional version time machine that shows what each edition changed. Use when the user wants to understand or teach a protocol, API, handshake, payment flow, order pipeline, CI run, signalling pathway, supply chain or legal process, or says "explain how X works", "what goes over the wire", "who sends what to whom", "message flow", "data flow", "interactive protocol explainer" or "like mcp-explained"; not for a single linear story without parties exchanging anything, for drilling facts, or for judgement calls.
+description: Explains any flow of data or work between parties as an interactive explainer: a network diagram of entities in zones and a sequence diagram, a message-flow table the learner plays message by message with the exact payload, what every party holds after each message, and light prediction checks, either as a full protocol site (hero, topics, articles, version time machine) or as one exchange with inner sequences and foldable groups. Use when the user wants to understand or teach a protocol, handshake, login, API call chain, payment flow, order pipeline, CI run, signalling pathway, supply chain or legal process, or says "explain how X works", "who sends what to whom", "what goes over the wire", "sequence diagram", "step-by-step walkthrough", "message flow", "data flow" or "like mcp-explained"; not for ideas without parties exchanging anything, for drilling facts, or for judgement calls.
 ---
 
 # NthView — Dataflow
@@ -37,6 +37,23 @@ time machine to the top bar: topics can arrive or disappear, steps can change
 their text and messages, and messages can be tagged deprecated, so the learner
 sees how the flow evolved.
 
+A document is either **topics** (the full explainer above) or a **single
+exchange**: root `steps` instead of `sections`, for "just show me this
+handshake". It has no hero and no articles; the sidebar holds the title, a
+lead paragraph and the steps, and the sequence diagram shows first.
+
+Long flows stay readable through folding. A step can open an **inner
+sequence** that shows how it is carried out, often between parties that
+appear only there (the **members** of a group entity, which is one lane
+elsewhere); the learner drills in and backs out with a breadcrumb, and the
+sequence diagram draws the step as a `ref` frame. A run of steps can be a
+**group** fragment, folded into one beat until the learner expands it. Steps
+can carry a **note** (info, warning, danger), a **compare** panel shown when
+the learner ticks "Show how the old version did it", and **detail** rows; a
+**who** check asks which party sends next; `((term))` marks open a glossary
+pop-over. In the Full picture, "Expand all" draws every inner sequence in
+place. The end shows the prediction tally and closing words.
+
 Nothing in the view knows the subject: entities, zones, links, topics, steps,
 messages and versions all come from the data, so the same view explains a
 network protocol, a card payment, an order pipeline, a CI run, a biological
@@ -44,12 +61,19 @@ pathway or a legal process. The output is one self-contained HTML file with no
 libraries and no fonts to fetch; it works offline. Four themes (`graphite`,
 `paper`, `blueprint`, `amber`), each with a light and a dark variant and a
 top-bar toggle. Progress (screen, topic, message position, version, diagram
-mode, colour scheme, answered checks) is saved in the browser's localStorage
+mode, colour scheme, answered checks, the open inner sequence, expanded
+groups, the compare and "Changes only" toggles) is saved in the browser's localStorage
 at every change and restored on reopening; the Restart button clears it.
 
 ## When to use
 - Protocols and APIs: how a protocol's messages fit together, with the real
   payloads (MCP, OAuth, TLS, DNS, HTTP caching, WebRTC signalling)
+- One handshake or exchange walked through message by message, as a single
+  exchange: a TLS handshake, a login with PKCE, Kerberos, two-phase commit, a
+  request through services and queues, an approval chain; long exchanges with
+  many parties fold into inner sequences and groups
+- The user asks for a sequence diagram or a step-by-step walkthrough of a
+  flow
 - Money and commerce: a card payment, a bank transfer, an order from checkout
   to delivery, a refund
 - Engineering pipelines: a CI/CD run, a deployment, a build, an incident
@@ -62,8 +86,6 @@ at every change and restored on reopening; the Restart button clears it.
 Do not use when:
 - There are no distinct parties exchanging things; a system of causes fits
   `nthview-concept-map`, a layered system top down fits `nthview-zoom-map`
-- The point is one exchange walked through with holdings, trust zones and
-  UML fragments rather than many topics with articles: use `nthview-sequence`
 - The content is judgement calls or recall: use `nthview-scenario-quiz` or
   `nthview-temple-run`
 
@@ -76,7 +98,10 @@ service, database, gateway, network, bank, model, device, document, queue,
 cloud or generic. Group them into **zones** by who runs them or where they
 live ("YOUR MACHINE", "CLOUD API", "ISSUER"), marking far-away zones
 `remote`. List the **links** that carry traffic and the protocol on each.
-Then split the subject into **topics**, 3–12 of them grouped under 1–6
+Decide the shape. One exchange that a learner follows from first message to
+last (a handshake, a login, one request) is a **single exchange**: root
+`steps`, no topics. A subject with several parts, background reading and
+perhaps versions is **topics**. Then split the subject into **topics**, 3–12 of them grouped under 1–6
 **sections** (core, features, utilities, attacks, what's next), each topic a
 thing a learner can finish in a few minutes. For every topic list its
 **steps** in time order and, for each step, the **messages**: sender,
@@ -85,7 +110,10 @@ response, error, notification, local, transport), the payload and what each
 field means. Note where the subject has **versions** and what each changed:
 topics that appear or vanish, steps whose messages differ, messages that are
 deprecated. Find two to five moments where learners predict wrongly: those
-become checks.
+become checks. For a long exchange, mark the parties that take part in only a
+short stretch and the steps whose mechanism is a sequence of its own: those
+become inner sequences. Mark runs that read as one sub-routine (setup,
+teardown, retries): those may become groups.
 
 ### 2. Prepare the JSON
 Follow `references/schema.md` exactly. Set `"schemaVersion": 1`.
@@ -127,6 +155,29 @@ needs is in this file and `references/schema.md`.
   `why` on every option. Place them where the next message is a surprise.
   Skip them in a reference document that should read straight through.
 - `further` for external "What's next" links; `footer` for the edition note.
+- Single exchange: `title`, an optional `lead`, root `steps` and root
+  `fragments`; no `sections`, `kicker`, `heading`, `facts`, `startLabel` or
+  `jumps`. A single exchange usually has one message per step.
+- Inner sequences: `steps[].inner` with `steps` (2 or more), optional
+  `subtitle` and `fragments`. Inner messages use the root `entities`; declare
+  parties used only inside next to the party they serve, so the lanes stay in
+  order. Start with the outer message arriving and end with the reply leaving.
+  Holdings start from the state just before the parent step; keep the parent
+  step's own messages as the net result.
+- Groups of entities: `entities[].members` (2–12 entity ids) for a party that
+  is one lane outside and several inside (a key schedule, an authorization
+  server's components).
+- Group fragments: `{ "kind": "group", "label", "summary"?, "start", "end",
+  "collapsed"? }` over 2 or more consecutive steps, folded by default.
+- `note` for the one or two moments that matter for security or correctness;
+  `compare` with the same lead label on every step ("In TLS 1.2") and a root
+  `compareLabel` to match; `detail` rows such as "Who's involved", "Which
+  spec"; a `who` check (`{ "type": "who", "answer": "<sender id>" }`) where
+  knowing who acts next is the lesson.
+- `glossary` with `((term))` or `((shown text|term))` marks in rich text;
+  `closing` paragraphs for the end.
+- Coming from a Sequence document (the retired `nthview-sequence` view)?
+  Follow `references/converting-from-sequence.md`.
 - Pick a `theme` (table in `references/schema.md`); `graphite` is the default
   and dark, `paper` and `amber` are light by default. Set `defaultMode` to
   `sequence` when the order of messages is the point (a handshake, a login).
@@ -158,7 +209,7 @@ repository tool does this exactly:
     node ${CLAUDE_SKILL_DIR}/../../scripts/build-html.js ${CLAUDE_SKILL_DIR} <path-to-json> <out-dir>/<concept-slug>-dataflow.html
 
 If building by hand: the JSON in `<script type="application/json"
-id="nthview-data">` with every `<` replaced by the six characters `<`,
+id="nthview-data">` with every `<` replaced by the six characters `\u003c`,
 then `scripts/validate.js` and `assets/view.js` inlined verbatim, then the
 three-line bootstrap that calls
 `NthView.build(document.getElementById("app"), data)`. This view declares no
@@ -179,13 +230,23 @@ beyond that template, so the result is identical.
 ### 5. Deliver
 Hand the user the single file. It needs no internet access. Mention the
 Network and Sequence toggle, Play and the space bar, and, when the document
-has versions, the time machine in the top bar. Build no other view unless
+has versions, the time machine in the top bar; when it nests, that "Expand
+all" in the Full picture draws every inner sequence in place. Build no other view unless
 asked.
 
 ## Content guidance
 - **Shape.** 3–12 topics, 2–6 steps each, 1–6 messages per step; 20–80
   messages in all reads well. Up to 60 topics and 30 steps per topic are
-  allowed for a reference-style document.
+  allowed for a reference-style document. A single exchange reads best with
+  8–20 steps (up to 60); keep its main level under about 12 steps and 6 lanes
+  when it nests, and split independent phases into topics instead.
+- **When to nest.** Give a step an `inner` sequence when a party takes part in
+  fewer than about 15% of the steps, or when the step's mechanism is a
+  sequence of its own (inside the authorization server, inside the key
+  schedule). Two levels are usually enough; more than 3 warns, more than 6 is
+  refused. Use `inner` when the hidden parties differ from the main ones and a
+  `group` fragment when the parties are the same but the run is long. Group
+  only a run a learner can skip on a first pass; never fold everything.
 - **Topics are lessons, not chapters.** Each topic has one idea and one
   article; "Request", "Result", "Error", "Notification" as steps of a
   "JSON-RPC" topic, not four topics.
@@ -234,11 +295,23 @@ asked.
   are contiguous and frames are either separate or nested.
 - One giant topic with thirty steps → split by idea into several topics
   under one section.
+- `sections` and root `steps` together, or hero fields in a single exchange →
+  pick one shape.
+- An inner sequence declaring its own `participants` or `channels` → declare
+  them once at the root.
+- A fragment in an inner sequence using the parent's step numbers → indexes
+  count from 0 within that inner sequence.
+- A `group` fragment over one step → groups cover 2 or more steps.
+- A `who` check whose answer is not the sender → the answer is always the
+  `from` of the step's first message.
+- A `((term))` with no glossary entry → add the term or remove the mark.
 - Hand-editing the HTML → change the JSON, re-validate, rebuild.
 
 ## Files
-- `references/schema.md` — the JSON format (single source of truth), the theme table, and the complete card-payment example with two versions
+- `references/schema.md` — the JSON format (single source of truth) and the theme table
 - `references/complete-example.md` — a complete valid example; open only when needed
+- `references/converting-from-sequence.md` — turning a Sequence document into a single exchange
 - `scripts/validate.js` — `NthView.validate(data)`, Node CLI and browser; run it, never read it
 - `assets/view.js` — `NthView.build(container, data)`; hero, lesson layout, network and sequence diagrams, message flow, time machine, the four themes in `PALETTES`, `NthView.THEMES`; the build tool copies it, never read it
 - `examples/example.html` — the card-payment explainer, a working standalone sample built from the schema example
+- `examples/example-oauth-pkce.html` — a single exchange with an inner sequence two levels deep, a folded group, who checks and comparisons

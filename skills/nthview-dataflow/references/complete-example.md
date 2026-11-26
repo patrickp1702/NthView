@@ -158,7 +158,23 @@ authentication step (3-D Secure 1 and 3-D Secure 2). Build the demo with:
       "name": "Fraud service",
       "subtitle": "risk scoring",
       "kind": "service",
-      "zone": "issuing"
+      "zone": "issuing",
+      "members": [
+        "fraud-rules",
+        "fraud-model"
+      ]
+    },
+    {
+      "id": "fraud-rules",
+      "name": "Rules engine",
+      "subtitle": "the issuer's policies",
+      "kind": "service"
+    },
+    {
+      "id": "fraud-model",
+      "name": "Risk model",
+      "subtitle": "trained on past fraud",
+      "kind": "model"
     },
     {
       "id": "acs",
@@ -222,6 +238,18 @@ authentication step (3-D Secure 1 and 3-D Secure 2). Build the demo with:
       "from": "issuer",
       "to": "fraud",
       "label": "internal",
+      "channel": "internal"
+    },
+    {
+      "from": "issuer",
+      "to": "fraud-rules",
+      "label": "internal",
+      "channel": "internal"
+    },
+    {
+      "from": "fraud-rules",
+      "to": "fraud-model",
+      "label": "in process",
       "channel": "internal"
     },
     {
@@ -296,11 +324,15 @@ authentication step (3-D Secure 1 and 3-D Secure 2). Build the demo with:
                     }
                   }
                 }
-              ]
+              ],
+              "compare": {
+                "label": "In a shop",
+                "text": "You hand the card to a terminal, which reads the chip and talks to the acquirer directly. There is no checkout page and no **token**: the terminal is certified to see the card number."
+              }
             },
             {
               "title": "Tokenise",
-              "explanation": "The page posts the card data to the gateway and gets a token back. The gateway stores the real number in its vault; the token is just a reference to it.",
+              "explanation": "The page posts the card data to the gateway and gets a ((token)) back. The gateway stores the real number in its vault; the token is just a reference to it.",
               "check": {
                 "prompt": "Why does the page send the card number to the gateway rather than to the shop's own server?",
                 "options": [
@@ -398,7 +430,11 @@ authentication step (3-D Secure 1 and 3-D Secure 2). Build the demo with:
                     }
                   }
                 }
-              ]
+              ],
+              "note": {
+                "severity": "info",
+                "text": "The shop's own servers never see the card number, which keeps most of the shop out of scope for card-data audits."
+              }
             },
             {
               "title": "Place the order",
@@ -1079,7 +1115,7 @@ authentication step (3-D Secure 1 and 3-D Secure 2). Build the demo with:
             },
             {
               "title": "Route by card number",
-              "explanation": "The acquirer passes the message to the card network. The network reads the first digits, the bank identification number, finds the issuer that owns that range and forwards the request.",
+              "explanation": "The acquirer passes the message to the card network. The network reads the first digits, the ((bank identification number|BIN)), finds the issuer that owns that range and forwards the request.",
               "messages": [
                 {
                   "from": "acquirer",
@@ -1100,11 +1136,21 @@ authentication step (3-D Secure 1 and 3-D Secure 2). Build the demo with:
                   "name": "0100",
                   "info": "forwarded to the issuer's authorisation host"
                 }
-              ]
+              ],
+              "check": {
+                "type": "who",
+                "answer": "acquirer",
+                "prompt": "Who passes the request on to the card network?",
+                "why": "The acquirer is the shop's bank and the only party here with a connection to the card network."
+              },
+              "compare": {
+                "label": "In a shop",
+                "text": "The same: a card-present payment takes exactly this route from the acquirer on. Only the first hops differ."
+              }
             },
             {
               "title": "The issuer decides",
-              "explanation": "The issuer's host checks the card's status and expiry, asks its fraud service for a score, and asks the ledger whether the available balance covers the amount. If all is well it places a hold for the amount.",
+              "explanation": "The issuer's host checks the card's status and expiry, asks its fraud service for a score, and asks the ledger whether the available balance covers the amount. If all is well it places a ((hold)) for the amount.",
               "check": {
                 "prompt": "At the moment the issuer approves, where has the money moved?",
                 "options": [
@@ -1179,7 +1225,77 @@ authentication step (3-D Secure 1 and 3-D Secure 2). Build the demo with:
                     }
                   }
                 }
-              ]
+              ],
+              "note": {
+                "severity": "warning",
+                "text": "A hold is not a payment. Release it at once if the order is cancelled, or the shopper's money stays blocked for days."
+              },
+              "detail": [
+                {
+                  "label": "Who's involved",
+                  "text": "The issuer's authorisation host, its fraud service and the ledger. None of them sees the shop or the gateway."
+                },
+                {
+                  "label": "How long",
+                  "text": "Typically well under a second; the network times out and may stand in for the issuer after a few seconds."
+                }
+              ],
+              "inner": {
+                "subtitle": "How the fraud service turns one transaction into one score: rules first, then a model.",
+                "steps": [
+                  {
+                    "title": "The request reaches the rules engine",
+                    "explanation": "The issuer's question from step 3, seen from inside the fraud service. The rules engine applies hard rules first: blocked merchants, countries the card is not allowed in.",
+                    "messages": [
+                      {
+                        "from": "issuer",
+                        "to": "fraud-rules",
+                        "name": "score transaction",
+                        "info": "merchant, amount, device, velocity"
+                      }
+                    ]
+                  },
+                  {
+                    "title": "The model scores what the rules let through",
+                    "explanation": "Transactions that pass the rules go to a model trained on past fraud. It returns a probability, not a decision.",
+                    "messages": [
+                      {
+                        "from": "fraud-rules",
+                        "to": "fraud-model",
+                        "name": "features",
+                        "info": "about forty numbers"
+                      },
+                      {
+                        "from": "fraud-model",
+                        "to": "fraud-rules",
+                        "name": "p = 0.012",
+                        "kind": "response"
+                      }
+                    ]
+                  },
+                  {
+                    "title": "One score leaves the fraud service",
+                    "explanation": "The rules engine scales the probability to the score the issuer's host expects. This is the reply step 3 shows.",
+                    "messages": [
+                      {
+                        "from": "fraud-rules",
+                        "to": "issuer",
+                        "name": "score 12 / 100",
+                        "kind": "response"
+                      }
+                    ]
+                  }
+                ],
+                "fragments": [
+                  {
+                    "kind": "opt",
+                    "label": "model",
+                    "condition": "no hard rule decided already",
+                    "start": 1,
+                    "end": 1
+                  }
+                ]
+              }
             },
             {
               "title": "Approved",
@@ -1615,7 +1731,16 @@ authentication step (3-D Secure 1 and 3-D Secure 2). Build the demo with:
             "ledger": [
               "hold 49.95"
             ]
-          }
+          },
+          "fragments": [
+            {
+              "kind": "group",
+              "label": "Overnight: clearing and settlement",
+              "summary": "Files and transfers between the banks, hours or days after the sale. Expand to follow them.",
+              "start": 1,
+              "end": 2
+            }
+          ]
         }
       ]
     }
@@ -1661,6 +1786,25 @@ authentication step (3-D Secure 1 and 3-D Secure 2). Build the demo with:
       "color": "slate",
       "description": "Never leaves the organisation's own systems."
     }
+  ],
+  "compareLabel": "Compare with paying in a shop",
+  "glossary": [
+    {
+      "term": "token",
+      "definition": "A stand-in for the card number that only the gateway can turn back into the real number. Useless to anyone who steals it from the shop."
+    },
+    {
+      "term": "BIN",
+      "definition": "Bank identification number: the first six to eight digits of a card number, which say which bank issued it."
+    },
+    {
+      "term": "hold",
+      "definition": "Money the issuer sets aside on your account at authorisation. Nothing moves yet; the hold is released or turned into a charge at clearing."
+    }
+  ],
+  "closing": [
+    "Every message on the way serves one of three jobs: keep the card number away from the shop (the **token**), prove the shopper is the cardholder (3-D Secure), and let the bank that holds the money say yes or no (authorisation).",
+    "The money itself moves only later, in clearing and settlement, between banks that trust each other's files."
   ]
 }
 ```

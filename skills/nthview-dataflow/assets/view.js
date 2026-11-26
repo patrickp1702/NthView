@@ -443,6 +443,47 @@
     ".nthview-df-legend{display:flex;flex-direction:column;align-items:flex-end;gap:3px;font:11px var(--df-mono);color:var(--nv-muted);text-align:right;max-width:260px}",
     ".nthview-df-legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:-1px;background:var(--nv-muted)}",
     ".nthview-df-ir i{display:inline-block;width:8px;height:8px;border-radius:50%;margin:0 4px 0 2px;vertical-align:0;background:var(--nv-muted)}",
+    /* inner sequences, groups, notes, comparisons, glossary, recap */
+    ".nthview-df-crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:2px 8px;padding:12px 20px 0;font-size:12.5px;color:var(--nv-muted)}",
+    ".nthview-df-crumbs button{color:var(--nv-accent);text-decoration:underline;text-decoration-color:var(--df-faint);text-underline-offset:2px;min-height:28px}",
+    ".nthview-df-crumbs b{color:var(--nv-fg);font-weight:500}",
+    ".nthview-df-innersub{padding:2px 20px 0;font-size:13px;color:var(--nv-muted);max-width:76ch}",
+    ".nthview-df-callout{margin:8px 0 0;padding:6px 10px;border-left:3px solid var(--nv-muted);background:var(--df-hover);border-radius:0 6px 6px 0;font-size:13px;max-width:68ch}",
+    ".nthview-df-callout b{font-weight:600}",
+    ".nthview-df-sev-warning{border-left-color:var(--nv-accent)}.nthview-df-sev-danger{border-left-color:var(--df-bad)}.nthview-df-sev-danger>b{color:var(--df-bad)}",
+    ".nthview-df-cmp{border-left-style:dashed;border-left-color:var(--nv-accent)}",
+    ".nthview-df-capact{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin:10px 0 8px;font-size:12.5px}",
+    ".nthview-df-capact label{display:inline-flex;gap:6px;align-items:center;color:var(--nv-muted);cursor:pointer;min-height:28px}",
+    ".nthview-df-capact input{accent-color:var(--nv-accent);width:16px;height:16px;margin:0}",
+    ".nthview-df-steps .nthview-df-crumb button{color:var(--nv-muted);font-size:12.5px}",
+    ".nthview-df-num.nthview-df-num-grp{width:auto;min-width:22px;padding:0 6px;border-radius:11px;border-style:dashed}",
+    ".nthview-df-in{font:11px var(--df-mono);color:var(--nv-accent);margin-left:auto;padding-left:6px}",
+    ".nthview-df-grprow td{color:var(--nv-muted);font-style:italic}",
+    ".nthview-df-sgrp{cursor:pointer}",
+    ".nthview-df-sgrp rect{fill:var(--df-hover);stroke:var(--df-faint);stroke-dasharray:5 3}",
+    ".nthview-df-sgrp text{font:12px var(--df-mono);fill:var(--nv-muted)}",
+    ".nthview-df-sgrp.nthview-df-cur rect{stroke:var(--nv-fg);stroke-width:1.5}.nthview-df-sgrp.nthview-df-cur text{fill:var(--nv-fg)}",
+    ".nthview-df-sgrp.nthview-df-fut{opacity:.35}",
+    ".nthview-df-frag.nthview-df-ref{cursor:pointer}",
+    ".nthview-df-frag.nthview-df-ref>rect:first-child{stroke:var(--nv-accent);stroke-opacity:.6}",
+    ".nthview-df-snote{font:700 12px var(--df-mono);fill:var(--nv-muted)}.nthview-df-snote-warning{fill:var(--nv-accent)}.nthview-df-snote-danger{fill:var(--df-bad)}",
+    ".nthview-df-term{color:inherit;font:inherit;padding:0;text-decoration:underline dotted;text-decoration-color:var(--nv-accent);text-underline-offset:3px;cursor:help}",
+    ".nthview-df-pop{position:fixed;z-index:40;max-width:min(320px,calc(100vw - 24px));padding:10px 12px;border:1px solid var(--df-border);border-radius:8px;background:var(--df-panel);color:var(--nv-fg);font-size:13px;line-height:1.45;box-shadow:0 8px 30px rgba(0,0,0,.25)}",
+    ".nthview-df-pop b{display:block;margin-bottom:2px}",
+    ".nthview-df-dialog.nthview-df-dsmall{width:min(96vw,640px);height:auto;max-height:86vh}",
+    ".nthview-df-gloss{margin:0;padding:8px 24px 20px;overflow:auto;font-size:14px}",
+    ".nthview-df-gloss dt{font-weight:600;margin-top:12px}.nthview-df-gloss dd{margin:2px 0 0;color:var(--nv-muted)}",
+    ".nthview-df-recap{margin-top:8px;padding:12px 14px;border:1px solid var(--df-border);border-radius:8px;font-size:13.5px;max-width:76ch}",
+    ".nthview-df-recap h3{font-size:15px}.nthview-df-recap p{margin:6px 0 0}",
+    ".nthview-df-holdtog{font:11px var(--df-mono);color:var(--nv-muted);border:1px solid var(--df-border);border-radius:6px;padding:0 8px;min-height:24px;align-self:center}",
+    ".nthview-df-holdtog[aria-pressed=true]{color:var(--nv-fg);border-color:var(--nv-fg)}",
+    ".nthview-df-dh{font-size:12.5px;font-weight:500;color:var(--nv-muted);margin:18px 0 0}",
+    ".nthview-df-detail dt{font-family:inherit;white-space:normal;max-width:130px;color:var(--nv-fg)}",
+    ".nthview-df-zoom{display:flex;flex-wrap:wrap;gap:4px}.nthview-df-zoom .nthview-df-btn[aria-pressed=true]{background:var(--nv-fg);color:var(--nv-bg)}",
+    "@media (min-width:1024px){.nthview-df-stage{min-height:200px}.nthview-df-holds{max-height:30%;overflow:auto}.nthview-df-nexttopic{max-height:70%;overflow:auto}}",
+    "@media (max-width:1023px){.nthview-df-crumbs,.nthview-df-innersub{padding-left:16px;padding-right:16px}.nthview-df-dialog-head{flex-wrap:wrap}",
+    "  .nthview-df-legend{align-items:flex-start;text-align:left;flex-direction:row;flex-wrap:wrap;gap:3px 14px;max-width:none}}",
+    "@media (max-width:420px){.nthview-df-top .nthview-df-glossbtn{display:inline-flex}}",
     hueCss(),
     "@media (prefers-reduced-motion:reduce){.nthview-dataflow *{transition:none!important;animation:none!important}}"
   ].join("\n");
@@ -659,14 +700,22 @@
   }
 
   // ---- text helpers ----------------------------------------------------------
-  /* rich text: **bold** and `code` only; everything else is literal text */
-  function rich(text) {
+  /* rich text: **bold**, `code` and glossary marks ((term)) or ((shown text|term)); everything else is literal.
+     A mark becomes a button that opens the term's definition; plain (inside another button) keeps only the text. */
+  var GLOSS = {}, onTerm = null;
+  function rich(text, plain) {
     var frag = root.document.createDocumentFragment();
-    String(text).split(/(\*\*[^*]+\*\*|`[^`]+`)/).forEach(function (part) {
+    String(text).split(/(\*\*[^*]+\*\*|`[^`]+`|\(\([^()]*\)\))/).forEach(function (part) {
       if (!part) return;
       if (/^\*\*[^*]+\*\*$/.test(part)) frag.appendChild(el("b", { text: part.slice(2, -2) }));
       else if (/^`[^`]+`$/.test(part)) frag.appendChild(el("code", { text: part.slice(1, -1) }));
-      else frag.appendChild(root.document.createTextNode(part));
+      else if (/^\(\([^()]*\)\)$/.test(part)) {
+        var inner = part.slice(2, -2), bar = inner.lastIndexOf("|"), shown = bar === -1 ? inner : inner.slice(0, bar), g = GLOSS[inner.slice(bar + 1).trim().toLowerCase()];
+        if (!g || plain) { frag.appendChild(root.document.createTextNode(shown)); return; }
+        var b = el("button", { type: "button", class: "nthview-df-term", text: shown, "aria-haspopup": "dialog", title: "What is " + g.term + "?" });
+        b.addEventListener("click", function (e) { e.stopPropagation(); if (onTerm) onTerm(g, b); });
+        frag.appendChild(b);
+      } else frag.appendChild(root.document.createTextNode(part));
     });
     return frag;
   }
@@ -691,64 +740,161 @@
   function isDeprecated(m) { return !!(m.tags && m.tags.indexOf("deprecated") !== -1); }
 
   // ---- model -------------------------------------------------------------------
+  /* A single exchange (root steps) is one topic without an article; everything below sees topics only. */
   function buildModel(data) {
-    var E = {}, Z = {}, L = {}, C = {}, V = data.versions || [], VI = {}, topics = [], TI = {}, TS = {};
-    data.entities.forEach(function (e) { E[e.id] = e; });
+    var E = {}, Z = {}, L = {}, C = {}, V = data.versions || [], VI = {}, topics = [], TI = {}, TS = {}, GP = {};
+    data.entities.forEach(function (e) { E[e.id] = e; (e.members || []).forEach(function (m) { GP[m] = e.id; }); });
     (data.channels || []).forEach(function (c) { C[c.id] = c; });
     (data.zones || []).forEach(function (z) { Z[z.id] = z; });
     (data.links || []).forEach(function (l) { L[pairKey(l.from, l.to)] = l; });
     V.forEach(function (v, i) { VI[v.id] = i; });
-    data.sections.forEach(function (s, si) { s.topics.forEach(function (t) { topics.push(t); TI[t.id] = t; TS[t.id] = si; }); });
+    var sections = data.sections || [{ title: "", topics: [{ id: "x", title: data.title, subtitle: "", steps: data.steps, fragments: data.fragments, article: null }] }];
+    sections.forEach(function (s, si) { s.topics.forEach(function (t) { topics.push(t); TI[t.id] = t; TS[t.id] = si; }); });
     var def = null;
     V.forEach(function (v) { if (v["default"]) def = v.id; });
     if (!def && V.length) def = V[V.length - 1].id;
-    return { E: E, Z: Z, L: L, C: C, V: V, VI: VI, topics: topics, TI: TI, TS: TS, defaultVersion: def, hasTM: V.length >= 2 };
+    return { E: E, Z: Z, L: L, C: C, V: V, VI: VI, topics: topics, TI: TI, TS: TS, GP: GP, defaultVersion: def, hasTM: V.length >= 2, single: !data.sections };
+  }
+  /* A member of a group without a zone of its own sits in its group's zone. */
+  function zoneOf(M, id) { var e = M.E[id], g = M.GP[id] && M.E[M.GP[id]]; return e.zone || (g && g.zone) || null; }
+  function clone(h) { var o = {}; Object.keys(h).forEach(function (id) { o[id] = h[id].slice(); }); return o; }
+  function ext(o, x) { var r = {}; Object.keys(o).forEach(function (k) { r[k] = o[k]; }); Object.keys(x).forEach(function (k) { r[k] = x[k]; }); return r; }
+  /* Holdings across an alt: before each step, the actions that apply there. The fragment's first step saves the
+     state, every later branch starts again from it, and after the fragment the state is the end of branch one. */
+  function altPlan(frags) {
+    var at = {};
+    function add(s, prio, fn) { (at[s] = at[s] || []).push({ p: prio, fn: fn }); }
+    (frags || []).forEach(function (f) {
+      if (f.kind !== "alt") return;
+      var st = {};
+      add(f.start, 3, function (h) { st.start = clone(h); return h; });
+      f.branches.forEach(function (b, k) { if (k) add(b.start, 2, function (h) { if (k === 1) st.end0 = clone(h); return clone(st.start); }); });
+      add(f.end + 1, 1 - 1 / (f.end - f.start + 2), function (h) { return st.end0 ? clone(st.end0) : h; });
+    });
+    Object.keys(at).forEach(function (s) { at[s] = at[s].sort(function (a, b) { return a.p - b.p; }).map(function (x) { return x.fn; }); });
+    return at;
   }
 
-  /* The topic as it stands in one version: availability, steps with overrides applied,
-     messages filtered, the beats the learner steps through and the entities involved. */
-  function resolveTopic(M, data, topic, versionId) {
-    var avail = true, reason = null, vi = versionId ? M.VI[versionId] : -1;
-    if (versionId && topic.availableFrom && vi < M.VI[topic.availableFrom]) { avail = false; reason = { kind: "arrives", version: topic.availableFrom }; }
-    if (versionId && topic.removedIn && vi >= M.VI[topic.removedIn]) { avail = false; reason = { kind: "removed", version: topic.removedIn }; }
-    var steps = topic.steps.map(function (st, i) {
+  /* One level of a topic (the topic itself or an inner sequence) as it stands in one version: steps with
+     overrides applied, messages filtered, every beat with the holdings before and after it. */
+  function resolveLevel(M, data, seq, versionId, avail, held0, parentHolds) {
+    var steps = seq.steps.map(function (st, i) {
       var ov = (versionId && st.versions && st.versions[versionId]) || {};
       var msgs = (ov.messages !== undefined ? ov.messages : (st.messages || [])).filter(function (m) {
         return !m.versions || !versionId || m.versions.indexOf(versionId) !== -1;
       });
       return { idx: i, title: ov.title || st.title, explanation: ov.explanation || st.explanation, tag: ov.tag !== undefined ? ov.tag : st.tag,
-        focus: ov.focus || st.focus || [], messages: msgs, check: st.check || null };
+        focus: ov.focus || st.focus || [], messages: msgs, check: st.check || null, compare: st.compare, note: st.note, detail: st.detail, inner: st.inner };
     });
-    var beats = [], n = 0, seen = {};
+    var all = [], n = 0, seen = {}, held = {}, stepState = [], plan = altPlan(seq.fragments);
+    data.entities.forEach(function (e) { held[e.id] = (held0 ? held0[e.id] : (seq.holds && seq.holds[e.id]) || e.holds || []).slice(); });
     if (avail) steps.forEach(function (s) {
+      (plan[s.idx] || []).forEach(function (fn) { held = fn(held); });
+      stepState[s.idx] = clone(held);
       s.focus.forEach(function (id) { seen[id] = true; });
-      if (!s.messages.length) beats.push({ step: s.idx, msg: null, n: 0 });
-      else s.messages.forEach(function (m) { n++; seen[m.from] = true; seen[m.to] = true; beats.push({ step: s.idx, msg: m, n: n }); });
-    });
-    var entities = data.entities.map(function (e) { return e.id; }).filter(function (id) { return seen[id]; });
-    /* holdings: start from the entity defaults (or the topic's override) and apply every message's changes in order */
-    var hasHolds = !!topic.holds || data.entities.some(function (e) { return e.holds && e.holds.length; }) ||
-      steps.some(function (st) { return st.messages.some(function (m) { return !!m.holds; }); });
-    if (hasHolds) {
-      var held = {};
-      data.entities.forEach(function (e) { held[e.id] = ((topic.holds && topic.holds[e.id]) || e.holds || []).slice(); });
-      function snapshot() { var o = {}; Object.keys(held).forEach(function (id) { o[id] = held[id].slice(); }); return o; }
-      beats.forEach(function (b) {
-        b.before = snapshot(); b.added = {}; b.removed = {};
-        var ch = b.msg && b.msg.holds;
-        if (ch) Object.keys(ch).forEach(function (id) {
-          if (!held[id]) return;
-          (ch[id].remove || []).forEach(function (item) { var at = held[id].indexOf(item); if (at !== -1) { held[id].splice(at, 1); (b.removed[id] = b.removed[id] || []).push(item); } });
-          (ch[id].add || []).forEach(function (item) { if (held[id].indexOf(item) === -1) { held[id].push(item); (b.added[id] = b.added[id] || []).push(item); } });
-        });
-        b.after = snapshot();
+      (s.messages.length ? s.messages : [null]).forEach(function (m) {
+        var b = { step: s.idx, msg: m, n: m ? ++n : 0, before: clone(held), added: {}, removed: {} };
+        if (m) {
+          seen[m.from] = true; seen[m.to] = true;
+          var ch = m.holds;
+          if (ch) Object.keys(ch).forEach(function (id) {
+            (ch[id].remove || []).forEach(function (item) { var at = held[id].indexOf(item); if (at !== -1) { held[id].splice(at, 1); (b.removed[id] = b.removed[id] || []).push(item); } });
+            (ch[id].add || []).forEach(function (item) { if (held[id].indexOf(item) === -1) { held[id].push(item); (b.added[id] = b.added[id] || []).push(item); } });
+          });
+        }
+        b.after = clone(held); all.push(b);
       });
-    }
-    /* first and last beat of every step, for the frames on the sequence diagram */
-    var stepBeats = steps.map(function () { return null; });
-    beats.forEach(function (b, i) { if (!stepBeats[b.step]) stepBeats[b.step] = { first: i, last: i }; else stepBeats[b.step].last = i; });
-    return { topic: topic, avail: avail, reason: reason, steps: steps, beats: beats, msgCount: n, entities: entities,
-      hasHolds: hasHolds, stepBeats: stepBeats, fragments: avail ? (topic.fragments || []) : [] };
+    });
+    var hasHolds = !!parentHolds || !!seq.holds || data.entities.some(function (e) { return e.holds && e.holds.length; }) ||
+      steps.some(function (st) { return st.messages.some(function (m) { return !!m.holds; }); });
+    return { seq: seq, steps: steps, all: all, beats: all, msgCount: n, stepState: stepState, hasHolds: hasHolds, avail: avail,
+      entities: data.entities.map(function (e) { return e.id; }).filter(function (id) { return seen[id]; }), fragments: avail ? (seq.fragments || []) : [], shut: [] };
+  }
+  /* first and last beat of every step, for the frames on the sequence diagram */
+  function finish(Rt) {
+    Rt.stepBeats = Rt.steps.map(function () { return null; });
+    Rt.beats.forEach(function (b, i) {
+      var from = b.grp ? b.grp.start : b.step, to = b.grp ? b.grp.end : b.step;
+      for (var s = from; s <= to; s++) { if (!Rt.stepBeats[s]) Rt.stepBeats[s] = { first: i, last: i }; else Rt.stepBeats[s].last = i; }
+    });
+    return Rt;
+  }
+  /* Collapsed group fragments fold their steps into one beat that shows the net change of holdings. */
+  function fold(Rt, isOpen) {
+    var frs = Rt.fragments, shut = [];
+    frs.forEach(function (f, i) { if (f.kind === "group" && !isOpen(i, f)) shut.push(i); });
+    shut = shut.filter(function (i) { var f = frs[i]; return !shut.some(function (j) { var g = frs[j]; return j !== i && g.start <= f.start && g.end >= f.end; }); });
+    Rt.shut = shut.map(function (i) { return frs[i]; });
+    var beats = [];
+    Rt.all.forEach(function (b) {
+      var g = null;
+      Rt.shut.forEach(function (f) { if (b.step >= f.start && b.step <= f.end) g = f; });
+      if (!g) { beats.push(b); return; }
+      var last = beats[beats.length - 1];
+      if (!last || last.grp !== g) beats.push(last = { step: g.start, grp: g, msg: null, n: 0, msgs: [], before: b.before, added: {}, removed: {} });
+      if (b.msg) last.msgs.push(b.msg);
+      last.after = b.after;
+    });
+    beats.forEach(function (b) {
+      if (b.grp) Object.keys(b.after).forEach(function (id) {
+        var a = b.after[id].filter(function (x) { return b.before[id].indexOf(x) === -1; }), r = b.before[id].filter(function (x) { return b.after[id].indexOf(x) === -1; });
+        if (a.length) b.added[id] = a; if (r.length) b.removed[id] = r;
+      });
+    });
+    Rt.beats = beats;
+    return finish(Rt);
+  }
+  /* The topic as it stands in one version, at the level the path opens (step indexes into inner sequences). */
+  function resolveTopic(M, data, topic, versionId, path, isOpen) {
+    var avail = true, reason = null, vi = versionId ? M.VI[versionId] : -1;
+    if (versionId && topic.availableFrom && vi < M.VI[topic.availableFrom]) { avail = false; reason = { kind: "arrives", version: topic.availableFrom }; }
+    if (versionId && topic.removedIn && vi >= M.VI[topic.removedIn]) { avail = false; reason = { kind: "removed", version: topic.removedIn }; }
+    var Rt = resolveLevel(M, data, topic, versionId, avail, null, false), crumbs = [], key = topic.id;
+    (path || []).some(function (i) {
+      var s = Rt.steps[i];
+      if (!avail || !s || !s.inner) return true;
+      crumbs.push({ idx: i, title: s.title, n: Rt.steps.length });
+      key += "." + i;
+      Rt = resolveLevel(M, data, s.inner, versionId, true, Rt.stepState[i], Rt.hasHolds);
+    });
+    fold(Rt, function (i, f) { return isOpen ? isOpen(key + "#" + i, f) : f.collapsed === false; });
+    Rt.topic = topic; Rt.reason = reason; Rt.crumbs = crumbs; Rt.key = key;
+    return Rt;
+  }
+  /* Every inner sequence drawn in place under a ref frame, every group open: the full picture's "Expand all". */
+  function flatten(M, data, Rt, versionId, path) {
+    var out = { steps: [], labels: [], all: [], fragments: [], seen: {}, hasHolds: Rt.hasHolds, avail: true, shut: [] }, a = [], z = [], pre = path.map(function (i) { return i + 1; }).join(".");
+    Rt.entities.forEach(function (id) { out.seen[id] = true; });
+    function shift(f, off) { var g = ext(f, { start: f.start + off, end: f.end + off }); if (f.branches) g.branches = f.branches.map(function (b) { return ext(b, { start: b.start + off, end: b.end + off }); }); return g; }
+    Rt.steps.forEach(function (s, i) {
+      a[i] = out.steps.length; out.steps.push(s); out.labels.push((pre ? pre + "." : "") + (i + 1));
+      Rt.all.forEach(function (b) { if (b.step === i) out.all.push(ext(b, { step: a[i], path: path })); });
+      if (s.inner) {
+        var sub = flatten(M, data, resolveLevel(M, data, s.inner, versionId, true, Rt.stepState[i], Rt.hasHolds), versionId, path.concat([i])), off = out.steps.length;
+        sub.steps.forEach(function (x, k) { out.steps.push(x); out.labels.push(sub.labels[k]); });
+        sub.all.forEach(function (b) { out.all.push(ext(b, { step: b.step + off })); });
+        sub.fragments.forEach(function (f) { out.fragments.push(shift(f, off)); });
+        out.fragments.push({ kind: "ref", label: s.title, start: off, end: out.steps.length - 1 });
+        Object.keys(sub.seen).forEach(function (id) { out.seen[id] = true; });
+      }
+      z[i] = out.steps.length - 1;
+    });
+    Rt.fragments.forEach(function (f) {
+      var g = ext(f, { start: a[f.start], end: z[f.end], collapsed: false });
+      if (f.branches) g.branches = f.branches.map(function (b) { return ext(b, { start: a[b.start], end: z[b.end] }); });
+      out.fragments.push(g);
+    });
+    out.beats = out.all;
+    out.msgCount = out.all.filter(function (b) { return b.msg; }).length;
+    out.entities = data.entities.map(function (e) { return e.id; }).filter(function (id) { return out.seen[id]; });
+    return finish(out);
+  }
+  /* The frames to draw: fragments outside collapsed groups, and a ref frame on every step with an inner sequence. */
+  function framesOf(Rt, refs) {
+    var inShut = function (s, e) { return Rt.shut.some(function (g) { return s >= g.start && e <= g.end; }); };
+    var out = Rt.fragments.filter(function (f) { return Rt.shut.indexOf(f) === -1 && !inShut(f.start, f.end); });
+    if (refs) Rt.steps.forEach(function (s, i) { if (s.inner && !inShut(i, i)) out.push({ kind: "ref", label: s.inner.steps.length + " inner steps", start: i, end: i, open: i }); });
+    return out;
   }
   /* The channel a message travels on: its own, or the one of the link between its ends. */
   function channelOf(M, m) {
@@ -763,7 +909,7 @@
     var CW = 236, CH = 212, PAD = 22, HEAD = 36, GAP = narrow ? 30 : 64, perRow = narrow ? 2 : 3;
     var groups = [], byZone = {};
     ids.forEach(function (id) {
-      var e = M.E[id], z = e.zone && M.Z[e.zone] ? e.zone : null;
+      var zid = zoneOf(M, id), z = zid && M.Z[zid] ? zid : null;
       if (z) { if (!byZone[z]) { byZone[z] = { zone: M.Z[z], ids: [] }; groups.push(byZone[z]); } byZone[z].ids.push(id); }
       else groups.push({ zone: null, ids: [id] });
     });
@@ -823,15 +969,24 @@
     var reduceMotion = !!(root.matchMedia && root.matchMedia("(prefers-reduced-motion: reduce)").matches);
     var key = storageKey(data);
     var M = buildModel(data);
+    GLOSS = {}; (data.glossary || []).forEach(function (g) { GLOSS[g.term.trim().toLowerCase()] = g; });
+    onTerm = showTerm;
+    /* a later build() on the same container retires this one's listeners */
+    var gen = container.nthviewGen = (container.nthviewGen || 0) + 1;
+    function live() { return container.nthviewGen === gen; }
     var theme = data.theme || "graphite";
     container.setAttribute("data-theme", theme);
 
     /* ---------- state and progress (§5.5) ---------- */
-    var defaultMode = data.defaultMode || "network";
-    var state = { screen: "intro", topic: M.topics[0].id, pos: 0, version: M.defaultVersion, mode: defaultMode, scheme: PALETTES[theme].side, checks: {}, panel: "message", done: false };
+    var defaultMode = data.defaultMode || (M.single ? "sequence" : "network");
+    var state = { screen: M.single ? "lesson" : "intro", topic: M.topics[0].id, path: [], pos: 0, version: M.defaultVersion, mode: defaultMode, scheme: PALETTES[theme].side,
+      checks: {}, groups: {}, compare: false, changed: false, panel: "message", done: false };
     var saved = loadState(key), resumed = false;
     if (saved) {
-      if (saved.screen === "lesson" || saved.screen === "intro") state.screen = saved.screen;
+      if (!M.single && (saved.screen === "lesson" || saved.screen === "intro")) state.screen = saved.screen;
+      if (Array.isArray(saved.path) && saved.path.every(function (x) { return typeof x === "number" && x >= 0 && x % 1 === 0; })) state.path = saved.path;
+      if (saved.groups && typeof saved.groups === "object" && !Array.isArray(saved.groups)) Object.keys(saved.groups).forEach(function (k) { if (typeof saved.groups[k] === "boolean") state.groups[k] = saved.groups[k]; });
+      state.compare = saved.compare === true; state.changed = saved.changed === true;
       if (typeof saved.topic === "string" && M.TI[saved.topic]) state.topic = saved.topic;
       if (typeof saved.pos === "number" && saved.pos >= 0) state.pos = Math.floor(saved.pos);
       if (typeof saved.version === "string" && M.VI[saved.version] !== undefined) state.version = saved.version;
@@ -840,14 +995,17 @@
       if (saved.checks && typeof saved.checks === "object" && !Array.isArray(saved.checks)) state.checks = saved.checks;
       if (saved.panel === "article" || saved.panel === "message") state.panel = saved.panel;
       state.done = saved.done === true;
-      resumed = state.screen === "lesson";
+      resumed = M.single ? state.pos > 0 || state.path.length > 0 : state.screen === "lesson";
     }
     function untouched() {
-      return !state.done && state.screen === "intro" && !Object.keys(state.checks).length && state.version === M.defaultVersion && state.mode === defaultMode && state.scheme === PALETTES[theme].side;
+      return !state.done && (M.single ? !state.pos && !state.path.length : state.screen === "intro") && !Object.keys(state.checks).length && !Object.keys(state.groups).length &&
+        !state.compare && !state.changed && state.version === M.defaultVersion && state.mode === defaultMode && state.scheme === PALETTES[theme].side;
     }
     function persist() {
+      if (!live()) return;
       if (untouched()) { clearState(key); return; }
-      saveState(key, { screen: state.screen, topic: state.topic, pos: state.pos, version: state.version, mode: state.mode, scheme: state.scheme, checks: state.checks, panel: state.panel, done: state.done });
+      saveState(key, { screen: state.screen, topic: state.topic, path: state.path, pos: state.pos, version: state.version, mode: state.mode, scheme: state.scheme, checks: state.checks,
+        groups: state.groups, compare: state.compare, changed: state.changed, panel: state.panel, done: state.done });
     }
     function applyScheme() {
       if (state.scheme === "auto") container.removeAttribute("data-scheme"); else container.setAttribute("data-scheme", state.scheme);
@@ -858,9 +1016,17 @@
     var narrowStage = false;
     function versionLabel(id) { var v = id && M.V[M.VI[id]]; return v ? v.label : ""; }
     function topicIndex(id) { for (var i = 0; i < M.topics.length; i++) if (M.topics[i].id === id) return i; return 0; }
-    function resolve() { R = resolveTopic(M, data, M.TI[state.topic], state.version); if (state.pos >= R.beats.length) state.pos = Math.max(0, R.beats.length - 1); }
-    function checkKey(stepIdx) { return state.topic + "/" + stepIdx; }
-    function isGated(i) { var b = R.beats[i]; return !!(b && R.steps[b.step].check && state.checks[checkKey(b.step)] === undefined); }
+    function isOpen(k, f) { var v = state.groups[k]; return v === undefined ? f.collapsed === false : v; }
+    function resolve() {
+      R = resolveTopic(M, data, M.TI[state.topic], state.version, state.path, isOpen);
+      state.path = R.crumbs.map(function (c) { return c.idx; });
+      if (state.pos >= R.beats.length) state.pos = Math.max(0, R.beats.length - 1);
+    }
+    function checkKey(stepIdx) { return state.topic + "/" + (state.path.length ? state.path.join(".") + "." : "") + stepIdx; }
+    function isGated(i) { var b = R.beats[i]; return !!(b && !b.grp && R.steps[b.step].check && state.checks[checkKey(b.step)] === undefined); }
+    /* 1 right, -1 wrong, 0 skipped; a who check stores the chosen entity id, a choice check the option index */
+    function verdictOf(c, a) { return a === -1 ? 0 : (c.type === "who" ? a === c.answer : !!(c.options[a] && c.options[a].correct)) ? 1 : -1; }
+    function focusStage() { if (ui.stage) { try { ui.stage.focus({ preventScroll: true }); } catch (e) { ui.stage.focus(); } } }
     function curStep() { var b = R.beats[state.pos]; return b ? R.steps[b.step] : R.steps[0]; }
     function totalMessages() {
       var n = 0;
@@ -913,10 +1079,10 @@
       return el("div", { class: "nthview-df-tm" }, [head, line]);
     }
     function topBar() {
-      var brand = el("button", { type: "button", class: "nthview-df-brand", text: data.title, title: "Back to the overview" });
-      brand.addEventListener("click", function () { setScreen("intro"); });
+      var brand = M.single ? el("span", { class: "nthview-df-brand", text: data.title }) : el("button", { type: "button", class: "nthview-df-brand", text: data.title, title: "Back to the overview" });
+      if (!M.single) brand.addEventListener("click", function () { setScreen("intro"); });
       var bar = el("div", { class: "nthview-df-top" }, [el("h1", { class: "nthview-df-sr", text: data.title }), brand]);
-      if (state.screen === "lesson") {
+      if (state.screen === "lesson" && !M.single) {
         var ib = el("button", { type: "button", class: "nthview-df-introbtn", text: "Overview" });
         ib.addEventListener("click", function () { setScreen("intro"); });
         bar.appendChild(ib);
@@ -924,6 +1090,7 @@
       var fb = el("button", { type: "button", class: "nthview-df-introbtn nthview-df-fullbtn", title: "The whole flow in one diagram" }, [icon("full"), doc.createTextNode("Full picture")]);
       fb.addEventListener("click", function () { openFullPicture(); });
       bar.appendChild(fb);
+      if (data.glossary && data.glossary.length) { var gb = el("button", { type: "button", class: "nthview-df-introbtn nthview-df-glossbtn", text: "Glossary", "aria-haspopup": "dialog" }); gb.addEventListener("click", openGlossary); bar.appendChild(gb); }
       if (M.hasTM && state.screen === "lesson") bar.appendChild(timeMachine());
       bar.appendChild(el("div", { class: "nthview-df-topright" }, [schemeButton(), restartButton(container, data, key)]));
       return bar;
@@ -1025,7 +1192,8 @@
        topic, each under a title band, on lifelines shared by all of them. */
     function buildSequence(blocks, ids, avail, availH, opts) {
       opts = opts || {};
-      var hasFrames = blocks.some(function (b) { return b.Rt.fragments.length > 0; });
+      blocks.forEach(function (b) { b.frames = framesOf(b.Rt, opts.refs); });
+      var hasFrames = blocks.some(function (b) { return b.frames.length > 0; });
       var n = Math.max(ids.length, 1), LEFT = 36, ROW = hasFrames ? 48 : 40, TOP = hasFrames ? 140 : 116, BAND = 44;
       var W = Math.max(avail, n * 150 + LEFT + 20), COL = (W - LEFT - 20) / n, BOX = Math.min(170, COL - 16);
       var rowsTotal = blocks.reduce(function (sum, b) { return sum + Math.max(b.Rt.beats.length, 1) + (b.title ? BAND / ROW : 0); }, 0);
@@ -1036,11 +1204,16 @@
         var x = LEFT + COL * (i + 0.5), e = M.E[id];
         X[id] = x;
         svg.appendChild(svgEl("line", { class: "nthview-df-life", x1: f1(x), y1: 90, x2: f1(x), y2: f1(H - 12) }));
+        var mem = e.members ? e.members.length : 0;
         var g = svgEl("g", { class: "nthview-df-lifehead", "data-id": id }, [
           svgEl("rect", { x: f1(x - BOX / 2), y: 16, width: f1(BOX), height: 42, rx: 8 }),
-          svgEl("text", { x: f1(x), y: 42, text: e.name })
+          svgEl("text", { x: f1(x), y: mem ? 36 : 42, text: e.name })
         ]);
-        var z = e.zone && M.Z[e.zone];
+        if (mem) {
+          g.appendChild(svgEl("text", { class: "nthview-df-zl", x: f1(x), y: 51, "text-anchor": "middle", text: mem + " INSIDE" }));
+          g.appendChild(svgEl("title", { text: e.name + ": " + e.members.map(function (m) { return M.E[m].name; }).join(", ") }));
+        }
+        var z = zoneOf(M, id) && M.Z[zoneOf(M, id)];
         if (z) g.appendChild(svgEl("text", { class: "nthview-df-zl", x: f1(x), y: 76, "text-anchor": "middle", text: z.name }));
         svg.appendChild(g); heads[id] = g;
       });
@@ -1052,13 +1225,25 @@
         svg.appendChild(svgEl("text", { class: "nthview-df-seqtopic", x: LEFT + 4, y: f1(base - 8), text: blk.title }));
         base += BAND;
       }
-      if (Rt.fragments.length) drawFrames(svg, Rt, LEFT, W, base, ROW);
+      if (blk.frames.length) drawFrames(svg, Rt, blk.frames, LEFT, W, base, ROW, opts.onRef);
       Rt.beats.forEach(function (b, i) {
-        var y = base + i * ROW;
+        var y = base + i * ROW, st = Rt.steps[b.step];
         if (b.step !== lastStep) {
           lastStep = b.step;
-          svg.appendChild(svgEl("text", { class: "nthview-df-sstep", x: 8, y: f1(y + 4), text: String(b.step + 1) }));
+          svg.appendChild(svgEl("text", { class: "nthview-df-sstep", x: 8, y: f1(y + 4), text: b.grp ? (b.grp.start + 1) + "–" + (b.grp.end + 1) : Rt.labels ? Rt.labels[b.step] : String(b.step + 1) }));
+          if (!b.grp && st.note) svg.appendChild(svgEl("text", { class: "nthview-df-snote nthview-df-snote-" + st.note.severity, x: 24, y: f1(y + 4), text: "!" }, [svgEl("title", { text: st.note.severity + ": " + st.note.text.replace(/\*\*|`|\(\(|\)\)/g, "") })]));
           if (i) svg.appendChild(svgEl("line", { class: "nthview-df-ssep", x1: LEFT, y1: f1(y - ROW / 2 - 2), x2: f1(W - 10), y2: f1(y - ROW / 2 - 2) }));
+        }
+        if (b.grp) {
+          var xs = [];
+          b.msgs.forEach(function (m) { if (X[m.from] !== undefined) xs.push(X[m.from]); if (X[m.to] !== undefined) xs.push(X[m.to]); });
+          var gl = "▸ " + b.grp.label + " · " + (b.grp.end - b.grp.start + 1) + " steps", need = gl.length * 7.2 + 28;
+          var gx1 = xs.length ? Math.min.apply(null, xs) - 24 : LEFT + 10, gx2 = xs.length ? Math.max.apply(null, xs) + 24 : W - 20;
+          if (gx2 - gx1 < need) { var mid = (gx1 + gx2) / 2; gx1 = Math.max(LEFT + 4, mid - need / 2); gx2 = Math.min(W - 8, gx1 + need); }
+          var gg = svgEl("g", { class: "nthview-df-sgrp", "data-i": i }, [svgEl("rect", { x: f1(gx1), y: f1(y - 14), width: f1(gx2 - gx1), height: 28, rx: 14 }),
+            svgEl("text", { x: f1((gx1 + gx2) / 2), y: f1(y + 4), "text-anchor": "middle", text: gl }), svgEl("title", { text: "Folded group: " + b.grp.label })]);
+          gg.addEventListener("click", function () { if (opts.onPick) opts.onPick(blk, i); else { stop(); setPos(i); } });
+          svg.appendChild(gg); arrows.push(gg); return;
         }
         if (!b.msg) {
           svg.appendChild(svgEl("text", { class: "nthview-df-sstep", x: LEFT + 4, y: f1(y + 4), text: Rt.steps[b.step].title + " · no message" }));
@@ -1094,14 +1279,14 @@
 
     /* alt, opt and loop frames: a box around the rows of the steps they cover, a tab with the kind and label,
        the guard in brackets, and for alt a dashed separator before every further branch */
-    function drawFrames(svg, Rt, LEFT, W, TOP, ROW) { /* TOP is the y of this block's first row */
-      var frags = Rt.fragments.map(function (f, i) { return { f: f, i: i, first: Rt.stepBeats[f.start].first, last: Rt.stepBeats[f.end].last }; });
+    function drawFrames(svg, Rt, frames, LEFT, W, TOP, ROW, onRef) { /* TOP is the y of this block's first row */
+      var frags = frames.map(function (f, i) { return { f: f, i: i, first: Rt.stepBeats[f.start].first, last: Rt.stepBeats[f.end].last }; });
       frags.forEach(function (a) { a.depth = frags.filter(function (b) { return b !== a && b.first <= a.first && b.last >= a.last && (b.first < a.first || b.last > a.last || b.i < a.i); }).length; });
       var tabsAt = {};
       frags.forEach(function (fr) {
         var f = fr.f, inset = fr.depth * 12, x1 = LEFT + 6 + inset, x2 = W - 12 - inset;
         var yTop = TOP + fr.first * ROW - 26, yBot = TOP + fr.last * ROW + 20;
-        var g = svgEl("g", { class: "nthview-df-frag" });
+        var g = svgEl("g", { class: "nthview-df-frag" + (f.kind === "ref" ? " nthview-df-ref" : "") });
         g.appendChild(svgEl("rect", { x: f1(x1), y: f1(yTop), width: f1(x2 - x1), height: f1(yBot - yTop), rx: 4 }));
         var tabText = f.kind + (f.label ? " " + f.label : ""), tabW = tabText.length * 6.6 + 14, tabX = x1 + (tabsAt[fr.first] || 0);
         tabsAt[fr.first] = (tabsAt[fr.first] || 0) + tabW + 6;
@@ -1113,9 +1298,10 @@
             if (k) g.appendChild(svgEl("line", { class: "nthview-df-fragsep", x1: f1(x1), y1: f1(yb), x2: f1(x2), y2: f1(yb) }));
             g.appendChild(svgEl("text", { class: "nthview-df-fragcond", x: f1(k ? x1 + 8 : tabX + tabW + 8), y: f1(yb - 4.5), text: "[" + b.condition + "]" }));
           });
-        } else {
+        } else if (f.condition) {
           g.appendChild(svgEl("text", { class: "nthview-df-fragcond", x: f1(tabX + tabW + 8), y: f1(yTop - 4.5), text: "[" + f.condition + "]" }));
         }
+        if (f.open !== undefined && onRef) { g.appendChild(svgEl("title", { text: "Open the inner sequence" })); g.addEventListener("click", function () { onRef(f.open); }); }
         svg.appendChild(g);
       });
     }
@@ -1127,9 +1313,11 @@
       closeB.addEventListener("click", function () { toggleDrawer(false); });
       side.appendChild(el("div", { class: "nthview-df-drawerhead" }, [el("span", { class: "nthview-df-muted", text: "Topics" }), closeB]));
       var head = el("div", { class: "nthview-df-sidehead" }, [el("h2", { text: data.kicker || data.title })]);
+      if (M.single && data.lead) head.appendChild(para("nthview-df-vernote", data.lead));
       if (M.hasTM) { var cv = M.V[M.VI[state.version]]; if (cv.note) head.appendChild(para("nthview-df-vernote", cv.label + ": " + cv.note)); }
       side.appendChild(head);
-      data.sections.forEach(function (s) {
+      if (M.single) side.appendChild(stepList(R));
+      else data.sections.forEach(function (s) {
         side.appendChild(el("div", { class: "nthview-df-gh", text: s.title }));
         s.topics.forEach(function (t) { side.appendChild(topicItem(t)); });
       });
@@ -1154,35 +1342,60 @@
       var b = el("button", { type: "button", class: "nthview-df-th", "aria-expanded": open ? "true" : "false" }, [titleB, el("em", { text: sub })]);
       b.addEventListener("click", function () { if (open) { toggleDrawer(false); return; } openTopic(t.id, false); });
       item.appendChild(b);
-      if (open) {
-        var ol = el("ol", { class: "nthview-df-steps" });
-        if (!Rt.avail) ol.appendChild(el("li", {}, [el("span", { class: "nthview-df-off" }, [el("span", { class: "nthview-df-num", text: "–" }), doc.createTextNode("Not in this version")])]));
-        else Rt.steps.forEach(function (s, i) {
-          var firstBeat = -1;
-          for (var k = 0; k < Rt.beats.length; k++) if (Rt.beats[k].step === i) { firstBeat = k; break; }
-          var done = state.checks[checkKey(i)] !== undefined;
-          var sb = el("button", { type: "button" }, [el("span", { class: "nthview-df-num" + (done ? " nthview-df-num-done" : ""), text: String(i + 1) }), el("span", { text: s.title })]);
-          if (s.tag) sb.appendChild(el("i", { class: "nthview-df-tag", text: s.tag }));
-          sb.addEventListener("click", function () { stop(); setPos(firstBeat); toggleDrawer(false); });
-          ol.appendChild(el("li", {}, [sb]));
-        });
-        item.appendChild(ol);
-        ui.stepList = ol;
-      }
+      if (open) item.appendChild(stepList(Rt));
       return item;
+    }
+
+    /* The steps of the open level: a row per ancestor to back out to, a folded group as one row, a mark on
+       steps that open an inner sequence. */
+    function stepList(Rt) {
+      var ol = el("ol", { class: "nthview-df-steps" });
+      ui.stepList = ol;
+      if (!Rt.avail) { ol.appendChild(el("li", {}, [el("span", { class: "nthview-df-off" }, [el("span", { class: "nthview-df-num", text: "–" }), doc.createTextNode("Not in this version")])])); return ol; }
+      Rt.crumbs.forEach(function (c, d) {
+        var b = el("button", { type: "button", title: "Back out to this level" }, [el("span", { class: "nthview-df-num", text: "↑" }), el("span", { text: "Step " + (c.idx + 1) + " · " + c.title })]);
+        b.addEventListener("click", function () { backOut(d); toggleDrawer(false); });
+        ol.appendChild(el("li", { class: "nthview-df-crumb" }, [b]));
+      });
+      Rt.steps.forEach(function (s, i) {
+        var g = null;
+        Rt.shut.forEach(function (f) { if (i >= f.start && i <= f.end) g = f; });
+        if (g && i !== g.start) return;
+        var beat = Rt.stepBeats[i] ? Rt.stepBeats[i].first : 0, done = !g && state.checks[checkKey(i)] !== undefined;
+        var sb = g ? el("button", { type: "button" }, [el("span", { class: "nthview-df-num nthview-df-num-grp", text: (g.start + 1) + "–" + (g.end + 1) }), el("span", { text: g.label })])
+          : el("button", { type: "button" }, [el("span", { class: "nthview-df-num" + (done ? " nthview-df-num-done" : ""), text: String(i + 1) }), el("span", { text: s.title })]);
+        if (!g && s.tag) sb.appendChild(el("i", { class: "nthview-df-tag", text: s.tag }));
+        if (!g && s.inner) sb.appendChild(el("i", { class: "nthview-df-in", text: "↳" + s.inner.steps.length, title: "Opens an inner sequence of " + s.inner.steps.length + " steps" }));
+        sb.addEventListener("click", function () { stop(); setPos(beat); toggleDrawer(false); });
+        ol.appendChild(el("li", { "data-s": String(i) }, [sb]));
+      });
+      return ol;
     }
 
     function center() {
       var c = el("section", { class: "nthview-df-center", "aria-label": "Lesson" });
       /* phone sub bar: topics drawer button and the version select */
-      var tb = el("button", { type: "button", class: "nthview-df-btn nthview-df-topicsbtn", "aria-expanded": "false", "aria-controls": "nthview-df-side" }, [el("span", { text: M.TI[state.topic].title }), icon("menu")]);
+      var tb = el("button", { type: "button", class: "nthview-df-btn nthview-df-topicsbtn", "aria-expanded": "false", "aria-controls": "nthview-df-side" }, [el("span", { text: M.single ? "Steps" : M.TI[state.topic].title }), icon("menu")]);
       tb.addEventListener("click", function () { toggleDrawer(true); });
       ui.topicsBtn = tb;
       var sub = el("div", { class: "nthview-df-subbar" }, [tb]);
       if (M.hasTM && ui.tmSelect) { var sel2 = ui.tmSelect.firstChild.cloneNode(true); sel2.addEventListener("change", function () { setVersion(sel2.value); }); sub.appendChild(sel2); }
       var stagewrap = el("div", { class: "nthview-df-stagewrap" });
       stagewrap.appendChild(sub);
-      if (resumed) { resumed = false; stagewrap.appendChild(resumeNotice("Welcome back, continuing from " + M.TI[state.topic].title + (R.beats.length ? " · step " + (R.beats[state.pos].step + 1) + " of " + R.steps.length : ""))); }
+      if (resumed) { resumed = false; stagewrap.appendChild(resumeNotice("Welcome back, continuing from " + (M.single ? "" : M.TI[state.topic].title + " · ") + (R.crumbs.length ? "inside step " + (R.crumbs[R.crumbs.length - 1].idx + 1) + " · " : "") + (R.beats.length ? "step " + (R.beats[state.pos].step + 1) + " of " + R.steps.length : ""))); }
+      if (R.crumbs.length) {
+        var nav = el("nav", { class: "nthview-df-crumbs", "aria-label": "Where you are" }), topB = el("button", { type: "button", text: M.single ? data.title : M.TI[state.topic].title });
+        topB.addEventListener("click", function () { backOut(0); });
+        nav.appendChild(topB);
+        R.crumbs.forEach(function (c, d) {
+          nav.appendChild(el("span", { "aria-hidden": "true", text: "›" }));
+          var label = "Step " + (c.idx + 1) + " · " + c.title;
+          if (d === R.crumbs.length - 1) { nav.appendChild(el("b", { text: label + " · inner sequence" })); return; }
+          var cb = el("button", { type: "button", text: label }); cb.addEventListener("click", function () { backOut(d + 1); }); nav.appendChild(cb);
+        });
+        stagewrap.appendChild(nav);
+        if (R.seq.subtitle) stagewrap.appendChild(para("nthview-df-innersub", R.seq.subtitle));
+      }
       ui.status = el("div", { class: "nthview-df-sr", "aria-live": "polite" }); c.appendChild(ui.status);
       /* caption and mode toggle */
       ui.cap = el("div", { class: "nthview-df-cap" });
@@ -1214,17 +1427,27 @@
       if (!R.beats.length || !R.msgCount) {
         flow.appendChild(el("p", { class: "nthview-df-empty", text: R.avail ? "This topic sends no messages in this version." : "This topic is not part of " + versionLabel(state.version) + "." }));
       } else {
-        var table = el("table", { class: "nthview-df-table" }, [el("caption", { class: "nthview-df-sr", text: "Messages of this topic, in order" }), el("thead", {}, [el("tr", {}, ["#", "From", "To", "Message", "Info"].map(function (h) { return el("th", { scope: "col", text: h }); }))])]);
+        var info = R.beats.some(function (b) { return b.msg && b.msg.info; }), heads = ["#", "From", "To", "Message"].concat(info ? ["Info"] : []);
+        var table = el("table", { class: "nthview-df-table" }, [el("caption", { class: "nthview-df-sr", text: "Messages of this topic, in order" }), el("thead", {}, [el("tr", {}, heads.map(function (h) { return el("th", { scope: "col", text: h }); }))])]);
         var tbody = el("tbody"); ui.rows = [];
         R.beats.forEach(function (b, i) {
+          if (b.grp) {
+            var gtr = el("tr", { tabindex: "0", class: "nthview-df-grprow", "aria-label": "Folded group " + b.grp.label + ", steps " + (b.grp.start + 1) + " to " + (b.grp.end + 1) }, [
+              el("td", {}, [el("span", { class: "nthview-df-num nthview-df-num-grp", text: (b.grp.start + 1) + "–" + (b.grp.end + 1) })]),
+              el("td", { colspan: info ? "3" : "2", text: "▸ " + b.grp.label }), el("td", { text: b.msgs.length + " message" + (b.msgs.length === 1 ? "" : "s") + ", folded" })]);
+            gtr.addEventListener("click", function () { stop(); setPos(i); });
+            gtr.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); stop(); setPos(i); } });
+            tbody.appendChild(gtr); ui.rows.push(gtr); return;
+          }
           if (!b.msg) { ui.rows.push(null); return; }
           var m = b.msg;
           var nameTd = el("td", { class: "nthview-df-mono" }, [el("span", { class: isDeprecated(m) ? "nthview-df-dep" : "", text: m.name })]);
           (m.tags || []).forEach(function (t) { nameTd.appendChild(el("i", { class: "nthview-df-tag" + (t === "deprecated" ? "" : " nthview-df-tag-muted"), text: t })); });
           var tr = el("tr", { tabindex: "0", "aria-label": "Message " + b.n + ": " + m.name + ", " + M.E[m.from].name + " to " + M.E[m.to].name }, [
             el("td", {}, [el("span", { class: "nthview-df-dot nthview-df-k-" + kindOf(m) + hueClass(channelOf(M, m)), text: String(b.step + 1), title: "step " + (b.step + 1) + " · " + kindOf(m) + (channelOf(M, m) ? " · " + channelOf(M, m).name : "") })]),
-            el("td", { text: M.E[m.from].name }), el("td", { text: M.E[m.to].name }), nameTd, el("td", { text: m.info || "" })
+            el("td", { text: M.E[m.from].name }), el("td", { text: M.E[m.to].name }), nameTd
           ]);
+          if (info) tr.appendChild(el("td", { text: m.info || "" }));
           tr.addEventListener("click", function () { stop(); setPos(i); });
           tr.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); stop(); setPos(i); } });
           tbody.appendChild(tr); ui.rows.push(tr);
@@ -1274,7 +1497,12 @@
     }
 
     function rightPanel() {
-      var r = el("aside", { class: "nthview-df-right", "data-panel": state.panel, "aria-label": "Article and message" });
+      var r = el("aside", { class: "nthview-df-right", "data-panel": M.single ? "solo" : state.panel, "aria-label": M.single ? "Message" : "Article and message" });
+      if (M.single) {
+        ui.msg = el("div", { class: "nthview-df-msg" }); r.appendChild(ui.msg);
+        if (data.footer) r.appendChild(para("nthview-df-footer", data.footer));
+        return r;
+      }
       var seg = el("div", { class: "nthview-df-seg", role: "group", "aria-label": "Panel" });
       ["message", "article"].forEach(function (p) {
         var b = el("button", { type: "button", "aria-pressed": state.panel === p ? "true" : "false", text: p === "article" ? "Article" : "Message" });
@@ -1319,7 +1547,7 @@
       if (state.mode === "network") { ui.net = buildNetwork(R.entities, narrowStage, R); ui.net.svg.classList.add("nthview-df-dim"); ui.stage.appendChild(ui.net.svg); ui.stage.style.cssText = ""; }
       else {
         var w = ui.stage.clientWidth || 900, h = ui.stage.clientHeight || 0;
-        ui.seq = buildSequence([{ Rt: R, title: null, topicId: state.topic }], R.entities, Math.max(320, w - 2), h > 200 ? h - 2 : 0);
+        ui.seq = buildSequence([{ Rt: R, title: null, topicId: state.topic }], R.entities, Math.max(320, w - 2), h > 200 ? h - 2 : 0, { refs: true, onRef: openInner });
         ui.stage.appendChild(ui.seq.svg);
         ui.stage.style.cssText = "overflow:auto;display:block";
       }
@@ -1344,16 +1572,20 @@
       ui.holds.innerHTML = "";
       var state_ = b ? (gated ? b.before : b.after) : null, added = b && !gated ? b.added : {}, removed = b && !gated ? b.removed : {};
       if (!state_) { ui.holds.style.display = "none"; return; }
-      var any = false;
+      var any = false, tg = el("button", { type: "button", class: "nthview-df-holdtog", "aria-pressed": state.changed ? "true" : "false", text: "Changes only", title: "Show only the entities whose holdings change here" });
+      tg.addEventListener("click", function () { state.changed = !state.changed; persist(); renderHolds(b, gated); ui.holds.firstChild.focus(); });
+      ui.holds.appendChild(tg);
       R.entities.forEach(function (id) {
         var items = state_[id] || [], gone = removed[id] || [];
         if (!items.length && !gone.length) return;
+        if (state.changed && !gone.length && !(added[id] || []).length) return;
         any = true;
         var g = el("div", { class: "nthview-df-hold" }, [el("b", { text: M.E[id].name })]);
         items.forEach(function (it) { g.appendChild(el("span", { class: "nthview-df-chip" + ((added[id] || []).indexOf(it) !== -1 ? " nthview-df-chip-new" : ""), text: it, title: (added[id] || []).indexOf(it) !== -1 ? "new at this message" : "" })); });
         gone.forEach(function (it) { g.appendChild(el("span", { class: "nthview-df-chip nthview-df-chip-gone", text: it, title: "given up at this message" })); });
         ui.holds.appendChild(g);
       });
+      if (!any && state.changed) { ui.holds.appendChild(el("span", { class: "nthview-df-hold-none", text: "Nothing changes hands here" })); any = true; }
       ui.holds.style.display = any ? "" : "none";
     }
 
@@ -1367,14 +1599,22 @@
       ui.fadeNext = false;
       var fxLayer = ui.net ? ui.net.fx : ui.seq ? ui.seq.fx : null;
       if (fxLayer) Array.prototype.slice.call(fxLayer.childNodes).forEach(function (nd) { if (nd.getAttribute("data-i") !== String(state.pos)) fxLayer.removeChild(nd); });
-      if (!st) {
+      var inside = R.crumbs.length ? "Inside step " + (R.crumbs[R.crumbs.length - 1].idx + 1) + " · " : "";
+      if (b && b.grp) {
+        ui.cap.appendChild(el("p", { class: "nthview-df-eyebrow", text: inside + "Steps " + (b.grp.start + 1) + "–" + (b.grp.end + 1) + " of " + R.steps.length + " · folded group" }));
+        ui.cap.appendChild(el("h2", { text: b.grp.label }));
+        if (b.grp.summary) ui.cap.appendChild(para("nthview-df-expl", b.grp.summary));
+        var ex = el("button", { type: "button", class: "nthview-df-btn", text: "Expand the " + (b.grp.end - b.grp.start + 1) + " steps" });
+        ex.addEventListener("click", function () { setGroup(b.grp, true); });
+        ui.cap.appendChild(el("div", { class: "nthview-df-capact" }, [ex]));
+      } else if (!st) {
         ui.cap.appendChild(el("p", { class: "nthview-df-eyebrow", text: R.avail ? "No steps" : "Not in " + versionLabel(state.version) }));
         ui.cap.appendChild(el("h2", { text: M.TI[state.topic].title }));
         ui.cap.appendChild(para("nthview-df-expl", R.avail ? "" : (R.reason.kind === "arrives" ? "This topic arrives in " + versionLabel(R.reason.version) + ". Switch the version to see it." : "This topic was removed in " + versionLabel(R.reason.version) + ". Switch to an earlier version to see it.")));
       } else {
-        var eyebrow = el("p", { class: "nthview-df-eyebrow", text: "Step " + (st.idx + 1) + " of " + R.steps.length });
+        var eyebrow = el("p", { class: "nthview-df-eyebrow", text: inside + "Step " + (st.idx + 1) + " of " + R.steps.length });
         if (st.check && !gated) {
-          var a = state.checks[checkKey(st.idx)], verdict = a === -1 ? "Prediction skipped" : st.check.options[a].correct ? "Predicted right" : "Predicted wrong";
+          var a = state.checks[checkKey(st.idx)], verdict = ["Predicted wrong", "Prediction skipped", "Predicted right"][verdictOf(st.check, a) + 1];
           var review = el("button", { type: "button", class: "nthview-df-review", text: verdict + " · review" });
           review.addEventListener("click", function () { openQuiz(st); });
           eyebrow.appendChild(doc.createTextNode(" · ")); eyebrow.appendChild(review);
@@ -1389,6 +1629,7 @@
           openQuiz(st);
         } else {
           ui.cap.appendChild(para("nthview-df-expl", st.explanation));
+          capExtras(st);
           if (ui.quiz && ui.quiz.classList.contains("nthview-df-open") && ui.quizStep !== st.idx) closeQuiz();
         }
       }
@@ -1404,7 +1645,8 @@
       });
       /* diagram highlight */
       var on = {}, onEdge = {};
-      if (st && !gated) {
+      if (b && b.grp) b.msgs.forEach(function (m) { on[m.from] = true; on[m.to] = true; });
+      else if (st && !gated) {
         st.focus.forEach(function (id) { on[id] = true; });
         st.messages.forEach(function (m) { on[m.from] = true; on[m.to] = true; });
         if (b.msg && b.msg.from !== b.msg.to) onEdge[pairKey(b.msg.from, b.msg.to)] = true;
@@ -1414,11 +1656,13 @@
         Object.keys(ui.net.edges).forEach(function (k) { var e = ui.net.edges[k]; e.line.classList.toggle("nthview-df-on", !!onEdge[k]); if (e.pill) e.pill.classList.toggle("nthview-df-on", !!onEdge[k]); });
       }
       if (ui.seq) {
+        var sy = ui.seq.TOP + state.pos * ui.seq.ROW, stg = ui.stage;
+        if (sy < stg.scrollTop + 60 || sy > stg.scrollTop + stg.clientHeight - 30) stg.scrollTop = Math.max(0, sy - stg.clientHeight / 2);
         ui.seq.arrows.forEach(function (g, i) { if (!g) return; g.classList.toggle("nthview-df-cur", i === state.pos && !gated); g.classList.toggle("nthview-df-fut", i > state.pos || (i === state.pos && gated)); });
         Object.keys(ui.seq.heads).forEach(function (id) { ui.seq.heads[id].classList.toggle("nthview-df-on", !!on[id]); });
       }
       /* sidebar current step */
-      if (ui.stepList) ui.stepList.querySelectorAll("li > button").forEach(function (sb, i) { if (st && i === st.idx) sb.setAttribute("aria-current", "step"); else sb.removeAttribute("aria-current"); });
+      if (ui.stepList) ui.stepList.querySelectorAll("li[data-s]").forEach(function (li) { var sb = li.firstChild; if (st && +li.getAttribute("data-s") === (b.grp ? b.grp.start : st.idx)) sb.setAttribute("aria-current", "step"); else sb.removeAttribute("aria-current"); });
       /* holdings and message panel */
       renderHolds(b, gated);
       renderMessage(b, gated);
@@ -1427,16 +1671,111 @@
       ui.backBtn.disabled = state.pos <= 0; ui.stepBtn.disabled = last || gated; ui.playBtn.disabled = !R.beats.length || (last && !playing && R.beats.length < 2);
       updatePlayBtn();
       ui.nextWrap.innerHTML = "";
-      var ti = topicIndex(state.topic);
-      /* the end is the last step of the last topic, where the view offers no "Next topic" (§5.5 rule 8) */
-      if (last && R.avail && !gated && ti === M.topics.length - 1 && !state.done) { state.done = true; persist(); }
-      if ((last || !R.avail) && !gated && ti < M.topics.length - 1) {
+      var ti = topicIndex(state.topic), lastTopic = ti === M.topics.length - 1;
+      if (last && R.crumbs.length && !gated) {
+        var pc = R.crumbs[R.crumbs.length - 1], ob = el("button", { type: "button", class: "nthview-df-btn" }, [doc.createTextNode("Back out and continue after step " + (pc.idx + 1) + " ↑")]);
+        ob.addEventListener("click", function () { backOut(R.crumbs.length - 1, true); });
+        ui.nextWrap.appendChild(ob);
+      } else if (last && R.avail && !gated && lastTopic) {
+        /* the end is the last step of the last topic, where the view offers no "Next topic" (§5.5 rule 8) */
+        if (!state.done) { state.done = true; persist(); }
+        ui.nextWrap.appendChild(recap());
+      }
+      if ((last || !R.avail) && !gated && !lastTopic && !R.crumbs.length) {
         var nt = M.topics[ti + 1], nb = el("button", { type: "button", class: "nthview-df-btn" }, [doc.createTextNode("Next topic: " + nt.title + " →")]);
         nb.addEventListener("click", function () { openTopic(nt.id, false); });
         ui.nextWrap.appendChild(nb);
       }
       /* live status */
-      if (st) ui.status.textContent = "Step " + (st.idx + 1) + " of " + R.steps.length + ": " + st.title + (b.msg && !gated ? ". Message " + b.n + " of " + R.msgCount + ": " + b.msg.name + " from " + M.E[b.msg.from].name + " to " + M.E[b.msg.to].name : gated ? ". Answer the question to reveal this step." : "");
+      if (b && b.grp) ui.status.textContent = "Steps " + (b.grp.start + 1) + " to " + (b.grp.end + 1) + ", folded: " + b.grp.label;
+      else if (st) ui.status.textContent = inside + "Step " + (st.idx + 1) + " of " + R.steps.length + ": " + st.title + (b.msg && !gated ? ". Message " + b.n + " of " + R.msgCount + ": " + b.msg.name + " from " + M.E[b.msg.from].name + " to " + M.E[b.msg.to].name : gated ? ". Answer the question to reveal this step." : "");
+    }
+    /* under the explanation: the note, the comparison, the way into an inner sequence or out of a group */
+    function capExtras(st) {
+      if (st.note) {
+        var n = el("p", { class: "nthview-df-callout nthview-df-sev-" + st.note.severity }, [el("b", { text: { info: "Note: ", warning: "Watch out: ", danger: "Critical: " }[st.note.severity] })]);
+        n.appendChild(rich(st.note.text)); ui.cap.appendChild(n);
+      }
+      if (state.compare && st.compare) {
+        var c = el("p", { class: "nthview-df-callout nthview-df-cmp" }, [el("b", { text: st.compare.label + ": " })]);
+        c.appendChild(rich(st.compare.text)); ui.cap.appendChild(c);
+      }
+      var act = el("div", { class: "nthview-df-capact" });
+      if (st.inner) {
+        var ob = el("button", { type: "button", class: "nthview-df-btn" }, [doc.createTextNode("Open the inner sequence · " + st.inner.steps.length + " steps →")]);
+        ob.addEventListener("click", function () { openInner(st.idx); });
+        act.appendChild(ob);
+      }
+      var g = null;
+      R.fragments.forEach(function (f) { if (f.kind === "group" && st.idx >= f.start && st.idx <= f.end) g = f; });
+      if (g) { var fb = el("button", { type: "button", class: "nthview-df-review", text: "Fold “" + g.label + "”" }); fb.addEventListener("click", function () { setGroup(g, false); }); act.appendChild(fb); }
+      if (R.steps.some(function (x) { return x.compare; })) {
+        var cb = el("input", { type: "checkbox" });
+        cb.checked = state.compare;
+        cb.addEventListener("change", function () { state.compare = cb.checked; persist(); ui.refocus = true; refresh(); });
+        act.appendChild(el("label", {}, [cb, doc.createTextNode(data.compareLabel || "Show the comparison")]));
+        if (ui.refocus) { ui.refocus = false; cb.focus(); }
+      }
+      if (act.childNodes.length) ui.cap.appendChild(act);
+    }
+    /* the end of the whole flow: how the predictions went, and the closing words */
+    function recap() {
+      var t = { 1: 0, "-1": 0, 0: 0 }, total = 0;
+      function walk(seq, prefix) {
+        seq.steps.forEach(function (st, i) {
+          if (st.check) { total++; var a = state.checks[prefix + i]; if (a !== undefined) t[verdictOf(st.check, a)]++; }
+          if (st.inner) walk(st.inner, prefix + i + ".");
+        });
+      }
+      M.topics.forEach(function (tp) { walk(tp, tp.id + "/"); });
+      var box = el("div", { class: "nthview-df-recap", role: "status" }, [el("h3", { text: "You reached the end" })]);
+      var seen = t[1] + t[-1] + t[0];
+      if (total) box.appendChild(el("p", { text: "Predictions: " + t[1] + " right, " + t[-1] + " wrong, " + t[0] + " skipped" + (total > seen ? ", " + (total - seen) + " not reached" : "") + "." }));
+      (data.closing || []).forEach(function (c) { box.appendChild(para(null, c)); });
+      return box;
+    }
+    function openInner(idx) { stop(); state.path = state.path.concat([idx]); state.pos = 0; persist(); renderAll(); focusStage(); }
+    /* back out to depth d; with advance, continue at the beat after the parent step */
+    function backOut(d, advance) {
+      stop();
+      var idx = state.path[d];
+      state.path = state.path.slice(0, d); resolve();
+      var sb = R.stepBeats[idx];
+      state.pos = sb ? Math.min(R.beats.length - 1, sb.last + (advance ? 1 : 0)) : 0;
+      persist(); renderAll(); focusStage();
+    }
+    function setGroup(f, open) {
+      stop();
+      var k = R.key + "#" + R.fragments.indexOf(f);
+      if (open === (f.collapsed === false)) delete state.groups[k]; else state.groups[k] = open;
+      resolve();
+      var sb = R.stepBeats[f.start]; state.pos = sb ? sb.first : 0;
+      persist(); renderAll(); focusStage();
+    }
+    /* glossary: a pop-over by the term, and a dialog with every term */
+    function showTerm(g, anchor) {
+      hideTerm();
+      var pop = el("div", { class: "nthview-df-pop", role: "dialog", "aria-label": g.term }, [el("b", { text: g.term })]);
+      pop.appendChild(para(null, g.definition));
+      (anchor.closest("dialog") || container).appendChild(pop);
+      var r = anchor.getBoundingClientRect(), w = pop.offsetWidth, h = pop.offsetHeight, y = r.bottom + 6;
+      if (y + h > root.innerHeight - 8) y = Math.max(8, r.top - h - 6);
+      pop.style.left = f1(Math.max(12, Math.min(r.left, root.innerWidth - w - 12))) + "px"; pop.style.top = f1(y) + "px";
+      ui.pop = pop;
+    }
+    function hideTerm() { if (ui.pop && ui.pop.parentNode) ui.pop.parentNode.removeChild(ui.pop); ui.pop = null; }
+    function openGlossary() {
+      hideTerm();
+      var dlg = el("dialog", { class: "nthview-df-dialog nthview-df-dsmall", "aria-label": "Glossary" });
+      var close = el("button", { type: "button", class: "nthview-df-btn", text: "Close" });
+      close.addEventListener("click", function () { dlg.close(); });
+      dlg.appendChild(el("div", { class: "nthview-df-dialog-head" }, [el("div", {}, [el("h2", { text: "Glossary" })]), close]));
+      var dl = el("dl", { class: "nthview-df-gloss" });
+      data.glossary.slice().sort(function (a, b) { return a.term.localeCompare(b.term); }).forEach(function (g) { dl.appendChild(el("dt", { text: g.term })); var dd = el("dd"); dd.appendChild(rich(g.definition)); dl.appendChild(dd); });
+      dlg.appendChild(dl);
+      dlg.addEventListener("close", function () { hideTerm(); if (dlg.parentNode) dlg.parentNode.removeChild(dlg); });
+      container.appendChild(dlg);
+      if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
     }
     function updatePlayBtn() {
       ui.playBtn.innerHTML = "";
@@ -1450,7 +1789,18 @@
       box.appendChild(el("h2", { text: "Message" }));
       if (!b) { box.appendChild(el("p", { class: "nthview-df-empty", text: R.avail ? "Nothing to show." : "This topic is not part of " + versionLabel(state.version) + "." })); return; }
       if (gated) { box.appendChild(el("p", { class: "nthview-df-empty", text: "Answer the question above the diagram, or skip it, to reveal this step's messages." })); return; }
-      if (!b.msg) { box.appendChild(el("p", { class: "nthview-df-empty", text: "This step sends no message." })); return; }
+      if (b.grp) { box.appendChild(el("p", { class: "nthview-df-empty", text: "Folded: " + b.msgs.map(function (m) { return m.name; }).join(", ") + ". Expand the group to step through " + (b.msgs.length === 1 ? "it." : "them one by one.") })); return; }
+      if (!b.msg) box.appendChild(el("p", { class: "nthview-df-empty", text: "This step sends no message." }));
+      else messageBody(box, b);
+      var st = R.steps[b.step];
+      if (st.detail) {
+        box.appendChild(el("h3", { class: "nthview-df-dh", text: "About this step" }));
+        var dl = el("dl", { class: "nthview-df-notes nthview-df-detail" });
+        st.detail.forEach(function (d) { dl.appendChild(el("dt", { text: d.label })); var dd = el("dd"); dd.appendChild(rich(d.text)); dl.appendChild(dd); });
+        box.appendChild(dl);
+      }
+    }
+    function messageBody(box, b) {
       var m = b.msg, k = kindOf(m);
       var ch = channelOf(M, m);
       var ih = el("div", { class: "nthview-df-ih" }, [el("span", { class: "nthview-df-dot nthview-df-k-" + k + hueClass(ch), "aria-hidden": "true" }), el("span", { class: "nthview-df-im" + (isDeprecated(m) ? " nthview-df-dep" : ""), text: m.name })]);
@@ -1487,7 +1837,7 @@
       var head = el("div", { class: "nthview-df-quiz-head" }, [el("span", { class: "nthview-df-eyebrow nthview-df-quiz-kicker", text: answered ? "Your prediction" : "Predict before you look" })]);
       if (answered) { var x = el("button", { type: "button", class: "nthview-df-quiz-close", "aria-label": "Close", text: "×" }); x.addEventListener("click", closeQuiz); head.appendChild(x); }
       ui.quiz.appendChild(head);
-      ui.quiz.appendChild(el("p", { class: "nthview-df-quiz-step", text: "Step " + (st.idx + 1) + " · " + st.title }));
+      ui.quiz.appendChild(el("p", { class: "nthview-df-quiz-step", text: (R.crumbs.length ? "Inside step " + (R.crumbs[R.crumbs.length - 1].idx + 1) + " · " : "") + "Step " + (st.idx + 1) + " · " + st.title }));
       ui.quiz.appendChild(checkCard(st));
       var wasOpen = ui.quiz.classList.contains("nthview-df-open");
       ui.quiz.classList.add("nthview-df-open");
@@ -1498,28 +1848,29 @@
       ui.quiz.classList.remove("nthview-df-open");
       if (ui.stage) { try { ui.stage.focus({ preventScroll: true }); } catch (e) { ui.stage.focus(); } }
     }
+    /* A who check offers the parties on the diagram; a choice check its own options. */
     function checkCard(st) {
-      var c = st.check, ck = checkKey(st.idx), answered = state.checks[ck], card = el("div", { class: "nthview-df-check", role: "group", "aria-label": "Prediction check" });
-      if (answered !== undefined) card.appendChild(el("p", { class: "nthview-df-verdict" + (answered !== -1 && c.options[answered].correct ? " nthview-df-verdict-right" : ""), text: answered === -1 ? "Skipped" : (c.options[answered].correct ? "Correct" : "Not quite") }));
-      card.appendChild(para(null, c.prompt));
+      var c = st.check, who = c.type === "who", answered = state.checks[checkKey(st.idx)], card = el("div", { class: "nthview-df-check", role: "group", "aria-label": "Prediction check" });
+      var opts = who ? R.entities.map(function (id) { return { val: id, text: M.E[id].name, correct: id === c.answer, why: id === c.answer ? c.why || M.E[id].name + " sends it." : M.E[id].name + " does not send this one." }; })
+        : c.options.map(function (o, i) { return { val: i, text: o.text, correct: !!o.correct, why: o.why }; });
+      var mine = opts.filter(function (o) { return o.val === answered; })[0], right = opts.filter(function (o) { return o.correct; })[0];
+      if (answered !== undefined) card.appendChild(el("p", { class: "nthview-df-verdict" + (mine && mine.correct ? " nthview-df-verdict-right" : ""), text: answered === -1 ? "Skipped" : (mine && mine.correct ? "Correct" : "Not quite") }));
+      card.appendChild(para(null, c.prompt || "Who sends the next message?"));
       var ol = el("ul", { class: "nthview-df-opts" });
-      c.options.forEach(function (o, i) {
-        var b = el("button", { type: "button" }, [el("span", { class: "nthview-df-ol", text: String.fromCharCode(65 + i) }), el("span", {}, [rich(o.text)])]);
+      opts.forEach(function (o, i) {
+        var b = el("button", { type: "button" }, [el("span", { class: "nthview-df-ol", text: String.fromCharCode(65 + i) }), el("span", {}, [rich(o.text, true)])]);
         if (answered !== undefined) {
           b.disabled = true;
           if (o.correct) b.classList.add("nthview-df-right");
-          else if (i === answered) b.classList.add("nthview-df-wrong");
-        } else b.addEventListener("click", function () { answer(st, i); });
+          else if (o === mine) b.classList.add("nthview-df-wrong");
+        } else b.addEventListener("click", function () { answer(st, o.val); });
         ol.appendChild(el("li", {}, [b]));
       });
       card.appendChild(ol);
-      if (answered !== undefined && answered !== -1) {
-        var o = c.options[answered], why = el("p", { class: "nthview-df-why" });
-        why.appendChild(el("b", { text: o.correct ? "Why: " : "Why not: " })); why.appendChild(rich(o.why));
-        if (!o.correct) {
-          var right = c.options.filter(function (x) { return x.correct; })[0];
-          why.appendChild(el("br")); why.appendChild(el("b", { text: "The answer: " })); why.appendChild(rich(right.text + ". " + right.why));
-        }
+      if (mine) {
+        var why = el("p", { class: "nthview-df-why" });
+        why.appendChild(el("b", { text: mine.correct ? "Why: " : "Why not: " })); why.appendChild(rich(mine.why));
+        if (!mine.correct && right) { why.appendChild(el("br")); why.appendChild(el("b", { text: "The answer: " })); why.appendChild(rich(right.text + ". " + right.why)); }
         card.appendChild(why);
       } else if (answered === undefined) {
         var skip = el("button", { type: "button", class: "nthview-df-skip", text: "Skip and show the step" });
@@ -1536,7 +1887,7 @@
     /* The step is revealed behind the panel as soon as the learner answers; Continue closes the panel. */
     function answer(st, i) {
       state.checks[checkKey(st.idx)] = i; persist();
-      if (ui.stepList) { var nums = ui.stepList.querySelectorAll(".nthview-df-num"); if (nums[st.idx]) nums[st.idx].classList.add("nthview-df-num-done"); }
+      if (ui.stepList) { var num = ui.stepList.querySelector("li[data-s='" + st.idx + "'] .nthview-df-num"); if (num) num.classList.add("nthview-df-num-done"); }
       refresh();
       var b = R.beats[state.pos];
       if (b && b.msg && !reduceMotion) animateBeat(state.pos, function () {});
@@ -1625,13 +1976,30 @@
     function openFullPicture() {
       stop();
       if (ui.dialog) { if (ui.dialog.parentNode) ui.dialog.parentNode.removeChild(ui.dialog); ui.dialog = null; }
-      var all = M.topics.map(function (t) { return { Rt: resolveTopic(M, data, t, state.version), title: t.title, topicId: t.id }; }).filter(function (b) { return b.Rt.avail && b.Rt.beats.length; });
-      var msgs = all.reduce(function (sum, b) { return sum + b.Rt.msgCount; }, 0);
+      var expand = false, zoom = 1, all, msgs;
+      function blocks() {
+        all = M.topics.map(function (t) {
+          var Rt = resolveTopic(M, data, t, state.version, [], isOpen);
+          return { Rt: expand && Rt.avail ? flatten(M, data, Rt, state.version, []) : Rt, title: M.single ? null : t.title, topicId: t.id };
+        }).filter(function (b) { return b.Rt.avail && b.Rt.beats.length; });
+        msgs = all.reduce(function (sum, b) { return sum + b.Rt.msgCount; }, 0);
+      }
+      blocks();
+      var tools = el("div", { class: "nthview-df-zoom" }), xb = el("button", { type: "button", class: "nthview-df-btn", text: "Expand all", "aria-pressed": "false", title: "Draw every inner sequence in place and open every group" });
+      xb.addEventListener("click", function () { expand = !expand; xb.setAttribute("aria-pressed", expand ? "true" : "false"); blocks(); draw(); });
+      tools.appendChild(xb);
+      [["−", 1 / 1.25, "Zoom out"], ["+", 1.25, "Zoom in"], ["Fit", 0, "Fit the width"]].forEach(function (z) {
+        var b = el("button", { type: "button", class: "nthview-df-btn", text: z[0], "aria-label": z[2] });
+        b.addEventListener("click", function () { zoom = z[1] ? Math.max(0.4, Math.min(3, zoom * z[1])) : 1; draw(); });
+        tools.appendChild(b);
+      });
       var dlg = el("dialog", { class: "nthview-df-dialog", "aria-label": "The full picture" });
       var seg = el("div", { class: "nthview-df-seg", role: "group", "aria-label": "Diagram" });
       var body = el("div", { class: "nthview-df-dialog-body" });
       function draw() {
         body.innerHTML = "";
+        count.textContent = data.entities.length + " entities · " + (M.single ? "" : all.length + " topics · ") + msgs + " messages" + (M.hasTM ? " · " + versionLabel(state.version) : "") + ". In the sequence, click a message to open it in the lesson.";
+        tools.style.display = fullMode === "sequence" ? "" : "none";
         seg.querySelectorAll("button").forEach(function (x) { x.setAttribute("aria-pressed", x.getAttribute("data-mode") === fullMode ? "true" : "false"); });
         if (fullMode === "network") {
           var net = buildNetwork(data.entities.map(function (e) { return e.id; }), body.clientWidth > 0 && body.clientWidth < 560, null);
@@ -1641,9 +2009,10 @@
           var used = {};
           all.forEach(function (b) { b.Rt.entities.forEach(function (id) { used[id] = true; }); });
           var ids = data.entities.map(function (e) { return e.id; }).filter(function (id) { return used[id]; });
-          var seq = buildSequence(all, ids, Math.max(320, body.clientWidth - 2), 0, { onPick: function (blk, i) {
-            dlg.close(); if (blk.topicId !== state.topic) openTopic(blk.topicId, false); setPos(i);
-          } });
+          var seq = buildSequence(all, ids, Math.max(320, body.clientWidth - 2), 0, { refs: !expand, onPick: function (blk, i) { dlg.close(); goTo(blk.topicId, blk.Rt.beats[i]); },
+            onRef: function () { expand = true; xb.setAttribute("aria-pressed", "true"); blocks(); draw(); } });
+          var vb = seq.svg.getAttribute("viewBox").split(" ");
+          seq.svg.style.width = f1(vb[2] * zoom) + "px"; seq.svg.style.height = f1(vb[3] * zoom) + "px";
           body.style.overflow = "auto"; body.appendChild(seq.svg);
         }
       }
@@ -1654,9 +2023,10 @@
       });
       var close = el("button", { type: "button", class: "nthview-df-btn", text: "Close", "aria-label": "Close the full picture" });
       close.addEventListener("click", function () { dlg.close(); });
+      var count = el("p", { class: "nthview-df-muted" });
       dlg.appendChild(el("div", { class: "nthview-df-dialog-head" }, [
-        el("div", {}, [el("h2", { text: "The full picture" }), el("p", { class: "nthview-df-muted", text: data.entities.length + " entities · " + all.length + " topics · " + msgs + " messages" + (M.hasTM ? " · " + versionLabel(state.version) : "") + ". In the sequence, click a message to open it in the lesson." })]),
-        seg, close
+        el("div", {}, [el("h2", { text: "The full picture" }), count]),
+        seg, tools, close
       ]));
       dlg.appendChild(body);
       dlg.addEventListener("close", function () { if (dlg.parentNode) dlg.parentNode.removeChild(dlg); ui.dialog = null; });
@@ -1669,8 +2039,18 @@
     function setScreen(s) {
       stop(); state.screen = s; persist(); renderAll();
     }
+    /* open a beat picked on the full picture: its topic, its level, and the beat that shows it */
+    function goTo(tid, b) {
+      stop(); state.topic = tid; state.screen = "lesson"; state.path = (b.path || []).slice(); state.pos = 0; resolve();
+      var target = b.orig !== undefined ? b.orig : b.step, at = 0;
+      for (var k = R.beats.length - 1; k >= 0; k--) {
+        var x = R.beats[k];
+        if (b.msg ? x.msg === b.msg || (x.grp && x.msgs.indexOf(b.msg) !== -1) : (x.grp ? target >= x.grp.start && target <= x.grp.end : x.step === target)) at = k;
+      }
+      state.pos = at; persist(); renderAll(); focusStage();
+    }
     function openTopic(id, fromHero) {
-      stop(); state.topic = id; state.screen = "lesson"; state.pos = 0; persist(); renderAll();
+      stop(); state.topic = id; state.screen = "lesson"; state.path = []; state.pos = 0; persist(); renderAll();
       if (!ui.stage) return;
       if (!fromHero && root.innerWidth < 1024) ui.stage.scrollIntoView({ block: "start", behavior: reduceMotion ? "auto" : "smooth" });
       try { ui.stage.focus({ preventScroll: true }); } catch (e) { ui.stage.focus(); }
@@ -1688,12 +2068,15 @@
       container.innerHTML = "";
       ui = {};
       container.appendChild(topBar());
-      if (state.screen === "intro") { container.appendChild(hero()); drawPreview(); }
+      if (state.screen === "intro" && !M.single) { container.appendChild(hero()); drawPreview(); }
       else { container.appendChild(lesson()); buildStage(); refresh(); if (ui.side) ui.side.scrollTop = sideScroll; }
     }
 
     /* ---------- keyboard and resize ---------- */
+    container.addEventListener("click", function (e) { if (live() && ui.pop && !ui.pop.contains(e.target)) hideTerm(); });
     container.addEventListener("keydown", function (e) {
+      if (!live()) return;
+      if (e.key === "Escape" && ui.pop) { hideTerm(); return; }
       var tag = (e.target.tagName || "").toLowerCase();
       if (tag === "input" || tag === "select" || tag === "textarea") return;
       if (e.key === "Escape" && ui.side && ui.side.classList.contains("nthview-df-open")) { toggleDrawer(false); return; }
@@ -1707,6 +2090,7 @@
     function onResize() {
       if (resizeTimer) clearTimeout(resizeTimer);
       resizeTimer = setTimeout(function () {
+        if (!live()) return;
         if (state.screen === "intro") { drawPreview(); return; }
         if (!ui.stage || playing) return;
         var narrow = ui.stage.clientWidth > 0 && ui.stage.clientWidth < 560;
@@ -1715,7 +2099,7 @@
     }
     root.addEventListener("resize", onResize);
     if (root.ResizeObserver) { var ro = new root.ResizeObserver(onResize); ro.observe(container); }
-    doc.addEventListener("visibilitychange", function () { if (doc.hidden) { stop(); persist(); } });
+    doc.addEventListener("visibilitychange", function () { if (doc.hidden && live()) { stop(); persist(); } });
     root.addEventListener("pagehide", function () { persist(); });
 
     renderAll();

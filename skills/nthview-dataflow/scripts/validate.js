@@ -20,7 +20,10 @@
   var MESSAGE_KINDS = ["request", "response", "error", "notification", "local", "transport"];
   var TONES = ["neutral", "attention"];
   var COLORS = ["slate", "amber", "green", "blue", "red", "teal", "violet", "pink"];
-  var FRAGMENT_KINDS = ["alt", "opt", "loop"];
+  var FRAGMENT_KINDS = ["alt", "opt", "loop", "group"];
+  var SEVERITIES = ["info", "warning", "danger"];
+  var HERO_ONLY = ["kicker", "heading", "facts", "startLabel", "jumps"];
+  var MARK_RE = /\(\(([^()]*)\)\)/g;
   var MAX_HOLDS = 12;
   var URL_RE = /^https?:\/\//;
   var MAX_PAYLOAD = 4000, WARN_PAYLOAD = 1500;
@@ -53,13 +56,24 @@
 
   // ---- view-specific rules: mirror references/schema.md exactly ----------
   function checkRoot(data, error, warn) {
+    /* rich strings are collected as they are checked; their ((term)) marks are checked at the end */
+    var richList = [];
+    function rich(obj, key, parent) { if (typeof obj[key] === "string") richList.push([join(parent, key), obj[key]]); }
+    /* one exchange (root steps) or topics (sections): exactly one of the two */
+    var single = data.sections === undefined && data.steps !== undefined;
+    if (data.sections !== undefined && data.steps !== undefined) error("steps", "not allowed together with sections; a document is either topics (sections) or one exchange (steps)");
+    if (single) HERO_ONLY.forEach(function (k) { if (data[k] !== undefined) error(k, "only allowed with sections; a single exchange (root steps) has no overview page"); });
+    if (!single && data.fragments !== undefined) error("fragments", "only allowed with root steps; put fragments on the topic they frame");
+
     requireString(data, "title", "$", 1, 120, error);
     optionalString(data, "kicker", "$", 80, error);
     optionalString(data, "heading", "$", 120, error);
-    requireString(data, "lead", "$", 1, 800, error);
+    if (single) optionalString(data, "lead", "$", 800, error, 1); else requireString(data, "lead", "$", 1, 800, error);
+    rich(data, "lead", "$");
     optionalString(data, "startLabel", "$", 40, error, 1);
     optionalString(data, "versionsLabel", "$", 24, error, 1);
-    optionalString(data, "footer", "$", 300, error);
+    optionalString(data, "footer", "$", 300, error); rich(data, "footer", "$");
+    optionalString(data, "compareLabel", "$", 60, error, 1);
     optionalEnum(data, "theme", "$", THEMES, error);
     optionalEnum(data, "defaultMode", "$", ["network", "sequence"], error);
 
@@ -68,7 +82,23 @@
         var p = "facts[" + i + "]";
         if (!isObject(f)) { error(p, "must be an object, got " + describe(f)); return; }
         requireString(f, "term", p, 1, 40, error);
-        requireString(f, "text", p, 1, 240, error);
+        requireString(f, "text", p, 1, 240, error); rich(f, "text", p);
+      });
+    }
+    if (data.closing !== undefined && requireArray(data, "closing", "$", 0, 4, error)) {
+      data.closing.forEach(function (c, i) { requireString(data.closing, i, "closing", 1, 600, error); rich(data.closing, i, "closing"); });
+    }
+    /* glossary: terms unique ignoring case; marks are checked once every rich string is known */
+    var GL = {}, glUsed = {};
+    if (data.glossary !== undefined && requireArray(data, "glossary", "$", 0, 40, error)) {
+      data.glossary.forEach(function (g, i) {
+        var p = "glossary[" + i + "]";
+        if (!isObject(g)) { error(p, "must be an object, got " + describe(g)); return; }
+        if (requireString(g, "term", p, 1, 40, error)) {
+          var k = g.term.trim().toLowerCase();
+          if (GL[k] !== undefined) error(p + ".term", "duplicate term " + JSON.stringify(g.term) + " (terms are unique ignoring case)"); else GL[k] = i;
+        }
+        requireString(g, "definition", p, 1, 300, error); rich(g, "definition", p);
       });
     }
 
@@ -86,7 +116,7 @@
         }
         requireString(v, "label", p, 1, 20, error);
         optionalString(v, "date", p, 40, error);
-        optionalString(v, "note", p, 200, error);
+        optionalString(v, "note", p, 200, error); rich(v, "note", p);
         if (v["default"] !== undefined && typeof v["default"] !== "boolean") error(p + ".default", "must be a boolean, got " + describe(v["default"]));
         if (v["default"] === true) defaults++;
       });
@@ -146,6 +176,7 @@
         optionalString(e, "subtitle", p, 40, error);
         optionalEnum(e, "kind", p, KINDS, error);
         if (e.holds !== undefined) checkItems(e, "holds", p, 0, MAX_HOLDS);
+        if (e.members !== undefined) requireArray(e, "members", p, 2, 12, error);
         if (e.zone !== undefined) {
           if (typeof e.zone !== "string") error(p + ".zone", "must be a zone id string, got " + describe(e.zone));
           else if (!ZI[e.zone]) error(p + ".zone", "zone id " + JSON.stringify(e.zone) + " is not defined in zones");
@@ -153,6 +184,23 @@
         }
       });
     }
+    /* groups: members are other entities, each in one group at most, never a group themselves */
+    var memberOf = {};
+    if (Array.isArray(data.entities)) data.entities.forEach(function (e, i) {
+      if (!isObject(e) || !Array.isArray(e.members) || e.members.length < 2 || e.members.length > 12) return;
+      var seen = {};
+      e.members.forEach(function (m, k) {
+        var mp = "entities[" + i + "].members[" + k + "]";
+        if (typeof m !== "string") { error(mp, "must be an entity id string, got " + describe(m)); return; }
+        if (!EI[m]) { error(mp, "entity id " + JSON.stringify(m) + " is not defined in entities"); return; }
+        if (m === e.id) { error(mp, "a group cannot be its own member"); return; }
+        if (seen[m]) { error(mp, "duplicate member " + JSON.stringify(m)); return; }
+        seen[m] = true;
+        if (memberOf[m]) error(mp, JSON.stringify(m) + " is already a member of " + JSON.stringify(memberOf[m]) + "; an entity belongs to one group at most");
+        else memberOf[m] = e.id;
+        data.entities.forEach(function (x) { if (isObject(x) && x.id === m && x.members !== undefined) error(mp, JSON.stringify(m) + " is a group itself; groups do not nest"); });
+      });
+    });
     function checkEntityRef(obj, key, parent) {
       var path = join(parent, key), v = obj[key];
       if (typeof v !== "string") { error(path, "must be an entity id string, got " + describe(v)); return false; }
@@ -205,9 +253,11 @@
     }
     if (Array.isArray(data.links)) data.links.forEach(function (l, i) { if (isObject(l) && l.channel !== undefined) checkChannelRef(l, "channel", "links[" + i + "]"); });
 
-    /* sections and topics */
+    /* sections and topics, or one exchange */
     var TI = {}, topicCount = 0, stepCount = 0, checkCount = 0;
-    if (requireArray(data, "sections", "$", 1, 12, error)) {
+    if (single) {
+      if (requireArray(data, "steps", "$", 1, 60, error)) checkSeq(data, "$", 0, startHolds(null));
+    } else if (requireArray(data, "sections", "$", 1, 12, error)) {
       data.sections.forEach(function (s, si) {
         var sp = "sections[" + si + "]";
         if (!isObject(s)) { error(sp, "must be an object, got " + describe(s)); return; }
@@ -244,21 +294,36 @@
           checkItems(t.holds, id, p + ".holds", 0, MAX_HOLDS);
         });
       }
-
-      var touched = {};
-      if (requireArray(t, "steps", p, 1, 30, error)) {
-        var msgTotal = 0;
-        t.steps.forEach(function (st, i) { msgTotal += checkStep(st, p + ".steps[" + i + "]", touched); });
-        if (t.steps.length > 12) warn(p + ".steps", "more than 12 steps (" + t.steps.length + "); consider splitting the topic");
-        if (msgTotal > 60) warn(p + ".steps", "more than 60 messages in this topic (" + msgTotal + "); the flow table gets long");
-        if (Object.keys(touched).length > 8) warn(p, "the steps touch " + Object.keys(touched).length + " entities; the network diagram will be crowded");
-        checkHoldings(t, p);
-        if (t.fragments !== undefined) checkFragments(t, p);
-      }
+      if (requireArray(t, "steps", p, 1, 30, error)) checkSeq(t, p, 0, startHolds(t));
+    }
+    function startHolds(t) {
+      var held = {};
+      Object.keys(EI).forEach(function (id) {
+        var e = null;
+        data.entities.forEach(function (x) { if (isObject(x) && x.id === id) e = x; });
+        var start = (t && isObject(t.holds) && Array.isArray(t.holds[id])) ? t.holds[id] : (e && Array.isArray(e.holds) ? e.holds : []);
+        held[id] = start.slice();
+      });
+      return held;
     }
 
-    /* Holdings are cumulative: walk the messages each version shows and make sure every removed item is held. */
-    function checkHoldings(t, p) {
+    /* A sequence of steps: a topic, the root of a single exchange, or an inner sequence (depth ≥ 1).
+       Its steps array is already known to be an array. */
+    function checkSeq(seq, p, depth, held0) {
+      var touched = {}, msgTotal = 0, base = p === "$" ? "steps" : p + ".steps";
+      seq.steps.forEach(function (st, i) { msgTotal += checkStep(st, base + "[" + i + "]", touched, depth); });
+      var what = depth ? "inner sequence" : "topic";
+      if (depth === 0 && seq.steps.length > (single ? 30 : 12)) warn(base, "more than " + (single ? 30 : 12) + " steps (" + seq.steps.length + "); consider " + (single ? "folding runs into groups or inner sequences" : "splitting the topic"));
+      if (msgTotal > 60) warn(base, "more than 60 messages in this " + what + " (" + msgTotal + "); the flow table gets long");
+      if (Object.keys(touched).length > 8) warn(p, "the steps touch " + Object.keys(touched).length + " entities; the diagram will be crowded");
+      if (seq.fragments !== undefined) checkFragments(seq, p, !depth && single ? 20 : 12);
+      if (depth === 0) checkHoldings(seq, p, held0);
+    }
+
+    /* Holdings are cumulative: walk the messages each version shows and make sure every removed item is held.
+       In an alt, every branch after the first starts from the state before the fragment and does not carry
+       forward. An inner sequence starts from the state just before its parent step; its changes stay inside. */
+    function checkHoldings(t, p, held0) {
       var versionIds = hasVersions ? versions.map(function (v) { return v.id; }) : [null];
       /* the same problem is reported once, naming the versions only when it does not occur in all of them */
       var found = {}, order = [];
@@ -267,19 +332,17 @@
         if (!found[key]) { found[key] = { kind: kind, path: path, message: message, versions: [] }; order.push(key); }
         if (vid) found[key].versions.push(vid);
       }
-      versionIds.forEach(function (vid) {
-        var held = {};
-        Object.keys(EI).forEach(function (id) {
-          var e = null;
-          data.entities.forEach(function (x) { if (isObject(x) && x.id === id) e = x; });
-          var start = (t.holds && isObject(t.holds) && Array.isArray(t.holds[id])) ? t.holds[id] : (e && Array.isArray(e.holds) ? e.holds : []);
-          held[id] = start.slice();
-        });
-        t.steps.forEach(function (st, si) {
+      function clone(h) { var o = {}; Object.keys(h).forEach(function (id) { o[id] = h[id].slice(); }); return o; }
+      function walk(seq, sp, held, vid) {
+        var plan = altPlan(seq.fragments);
+        seq.steps.forEach(function (st, si) {
+          (plan[si] || []).forEach(function (a) { held = a(held, clone); });
           if (!isObject(st)) return;
+          var stp = (sp === "$" ? "steps" : sp + ".steps") + "[" + si + "]";
           var ov = (vid && isObject(st.versions) && isObject(st.versions[vid])) ? st.versions[vid] : null;
           var msgs = ov && Array.isArray(ov.messages) ? ov.messages : (Array.isArray(st.messages) ? st.messages : []);
-          var base = ov && Array.isArray(ov.messages) ? p + ".steps[" + si + "].versions." + vid + ".messages" : p + ".steps[" + si + "].messages";
+          var base = ov && Array.isArray(ov.messages) ? stp + ".versions." + vid + ".messages" : stp + ".messages";
+          if (isObject(st.inner) && Array.isArray(st.inner.steps)) walk(st.inner, stp + ".inner", clone(held), vid);
           msgs.forEach(function (m, mi) {
             if (!isObject(m) || !isObject(m.holds)) return;
             if (vid && Array.isArray(m.versions) && m.versions.indexOf(vid) === -1) return;
@@ -299,16 +362,17 @@
             });
           });
         });
-      });
+      }
+      versionIds.forEach(function (vid) { walk(t, p, clone(held0), vid); });
       order.forEach(function (key) {
         var f = found[key], suffix = f.versions.length && f.versions.length < versionIds.length ? " (in version " + f.versions.map(JSON.stringify).join(", ") + ")" : "";
         (f.kind === "error" ? error : warn)(f.path, f.message + suffix);
       });
     }
 
-    function checkFragments(t, p) {
-      if (!requireArray(t, "fragments", p, 0, 12, error)) return;
-      var n = t.steps.length, spans = [];
+    function checkFragments(t, p, max) {
+      if (!requireArray(t, "fragments", p, 0, max, error)) return;
+      var n = t.steps.length, spans = [], folded = [];
       function stepIndex(obj, key, parent) {
         var path = join(parent, key), v = obj[key];
         if (typeof v !== "number" || v % 1 !== 0) { error(path, "must be an integer step index, got " + describe(v)); return false; }
@@ -316,12 +380,24 @@
         return true;
       }
       t.fragments.forEach(function (f, i) {
-        var fp = p + ".fragments[" + i + "]";
+        var fp = join(p, "fragments") + "[" + i + "]";
         if (!isObject(f)) { error(fp, "must be an object, got " + describe(f)); return; }
         if (FRAGMENT_KINDS.indexOf(f.kind) === -1) { error(fp + ".kind", "must be one of " + FRAGMENT_KINDS.join(", ") + ", got " + describe(f.kind)); return; }
-        optionalString(f, "label", fp, 40, error);
+        var grp = f.kind === "group";
+        if (grp) requireString(f, "label", fp, 1, 80, error); else optionalString(f, "label", fp, 40, error);
         var ok = stepIndex(f, "start", fp) & stepIndex(f, "end", fp);
         if (ok && f.end < f.start) { error(fp + ".end", "must not be before start (" + f.start + ")"); ok = false; }
+        if (ok && grp && f.end === f.start) { error(fp + ".end", "a group covers 2 or more steps; must be after start (" + f.start + ")"); ok = false; }
+        if (grp) {
+          optionalString(f, "summary", fp, 200, error); rich(f, "summary", fp);
+          if (f.collapsed !== undefined && typeof f.collapsed !== "boolean") error(fp + ".collapsed", "must be a boolean, got " + describe(f.collapsed));
+          if (f.condition !== undefined) error(fp + ".condition", "not allowed on group");
+          if (f.branches !== undefined) error(fp + ".branches", "only allowed on alt");
+          if (ok && f.collapsed !== false) folded.push(f);
+        } else {
+          if (f.summary !== undefined) error(fp + ".summary", "only allowed on group");
+          if (f.collapsed !== undefined) error(fp + ".collapsed", "only allowed on group");
+        }
         if (f.kind === "alt") {
           if (f.condition !== undefined) error(fp + ".condition", "not allowed on alt; put conditions on the branches");
           if (requireArray(f, "branches", fp, 2, 4, error) && ok) {
@@ -338,7 +414,7 @@
             });
             if (expect !== f.end + 1) error(fp + ".branches", "the last branch must end at the fragment's end (" + f.end + ")");
           }
-        } else {
+        } else if (!grp) {
           if (f.branches !== undefined) error(fp + ".branches", "only allowed on alt");
           requireString(f, "condition", fp, 1, 80, error);
         }
@@ -356,6 +432,9 @@
           }
         });
       });
+      var all = true;
+      for (var s = 0; s < n; s++) if (!folded.some(function (f) { return s >= f.start && s <= f.end; })) { all = false; break; }
+      if (all && n) warn(join(p, "fragments"), "every step sits in a collapsed group; the learner has nothing to read until they expand one");
     }
 
     function checkArticle(a, p) {
@@ -364,6 +443,7 @@
           if (typeof b !== "string") error(p + ".body[" + i + "]", "must be a string, got " + describe(b));
           else if (!b.trim()) error(p + ".body[" + i + "]", "must be a non-empty string");
           else if (b.length > 1500) error(p + ".body[" + i + "]", "must be at most 1500 characters, got " + b.length);
+          rich(a.body, i, p + ".body");
         });
       }
       optionalString(a, "referencesLabel", p, 24, error, 1);
@@ -389,6 +469,7 @@
             n.items.forEach(function (it, j) {
               if (typeof it !== "string" || !it.trim()) error(np + ".items[" + j + "]", "must be a non-empty string, got " + describe(it));
               else if (it.length > 300) error(np + ".items[" + j + "]", "must be at most 300 characters, got " + it.length);
+              rich(n.items, j, np + ".items");
             });
           }
         });
@@ -403,7 +484,7 @@
             b.items.forEach(function (it, j) {
               var ip = bp + ".items[" + j + "]";
               if (!isObject(it)) { error(ip, "must be an object, got " + describe(it)); return; }
-              requireString(it, "text", ip, 1, 240, error);
+              requireString(it, "text", ip, 1, 240, error); rich(it, "text", ip);
               optionalString(it, "tag", ip, 30, error);
               if (it.url !== undefined) requireUrl(it, "url", ip, error);
             });
@@ -416,6 +497,7 @@
       var count = 0;
       if (!isOverride || st.title !== undefined) requireString(st, "title", p, 1, 80, error);
       if (!isOverride || st.explanation !== undefined) requireString(st, "explanation", p, 1, 700, error);
+      rich(st, "explanation", p);
       optionalString(st, "tag", p, 20, error);
       if (st.focus !== undefined && requireArray(st, "focus", p, 0, 12, error)) {
         st.focus.forEach(function (f, i) { if (checkEntityRef(st.focus, i, p + ".focus")) touched[f] = true; });
@@ -427,12 +509,42 @@
       return count;
     }
 
-    function checkStep(st, p, touched) {
+    function checkStep(st, p, touched, depth) {
       stepCount++;
       if (!isObject(st)) { error(p, "must be an object, got " + describe(st)); return 0; }
       var count = checkStepFields(st, p, touched, false);
       if (!st.messages || st.messages.length === 0) warn(p, "step has no messages; the flow table shows nothing for it");
-      if (st.check !== undefined) { checkCount++; checkCheck(st.check, p + ".check"); }
+      if (st.check !== undefined) { checkCount++; checkCheck(st.check, p + ".check", st); }
+      if (st.compare !== undefined) {
+        if (!isObject(st.compare)) error(p + ".compare", "must be an object, got " + describe(st.compare));
+        else { requireString(st.compare, "label", p + ".compare", 1, 60, error); requireString(st.compare, "text", p + ".compare", 1, 600, error); rich(st.compare, "text", p + ".compare"); }
+      }
+      if (st.note !== undefined) {
+        if (!isObject(st.note)) error(p + ".note", "must be an object, got " + describe(st.note));
+        else {
+          if (SEVERITIES.indexOf(st.note.severity) === -1) error(p + ".note.severity", "must be one of " + SEVERITIES.join(", ") + ", got " + describe(st.note.severity));
+          requireString(st.note, "text", p + ".note", 1, 300, error); rich(st.note, "text", p + ".note");
+        }
+      }
+      if (st.detail !== undefined && requireArray(st, "detail", p, 1, 8, error)) {
+        st.detail.forEach(function (d, i) {
+          var dp = p + ".detail[" + i + "]";
+          if (!isObject(d)) { error(dp, "must be an object, got " + describe(d)); return; }
+          requireString(d, "label", dp, 1, 40, error);
+          requireString(d, "text", dp, 1, 600, error); rich(d, "text", dp);
+        });
+      }
+      if (st.inner !== undefined) {
+        var ip = p + ".inner", inn = st.inner;
+        if (!isObject(inn)) error(ip, "must be an object, got " + describe(inn));
+        else if (depth + 1 > 6) error(ip, "nested " + (depth + 1) + " levels deep; at most 6 are allowed");
+        else {
+          if (depth + 1 > 3) warn(ip, "nested " + (depth + 1) + " levels deep; more than 3 is hard to follow");
+          ["participants", "entities", "channels", "glossary", "zones"].forEach(function (k) { if (inn[k] !== undefined) error(ip + "." + k, "not allowed in an inner sequence; declare " + k + " at the root and use them here"); });
+          optionalString(inn, "subtitle", ip, 300, error); rich(inn, "subtitle", ip);
+          if (requireArray(inn, "steps", ip, 2, 30, error)) checkSeq(inn, ip, depth + 1, null);
+        }
+      }
       if (st.versions !== undefined) {
         var vp = p + ".versions";
         if (!isObject(st.versions)) error(vp, "must be an object keyed by version id, got " + describe(st.versions));
@@ -480,7 +592,7 @@
           var ap = p + ".annotations[" + i + "]";
           if (!isObject(a)) { error(ap, "must be an object, got " + describe(a)); return; }
           requireString(a, "field", ap, 1, 60, error);
-          requireString(a, "text", ap, 1, 300, error);
+          requireString(a, "text", ap, 1, 300, error); rich(a, "text", ap);
         });
       }
       if (m.tags !== undefined && requireArray(m, "tags", p, 0, 4, error)) {
@@ -514,9 +626,25 @@
       }
     }
 
-    function checkCheck(c, p) {
+    function checkCheck(c, p, st) {
       if (!isObject(c)) { error(p, "must be an object, got " + describe(c)); return; }
+      if (c.type !== undefined && c.type !== "choice" && c.type !== "who") { error(p + ".type", "must be choice or who, got " + describe(c.type)); return; }
+      if (c.type === "who") {
+        /* "who sends the next message?": the options are the parties on the diagram, the answer is the sender */
+        if (optionalString(c, "prompt", p, 200, error, 1) && c.prompt !== undefined && !/\?\s*$/.test(c.prompt)) warn(p + ".prompt", "does not end with a question mark");
+        rich(c, "prompt", p);
+        optionalString(c, "why", p, 400, error); rich(c, "why", p);
+        if (c.options !== undefined) error(p + ".options", "not allowed on a who check; the parties on the diagram are the options");
+        var first = Array.isArray(st.messages) && isObject(st.messages[0]) ? st.messages[0] : null;
+        if (typeof c.answer !== "string") error(p + ".answer", "must be an entity id string, got " + describe(c.answer));
+        else if (!EI[c.answer]) error(p + ".answer", "entity id " + JSON.stringify(c.answer) + " is not defined in entities");
+        else if (!first) error(p + ".answer", "a who check needs a step with a message; this step sends none");
+        else if (first.from !== c.answer) error(p + ".answer", "must be the sender of the step's first message (" + JSON.stringify(first.from) + "), got " + JSON.stringify(c.answer));
+        return;
+      }
+      if (c.answer !== undefined) error(p + ".answer", "only allowed on a who check");
       if (requireString(c, "prompt", p, 1, 300, error) && !/\?\s*$/.test(c.prompt)) warn(p + ".prompt", "does not end with a question mark");
+      rich(c, "prompt", p);
       if (!requireArray(c, "options", p, 2, 4, error)) return;
       var correct = 0, texts = {};
       c.options.forEach(function (o, i) {
@@ -527,9 +655,10 @@
           if (texts[key]) error(op + ".text", "duplicate option text " + JSON.stringify(o.text));
           texts[key] = true;
         }
+        rich(o, "text", op);
         if (o.correct !== undefined && typeof o.correct !== "boolean") error(op + ".correct", "must be a boolean, got " + describe(o.correct));
         if (o.correct === true) correct++;
-        requireString(o, "why", op, 1, 400, error);
+        requireString(o, "why", op, 1, 400, error); rich(o, "why", op);
       });
       if (correct !== 1) error(p + ".options", "exactly one option must have correct: true, got " + correct);
     }
@@ -578,7 +707,20 @@
       if (isObject(c) && typeof c.id === "string" && CI[c.id] && !channelUsed[c.id]) warn("channels[" + i + "]", "channel " + JSON.stringify(c.id) + " is used by no link or message");
     });
     if (hasVersions && versionRefs === 0) warn("versions", "declared but nothing references a version; the time machine changes nothing");
-    if (stepCount >= 10 && checkCount === 0) warn("sections", stepCount + " steps and no check; add a prediction question or two");
+    if (stepCount >= 10 && checkCount === 0) warn(single ? "steps" : "sections", stepCount + " steps and no check; add a prediction question or two");
+    /* glossary marks: ((term)) or ((shown text|term)) must name a glossary term */
+    richList.forEach(function (r) {
+      var m; MARK_RE.lastIndex = 0;
+      while ((m = MARK_RE.exec(r[1]))) {
+        var term = m[1].split("|").pop().trim(), k = term.toLowerCase();
+        if (!term) error(r[0], "has an empty glossary mark " + JSON.stringify(m[0]));
+        else if (GL[k] === undefined) error(r[0], "glossary term " + JSON.stringify(term) + " is not defined in glossary");
+        else glUsed[k] = true;
+      }
+    });
+    if (Array.isArray(data.glossary)) data.glossary.forEach(function (g, i) {
+      if (isObject(g) && typeof g.term === "string" && GL[g.term.trim().toLowerCase()] === i && !glUsed[g.term.trim().toLowerCase()]) warn("glossary[" + i + "]", "term " + JSON.stringify(g.term) + " is never marked with ((...)) in the text");
+    });
   }
 
   // ---- shared helpers (identical in every view) --------------------------
@@ -609,6 +751,24 @@
     return true;
   }
   // ---- extra helpers for this view ---------------------------------------
+  /* Holdings across an alt: before each step, the actions that apply there. A fragment's first step saves the
+     state; every later branch first keeps the end of branch one, then starts again from the saved state; the
+     step after the fragment returns to the end of branch one. Inner fragments end before outer ones. */
+  function altPlan(frags) {
+    var at = {};
+    function add(s, prio, fn) { (at[s] = at[s] || []).push({ p: prio, fn: fn }); }
+    (Array.isArray(frags) ? frags : []).forEach(function (f) {
+      if (!isObject(f) || f.kind !== "alt" || !Array.isArray(f.branches) || typeof f.start !== "number" || typeof f.end !== "number") return;
+      var st = {};
+      add(f.start, 3, function (h, clone) { st.start = clone(h); return h; });
+      f.branches.forEach(function (b, k) {
+        if (k && isObject(b) && typeof b.start === "number") add(b.start, 2, function (h, clone) { if (k === 1) st.end0 = clone(h); return st.start ? clone(st.start) : h; });
+      });
+      add(f.end + 1, 1 - 1 / (f.end - f.start + 2), function (h, clone) { return st.end0 ? clone(st.end0) : h; });
+    });
+    Object.keys(at).forEach(function (s) { at[s] = at[s].sort(function (a, b) { return a.p - b.p; }).map(function (x) { return x.fn; }); });
+    return at;
+  }
   function isObject(v) { return v !== null && typeof v === "object" && !Array.isArray(v); }
   function optionalString(obj, key, parent, max, error, min) {
     if (obj[key] === undefined) return true;
