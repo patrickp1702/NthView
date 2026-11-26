@@ -1,6 +1,6 @@
 ---
 name: nthview-mechanism
-description: Builds a mechanism simulation: a scroll-driven story with a live 3D stage of internal quantities (counters, buckets, scores, timers) that rules update tick by tick, where step cards and pinned chapters move one shared clock, pulses show what is calculated from what, and the learner can play, scrub, switch scenarios and tune parameters. Use when the user wants to see "how it works over time", "watch it run", "simulate", "what happens minute by minute", a rate limiter, lockout, decay, backoff, queue, budget or any rule-driven quantity changing over time; not for facts to memorise, one-off formulas without time, or exchanges between parties (use nthview-sequence).
+description: Builds a mechanism simulation: a scroll-driven story with a live 3D stage of internal quantities (counters, buckets, scores, timers) that rules update tick by tick, where step cards and pinned chapters move one shared clock, pulses show what is calculated from what, and the learner can play, scrub, switch scenarios and tune parameters. Use when the user wants to see "how it works over time", "watch it run", "simulate", "what happens minute by minute", a rate limiter, lockout, decay, backoff, queue, budget or any rule-driven quantity changing over time; not for facts to memorise, one-off formulas without time, or exchanges between parties (use nthview-dataflow).
 ---
 
 # NthView — Mechanism
@@ -45,8 +45,8 @@ bar clears it.
 Do not use when:
 - There is no time dimension: one formula with sliders is
   `nthview-explorable`
-- The content is an exchange of messages between parties
-  (`nthview-sequence`) or a data flow through components (`nthview-dataflow`)
+- The content is an exchange of messages between parties or a data flow
+  through components (`nthview-dataflow`)
 - The goal is recall of facts or judgement calls (`nthview-scenario-quiz`,
   `nthview-island-quest`)
 

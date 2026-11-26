@@ -52,7 +52,7 @@ that saved progress and reopens the case from scratch.
 Do not use when:
 - The content is a list of facts or definitions to memorise (a flashcard or
   quiz view fits better)
-- The goal is to follow a procedure step by step (`nthview-sequence` for an
+- The goal is to follow a procedure step by step (`nthview-dataflow` for an
   exchange between parties, `nthview-code-walkthrough` for code read line
   by line)
 - There is no single explanation to arrive at and no wrong ones worth

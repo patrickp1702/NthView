@@ -49,7 +49,7 @@ Do not use when:
   view fits better)
 - It is mainly about judgement calls in situations (use `nthview-scenario-quiz`)
 - It is one linear story or a single process with nothing nested
-  (`nthview-timeline` for a dated story, `nthview-sequence` for steps between
+  (`nthview-timeline` for a dated story, `nthview-dataflow` for steps between
   parties)
 - The meaning lives in a web of causal relations rather than in containment
   (use `nthview-concept-map`)

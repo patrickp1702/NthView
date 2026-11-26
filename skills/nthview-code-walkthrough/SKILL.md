@@ -1,6 +1,6 @@
 ---
 name: nthview-code-walkthrough
-description: Produces a guided, line-by-line code walkthrough: the learner steps through annotated lines of 1–4 short snippets with notes, subgoal labels and a trace of values, can read the whole code or jump to any step, and answers questions attached to steps (multiple choice, tap the line, predict a value, fill a blank in a line, put lines in order) in any order; works on phones. Use when the user wants to understand, explain or teach a piece of code, a function, a bug, a vulnerability or a fix, or says "walk me through this code", "explain this function line by line", "code tour", "code reading", "what does this code do", "trace this"; not for a whole codebase or architecture (use nthview-zoom-map) or for an exchange between parties (use nthview-sequence).
+description: Produces a guided, line-by-line code walkthrough: the learner steps through annotated lines of 1–4 short snippets with notes, subgoal labels and a trace of values, can read the whole code or jump to any step, and answers questions attached to steps (multiple choice, tap the line, predict a value, fill a blank in a line, put lines in order) in any order; works on phones. Use when the user wants to understand, explain or teach a piece of code, a function, a bug, a vulnerability or a fix, or says "walk me through this code", "explain this function line by line", "code tour", "code reading", "what does this code do", "trace this"; not for a whole codebase or architecture (use nthview-zoom-map) or for an exchange between parties (use nthview-dataflow).
 ---
 
 # NthView — Code Walkthrough
@@ -31,7 +31,7 @@ progress is saved in the browser and Restart clears it.
 Do not use when:
 - The subject is a whole codebase or architecture (`nthview-zoom-map`)
 - The content is an exchange between parties, such as a protocol or API
-  call chain (`nthview-sequence`, or `nthview-dataflow` for real payloads)
+  call chain (`nthview-dataflow`)
 - The learner needs to run or edit the code; this view never runs code
 - There is no code to quote; explain the idea with another view
 

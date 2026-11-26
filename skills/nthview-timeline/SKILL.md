@@ -1,6 +1,6 @@
 ---
 name: nthview-timeline
-description: Turns a dated story (an incident, a history, a project, a scientific discovery, the evolution of a law or a technology) into an interactive vertical timeline that shows events, eras, lanes such as attacker and defender, and cause-and-effect links, with questions mixed in between the events (put in order, place an event, what caused this or what it led to, multiple choice, sort into groups, and open "why?" reflections), each answer explained. Use when the user asks for a timeline, a chronology, "what happened when", "how did we get here", the sequence of an incident or a history, or wants to understand why events unfolded as they did; not for exchanges between parties (use nthview-sequence), systems with no time order (use nthview-concept-map), or quantities changing tick by tick (use nthview-mechanism).
+description: Turns a dated story (an incident, a history, a project, a scientific discovery, the evolution of a law or a technology) into an interactive vertical timeline that shows events, eras, lanes such as attacker and defender, and cause-and-effect links, with questions mixed in between the events (put in order, place an event, what caused this or what it led to, multiple choice, sort into groups, and open "why?" reflections), each answer explained. Use when the user asks for a timeline, a chronology, "what happened when", "how did we get here", the sequence of an incident or a history, or wants to understand why events unfolded as they did; not for exchanges between parties (use nthview-dataflow), systems with no time order (use nthview-concept-map), or quantities changing tick by tick (use nthview-mechanism).
 ---
 
 # NthView — Timeline
@@ -35,8 +35,7 @@ loads two typefaces from Google Fonts and falls back to system fonts offline.
   countries, research and regulation)
 
 Do not use when:
-- Parties exchange messages step by step (use `nthview-sequence` or
-  `nthview-dataflow`)
+- Parties exchange messages step by step (use `nthview-dataflow`)
 - The content is a structure with no time order (use `nthview-concept-map`)
 - Quantities change under rules, tick by tick (use `nthview-mechanism`)
 - It is a puzzle with misconceptions to rule out (use `nthview-detective`)

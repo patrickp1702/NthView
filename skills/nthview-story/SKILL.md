@@ -51,7 +51,7 @@ Do not use when:
   `nthview-island-quest` or `nthview-temple-run`)
 - Exact quantities change under rules over time (use `nthview-mechanism`)
 - Messages between parties are the point, field by field (use
-  `nthview-sequence` or `nthview-dataflow`)
+  `nthview-dataflow`)
 - The content is a reference to look things up in, or has no actors at all
   (use `nthview-concept-map` or `nthview-zoom-map`)
 

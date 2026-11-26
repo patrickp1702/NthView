@@ -114,7 +114,7 @@ duration. Follow `skills/nthview-highlights/SKILL.md` for the cards.
 | :- | :- | :- |
 | `preview` | Hook, objectives, what is coming (always chapter 00) | Highlights, Story |
 | `structure` | The map of parts and relations, an advance organiser | Concept Map, Zoom Map, Timeline, System Evolution |
-| `demonstrate` | A worked example or a model to predict and tinker with | Sequence, Explorable Lab, Detective Case, Timeline, Code Walkthrough, Story, System Evolution |
+| `demonstrate` | A worked example or a model to predict and tinker with | Dataflow, Explorable Lab, Detective Case, Timeline, Code Walkthrough, Story, System Evolution |
 | `apply` | Use the ideas with explanatory feedback | Scenario Quiz, Courier, Explorable Lab, Code Walkthrough |
 | `confront` | Meet and rule out the tempting wrong model | Detective Case, Compare |
 | `consolidate` | Interleaved practice over everything so far | Island Quest, Temple Run, Hunter, Compare |
@@ -124,9 +124,9 @@ duration. Follow `skills/nthview-highlights/SKILL.md` for the cards.
 Templates by content type, after `00-highlights`:
 
 - **System or mechanism**: Concept Map → Explorable Lab → Scenario Quiz → Detective Case → Island Quest (→ Highlights recap).
-- **Procedure or protocol**: Sequence → Concept Map or Zoom Map → Scenario Quiz → Detective Case → Temple Run.
+- **Procedure or protocol**: Dataflow (a single exchange) → Concept Map or Zoom Map → Scenario Quiz → Detective Case → Temple Run.
 - **Rule or judgement domain**: Detective Case → Concept Map → Scenario Quiz → Scenario Quiz or Courier (a second setting) → Island Quest.
-- **Codebase or large system**: Zoom Map → Sequence → Code Walkthrough (the key function) → Courier or Detective → Scenario Quiz → Temple Run or Island Quest.
+- **Codebase or large system**: Zoom Map → Dataflow → Code Walkthrough (the key function) → Courier or Detective → Scenario Quiz → Temple Run or Island Quest.
 
 Six to eight chapters is the usual length. One formative check by the
 fourth chapter, one summative check in the consolidation chapter.

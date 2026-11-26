@@ -34,7 +34,7 @@ internet access.
 
 Do not use when:
 - There is one concept with parts and relations (use `nthview-concept-map`)
-- The content is a process or exchange over time (use `nthview-sequence` or
+- The content is a process or exchange over time (use `nthview-dataflow` or
   `nthview-mechanism`)
 - More than four options: split into two comparisons, or group the options
 - Judgement calls inside one story matter more than the contrast

@@ -43,7 +43,7 @@ Do not use when:
   quiz view fits better)
 - It is mainly about judgement calls in situations (use `nthview-scenario-quiz`)
 - It is one linear sequence with nothing branching off (`nthview-timeline`
-  for a dated story, `nthview-sequence` for steps between parties), or has
+  for a dated story, `nthview-dataflow` for steps between parties), or has
   fewer than about 6 concepts
 - The learner wants a playful game for children (use `nthview-island-quest`)
 

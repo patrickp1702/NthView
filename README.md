@@ -57,10 +57,6 @@ One concept, many dimensions, one view at a time.
   room; one-time powers, learning or quiz mode, four themes.
   Demo: `skills/nthview-hunter/examples/example.html`.
 
-- **Sequence** (`skills/nthview-sequence`) — a protocol or any exchange between
-  parties, one message at a time: what travels on each arrow, over which
-  channel, and what every party holds afterwards, plus a full UML-style
-  sequence diagram. Demo: `skills/nthview-sequence/examples/example.html`.
 - **Highlights** (`skills/nthview-highlights`) — a swipeable stack of
   text-only cards, in the feel of a social-media carousel, that previews
   everything a lesson or document covers, one idea per card, with a recap
@@ -69,8 +65,12 @@ One concept, many dimensions, one view at a time.
 - **Dataflow** (`skills/nthview-dataflow`) — an interactive explainer in the
   style of a protocol site for any flow of data or work: a hero definition,
   topics and numbered steps, a network and a sequence diagram, a message flow
-  the learner plays with the exact payload annotated field by field, and an
-  optional version time machine. Demo: `skills/nthview-dataflow/examples/example.html`.
+  the learner plays with the exact payload annotated field by field, what
+  every party holds after each message, and an optional version time machine.
+  A single exchange (one handshake, one login) skips the hero and folds long
+  flows into inner sequences and groups. Demos:
+  `skills/nthview-dataflow/examples/example.html` and
+  `skills/nthview-dataflow/examples/example-oauth-pkce.html`.
 - **Mechanism** (`skills/nthview-mechanism`) — a scroll-driven story that runs a
   mechanism on one shared clock: a live 3D stage shows every counter as a pillar
   and every rule as an arc that pulses when it calculates, step cards and pinned

@@ -39,7 +39,7 @@ browser and resumed; Restart in the top bar clears it.
 
 Do not use when:
 - The point is what travels between parties and what each message holds
-  (`nthview-dataflow`, or `nthview-sequence` for one exchange)
+  (`nthview-dataflow`, as topics or as one exchange)
 - The point is a rule that updates counters tick by tick, such as a token
   bucket, lockout or decay (`nthview-mechanism`)
 - The system is a fixed structure to explore top down (`nthview-zoom-map`)
