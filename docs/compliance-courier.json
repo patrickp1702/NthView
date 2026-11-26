@@ -321,6 +321,6 @@
   "report": {
     "heading": "Your week at Riverside",
     "intro": "Every errand, what it taught, and anything you mixed up on the way, with why.",
-    "source": { "label": "The same BrightPath setting as the Scenario Quiz and Island Quest docs", "note": "The GDPR fine ceiling is from Article 83(5) of Regulation (EU) 2016/679." }
+    "source": { "label": "The same BrightPath setting as the Scenario Quiz and Game docs", "note": "The GDPR fine ceiling is from Article 83(5) of Regulation (EU) 2016/679." }
   }
 }

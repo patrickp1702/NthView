@@ -72,18 +72,21 @@ import, read or depend on another view folder.
 
 ### What exists today
 
-Seventeen views live under `skills/` and are listed in `registry.js` and the
-gallery: `nthview-island-quest`, `nthview-scenario-quiz`,
+Fifteen views live under `skills/` and are listed in `registry.js` and the
+gallery: `nthview-game`, `nthview-scenario-quiz`,
 `nthview-explorable`, `nthview-detective`, `nthview-concept-map`,
-`nthview-zoom-map`, `nthview-courier`, `nthview-temple-run`,
-`nthview-highlights`, `nthview-hunter`, `nthview-dataflow`,
+`nthview-zoom-map`, `nthview-courier`,
+`nthview-highlights`, `nthview-dataflow`,
 `nthview-mechanism`, `nthview-timeline`, `nthview-compare`,
 `nthview-code-walkthrough`, `nthview-story`,
 `nthview-system-evolution`, plus the parent
 skill `nthview`
 (§10). New views are added one at a time following §11. The former
 `nthview-sequence` view was merged into `nthview-dataflow`, whose single
-exchange now covers one exchange walked through step by step.
+exchange now covers one exchange walked through step by step. The former
+`nthview-island-quest`, `nthview-temple-run` and `nthview-hunter` became the
+three engines of `nthview-game` (§5.6), one data format played as a walk, a
+run or a sneak.
 
 ---
 
@@ -131,7 +134,7 @@ no `node_modules`, no bundler. The root `scripts/` folder holds repo tooling
 only, never view code; the plugin layout permits it.
 
 The root `docs/` folder is for single documents produced *with* a view, such
-as a game about some topic built from `nthview-island-quest`: the JSON next to
+as a game about some topic built from `nthview-game`: the JSON next to
 the HTML it produced, named `<concept-slug>-<view>.json` and `.html`. The
 root `lessons/` folder holds multi-chapter lessons (§8). Both are scanned by
 the registry so the gallery can list them; nothing in `skills/` may depend on
