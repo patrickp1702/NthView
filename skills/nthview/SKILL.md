@@ -101,18 +101,16 @@ Minimal guidance only; each view's `SKILL.md` has the detail.
 | Use case | Prefer | Also works |
 | :- | :- | :- |
 | A system of causes and effects, "how it all fits together" | Concept Map | Explorable Lab |
-| Something with numbers or a model worth playing with | Explorable Lab | Island Quest |
+| Something with numbers or a model worth playing with | Explorable Lab | Game |
 | Judgement calls, rules, ethics, "what would you do" | Scenario Quiz | Detective Case |
 | A puzzle with misconceptions to rule out, a story with a reveal | Detective Case | Scenario Quiz |
-| A paper or article with 5–7 separable findings | Island Quest | Concept Map |
-| Beginners, children, anyone asking for a game | Island Quest | Detective Case |
-| Consolidating several ideas at the end of a lesson | Island Quest | Scenario Quiz |
+| A paper or article with 5–7 separable findings | Game | Concept Map |
+| Practise as a game: walk the islands (the default; beginners, children), run (fast recall, phones) or sneak past guards (a mission); ask which only if the user said "game" without one | Game | Detective Case |
+| Consolidating several ideas at the end of a lesson | Game | Scenario Quiz |
 | An overview before diving in, or a recap after | Concept Map | Explorable Lab |
 | A big system or codebase to understand top down, down to its files | Zoom Map | Concept Map |
-| Roles and parts that can be personified; relaxed, exploratory learning | Courier | Island Quest |
+| Roles and parts that can be personified; relaxed, exploratory learning | Courier | Game |
 | A preview of what a lesson or document covers, one idea per card | Highlights | Concept Map |
-| Fast-paced recall, a lesson that should feel like a game run, phones | Temple Run | Island Quest |
-| Recall as a stealth mission, tactical rather than fast; phones and laptops | Hunter | Temple Run |
 | A protocol, handshake, workflow or any exchange between parties, step by step | Dataflow (a single exchange) | Concept Map |
 | A whole protocol, API or process explained topic by topic with real payloads, diagrams and version history | Dataflow | Zoom Map |
 | Rules that change quantities over time (rate limits, lockouts, decay, queues, budgets), watched tick by tick across scenarios | Mechanism | Explorable Lab |
@@ -123,13 +121,13 @@ Minimal guidance only; each view's `SKILL.md` has the detail.
 | A system that changes shape step by step under pressure (scaling, defences, a ward or supply chain), with live numbers for every change and its cost; components and metrics, not message payloads (Dataflow) or tick-by-tick rules (Mechanism) | System Evolution | Dataflow |
 
 Skill names: `nthview-concept-map`, `nthview-explorable`,
-`nthview-scenario-quiz`, `nthview-detective`, `nthview-island-quest`,
-`nthview-zoom-map`, `nthview-courier`, `nthview-temple-run`,
-`nthview-highlights`, `nthview-hunter`, `nthview-dataflow`,
+`nthview-scenario-quiz`, `nthview-detective`, `nthview-game`,
+`nthview-zoom-map`, `nthview-courier`, `nthview-highlights`,
+`nthview-dataflow`,
 `nthview-mechanism`, `nthview-timeline`, `nthview-compare`,
 `nthview-code-walkthrough`, `nthview-story`, `nthview-system-evolution`.
 
-Views that have a `strictMode` (Temple Run, Hunter) keep it off by default; turn it
+Views that have a `strictMode` (Game) keep it off by default; turn it
 on only when the user says quiz, test, exam, evaluate or grade.
 
 ### Shaping a lesson
@@ -162,4 +160,4 @@ on only when the user says quiz, test, exam, evaluate or grade.
 
 ## Files
 - `references/lesson-format.md` — the `lesson.json` format, folder layout and build commands
-- `../nthview-concept-map/SKILL.md`, `../nthview-explorable/SKILL.md`, `../nthview-scenario-quiz/SKILL.md`, `../nthview-detective/SKILL.md`, `../nthview-island-quest/SKILL.md`, `../nthview-zoom-map/SKILL.md`, `../nthview-courier/SKILL.md`, `../nthview-temple-run/SKILL.md`, `../nthview-highlights/SKILL.md`, `../nthview-hunter/SKILL.md`, `../nthview-dataflow/SKILL.md`, `../nthview-mechanism/SKILL.md`, `../nthview-timeline/SKILL.md`, `../nthview-compare/SKILL.md`, `../nthview-code-walkthrough/SKILL.md`, `../nthview-story/SKILL.md`, `../nthview-system-evolution/SKILL.md` — the view skills this one hands off to
+- `../nthview-concept-map/SKILL.md`, `../nthview-explorable/SKILL.md`, `../nthview-scenario-quiz/SKILL.md`, `../nthview-detective/SKILL.md`, `../nthview-game/SKILL.md`, `../nthview-zoom-map/SKILL.md`, `../nthview-courier/SKILL.md`, `../nthview-highlights/SKILL.md`, `../nthview-dataflow/SKILL.md`, `../nthview-mechanism/SKILL.md`, `../nthview-timeline/SKILL.md`, `../nthview-compare/SKILL.md`, `../nthview-code-walkthrough/SKILL.md`, `../nthview-story/SKILL.md`, `../nthview-system-evolution/SKILL.md` — the view skills this one hands off to

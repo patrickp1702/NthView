@@ -49,7 +49,7 @@
     {
       "file": "04-artex-archipelago",
       "title": "ARTEX Archipelago",
-      "view": "nthview-island-quest",
+      "view": "nthview-game",
       "summary": "One island per big idea, hands-on activities, then a final exam over the whole system.",
       "role": "consolidate",
       "minutes": 20,

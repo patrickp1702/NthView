@@ -60,7 +60,7 @@
     {
       "file": "05-response-archipelago",
       "title": "Response Archipelago",
-      "view": "nthview-island-quest",
+      "view": "nthview-game",
       "summary": "One island per phase and idea, hands-on activities, then a final exam.",
       "role": "consolidate",
       "minutes": 20,

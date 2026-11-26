@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "title": "Compliance Cove",
   "subtitle": "A beginner's game about following the rules at work, and why they matter",
-  "companion": {
+  "game": "islands",
+  "hero": {
     "name": "Pip"
   },
-  "coins": 10,
   "intro": {
     "paragraphs": [
       "Pip just started work at Sunny Bakes, a small chain of bakeries. In one week the food inspector visits. Pip has heard the word **compliance** a dozen times already and still isn't sure what it means.",
@@ -18,11 +18,10 @@
     ],
     "note": "Sunny Bakes, Pip and every number in this game are made up to teach the idea. The ideas apply to any organisation, from a bakery to a bank."
   },
-  "islands": [
+  "levels": [
     {
       "id": "rulebook-grove",
       "name": "Rulebook Grove",
-      "theme": "grove",
       "lead": "Everyone at Sunny Bakes keeps saying \"compliance\". Pip asked seven coworkers what it means and got a mix of answers. The honest answer is simple: compliance means **following the rules that apply to you**. The laws of the country, the regulations for your industry, the standards you've signed up to, and your own organisation's policies.",
       "body": [
         "The coworkers' answers were: **A** following the rules that apply to us, **B** paperwork that nobody reads, **C** something only lawyers do, **D** saying yes to the boss."
@@ -30,7 +29,15 @@
       "activity": {
         "type": "collect",
         "prompt": "The seven answers are the glowing letters scattered around the grove. Walk into all 7 to collect them. Each one is a vote.",
-        "items": ["A", "B", "A", "A", "C", "A", "D"],
+        "items": [
+          "A",
+          "B",
+          "A",
+          "A",
+          "C",
+          "A",
+          "D"
+        ],
         "resultTitle": "The vote",
         "resultText": "Most popular answer: {top} ({count} of {total} coworkers)",
         "resultNote": "Three coworkers had other ideas. That's normal: the word sounds grander than it is."
@@ -57,7 +64,6 @@
     {
       "id": "rule-makers-hall",
       "name": "Rule-Makers Hall",
-      "theme": "hall",
       "lead": "Where do the rules come from? Not from one place. Four kinds of rule-maker stand in this hall. The taller the figure, the more people its rules reach.",
       "body": [
         "**Laws** are made by parliaments and governments and apply to everyone in the country. **Regulations** are detailed rules from a regulator, such as a food safety agency, for one industry. **Standards** are agreed good practice that organisations sign up to, often to earn a certificate. **Policies** are the rules an organisation writes for itself, like Sunny Bakes' rule \"check every fridge twice a day\"."
@@ -101,7 +107,6 @@
     {
       "id": "training-workshop",
       "name": "Training Workshop",
-      "theme": "workshop",
       "lead": "A policy that nobody knows about protects nobody. So organisations **train** people when they start and remind them along the way. Pip's first week has a food-safety course, a short quiz, and a poster by every fridge.",
       "activity": {
         "type": "tune",
@@ -185,7 +190,6 @@
     {
       "id": "check-up-canyon",
       "name": "Check-Up Canyon",
-      "theme": "canyon",
       "lead": "How does anyone know the rules are really being followed? Two ways. **Monitoring** is the everyday checking you do yourself: the fridge log, the weekly walk-round. An **audit** is when someone from outside the team, or outside the organisation, comes to check the checks.",
       "body": [
         "Three Sunny Bakes shops. Grey columns: problems the inspector found last spring. Coloured columns: problems found this autumn, after every shop started a weekly self-check. The numbers are made up to show the pattern."
@@ -197,18 +201,27 @@
           {
             "id": "oak-street",
             "label": "Oak Street",
-            "bars": [30, 24],
+            "bars": [
+              30,
+              24
+            ],
             "hint": "Oak Street improved a little, from 30 to 24. One shop improved far more."
           },
           {
             "id": "harbour",
             "label": "Harbour",
-            "bars": [42, 9]
+            "bars": [
+              42,
+              9
+            ]
           },
           {
             "id": "hilltop",
             "label": "Hilltop",
-            "bars": [18, 15],
+            "bars": [
+              18,
+              15
+            ],
             "hint": "Hilltop was already in decent shape and only moved from 18 to 15. Look for the pair that shrank the most."
           }
         ],
@@ -217,12 +230,39 @@
       "findings": {
         "caption": "Problems found by the inspector (made-up numbers). Grey: last spring. Colour: this autumn, after weekly self-checks began.",
         "rows": [
-          { "label": "Oak Street, last spring", "value": 30, "show": "30", "style": "grey" },
-          { "label": "Oak Street, this autumn", "value": 24, "show": "24" },
-          { "label": "Harbour, last spring", "value": 42, "show": "42", "style": "grey" },
-          { "label": "Harbour, this autumn", "value": 9, "show": "9" },
-          { "label": "Hilltop, last spring", "value": 18, "show": "18", "style": "grey" },
-          { "label": "Hilltop, this autumn", "value": 15, "show": "15" }
+          {
+            "label": "Oak Street, last spring",
+            "value": 30,
+            "show": "30",
+            "style": "grey"
+          },
+          {
+            "label": "Oak Street, this autumn",
+            "value": 24,
+            "show": "24"
+          },
+          {
+            "label": "Harbour, last spring",
+            "value": 42,
+            "show": "42",
+            "style": "grey"
+          },
+          {
+            "label": "Harbour, this autumn",
+            "value": 9,
+            "show": "9"
+          },
+          {
+            "label": "Hilltop, last spring",
+            "value": 18,
+            "show": "18",
+            "style": "grey"
+          },
+          {
+            "label": "Hilltop, this autumn",
+            "value": 15,
+            "show": "15"
+          }
         ],
         "text": "Harbour went from 42 problems to 9, the biggest drop by far. Its manager did the self-check every Monday and fixed what it found the same day. Monitoring catches slips early; the audit then confirms that the monitoring works.",
         "after": true
@@ -232,7 +272,6 @@
     {
       "id": "slip-up-tower",
       "name": "Slip-Up Tower",
-      "theme": "tower",
       "lead": "What actually happens when a rule is broken? Pip imagines a quiet Tuesday at the Harbour shop, back before the self-checks started.",
       "activity": {
         "type": "story",
@@ -274,7 +313,6 @@
     {
       "id": "cost-clock",
       "name": "Cost Clock",
-      "theme": "clock",
       "lead": "People often see compliance as a cost: time spent on logs and training instead of baking. So let's actually compare the time.",
       "activity": {
         "type": "race",
@@ -298,8 +336,17 @@
       "findings": {
         "caption": "Hours in a year (illustrative)",
         "rows": [
-          { "label": "Fridge checks for a whole year", "value": 10, "show": "~30 h" },
-          { "label": "One incident: closure, investigation, repairs", "value": 100, "show": "300+ h", "style": "dashed" }
+          {
+            "label": "Fridge checks for a whole year",
+            "value": 10,
+            "show": "~30 h"
+          },
+          {
+            "label": "One incident: closure, investigation, repairs",
+            "value": 100,
+            "show": "300+ h",
+            "style": "dashed"
+          }
         ],
         "text": "The daily checks for a whole year add up to about 30 hours. A single incident can swallow hundreds of hours, plus the fine and the lost trust. That's why organisations think of compliance as **insurance**, not red tape."
       },
@@ -321,7 +368,6 @@
     {
       "id": "culture-meadow",
       "name": "Culture Meadow",
-      "theme": "plain",
       "lead": "Last island. Two bakeries can have the same rulebook and be completely different places. In one, people tick the box and look away. In the other, people follow the rule because they understand who it protects, and they speak up when something looks wrong.",
       "body": [
         "This is what people mean by **compliance culture**. It shows in small things: whether the manager thanks the baker who throws out the cream, whether questions are welcome, whether the log is filled in honestly when nobody is watching.",
@@ -330,8 +376,17 @@
       "findings": {
         "caption": "Staff who say they would report a problem (illustrative survey, out of 100)",
         "rows": [
-          { "label": "Shops where reporters are thanked", "value": 88, "show": "88" },
-          { "label": "Shops where reporters are blamed", "value": 31, "show": "31", "style": "grey" }
+          {
+            "label": "Shops where reporters are thanked",
+            "value": 88,
+            "show": "88"
+          },
+          {
+            "label": "Shops where reporters are blamed",
+            "value": 31,
+            "show": "31",
+            "style": "grey"
+          }
         ],
         "text": "Made-up numbers, real pattern: where speaking up is welcomed, problems surface and get fixed. Where it's punished, problems go quiet, and quiet problems grow."
       },
@@ -423,7 +478,8 @@
         ],
         "okText": "Correct! Culture is what people do when the inspector isn't there."
       }
-    ]
+    ],
+    "ask": 4
   },
   "report": {
     "heading": "Pip passed the inspection!",
@@ -442,20 +498,71 @@
       "Box-ticking follows the letter of the rule; culture follows its purpose."
     ],
     "glossaryIntro": "When you hear these words at work, this is what they mean:",
-    "glossaryColumns": ["In this game", "At work"],
+    "glossaryColumns": [
+      "In this game",
+      "At work"
+    ],
     "glossary": [
-      { "term": "The rules that apply to you", "meaning": "Compliance requirements (or obligations)" },
-      { "term": "Rule-makers outside the bakery", "meaning": "Laws, regulations and standards" },
-      { "term": "Rules the bakery writes for itself", "meaning": "Internal policies and procedures" },
-      { "term": "The fridge course and the posters", "meaning": "Compliance training and awareness" },
-      { "term": "The weekly self-check", "meaning": "Monitoring, also called internal controls" },
-      { "term": "The inspector's visit", "meaning": "Audit (internal or external)" },
-      { "term": "Telling the manager about the noisy fridge", "meaning": "Incident reporting; whistleblowing when it is serious" },
-      { "term": "Doing it right when nobody's watching", "meaning": "Compliance culture" }
+      {
+        "term": "The rules that apply to you",
+        "meaning": "Compliance requirements (or obligations)"
+      },
+      {
+        "term": "Rule-makers outside the bakery",
+        "meaning": "Laws, regulations and standards"
+      },
+      {
+        "term": "Rules the bakery writes for itself",
+        "meaning": "Internal policies and procedures"
+      },
+      {
+        "term": "The fridge course and the posters",
+        "meaning": "Compliance training and awareness"
+      },
+      {
+        "term": "The weekly self-check",
+        "meaning": "Monitoring, also called internal controls"
+      },
+      {
+        "term": "The inspector's visit",
+        "meaning": "Audit (internal or external)"
+      },
+      {
+        "term": "Telling the manager about the noisy fridge",
+        "meaning": "Incident reporting; whistleblowing when it is serious"
+      },
+      {
+        "term": "Doing it right when nobody's watching",
+        "meaning": "Compliance culture"
+      }
     ],
     "source": {
       "label": "Written as general teaching material about organisational compliance.",
       "note": "Every number in this game is illustrative and Sunny Bakes is invented. The ideas apply to any organisation, from a bakery to a bank."
+    }
+  },
+  "world": {
+    "islands": {
+      "levels": {
+        "rule-makers-hall": {
+          "scenery": "hall"
+        },
+        "training-workshop": {
+          "scenery": "workshop"
+        },
+        "check-up-canyon": {
+          "scenery": "canyon"
+        },
+        "slip-up-tower": {
+          "scenery": "tower"
+        },
+        "cost-clock": {
+          "scenery": "clock"
+        },
+        "culture-meadow": {
+          "scenery": "plain"
+        }
+      }
     }
   }
 }

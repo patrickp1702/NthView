@@ -15,7 +15,7 @@ The learner sees one portrait card at a time, like a carousel post: a hook on th
 - Anything that is a list of ideas worth one line each
 
 Do not use when:
-- The content must be explained, practised or tested: use the view that fits the shape (Concept Map, Explorable Lab, Scenario Quiz, Island Quest, …)
+- The content must be explained, practised or tested: use the view that fits the shape (Concept Map, Explorable Lab, Scenario Quiz, Game, …)
 - There is only one idea: a Highlights with three cards is thin; write it into the chapter instead
 
 ## Procedure

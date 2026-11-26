@@ -87,7 +87,7 @@ Do not use when:
 - There are no distinct parties exchanging things; a system of causes fits
   `nthview-concept-map`, a layered system top down fits `nthview-zoom-map`
 - The content is judgement calls or recall: use `nthview-scenario-quiz` or
-  `nthview-temple-run`
+  `nthview-game`
 
 ## Procedure
 

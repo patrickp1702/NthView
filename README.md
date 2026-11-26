@@ -16,10 +16,13 @@ one that works for you.
 
 One concept, many dimensions, one view at a time.
 
-- **Island Quest** (`skills/nthview-island-quest`) — a playable 3D island
-  adventure: one lesson per island (3 to 60, laid out in rings), 25 kinds of
-  hands-on activity, four world themes, then a final exam and report card.
-  Demo: `skills/nthview-island-quest/examples/example.html`.
+- **Game** (`skills/nthview-game`) — a 3D learning game on one data format,
+  played in the world you choose: walk across islands, run through temple ruins
+  with chasers behind, or sneak past guards seen from above. Every level is a
+  short lesson the game waits on, then one of 31 activity types as a card or a
+  task in the world; learning or quiz mode, a finale and a report.
+  Demos: `skills/nthview-game/examples/example.html` (islands),
+  `example-runner.html`, `example-stealth.html`.
 
 - **Scenario Quiz** (`skills/nthview-scenario-quiz`) — a story-based decision
   quiz: you are given a role in a scenario, face a sequence of choices, and
@@ -44,18 +47,6 @@ One concept, many dimensions, one view at a time.
   tiny planet: districts are the concept's parts, residents personify its
   ideas, and every delivery is a learning errand with explained choices.
   Demo: `skills/nthview-courier/examples/example.html`.
-
-- **Temple Run** (`skills/nthview-temple-run`) — a Temple Run style 3D runner:
-  every stretch is a lesson and ends in an encounter that asks about it with one
-  of 31 activity types, in a card or as a trial on the track; learning or quiz
-  mode, four themes. Demo: `skills/nthview-temple-run/examples/example.html`.
-
-- **Hunter** (`skills/nthview-hunter`) — a Hunter Assassin style top-down 3D
-  stealth game: every room is a lesson with eleven kinds of soldier, real
-  flashlights that cast shadows, chases, alarms and a boss, whose secret box
-  asks about it with one of 31 activity types, in a card or as a task in the
-  room; one-time powers, learning or quiz mode, four themes.
-  Demo: `skills/nthview-hunter/examples/example.html`.
 
 - **Highlights** (`skills/nthview-highlights`) — a swipeable stack of
   text-only cards, in the feel of a social-media carousel, that previews
@@ -116,7 +107,7 @@ in the repository).
 ```
 
 Then ask Claude to explain or teach anything: the `nthview` skill picks the
-view (or asks), or call a view directly, for example `/nthview:nthview-island-quest`.
+view (or asks), or call a view directly, for example `/nthview:nthview-game`.
 To try a local checkout without publishing: `claude --plugin-dir /path/to/NthView`.
 Node (or Bun or Deno) is recommended: the skills use it to validate data and
 assemble files. Without any of them the skills do that work by hand, which is

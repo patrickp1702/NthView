@@ -43,7 +43,7 @@ Do not use when:
 - The lesson is a judgement call in a human situation (use
   `nthview-scenario-quiz`)
 - The user wants a playful game world for beginners or children (use
-  `nthview-island-quest`)
+  `nthview-game`)
 
 ## Procedure
 

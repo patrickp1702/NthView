@@ -48,7 +48,7 @@ Do not use when:
 - The content is an exchange of messages between parties or a data flow
   through components (`nthview-dataflow`)
 - The goal is recall of facts or judgement calls (`nthview-scenario-quiz`,
-  `nthview-island-quest`)
+  `nthview-game`)
 
 ## Procedure
 

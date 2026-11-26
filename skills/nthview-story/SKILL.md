@@ -47,8 +47,8 @@ reopening; Restart erases it.
 - Anyone, including children, who would rather watch than read; phones
 
 Do not use when:
-- The learner should practise or be tested (use `nthview-scenario-quiz`,
-  `nthview-island-quest` or `nthview-temple-run`)
+- The learner should practise or be tested (use `nthview-scenario-quiz`
+  or `nthview-game`)
 - Exact quantities change under rules over time (use `nthview-mechanism`)
 - Messages between parties are the point, field by field (use
   `nthview-dataflow`)

@@ -45,7 +45,7 @@ Do not use when:
 - It is one linear sequence with nothing branching off (`nthview-timeline`
   for a dated story, `nthview-dataflow` for steps between parties), or has
   fewer than about 6 concepts
-- The learner wants a playful game for children (use `nthview-island-quest`)
+- The learner wants a playful game for children (use `nthview-game`)
 
 ## Procedure
 

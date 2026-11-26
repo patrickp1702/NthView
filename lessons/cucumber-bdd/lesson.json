@@ -59,7 +59,7 @@
     {
       "file": "05-cucumber-archipelago",
       "title": "Cucumber Archipelago",
-      "view": "nthview-island-quest",
+      "view": "nthview-game",
       "summary": "One island per big idea, hands-on activities, then a final exam.",
       "role": "consolidate",
       "minutes": 20,

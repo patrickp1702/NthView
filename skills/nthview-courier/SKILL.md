@@ -36,7 +36,7 @@ the top-left corner clears it.
 Do not use when:
 - The content is a flat list of facts with no roles (use a quiz or flashcards)
 - The learner needs a long ordered story or many lessons (use
-  `nthview-island-quest`) or a judgement-heavy scenario (use
+  `nthview-game`) or a judgement-heavy scenario (use
   `nthview-scenario-quiz`)
 - The user needs the architecture top down (use `nthview-zoom-map`)
 - Fewer than three distinct ideas exist (the planet needs three residents)
