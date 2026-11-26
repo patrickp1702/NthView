@@ -482,6 +482,12 @@ Behavioural rules the skeleton enforces and every view must keep:
 - Cross-field problems (dangling ids, out-of-range indexes) are **errors**.
 - Exit codes: `0` valid, `1` invalid or unreadable file, `2` usage error.
 - The CLI prints exactly `valid` on success so a skill can grep for it.
+- A pure helper that both the validator and the renderer need (an
+  expression parser, text normalisation) lives in the validator only and is
+  shared, not copied: the factory attaches it to the validate function
+  (`validate.compileExpr = compileExpr;`) and `view.js` calls
+  `NthView.validate.compileExpr`. Such helpers are internal, not part of the
+  public surface, and the output carries one copy instead of two.
 
 ### 5.3 `assets/view.js`: fixed skeleton
 
@@ -779,13 +785,13 @@ Rules:
      "use strict";
      var NthView = root.NthView = root.NthView || {};
      NthView.engines = NthView.engines || {};
-     NthView.engines.<name> = function (G) {
-       // builds the world from the context G and returns the engine object
+     NthView.engines.<name> = function (core) {
+       // builds the world from the context `core` and returns the engine object
      };
    })(typeof globalThis !== "undefined" ? globalThis : window);
    ```
 
-   It reads the data only through the context, never replaces
+   It reads the data only through `core`, never replaces
    `NthView.build` or `NthView.validate`, and declares no libraries: every
    library sits in the core's `NthView.libs`, so the §5.4 check runs once.
    The contract between core and engines is written at the top of
