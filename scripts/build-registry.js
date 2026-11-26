@@ -99,7 +99,14 @@ if (fs.existsSync(skillsDir)) {
       REQUIRED_VIEW_FILES.forEach(function (f) {
         if (!fs.existsSync(path.join(full, f))) error(where, "missing required file " + f);
       });
-      ["assets/view.js", "examples/example.html"].forEach(function (f) {
+      /* AGENTS.md §5.6: assets/ holds view.js and, in a view with engines, engine-<name>.js files only */
+      var engineFiles = [];
+      if (fs.existsSync(path.join(full, "assets"))) fs.readdirSync(path.join(full, "assets")).forEach(function (a) {
+        if (OS_JUNK.test(a) || a === "view.js") return;
+        if (/^engine-[a-z0-9]+\.js$/.test(a)) engineFiles.push("assets/" + a);
+        else error(where, "unexpected file assets/" + a + " (only view.js and engine-<name>.js are allowed)");
+      });
+      ["assets/view.js"].concat(engineFiles, ["examples/example.html"]).forEach(function (f) {
         var p = path.join(full, f);
         if (!fs.existsSync(p)) return;
         var text = fs.readFileSync(p, "utf8");

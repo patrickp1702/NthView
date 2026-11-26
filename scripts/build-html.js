@@ -3,7 +3,9 @@
  *
  * Builds the one-file output exactly as AGENTS.md §6 prescribes: the view's
  * CDN library tags (from NthView.libs), the JSON with "<" escaped as <,
- * validate.js and view.js inlined verbatim, and the bootstrap call. An
+ * validate.js and view.js inlined verbatim, then, in a view with engines
+ * (AGENTS.md §5.6), the one assets/engine-<name>.js its data names, and the
+ * bootstrap call. An
  * optional extra block (the lesson bar, see scripts/build-lesson.js) may be
  * appended after the bootstrap script.
  *
@@ -12,7 +14,7 @@
  *   node scripts/build-html.js <view-dir> --example <out.html>   # data from references/complete-example.md
  *
  * As a module: require("./build-html.js").assemble(viewDir, data, { extraBody })
- * returns { html, errors, warnings, libs }.
+ * returns { html, errors, warnings, libs, engine }.
  *
  * The data is validated first; the file is not written when it is invalid.
  * Exit codes: 0 ok, 1 invalid data or missing file, 2 usage error.
@@ -31,7 +33,9 @@ function loadView(viewDir) {
   [files.validate, files.view].forEach(function (f) {
     if (!fs.existsSync(f)) throw new Error("missing " + path.relative(process.cwd(), f));
   });
-  return { dir: viewDir, name: path.basename(viewDir), files: files };
+  var assets = path.join(viewDir, "assets");
+  var engines = fs.readdirSync(assets).map(function (f) { var m = f.match(/^engine-([a-z0-9]+)\.js$/); return m ? m[1] : null; }).filter(Boolean).sort();
+  return { dir: viewDir, name: path.basename(viewDir), files: files, engines: engines };
 }
 
 /* The complete example lives in references/complete-example.md (AGENTS.md §5.1). */
@@ -49,13 +53,23 @@ function assemble(viewDir, data, opts) {
   var view = typeof viewDir === "string" ? loadView(viewDir) : viewDir;
   var validateApi = require(view.files.validate);
   var result = validateApi.validate(data);
-  if (!result.valid) return { html: null, errors: result.errors, warnings: result.warnings, libs: [] };
+  if (!result.valid) return { html: null, errors: result.errors, warnings: result.warnings, libs: [], engine: null };
 
   global.window = global;
   delete require.cache[require.resolve(view.files.view)];
   global.NthView = { validate: validateApi.validate };
   require(view.files.view);
   var libs = (global.NthView && global.NthView.libs) || [];
+  /* AGENTS.md §5.6: a view with engines inlines the one its data names, after view.js */
+  var field = global.NthView && global.NthView.ENGINE_FIELD, engine = null, engineSrc = null;
+  if (field) {
+    engine = data[field];
+    var engineFile = path.join(view.dir, "assets", "engine-" + engine + ".js");
+    if (typeof engine !== "string" || !/^[a-z0-9]+$/.test(engine) || !fs.existsSync(engineFile)) {
+      return { html: null, errors: [{ path: field, message: "no engine file assets/engine-" + engine + ".js in " + view.name + " (engines: " + view.engines.join(", ") + ")" }], warnings: result.warnings, libs: [], engine: null };
+    }
+    engineSrc = fs.readFileSync(engineFile, "utf8").replace(/\s+$/, "");
+  }
   var libTags = libs.filter(function (l) { return !l.lazy && l.kind !== "module"; }).map(function (l) {   /* on-demand entries get no tag (AGENTS.md §5.4) */
     if (l.kind === "style") return '  <link rel="stylesheet" href="' + l.href + '">';
     return '  <script src="' + l.src + '"></script>';
@@ -90,6 +104,9 @@ function assemble(viewDir, data, opts) {
     "  <script>",
     viewSrc,
     "  </script>",
+    engineSrc === null ? null : "  <script>",
+    engineSrc,
+    engineSrc === null ? null : "  </script>",
     "  <script>",
     "    (function () {",
     '      var data = JSON.parse(document.getElementById("nthview-data").textContent);',
@@ -102,7 +119,7 @@ function assemble(viewDir, data, opts) {
     ""
   ].filter(function (line) { return line !== null; }).join("\n");
 
-  return { html: html, errors: [], warnings: result.warnings, libs: libs };
+  return { html: html, errors: [], warnings: result.warnings, libs: libs, engine: engine };
 }
 
 module.exports = { assemble: assemble, loadView: loadView, exampleJson: exampleJson };
@@ -128,5 +145,5 @@ if (require.main === module) {
   if (!out.html) { console.error("invalid: " + out.errors.length + " error(s); HTML not written"); process.exit(1); }
   fs.mkdirSync(path.dirname(path.resolve(outPath)), { recursive: true });
   fs.writeFileSync(path.resolve(outPath), out.html);
-  console.log("wrote " + path.relative(process.cwd(), path.resolve(outPath)) + " (" + out.html.length + " bytes, " + out.libs.length + " CDN librar" + (out.libs.length === 1 ? "y" : "ies") + ")");
+  console.log("wrote " + path.relative(process.cwd(), path.resolve(outPath)) + " (" + out.html.length + " bytes, " + out.libs.length + " CDN librar" + (out.libs.length === 1 ? "y" : "ies") + (out.engine ? ", engine " + out.engine : "") + ")");
 }

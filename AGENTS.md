@@ -13,7 +13,9 @@ commit, and then update every existing view to match.
 1. Every view is a folder `skills/nthview-<view>/` containing **exactly** these
    five files, with these exact names and locations:
    `SKILL.md`, `assets/view.js`, `scripts/validate.js`,
-   `references/schema.md`, `examples/example.html`.
+   `references/schema.md`, `examples/example.html`. A view that plays the
+   same data in several ways may add engines, `assets/engine-<name>.js`,
+   beside `assets/view.js`, which is then its shared core (§5.6).
 2. The SKILL.md frontmatter `name` is identical to the folder name.
 3. One global object, `NthView`, with exactly two public functions:
    `NthView.validate(data)` and `NthView.build(container, data)`.
@@ -29,6 +31,7 @@ commit, and then update every existing view to match.
 7. Every data object carries an integer `schemaVersion`.
 8. The deliverable is **one** standalone HTML file built with the exact
    template in §6. Scripts are inlined in the order validate.js, view.js,
+   the one engine the data names (views with engines only, §5.6),
    bootstrap.
 9. **One view at a time.** Build only the view the user chose.
 10. Every skill registers in the root gallery by running
@@ -106,7 +109,8 @@ NthView/
 │   ├── nthview-<view>/            # one folder per view (see §3)
 │   │   ├── SKILL.md
 │   │   ├── assets/
-│   │   │   └── view.js
+│   │   │   ├── view.js
+│   │   │   └── engine-<name>.js   # only in a view with engines (§5.6)
 │   │   ├── scripts/
 │   │   │   └── validate.js
 │   │   ├── references/
@@ -157,6 +161,9 @@ Only these, and nothing else:
   linked from `SKILL.md`.
 - Extra samples in `examples/` named `example-<topic>.html`, each built with
   the §6 template.
+- `assets/engine-<name>.js`, one per engine, in a view whose data can be
+  played in several ways that share one schema and one core (§5.6). `<name>`
+  is one lowercase word.
 - `references/complete-example.md`, which every view has: the schema's
   complete example (§5.1), kept out of `schema.md` so an agent reads the
   type definitions without the long example. Linked from `SKILL.md`.
@@ -165,6 +172,7 @@ Only these, and nothing else:
 
 - Renaming, moving or splitting any of the five required files
   (no `render.js`, no `schema.json`, no `validator.js`, no `index.html`).
+  Engines (§5.6) are the one permitted split of `assets/view.js`.
 - Any other folder inside the view (`src/`, `lib/`, `css/`, `tests/`,
   `templates/`, `dist/`).
 - Any file that is not `.md`, `.js` or `.html`. No images, fonts, JSON
@@ -741,12 +749,76 @@ Rules:
    view shares, so a lesson or the gallery can tell a finished chapter from a
    started one without knowing the view.
 
+### 5.6 Engines: one data format, several ways to play
+
+A view may play the same data in several ways, for example a walk, a run and
+a sneak through three different 3D worlds, that share the schema, the
+validator, the cards, the activities and the progress rules. It then keeps
+one shared **core** in `assets/view.js` and one **engine** per way of
+playing in `assets/engine-<name>.js`. An output file inlines only the engine
+its data names, so it never carries the code of the games it does not play.
+
+Rules:
+
+1. **The data names its engine** in a required root string field. `view.js`
+   declares the field's name once, directly after `NthView.build`:
+   `NthView.ENGINE_FIELD = "<field>";`. The schema documents the field like
+   any other, and the validator accepts exactly the names of the engine
+   files that exist. The schema states which engine is the default, the one
+   an agent picks when the user names none.
+2. **The core** is the §5.3 skeleton, complete: `build`, the library check,
+   the error panel, style injection, §5.5 storage and Restart all stay in
+   `view.js`. It renders everything the engines share (cards, activities,
+   HUD frame, pause menu, report) and hands the engine one context object;
+   it names no particular engine's world.
+3. **An engine** is one IIFE that only registers itself:
+
+   ```js
+   /* NthView — <view> engine <name> — schemaVersion 1 */
+   (function (root) {
+     "use strict";
+     var NthView = root.NthView = root.NthView || {};
+     NthView.engines = NthView.engines || {};
+     NthView.engines.<name> = function (G) {
+       // builds the world from the context G and returns the engine object
+     };
+   })(typeof globalThis !== "undefined" ? globalThis : window);
+   ```
+
+   It reads the data only through the context, never replaces
+   `NthView.build` or `NthView.validate`, and declares no libraries: every
+   library sits in the core's `NthView.libs`, so the §5.4 check runs once.
+   The contract between core and engines is written at the top of
+   `view.js`; it is internal to the view and may change with it.
+4. **Engine CSS** is a string in the engine that the core injects once, in
+   a style element with id `nthview-style-<name>`. Every class is still
+   prefixed `nthview-`, scoped under `.nthview`, and coloured through
+   `--nv-*` or view-specific custom properties.
+5. **A missing engine never leaves a blank page.** When the named engine is
+   not loaded, `build` renders the standard error panel with one error at
+   the engine field: `"<name>" engine is not in this file. Rebuild the file
+   with scripts/build-html.js.`
+6. **Storage** (§5.5) is unchanged: the key hashes the whole data, engine
+   field included, so every engine keeps its own record of the same content
+   and a record is never read by an engine that did not write it.
+7. **Each engine is a view in its own right for testing.** It passes §5.3
+   and the §11 checklist on its own, and each has a demo built from the same
+   complete example: `examples/example.html` with the default engine and
+   `examples/example-<name>.html` with each other engine, the engine field
+   being the only difference in the data.
+8. Engines are independent of every other view folder, as views are.
+9. `scripts/build-html.js` reads `NthView.ENGINE_FIELD`, inlines
+   `assets/engine-<value>.js` after `view.js`, and fails when that file is
+   missing. `scripts/build-registry.js` applies the §5.3 URL and forbidden
+   call checks to every engine file and accepts nothing else in `assets/`.
+
 ---
 
 ## 6. The standalone HTML file: fixed template
 
 Every view's output, including `examples/example.html`, is this file with the
-four placeholders filled in. No other structure is permitted.
+four placeholders filled in, plus, in a view with engines (§5.6), the fifth.
+No other structure is permitted.
 
 ```html
 <!doctype html>
@@ -774,6 +846,10 @@ four placeholders filled in. No other structure is permitted.
   <script>
 {{full contents of assets/view.js, verbatim}}
   </script>
+{{in a view with engines only, the one engine the data names:
+  <script>
+  full contents of assets/engine-<name>.js, verbatim
+  </script>}}
   <script>
     (function () {
       var data = JSON.parse(document.getElementById("nthview-data").textContent);
@@ -792,8 +868,8 @@ Rules:
    escape, so the data is unchanged after parsing, and it neutralises both
    `</script>` and `<!--`, which would otherwise end the script block early.
    Do not use `<\/script>` or `<\!--`: the second is not valid JSON.
-3. The two scripts are copied **verbatim** and in that order. Never minify,
-   edit or link them.
+3. The two scripts, or three with an engine, are copied **verbatim** and
+   in that order. Never minify, edit or link them.
 4. The bootstrap script is exactly the three lines shown.
 5. The only `src=`, `href=` and `url(` values are the CDN entries from
    `NthView.libs`, `data:` URIs, or hyperlinks the view renders from the
@@ -1086,6 +1162,15 @@ Copy into the task; every box must be ticked.
       reloading in a browser); Restart erases it; storage disabled still plays;
       the record gets `done: true` when the learner reaches the end (§5.5 rule 8).
 
+**Engines (§5.6), only in a view with several ways to play**
+- [ ] `NthView.ENGINE_FIELD` declared; the field is in the schema and the
+      validator accepts exactly the engine files that exist.
+- [ ] Each `assets/engine-<name>.js` only registers `NthView.engines.<name>`,
+      declares no libraries and passes every view.js box above on its own.
+- [ ] A file built without its engine shows the error panel.
+- [ ] `examples/example-<name>.html` for every engine but the default, from
+      the same complete example with only the engine field changed.
+
 **example.html (§6)**
 - [ ] Byte-for-byte follows the §6 template with the schema example.
 - [ ] Opens from the filesystem with no console errors and renders correctly.
@@ -1131,12 +1216,14 @@ against the allowed CDN hosts, and must print no errors.
   (`quiz`, `concept-map`).
 - Global: `NthView`, with public `validate` and `build`. Helpers stay in the
   closure. The only other permitted properties are `SUPPORTED_VERSIONS`,
-  `libs` (§5.4) and `THEMES` (when the view has themes).
+  `libs` (§5.4), `THEMES` (when the view has themes), and in a view with
+  engines `ENGINE_FIELD` and `engines` (§5.6).
 - Storage: `localStorage` keys `nthview:<view>:<hash>` only (§5.5), plus
   `nthview:lesson:<hash>` for the one-file lesson shell; no
   cookies, no `sessionStorage`, no IndexedDB.
 - CSS: `.nthview` on the container, every other class `nthview-<element>`,
-  colours via `--nv-*` custom properties, style element id `nthview-style`.
+  colours via `--nv-*` custom properties, style element id `nthview-style`
+  (and `nthview-style-<engine>` for an engine's own styles, §5.6).
 - HTML ids: `nthview-data` for the data, `app` for the mount point.
 - JSON keys `camelCase`; ids inside data are lowercase kebab-case strings,
   except identifiers used inside expressions (variables, formulas, controls),
