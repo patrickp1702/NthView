@@ -336,11 +336,11 @@ window.NthViewRegistry = {
       "hash": "1gikmmy"
     },
     {
-      "file": "docs/tls-13-handshake-sequence.html",
+      "file": "docs/tls-13-handshake-dataflow.html",
       "title": "The TLS 1.3 handshake, message by message",
-      "view": "nthview-sequence",
-      "data": "docs/tls-13-handshake-sequence.json",
-      "hash": "1fdsz5m"
+      "view": "nthview-dataflow",
+      "data": "docs/tls-13-handshake-dataflow.json",
+      "hash": "9mveum"
     }
   ],
   "lessons": [
