@@ -14,7 +14,7 @@
     "steps": [
       "Press **Walk me there** or follow the arrow. Pick up coins on the causeways.",
       "On each island read the short lesson, then do the activity. Some are played on foot: carry orbs to bins, light beacons.",
-      "Each wrong try costs a coin; right first time earns 3 stars. Finish all seven to open the exam at the hub."
+      "A wrong try is explained and costs a star; right first time earns 3 stars. Finish all seven to open the exam at the hub."
     ],
     "note": "Based on the jiwoochris/artex-global README (system architecture) and its defense guide. Concepts only: no code internals and no attack techniques. ARTEX may only be used against systems you own or are authorized to test."
   },

@@ -14,7 +14,7 @@
     "steps": [
       "Press **Walk me there** or follow the arrow. Pick up coins on the causeways.",
       "Read the short lesson, then do the activity. Some islands are played on foot: carry orbs to bins, or walk up to the right part.",
-      "Each wrong try costs a coin. Getting it right first time earns 3 stars. Finish all seven to open the exam at the hub."
+      "A wrong try is explained and costs a star, never the game. Getting it right first time earns 3 stars. Finish all seven to open the exam at the hub."
     ],
     "note": "Facts checked against cucumber.io documentation and the Cucumber project's own announcements, October 2026. Examples use Java with Cucumber-JVM."
   },

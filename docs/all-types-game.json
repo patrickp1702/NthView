@@ -14,7 +14,7 @@
     "steps": [
       "Press **Walk me there** at the bottom of the screen, or walk yourself with WASD or the arrow keys. Grab the coins on the causeways.",
       "Every island has a different challenge: sort things, light beacons, step on pads in order, guess a number, match pairs and more.",
-      "Each wrong try costs a coin. Getting it right first time earns 3 stars. Finish every island to unlock the final exam in the middle."
+      "A wrong try is explained and costs a star, never the game. Getting it right first time earns 3 stars. Finish every island to unlock the final exam in the middle."
     ],
     "note": "Numbers are typical, rounded values meant for beginners, not precise measurements."
   },
